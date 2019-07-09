@@ -10,10 +10,50 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_09_143512) do
+ActiveRecord::Schema.define(version: 2019_07_09_153630) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "battle_players", force: :cascade do |t|
+    t.bigint "battle_id"
+    t.bigint "player_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["battle_id"], name: "index_battle_players_on_battle_id"
+    t.index ["player_id"], name: "index_battle_players_on_player_id"
+  end
+
+  create_table "battles", force: :cascade do |t|
+    t.bigint "room_id"
+    t.string "challenge_id"
+    t.boolean "elimnation_round"
+    t.integer "spots_available"
+    t.datetime "start_time"
+    t.bigint "winner_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["room_id"], name: "index_battles_on_room_id"
+    t.index ["winner_id"], name: "index_battles_on_winner_id"
+  end
+
+  create_table "room_users", force: :cascade do |t|
+    t.bigint "room_id"
+    t.bigint "user_id"
+    t.boolean "player"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["room_id"], name: "index_room_users_on_room_id"
+    t.index ["user_id"], name: "index_room_users_on_user_id"
+  end
+
+  create_table "rooms", force: :cascade do |t|
+    t.string "name"
+    t.bigint "master_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["master_id"], name: "index_rooms_on_master_id"
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -27,4 +67,11 @@ ActiveRecord::Schema.define(version: 2019_07_09_143512) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "battle_players", "battles"
+  add_foreign_key "battle_players", "users", column: "player_id"
+  add_foreign_key "battles", "rooms"
+  add_foreign_key "battles", "users", column: "winner_id"
+  add_foreign_key "room_users", "rooms"
+  add_foreign_key "room_users", "users"
+  add_foreign_key "rooms", "users", column: "master_id"
 end
