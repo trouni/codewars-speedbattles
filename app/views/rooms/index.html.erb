@@ -1,6 +1,6 @@
 <ol>
   <% Room.all.each do |room| %>
-    <li><%= room.name %>
+    <li><%= room.name %> (<%= room.id %>)
       <h3>Users</h3>
       <ul>
         <% room.users.each do |user| %>
