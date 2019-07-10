@@ -27,10 +27,15 @@ ActiveRecord::Schema.define(version: 2019_07_10_043750) do
   create_table "battles", force: :cascade do |t|
     t.bigint "room_id"
     t.string "challenge_id"
+    t.string "challenge_url"
+    t.string "challenge_name"
+    t.string "challenge_language"
+    t.integer "challenge_rank"
+    t.text "challenge_description"
     t.boolean "sudden_death"
-    t.integer "spots_available"
+    t.integer "max_survivors"
     t.integer "time_limit"
-    t.boolean "archived"
+    t.boolean "archived", default: false
     t.datetime "start_time"
     t.bigint "winner_id"
     t.datetime "created_at", null: false
@@ -63,10 +68,10 @@ ActiveRecord::Schema.define(version: 2019_07_10_043750) do
 
   create_table "rooms", force: :cascade do |t|
     t.string "name"
-    t.bigint "master_id"
+    t.bigint "moderator_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["master_id"], name: "index_rooms_on_master_id"
+    t.index ["moderator_id"], name: "index_rooms_on_moderator_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -98,5 +103,5 @@ ActiveRecord::Schema.define(version: 2019_07_10_043750) do
   add_foreign_key "completed_challenges", "users"
   add_foreign_key "room_users", "rooms"
   add_foreign_key "room_users", "users"
-  add_foreign_key "rooms", "users", column: "master_id"
+  add_foreign_key "rooms", "users", column: "moderator_id"
 end

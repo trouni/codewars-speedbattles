@@ -1,0 +1,6 @@
+<%= simple_form_for [@room, Battle.new] do |f| %>
+  <%= simple_fields_for :other do |o| %>
+    <%= o.input :challenge_url, as: :string %>
+  <% end %>
+  <%= f.submit %>
+<% end %>

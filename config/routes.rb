@@ -1,8 +1,10 @@
 Rails.application.routes.draw do
   devise_for :users
   root to: 'rooms#index'
-  resources :rooms
-  resources :battles, only: :index
+  resources :rooms do
+    resources :battles, only: %i[index create]
+  end
+  resources :battles, only: %i[update destroy]
 
   # Sidekiq Web UI, only for admins.
   require "sidekiq/web"

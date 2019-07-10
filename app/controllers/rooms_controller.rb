@@ -4,5 +4,6 @@ class RoomsController < ApplicationController
 
   def show
     @room = Room.find(params[:id])
+    @battle = Battle.find_by(archived: false)
   end
 end

@@ -6,7 +6,7 @@
 #  room_id         :bigint
 #  challenge_id    :string
 #  sudden_death    :boolean
-#  spots_available :integer
+#  max_survivors :integer
 #  time_limit      :integer
 #  archived        :boolean
 #  start_time      :datetime

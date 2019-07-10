@@ -21,8 +21,8 @@
 .room-dashboard {
   height: 100vh;
   display: grid;
-  grid-template-columns: 20% 55% 25%;
-  grid-template-rows: 100px calc(70% - 100px) 30%;
+  grid-template-columns: 20% 40% 40%;
+  grid-template-rows: 80px calc(70% - 80px) 30%;
   grid-template-areas:
     "header header header"
     "warriors chat battle"

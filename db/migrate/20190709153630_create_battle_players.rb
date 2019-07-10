@@ -3,6 +3,8 @@ class CreateBattlePlayers < ActiveRecord::Migration[5.2]
     create_table :battle_players do |t|
       t.references :battle, foreign_key: true
       t.references :player, foreign_key: { to_table: :users }
+      t.boolean :confirmed, default: false
+      t.boolean :survived
 
       t.timestamps
     end

@@ -4,7 +4,7 @@
 #
 #  id         :bigint           not null, primary key
 #  name       :string
-#  master_id  :bigint
+#  moderator_id  :bigint
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #

@@ -25,7 +25,7 @@ end
 # ============================
 # Rooms & RoomUsers
 
-room = Room.create!(name: "Le Wagon - Tokyo 252", master: User.first)
+room = Room.create!(name: "Le Wagon - Tokyo 252", moderator: User.first)
 User.all.each do |user|
   RoomUser.create!(room: room, user: user, player: true)
 end
