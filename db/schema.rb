@@ -27,8 +27,10 @@ ActiveRecord::Schema.define(version: 2019_07_10_043750) do
   create_table "battles", force: :cascade do |t|
     t.bigint "room_id"
     t.string "challenge_id"
-    t.boolean "elimnation_round"
+    t.boolean "sudden_death"
     t.integer "spots_available"
+    t.integer "time_limit"
+    t.boolean "archived"
     t.datetime "start_time"
     t.bigint "winner_id"
     t.datetime "created_at", null: false
@@ -69,13 +71,13 @@ ActiveRecord::Schema.define(version: 2019_07_10_043750) do
 
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
+    t.string "username", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "username"
     t.string "name"
     t.boolean "admin", default: false
     t.integer "codewars_honor"
@@ -86,6 +88,7 @@ ActiveRecord::Schema.define(version: 2019_07_10_043750) do
     t.datetime "last_fetched_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["username"], name: "index_users_on_username", unique: true
   end
 
   add_foreign_key "battle_players", "battles"

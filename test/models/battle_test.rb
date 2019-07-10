@@ -2,15 +2,17 @@
 #
 # Table name: battles
 #
-#  id               :bigint           not null, primary key
-#  room_id          :bigint
-#  challenge_id     :string
-#  elimnation_round :boolean
-#  spots_available  :integer
-#  start_time       :datetime
-#  winner_id        :bigint
-#  created_at       :datetime         not null
-#  updated_at       :datetime         not null
+#  id              :bigint           not null, primary key
+#  room_id         :bigint
+#  challenge_id    :string
+#  sudden_death    :boolean
+#  spots_available :integer
+#  time_limit      :integer
+#  archived        :boolean
+#  start_time      :datetime
+#  winner_id       :bigint
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
 #
 
 require 'test_helper'

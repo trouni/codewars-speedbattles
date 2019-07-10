@@ -4,13 +4,13 @@
 #
 #  id                            :bigint           not null, primary key
 #  email                         :string           default(""), not null
+#  username                      :string           default(""), not null
 #  encrypted_password            :string           default(""), not null
 #  reset_password_token          :string
 #  reset_password_sent_at        :datetime
 #  remember_created_at           :datetime
 #  created_at                    :datetime         not null
 #  updated_at                    :datetime         not null
-#  username                      :string
 #  name                          :string
 #  admin                         :boolean          default(FALSE)
 #  codewars_honor                :integer
@@ -33,11 +33,11 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  after_create :async_fetch_cw_info
+  after_create :async_fetch_codewars_info
 
   private
 
-  def async_fetch_cw_info
+  def async_fetch_codewars_info
     FetchUserInfoJob.perform_later(self)
     FetchCompletedChallengesJob.perform_later(self)
   end
