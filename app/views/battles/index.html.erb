@@ -1,0 +1,11 @@
+<ol>
+  <% Battle.all.each do |battle| %>
+    <li><%= battle.room %>
+      <ul>
+        <% battle.players.each do |player| %>
+        <li><%= player.email %></li>
+        <% end %>
+      </ul>
+    </li>
+  <% end %>
+</ol>
