@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_09_153630) do
+ActiveRecord::Schema.define(version: 2019_07_10_043750) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -35,6 +35,18 @@ ActiveRecord::Schema.define(version: 2019_07_09_153630) do
     t.datetime "updated_at", null: false
     t.index ["room_id"], name: "index_battles_on_room_id"
     t.index ["winner_id"], name: "index_battles_on_winner_id"
+  end
+
+  create_table "completed_challenges", force: :cascade do |t|
+    t.bigint "user_id"
+    t.string "challenge_id"
+    t.string "challenge_name"
+    t.string "challenge_slug"
+    t.datetime "completed_at"
+    t.string "completed_languages"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_completed_challenges_on_user_id"
   end
 
   create_table "room_users", force: :cascade do |t|
@@ -63,6 +75,14 @@ ActiveRecord::Schema.define(version: 2019_07_09_153630) do
     t.datetime "remember_created_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "username"
+    t.string "name"
+    t.integer "codewars_honor"
+    t.string "codewars_clan"
+    t.integer "codewars_leaderboard_position"
+    t.integer "codewars_overall_rank"
+    t.integer "codewars_overall_score"
+    t.datetime "last_fetched_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -71,6 +91,7 @@ ActiveRecord::Schema.define(version: 2019_07_09_153630) do
   add_foreign_key "battle_players", "users", column: "player_id"
   add_foreign_key "battles", "rooms"
   add_foreign_key "battles", "users", column: "winner_id"
+  add_foreign_key "completed_challenges", "users"
   add_foreign_key "room_users", "rooms"
   add_foreign_key "room_users", "users"
   add_foreign_key "rooms", "users", column: "master_id"
