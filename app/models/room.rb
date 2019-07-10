@@ -2,11 +2,11 @@
 #
 # Table name: rooms
 #
-#  id         :bigint           not null, primary key
-#  name       :string
-#  moderator_id  :bigint
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id           :bigint           not null, primary key
+#  name         :string
+#  moderator_id :bigint
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
 #
 
 class Room < ApplicationRecord

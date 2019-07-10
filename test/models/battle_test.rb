@@ -2,17 +2,22 @@
 #
 # Table name: battles
 #
-#  id              :bigint           not null, primary key
-#  room_id         :bigint
-#  challenge_id    :string
-#  sudden_death    :boolean
-#  max_survivors :integer
-#  time_limit      :integer
-#  archived        :boolean
-#  start_time      :datetime
-#  winner_id       :bigint
-#  created_at      :datetime         not null
-#  updated_at      :datetime         not null
+#  id                    :bigint           not null, primary key
+#  room_id               :bigint
+#  challenge_id          :string
+#  challenge_url         :string
+#  challenge_name        :string
+#  challenge_language    :string
+#  challenge_rank        :integer
+#  challenge_description :text
+#  sudden_death          :boolean
+#  max_survivors         :integer
+#  time_limit            :integer
+#  archived              :boolean          default(FALSE)
+#  start_time            :datetime
+#  winner_id             :bigint
+#  created_at            :datetime         not null
+#  updated_at            :datetime         not null
 #
 
 require 'test_helper'
