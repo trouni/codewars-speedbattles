@@ -1,4 +1,4 @@
-CODEWARS_USERNAMES = %w[Uraza glebec Leig TinoC Iwoo1999 jnicol MiraliN EnigmaWasp asltyn brubru777 NyxTo xSmallDeadGuyx gabrielsiedler mlabrum richardhsu]
+CODEWARS_USERNAMES = %w[Uraza glebec Leig TinoC lwoo1999] # jnicol MiraliN EnigmaWasp asltyn brubru777 NyxTo xSmallDeadGuyx gabrielsiedler mlabrum richardhsu]
 
 Battle.destroy_all
 Room.destroy_all
@@ -10,7 +10,8 @@ User.destroy_all
 User.create!(
   email: "trouni@me.com",
   username: "trouni",
-  password: "secret"
+  password: "secret",
+  admin: true
 )
 
 CODEWARS_USERNAMES.each do |username|

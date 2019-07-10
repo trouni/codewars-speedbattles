@@ -21,10 +21,10 @@
 .room-dashboard {
   height: 100vh;
   display: grid;
-  grid-template-columns: 25% 25% 25% 25%;
+  grid-template-columns: 20% 55% 25%;
   grid-template-rows: 100px calc(70% - 100px) 30%;
   grid-template-areas:
-    "header header header header"
-    "warriors chat chat battle"
-    "warriors scoreboard scoreboard battle"
+    "header header header"
+    "warriors chat battle"
+    "warriors scoreboard battle"
 }

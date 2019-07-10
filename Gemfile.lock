@@ -63,6 +63,7 @@ GEM
     byebug (11.0.1)
     coderay (1.1.2)
     concurrent-ruby (1.1.5)
+    connection_pool (2.2.2)
     crass (1.0.4)
     debug_inspector (0.0.3)
     devise (4.6.2)
@@ -122,6 +123,8 @@ GEM
     puma (4.0.0)
       nio4r (~> 2.0)
     rack (2.0.7)
+    rack-protection (2.0.5)
+      rack
     rack-proxy (0.6.5)
       rack
     rack-test (1.1.0)
@@ -176,6 +179,13 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
+    sidekiq (5.2.7)
+      connection_pool (~> 2.2, >= 2.2.2)
+      rack (>= 1.5.0)
+      rack-protection (>= 1.5.0)
+      redis (>= 3.3.5, < 5)
+    sidekiq-failures (1.0.0)
+      sidekiq (>= 4.0.0)
     simple_form (4.1.0)
       actionpack (>= 5.0)
       activemodel (>= 5.0)
@@ -235,6 +245,8 @@ DEPENDENCIES
   redis
   rubocop
   sassc-rails
+  sidekiq
+  sidekiq-failures (~> 1.0)
   simple_form
   spring
   spring-watcher-listen (~> 2.0.0)

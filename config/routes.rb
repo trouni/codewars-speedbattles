@@ -1,14 +1,12 @@
 Rails.application.routes.draw do
-  get 'users/index'
-  get 'users/show'
-  get 'users/edit'
-  get 'users/update'
-  get 'users/destroy'
-  get 'rooms/index'
-  get 'rooms/show'
-  get 'battles/show'
   devise_for :users
-  root to: 'pages#home'
+  root to: 'rooms#index'
   resources :rooms
   resources :battles, only: :index
+
+  # Sidekiq Web UI, only for admins.
+  require "sidekiq/web"
+  authenticate :user, lambda { |u| u.admin } do
+    mount Sidekiq::Web => '/sidekiq'
+  end
 end

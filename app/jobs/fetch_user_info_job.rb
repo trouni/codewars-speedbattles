@@ -6,6 +6,7 @@ class FetchUserInfoJob < ApplicationJob
 
   def perform(user)
     url = "https://www.codewars.com/api/v1/users/#{user.username}"
+    puts "Fetching data from #{url}"
     json = JSON.parse(open(url).read)
     user.update(
       codewars_honor: json["honor"],

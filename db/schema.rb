@@ -77,6 +77,7 @@ ActiveRecord::Schema.define(version: 2019_07_10_043750) do
     t.datetime "updated_at", null: false
     t.string "username"
     t.string "name"
+    t.boolean "admin", default: false
     t.integer "codewars_honor"
     t.string "codewars_clan"
     t.integer "codewars_leaderboard_position"

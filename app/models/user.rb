@@ -10,9 +10,11 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  after_create :fetch_codewars_info
+  after_create :async_fetch_cw_info
 
-  def fetch_codewars_info
+  private
+
+  def async_fetch_cw_info
     FetchUserInfoJob.perform_later(self)
     FetchCompletedChallengesJob.perform_later(self)
   end
