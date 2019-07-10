@@ -4,7 +4,10 @@ Rails.application.routes.draw do
   resources :rooms do
     resources :battles, only: %i[index create]
   end
-  resources :battles, only: %i[update destroy]
+  resources :battles, only: %i[update destroy] do
+    resources :battle_players, only: %i[create]
+  end
+  resources :battle_players, only: %i[update destroy]
 
   # Sidekiq Web UI, only for admins.
   require "sidekiq/web"
