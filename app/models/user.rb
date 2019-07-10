@@ -38,7 +38,7 @@ class User < ApplicationRecord
   private
 
   def async_fetch_codewars_info
-    FetchUserInfoJob.perform_later(self)
-    FetchCompletedChallengesJob.perform_later(self)
+    FetchUserInfoJob.perform_later(self.id)
+    FetchCompletedChallengesJob.perform_later(self.id)
   end
 end

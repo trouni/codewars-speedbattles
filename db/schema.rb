@@ -18,6 +18,8 @@ ActiveRecord::Schema.define(version: 2019_07_10_043750) do
   create_table "battle_players", force: :cascade do |t|
     t.bigint "battle_id"
     t.bigint "player_id"
+    t.boolean "confirmed", default: false
+    t.boolean "survived"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["battle_id"], name: "index_battle_players_on_battle_id"

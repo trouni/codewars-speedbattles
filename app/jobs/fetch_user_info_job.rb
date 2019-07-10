@@ -4,7 +4,8 @@ require 'open-uri'
 class FetchUserInfoJob < ApplicationJob
   queue_as :default
 
-  def perform(user)
+  def perform(user_id)
+    user = User.find(user_id)
     url = "https://www.codewars.com/api/v1/users/#{user.username}"
     puts "Fetching data from #{url}"
     json = JSON.parse(open(url).read)

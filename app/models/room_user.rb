@@ -18,6 +18,6 @@ class RoomUser < ApplicationRecord
   private
 
   def async_fetch_codewars_info
-    FetchCompletedChallengesJob.perform_later(self.user)
+    FetchCompletedChallengesJob.perform_later(self.user.id)
   end
 end
