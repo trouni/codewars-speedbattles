@@ -2,6 +2,10 @@ require 'open-uri'
 require 'json'
 
 module CodewarsHelper
+  def check_battle_status(battle, since = DateTime.new(1990))
+    CompletedChallenge.where("completed_at > ? AND challenge_id = ? AND user_id IN (?)", since, battle.challenge_id, battle.players.map(&:id))
+  end
+
   def fetch_page(user, page = 0)
     json = fetch_url("https://www.codewars.com/api/v1/users/#{user.username}/code-challenges/completed?page=#{page}")
     if json["totalItems"] == user.completed_challenges.count
@@ -36,7 +40,7 @@ module CodewarsHelper
     json = fetch_url("https://www.codewars.com/api/v1/code-challenges/#{args[:challenge_id_or_slug]}")
     return {
       challenge_id: json["id"],
-      challenge_url: "#{json["url"]}",
+      challenge_url: json["url"],
       challenge_name: json["name"],
       challenge_language: args[:language],
       challenge_rank: json["rank"]["id"],

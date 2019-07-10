@@ -1,6 +1,6 @@
-
 class BattlesController < ApplicationController
   include CodewarsHelper
+  before_action :set_battle, only: %i[update destroy]
 
   def show
   end
@@ -15,14 +15,22 @@ class BattlesController < ApplicationController
   end
 
   def update
-    @battle = Battle.find(params[:id])
     @battle.update(battle_params)
+    redirect_to room_path(@battle.room)
+  end
+
+  def destroy
+    @battle.destroy
     redirect_to room_path(@battle.room)
   end
 
   private
 
+  def set_battle
+    @battle = Battle.find(params[:id])
+  end
+
   def battle_params
-    params.require(:battle).permit(:sudden_death, :max_survivors, :time_limit)
+    params.require(:battle).permit(:sudden_death, :max_survivors, :time_limit, :start_time)
   end
 end

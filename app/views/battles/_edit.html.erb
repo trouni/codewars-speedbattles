@@ -5,6 +5,13 @@
   <%= f.submit %>
 <% end %>
 
+<%= link_to "Cancel Battle", battle_path(@battle), method: :delete %>
+
+<%= simple_form_for @battle do |f| %>
+  <%= f.input :start_time, input_html: { value: DateTime.now }, as: :hidden %>
+  <%= f.submit 'Start Battle' %>
+<% end %>
+
 
 <ul>
   <% @battle.attributes.each do |attr| %>
