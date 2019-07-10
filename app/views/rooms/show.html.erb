@@ -1,2 +1,22 @@
-<h1>Rooms#show</h1>
-<p>Find me in app/views/rooms/show.html.erb</p>
+<div class="room-dashboard">
+  <div class="grid-item grid-header">
+    <h2 class="text-center">Header</h2>
+  </div>
+  <div class="grid-item grid-warriors">
+    <h2 class="text-center">Warriors</h2>
+    <ul>
+      <% @room.users.each do |user| %>
+      <li><%= user.email %></li>
+      <% end %>
+    </ul>
+  </div>
+  <div class="grid-item grid-chat">
+    <h2 class="text-center">Chat</h2>
+  </div>
+  <div class="grid-item grid-scoreboard">
+    <h2 class="text-center">Scoreboard</h2>
+  </div>
+  <div class="grid-item grid-battle">
+    <h2 class="text-center">Battle</h2>
+  </div>
+</div>

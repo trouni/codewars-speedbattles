@@ -1,2 +1,24 @@
-<h1>Rooms#index</h1>
-<p>Find me in app/views/rooms/index.html.erb</p>
+<ol>
+  <% Room.all.each do |room| %>
+    <li><%= room.name %>
+      <h3>Users</h3>
+      <ul>
+        <% room.users.each do |user| %>
+        <li><%= user.email %></li>
+        <% end %>
+      </ul>
+      <h3>Battles</h3>
+      <ol>
+        <% room.battles.each do |battle| %>
+        <li>
+          <ul>
+            <% battle.attributes.each do |attr| %>
+              <li><%= "#{attr[0]}: #{attr[1]}" %></li>
+            <% end %>
+          </ul>
+        </li>
+        <% end %>
+      </ol>
+    </li>
+  <% end %>
+</ol>

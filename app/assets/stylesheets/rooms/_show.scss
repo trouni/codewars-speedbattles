@@ -1,0 +1,30 @@
+.grid-item {
+  border: 1px solid red;
+}
+
+.grid-header {
+  grid-area: header;
+}
+.grid-warriors {
+  grid-area: warriors;
+}
+.grid-chat {
+  grid-area: chat;
+}
+.grid-scoreboard {
+  grid-area: scoreboard;
+}
+.grid-battle {
+  grid-area: battle;
+}
+
+.room-dashboard {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 25% 25% 25% 25%;
+  grid-template-rows: 100px calc(70% - 100px) 30%;
+  grid-template-areas:
+    "header header header header"
+    "warriors chat chat battle"
+    "warriors scoreboard scoreboard battle"
+}
