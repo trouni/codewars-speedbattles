@@ -1,22 +1,37 @@
-<%= simple_form_for @battle do |f| %>
-  <%= f.input :sudden_death %>
-  <%= f.input :max_survivors %>
-  <%= f.input :time_limit %>
-  <%= f.submit %>
-<% end %>
-
-<%= link_to "Cancel Battle", battle_path(@battle), method: :delete %>
-
-<%= simple_form_for @battle do |f| %>
-  <%= f.input :start_time, input_html: { value: DateTime.now }, as: :hidden %>
-  <%= f.submit 'Start Battle' %>
-<% end %>
-
-
-<ul>
-  <% @battle.attributes.each do |attr| %>
-    <li><%= "#{attr[0]}: #{attr[1]}" %></li>
+<% if @battle.start_time.nil? %>
+  <%= simple_form_for @battle do |f| %>
+    <%= f.input :sudden_death %>
+    <%= f.input :max_survivors %>
+    <%= f.input :time_limit %>
+    <%= f.submit %>
   <% end %>
-</ul>
 
+  <% if users_who_completed_challenge(@battle).any? %>
+    <p>Users who already completed this challenge: <%= users_who_completed_challenge(@battle).map { |el| el.user.username }.uniq.join(", ") %></p>
+  <% end %>
+  <%= link_to "Cancel Battle", battle_path(@battle), method: :delete %>
+  <%= simple_form_for @battle do |f| %>
+    <%= f.input :start_time, input_html: { value: DateTime.now }, as: :hidden %>
+    <%= f.submit 'Start Battle' %>
+  <% end %>
+<% else %>
+  <%= simple_form_for @battle do |f| %>
+    <%= f.input :end_time, input_html: { value: DateTime.now }, as: :hidden %>
+    <%= f.submit 'End Battle' %>
+  <% end %>
 
+  <%= simple_form_for :refresh_user, method: :post, url: room_refresh_user_path(@battle.room) do |f| %>
+    <%= f.input :user_id, input_html: { value: current_user.id } %>
+    <%= f.submit 'Completed Challenge!' %>
+  <% end %>
+
+  <ol>
+    <% users_who_completed_challenge(@battle, @battle.start_time).order(:completed_at).each do |el| %>
+      <% time_to_complete = el.completed_at - @battle.start_time %>
+      <li><%= el.user.username %> (completed in <%= time_diff(el.completed_at, @battle.start_time) %>)</li>
+    <% end %>
+  </ol>
+<% end %>
+
+<h3><%= "#{@battle.challenge_name}" %></h3>
+<p><%= @battle.challenge_language %></p>

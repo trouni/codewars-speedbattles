@@ -1,5 +1,6 @@
 class BattlesController < ApplicationController
   include CodewarsHelper
+  include BattleHelper
   before_action :set_battle, only: %i[update destroy]
 
   def show
@@ -31,6 +32,6 @@ class BattlesController < ApplicationController
   end
 
   def battle_params
-    params.require(:battle).permit(:sudden_death, :max_survivors, :time_limit, :start_time)
+    params.require(:battle).permit(:sudden_death, :max_survivors, :time_limit, :start_time, :end_time)
   end
 end

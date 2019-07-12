@@ -11,7 +11,7 @@ class CreateBattles < ActiveRecord::Migration[5.2]
       t.boolean :sudden_death
       t.integer :max_survivors
       t.integer :time_limit
-      t.boolean :archived, default: false
+      t.datetime :end_time
       t.datetime :start_time
       t.references :winner, foreign_key: { to_table: :users }
 

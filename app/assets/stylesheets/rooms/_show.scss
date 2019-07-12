@@ -1,7 +1,6 @@
 .grid-item {
-  border: 1px solid red;
+  align-items: middle;
 }
-
 .grid-header {
   grid-area: header;
 }
@@ -11,6 +10,9 @@
 .grid-chat {
   grid-area: chat;
 }
+.grid-challenge {
+  grid-area: challenge;
+}
 .grid-scoreboard {
   grid-area: scoreboard;
 }
@@ -19,12 +21,36 @@
 }
 
 .room-dashboard {
+  background: radial-gradient(ellipse farthest-corner at top left, #086788CC 10%, #1B435440), linear-gradient(#00000088, #00000033), asset-url('bg_codewars_3.jpg');
+  background-size: cover;
   height: 100vh;
   display: grid;
-  grid-template-columns: 20% 40% 40%;
-  grid-template-rows: 80px calc(70% - 80px) 30%;
+  grid-template-columns: 18% 41% 41%;
+  grid-template-rows: 80px calc(55% - 80px) 45%;
   grid-template-areas:
     "header header header"
-    "warriors chat battle"
-    "warriors scoreboard battle"
+    "warriors battle challenge"
+    "warriors chat scoreboard"
+}
+
+.widget {
+  padding: 1em;
+  align-content: flex-center;
+  background: linear-gradient(154.9deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.3) 86.37%);
+  color: $secondary;
+  border-radius: 5px;
+  height: 100%;
+  box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 0.4);
+  transition: background 1s ease-out;
+  .widget-header h5 {
+    opacity: 0.7;
+    letter-spacing: 1px;
+  }
+  h5 {
+    text-transform: uppercase;
+    font-size: 1em;
+  }
+  &:hover {
+    box-shadow: 0px 0px 10px 0px $teal25;
+  }
 }

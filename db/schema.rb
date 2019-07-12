@@ -37,7 +37,7 @@ ActiveRecord::Schema.define(version: 2019_07_10_043750) do
     t.boolean "sudden_death"
     t.integer "max_survivors"
     t.integer "time_limit"
-    t.boolean "archived", default: false
+    t.datetime "end_time"
     t.datetime "start_time"
     t.bigint "winner_id"
     t.datetime "created_at", null: false

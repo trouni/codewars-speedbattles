@@ -35,6 +35,25 @@ class User < ApplicationRecord
 
   after_create :async_fetch_codewars_info
 
+  def survived_battle?(battle)
+    return nil if battle.players.exclude?(self)
+
+    CompletedChallenge.where(
+      "completed_at < ? AND challenge_id = ? AND user_id = ?",
+      battle.end_time,
+      battle.challenge_id,
+      id
+    ).any?
+  end
+
+  def eligible_for_battle?(battle)
+    CompletedChallenge.where(
+      "challenge_id = ? AND user_id = ?",
+      battle.challenge_id,
+      id
+    ).count.zero?
+  end
+
   private
 
   def async_fetch_codewars_info

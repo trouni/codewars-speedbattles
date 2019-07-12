@@ -1,0 +1,99 @@
+* {
+  padding: 0;
+  margin: 0;
+  transition: opacity 0.3s, box-shadow 0.3s, text-shadow 0.3s, transform 0.3s;
+  letter-spacing: 1px;
+}
+
+body {
+  color: $secondary;
+  background: black radial-gradient(ellipse farthest-corner at top left, $prussianblue50 10%, $darkblue25);
+}
+
+a, a:hover {
+  text-decoration: none;
+}
+
+h1, h2, h3, p {
+  color: $secondary;
+}
+
+h4, h5, h6 {
+  color: white;
+}
+
+
+.hidden {
+  display: none;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.transparent {
+  opacity: 0;
+}
+
+.bg-darkblue50 {
+  background-color: $darkblue50;
+}
+
+.bg-darkblue75 {
+  background-color: $darkblue75;
+}
+
+.bg-darkblue {
+  background-color: $darkblue;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.absolute-centering {
+  width: 50%;
+  height: 50%;
+  overflow: auto;
+  margin: auto;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.highlight-white {
+  font-weight: 300;
+  color: white;
+  text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+}
+.highlight {
+  font-weight: 300;
+  color: $highlight;
+  text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+}
+
+.highlight-on-hover:hover {
+  // color: $highlight;
+  text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+}
+
+.box-highlight {
+  border-color: $highlight;
+  box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+}
+
+.box-highlight-white {
+  border-color: $white;
+  box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+}
+
+.box-highlight-white-hover:hover {
+  border-color: $white;
+  box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+}
+
+.scale-on-hover:hover {
+  transform: scale(1.1);
+}
