@@ -1,6 +1,6 @@
 json.extract! @room, :id, :name, :moderator_id
 
-json.status @room.status
+json.status @room.battle_status
 
 if @battle
   json.active_battle_id @battle.id

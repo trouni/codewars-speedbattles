@@ -11,6 +11,7 @@ gem 'redis'
 gem 'sidekiq'
 gem 'sidekiq-failures', '~> 1.0'
 gem 'pundit'
+gem 'simple_token_authentication'
 
 gem 'autoprefixer-rails'
 gem 'font-awesome-sass', '~> 5.6.1'

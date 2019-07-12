@@ -38,7 +38,7 @@ class Room < ApplicationRecord
     active_battle.present? && !at_war?
   end
 
-  def status
+  def battle_status
     if at_peace?
       "at_peace"
     elsif brink_of_war?

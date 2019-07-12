@@ -8,7 +8,6 @@ class CreateBattles < ActiveRecord::Migration[5.2]
       t.string :challenge_language
       t.integer :challenge_rank
       t.text :challenge_description
-      t.boolean :sudden_death
       t.integer :max_survivors
       t.integer :time_limit
       t.datetime :end_time
