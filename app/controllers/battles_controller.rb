@@ -11,8 +11,12 @@ class BattlesController < ApplicationController
     parsed_url = parse_kata_url(params[:other][:challenge_url])
     @battle = Battle.new(fetch_kata_info(parsed_url))
     @battle.room = @room
-    @battle.save
-    redirect_to room_path(@room)
+    authorize @battle
+    if @battle.save
+      redirect_to room_path(@room)
+    else
+      render 'rooms/show'
+    end
   end
 
   def update
@@ -25,10 +29,14 @@ class BattlesController < ApplicationController
     redirect_to room_path(@battle.room)
   end
 
+  def fetch_challenge
+  end
+
   private
 
   def set_battle
     @battle = Battle.find(params[:id])
+    authorize @battle
   end
 
   def battle_params
