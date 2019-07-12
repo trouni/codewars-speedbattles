@@ -1,9 +1,13 @@
-json.extract! @room, :id, :name, :moderator_id
+json.extract! @room, :id, :name
+json.moderator @room.moderator, partial: 'api/v1/users/user', as: :user
 
 json.status @room.battle_status
 
-if @battle
-  json.active_battle_id @battle.id
+if @room.active_battle?
+  json.active_battle_id @room.active_battle.id
 end
 
-json.finished_battles @room.finished_battles.map(&:id)
+json.users @room.users, partial: 'api/v1/users/user', as: :user
+
+json.finished_battles @room.finished_battles, :id, :end_time, :winner_id, :challenge_name, :challenge_rank
+

@@ -1,8 +1,10 @@
 Rails.application.routes.draw do
-  devise_for :users
   root to: 'rooms#index'
+  devise_for :users
+  resources :users do
+    post '/fetch_data', to: 'users#fetch_data'
+  end
   resources :rooms do
-    post '/refresh_user', to: 'rooms#refresh_user'
     resources :battles, only: %i[index create]
     resources :room_users, only: :create
   end
@@ -21,7 +23,7 @@ Rails.application.routes.draw do
   # API Routes
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      resources :rooms, only: [ :index, :show ]
+      resources :rooms, only: [ :index, :show, :create, :update ]
       resources :battles, only: :show
     end
   end

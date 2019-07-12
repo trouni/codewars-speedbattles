@@ -20,7 +20,7 @@
     <%= f.submit 'End Battle' %>
   <% end %>
 
-  <%= simple_form_for :refresh_user, method: :post, url: room_refresh_user_path(@battle.room) do |f| %>
+  <%= simple_form_for :fetch_data, method: :post, url: user_fetch_data_path(@battle.room) do |f| %>
     <%= f.input :user_id, input_html: { value: current_user.id } %>
     <%= f.submit 'Completed Challenge!' %>
   <% end %>

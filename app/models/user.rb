@@ -22,6 +22,7 @@
 #
 
 class User < ApplicationRecord
+  acts_as_token_authenticatable
   has_many :room_users
   has_many :rooms, through: :room_users
   has_many :battle_players, foreign_key: 'player_id'
@@ -32,7 +33,6 @@ class User < ApplicationRecord
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
-  acts_as_token_authenticatable
 
   after_create :async_fetch_codewars_info
 

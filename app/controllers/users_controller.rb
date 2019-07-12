@@ -13,4 +13,9 @@ class UsersController < ApplicationController
 
   def destroy
   end
+
+  def fetch_data
+    skip_authorization
+    FetchCompletedChallengesJob.perform_now(params[:user_id])
+  end
 end

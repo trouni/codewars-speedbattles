@@ -8,4 +8,12 @@ class RoomPolicy < ApplicationPolicy
   def show?
     true
   end
+
+  def create?
+    true
+  end
+
+  def update?
+    user = record.moderator
+  end
 end

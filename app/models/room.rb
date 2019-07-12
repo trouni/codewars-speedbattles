@@ -14,9 +14,14 @@ class Room < ApplicationRecord
   has_many :room_users, dependent: :destroy
   has_many :users, through: :room_users
   has_many :battles
+  validates :name, presence: true
 
   def active_battle
     Battle.where(room: self).find_by(end_time: nil)
+  end
+
+  def active_battle?
+    active_battle.present?
   end
 
   def finished_battles
