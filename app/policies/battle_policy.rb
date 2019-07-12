@@ -5,6 +5,10 @@ class BattlePolicy < ApplicationPolicy
     end
   end
 
+  def show?
+    true
+  end
+
   def create?
     user == record.room.moderator
   end

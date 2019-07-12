@@ -1,4 +1,4 @@
-class BattlesController < ApplicationController
+class Api::V1::BattlesController < Api::V1::BaseController
   include CodewarsHelper
   include BattleHelper
   before_action :set_battle, only: %i[show update destroy]
