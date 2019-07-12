@@ -14,4 +14,37 @@ class Room < ApplicationRecord
   has_many :room_users, dependent: :destroy
   has_many :users, through: :room_users
   has_many :battles
+
+  def active_battle
+    Battle.where(room: self).find_by(end_time: nil)
+  end
+
+  def finished_battles
+    battles.where.not(end_time: nil)
+  end
+
+  # Room has no battle set up
+  def at_peace?
+    active_battle.nil?
+  end
+
+  # Room has an ongoing battle (started but not finished)
+  def at_war?
+    active_battle.present? && active_battle.start_time.present?
+  end
+
+  # Room has a pending battle (set up but not yet started)
+  def brink_of_war?
+    active_battle.present? && !at_war?
+  end
+
+  def status
+    if at_peace?
+      "at_peace"
+    elsif brink_of_war?
+      "brink_of_war"
+    elsif at_war?
+      "at_war"
+    end
+  end
 end
