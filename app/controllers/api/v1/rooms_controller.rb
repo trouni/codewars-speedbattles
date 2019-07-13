@@ -1,6 +1,7 @@
 class Api::V1::RoomsController < Api::V1::BaseController
   acts_as_token_authentication_handler_for User, except: %i[index show]
   before_action :set_room, only: %i[show update]
+  before_action :set_expand, only: %i[index show]
 
   def index
     @rooms = policy_scope(Room)
@@ -33,6 +34,10 @@ class Api::V1::RoomsController < Api::V1::BaseController
   def set_room
     @room = Room.find(params[:id])
     authorize @room
+  end
+
+  def set_expand
+    @expand = params[:expand].split(",") if params[:expand]
   end
 
   def room_params
