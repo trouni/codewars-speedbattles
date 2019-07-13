@@ -15,15 +15,15 @@ ActiveRecord::Schema.define(version: 2019_07_12_122253) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "battle_players", force: :cascade do |t|
+  create_table "battle_invites", force: :cascade do |t|
     t.bigint "battle_id"
     t.bigint "player_id"
     t.boolean "confirmed", default: false
     t.boolean "survived"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["battle_id"], name: "index_battle_players_on_battle_id"
-    t.index ["player_id"], name: "index_battle_players_on_player_id"
+    t.index ["battle_id"], name: "index_battle_invites_on_battle_id"
+    t.index ["player_id"], name: "index_battle_invites_on_player_id"
   end
 
   create_table "battles", force: :cascade do |t|
@@ -34,7 +34,6 @@ ActiveRecord::Schema.define(version: 2019_07_12_122253) do
     t.string "challenge_language"
     t.integer "challenge_rank"
     t.text "challenge_description"
-    t.boolean "sudden_death"
     t.integer "max_survivors"
     t.integer "time_limit"
     t.datetime "end_time"
@@ -61,7 +60,6 @@ ActiveRecord::Schema.define(version: 2019_07_12_122253) do
   create_table "room_users", force: :cascade do |t|
     t.bigint "room_id"
     t.bigint "user_id"
-    t.boolean "player"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["room_id"], name: "index_room_users_on_room_id"
@@ -100,8 +98,8 @@ ActiveRecord::Schema.define(version: 2019_07_12_122253) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
-  add_foreign_key "battle_players", "battles"
-  add_foreign_key "battle_players", "users", column: "player_id"
+  add_foreign_key "battle_invites", "battles"
+  add_foreign_key "battle_invites", "users", column: "player_id"
   add_foreign_key "battles", "rooms"
   add_foreign_key "battles", "users", column: "winner_id"
   add_foreign_key "completed_challenges", "users"

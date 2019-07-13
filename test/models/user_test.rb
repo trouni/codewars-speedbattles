@@ -19,6 +19,7 @@
 #  codewars_overall_rank         :integer
 #  codewars_overall_score        :integer
 #  last_fetched_at               :datetime
+#  authentication_token          :string(30)
 #
 
 require 'test_helper'

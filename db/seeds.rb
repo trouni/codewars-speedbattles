@@ -27,5 +27,5 @@ end
 
 room = Room.create!(name: "Le Wagon - Tokyo 252", moderator: User.first)
 User.all.each do |user|
-  RoomUser.create!(room: room, user: user, player: true)
+  RoomUser.create!(room: room, user: user)
 end

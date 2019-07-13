@@ -10,9 +10,9 @@ Rails.application.routes.draw do
   end
   resources :room_users, only: :destroy
   resources :battles, only: %i[update destroy] do
-    resources :battle_players, only: %i[create]
+    resources :battle_invites, only: %i[create]
   end
-  resources :battle_players, only: %i[update destroy]
+  resources :battle_invites, only: %i[update destroy]
 
   # Sidekiq Web UI, only for admins.
   require "sidekiq/web"
@@ -26,7 +26,10 @@ Rails.application.routes.draw do
       resources :rooms, only: [ :index, :show, :create, :update ] do
         resources :battles, only: :create
       end
-      resources :battles, only: :show
+      resources :battles, only: :show do
+        get '/invite_all', to: 'battles#invite_all'
+        get '/invite_survivors', to: 'battles#invite_survivors'
+      end
       resources :challenges, only: :show
     end
   end

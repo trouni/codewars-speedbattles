@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: battle_players
+# Table name: battle_invites
 #
 #  id         :bigint           not null, primary key
 #  battle_id  :bigint
@@ -13,7 +13,7 @@
 
 require 'test_helper'
 
-class BattlePlayerTest < ActiveSupport::TestCase
+class BattleInviteTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

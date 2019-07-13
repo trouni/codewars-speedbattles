@@ -1,21 +1,26 @@
 module BattleHelper
 
+  # 52774a314c2333f0a7000688 =>4,
+  # 5226eb40316b56c8d500030f =>3,
+
   # Doing this in front-end
 
-  # def parse_kata_url(url)
-  #   # https://www.codewars.com/kata/the-spider-and-the-fly-jumping-spider/train/ruby
-  #   regex = %r{^(https:\/\/)?www\.codewars\.com\/kata\/(?<challenge_id_or_slug>.+)\/train\/(?<language>.+)$}
-  #   matchdata = regex.match(url)
+  def parse_kata_url(url)
+    # https://www.codewars.com/kata/the-spider-and-the-fly-jumping-spider/train/ruby
+    regex = %r{^(https:\/\/)?www\.codewars\.com\/kata\/(?<challenge_id_or_slug>.+)\/train\/(?<language>.+)$}
+    matchdata = regex.match(url)
 
-  #   result =
-  #     if matchdata
-  #       { challenge_id_or_slug: matchdata["challenge_id_or_slug"], language: matchdata["language"] }
-  #     else
-  #       { challenge_id_or_slug: url, language: nil }
-  #     end
+    # result =
+    #   if matchdata
+    #     { challenge_id_or_slug: matchdata["challenge_id_or_slug"], language: matchdata["language"] }
+    #   else
+    #     { challenge_id_or_slug: url, language: nil }
+    #   end
 
-  #   return result
-  # end
+    result = matchdata ? matchdata["challenge_id_or_slug"] : url
+
+    return result
+  end
 
   def users_who_completed_challenge(battle, since = DateTime.new(1990))
     CompletedChallenge.where(

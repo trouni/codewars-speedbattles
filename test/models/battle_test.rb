@@ -10,10 +10,9 @@
 #  challenge_language    :string
 #  challenge_rank        :integer
 #  challenge_description :text
-#  sudden_death          :boolean
 #  max_survivors         :integer
 #  time_limit            :integer
-#  archived              :boolean          default(FALSE)
+#  end_time              :datetime
 #  start_time            :datetime
 #  winner_id             :bigint
 #  created_at            :datetime         not null
