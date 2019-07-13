@@ -1,7 +1,7 @@
 class Api::V1::BattlesController < Api::V1::BaseController
   include CodewarsHelper
   include BattleHelper
-  before_action :set_battle, only: %i[show update destroy]
+  before_action :set_battle, only: %i[show update destroy invite_user invite_all invite_last_survivors]
 
   def show
   end
@@ -28,13 +28,34 @@ class Api::V1::BattlesController < Api::V1::BaseController
     redirect_to room_path(@battle.room)
   end
 
-  def fetch_challenge
+  def invite_user(user = nil)
+    user ||= User.find(params[:user_id])
+    return unless user.eligible?(@battle)
+
+    @battle_invite = BattleInvite.find_or_initialize_by(battle: @battle, player: user)
+    render_error unless @battle_invite.save
+  end
+
+  def invite_survivors
+    return unless @battle.room.last_battle
+
+    @battle.room.last_battle.survivors.each do |user|
+      invite_user(user)
+    end
+    render 'api/v1/battles/invite'
+  end
+
+  def invite_all
+    @battle.room.users.each do |user|
+      invite_user(user)
+    end
+    render 'api/v1/battles/invite'
   end
 
   private
 
   def set_battle
-    @battle = Battle.find(params[:id])
+    @battle = Battle.find(params[:id] || params[:battle_id])
     authorize @battle
   end
 

@@ -29,9 +29,6 @@ class BattlesController < ApplicationController
     redirect_to room_path(@battle.room)
   end
 
-  def fetch_challenge
-  end
-
   private
 
   def set_battle
@@ -40,6 +37,6 @@ class BattlesController < ApplicationController
   end
 
   def battle_params
-    params.require(:battle).permit(:sudden_death, :max_survivors, :time_limit, :start_time, :end_time)
+    params.require(:battle).permit(:max_survivors, :time_limit, :start_time, :end_time)
   end
 end
