@@ -22,15 +22,15 @@ module CodewarsHelper
     return json["totalPages"]
   end
 
-  def fetch_kata_info(args = {})
-    json = fetch_url("https://www.codewars.com/api/v1/code-challenges/#{args[:challenge_id_or_slug]}")
+  def fetch_kata_info(challenge_id)
+    json = fetch_url("https://www.codewars.com/api/v1/code-challenges/#{challenge_id}")
     return nil unless json
 
     return {
       challenge_id: json["id"],
       challenge_url: json["url"],
       challenge_name: json["name"],
-      challenge_language: args[:language],
+      # challenge_language: args[:language],
       challenge_rank: json["rank"]["id"],
       challenge_description: json["description"]
     }

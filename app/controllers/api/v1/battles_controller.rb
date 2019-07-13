@@ -7,15 +7,14 @@ class Api::V1::BattlesController < Api::V1::BaseController
   end
 
   def create
+    @battle = Battle.new(battle_params)
     @room = Room.find(params[:room_id])
-    parsed_url = parse_kata_url(params[:other][:challenge_url])
-    @battle = Battle.new(fetch_kata_info(parsed_url))
     @battle.room = @room
     authorize @battle
     if @battle.save
-      redirect_to room_path(@room)
+      render :show
     else
-      render 'rooms/show'
+      render_error
     end
   end
 
@@ -40,6 +39,15 @@ class Api::V1::BattlesController < Api::V1::BaseController
   end
 
   def battle_params
-    params.require(:battle).permit(:sudden_death, :max_survivors, :time_limit, :start_time, :end_time)
+    params.require(:battle).permit(
+      :challenge_id,
+      :challenge_url,
+      :challenge_description,
+      :challenge_name,
+      :challenge_rank,
+      :time_limit,
+      :start_time,
+      :end_time
+    )
   end
 end

@@ -16,7 +16,7 @@
       <room-leaderboard></room-leaderboard>
     </div>
     <div class="grid-item grid-controls">
-      <room-controls></room-controls>
+      <room-controls :roomId="room.id"></room-controls>
     </div>
   </div>
 </template>
@@ -25,21 +25,19 @@
   import SpeedBattlesApi from '../services/api/speedbattles_api'
 
   export default {
-    props: ["roomId"],
-    data: function () {
+    props: [
+      "initRoom",
+      "currentUser"
+    ],
+    data() {
       return {
-        room: ''
-      }
-    },
-    mounted() {
-      if (localStorage.room) {
-        this.room = JSON.parse(localStorage.room);
+        room: this.initRoom
       }
     },
     created() {
-      SpeedBattlesApi.getRoom(this.roomId)
+      SpeedBattlesApi.getRoom(this.room.id)
         .then(response => {
-          localStorage.room = JSON.stringify(response)
+          this.room = JSON.stringify(response);
       })
     }
   }

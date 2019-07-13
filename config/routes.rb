@@ -23,8 +23,11 @@ Rails.application.routes.draw do
   # API Routes
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      resources :rooms, only: [ :index, :show, :create, :update ]
+      resources :rooms, only: [ :index, :show, :create, :update ] do
+        resources :battles, only: :create
+      end
       resources :battles, only: :show
+      resources :challenges, only: :show
     end
   end
 end

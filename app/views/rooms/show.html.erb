@@ -1,1 +1,4 @@
-<room :room-id="<%= @room.id %>"></room>
+<room
+  :init-room="<%= @room.to_json %>"
+  :current-user="<%= current_user.to_json %>">
+</room>
