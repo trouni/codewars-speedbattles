@@ -1,7 +1,7 @@
 <template>
   <div id="room">
     <div class="grid-item grid-header">
-      <h2 class="text-center">War Room {{ room["name"] }}</h2>
+      <h2 class="text-center">War Room {{ room.name }}</h2>
     </div>
     <div class="grid-item grid-warriors">
       <room-users></room-users>
@@ -16,7 +16,7 @@
       <room-leaderboard></room-leaderboard>
     </div>
     <div class="grid-item grid-controls">
-      <room-controls :roomId="room.id"></room-controls>
+      <room-controls :roomId="this.room.id"></room-controls>
     </div>
   </div>
 </template>
@@ -26,19 +26,18 @@
 
   export default {
     props: [
-      "initRoom",
+      "room",
       "currentUser"
     ],
     data() {
       return {
-        room: this.initRoom
       }
     },
     created() {
-      SpeedBattlesApi.getRoom(this.room.id)
-        .then(response => {
-          this.room = JSON.stringify(response);
-      })
+      // SpeedBattlesApi.getRoom(this.room.id)
+      //   .then(response => {
+      //     this.room = JSON.stringify(response);
+      // })
     }
   }
 </script>
