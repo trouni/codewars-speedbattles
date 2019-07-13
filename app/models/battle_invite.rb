@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: battle_players
+# Table name: battle_invites
 #
 #  id         :bigint           not null, primary key
 #  battle_id  :bigint
@@ -11,7 +11,7 @@
 #  updated_at :datetime         not null
 #
 
-class BattlePlayer < ApplicationRecord
+class BattleInvite < ApplicationRecord
   belongs_to :battle
   belongs_to :player, class_name: "User"
 end

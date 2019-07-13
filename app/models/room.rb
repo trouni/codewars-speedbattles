@@ -28,6 +28,10 @@ class Room < ApplicationRecord
     battles.where.not(end_time: nil)
   end
 
+  def last_battle
+    finished_battles.order(end_time: :asc).last
+  end
+
   # Room has no battle set up
   def at_peace?
     active_battle.nil?

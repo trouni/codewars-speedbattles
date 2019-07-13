@@ -19,14 +19,15 @@
 #  codewars_overall_rank         :integer
 #  codewars_overall_score        :integer
 #  last_fetched_at               :datetime
+#  authentication_token          :string(30)
 #
 
 class User < ApplicationRecord
   acts_as_token_authenticatable
-  has_many :room_users
-  has_many :rooms, through: :room_users
-  has_many :battle_players, foreign_key: 'player_id'
-  has_many :battles, through: :battle_players
+  has_one :room_user
+  has_one :room, through: :room_user
+  has_many :battle_invites, foreign_key: 'player_id'
+  has_many :battles, through: :battle_invites
   has_many :battles_as_winner, class_name: 'Battle', foreign_key: 'winner_id'
   has_many :completed_challenges, dependent: :destroy
   # Include default devise modules. Others available are:
@@ -35,6 +36,10 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   after_create :async_fetch_codewars_info
+
+  def moderator?(for_room = room)
+    for_room.moderator == self
+  end
 
   def survived_battle?(battle)
     return nil if battle.players.exclude?(self)
@@ -47,12 +52,44 @@ class User < ApplicationRecord
     ).any?
   end
 
-  def eligible_for_battle?(battle)
+  def active_battle
+    room.active_battle
+  end
+
+  def invited?(battle = active_battle)
+    return nil unless battle
+
+    BattleInvite.where(battle: battle, player: self).any?
+  end
+
+  def confirmed?(battle = active_battle)
+    return nil unless battle
+
+    BattleInvite.where(battle: battle, player: self, confirmed: true).any?
+  end
+
+  def eligible?(battle = active_battle)
+    return nil unless battle
+
     CompletedChallenge.where(
       "challenge_id = ? AND user_id = ?",
       battle.challenge_id,
       id
     ).count.zero?
+  end
+
+  def invite_status(battle = active_battle)
+    return nil unless battle
+
+    if confirmed?(battle)
+      "confirmed"
+    elsif invited?(battle)
+      "invited"
+    elsif eligible?(battle)
+      "eligible"
+    else
+      "ineligible"
+    end
   end
 
   private
