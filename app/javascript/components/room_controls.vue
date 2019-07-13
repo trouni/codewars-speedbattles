@@ -9,6 +9,7 @@
 
 <script>
   import SpeedBattlesApi from '../services/api/speedbattles_api'
+
   export default {
     props: {
       roomId: {
@@ -26,7 +27,7 @@
       createBattle() {
         SpeedBattlesApi.getChallenge(this.challengeInput)
           .then(response => {
-            if (response) {
+            if (response != null) {
               SpeedBattlesApi.postBattle(this.roomId, response)
                 .then(response => console.log(response))
             } else {

@@ -1,6 +1,5 @@
 <% if @battle.start_time.nil? %>
   <%= simple_form_for @battle do |f| %>
-    <%= f.input :sudden_death %>
     <%= f.input :max_survivors %>
     <%= f.input :time_limit %>
     <%= f.submit %>

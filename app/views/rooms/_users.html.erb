@@ -3,11 +3,11 @@
   <li>
     <%= user.username %>
     <% if @battle %>
-      <% invitation = BattlePlayer.where(battle: @battle).where(player: user).first %>
+      <% invitation = BattleInvite.where(battle: @battle).where(player: user).first %>
       <% if invitation %>
-        <%= link_to "uninvite", battle_player_path(invitation), method: :delete %>
+        <%= link_to "uninvite", battle_invite_path(invitation), method: :delete %>
       <% else %>
-        <%= simple_form_for [@battle, BattlePlayer.new] do |f| %>
+        <%= simple_form_for [@battle, BattleInvite.new] do |f| %>
           <%= f.input :player, input_html: { value: user.id }, as: :hidden %>
           <%= f.submit %>
         <% end %>

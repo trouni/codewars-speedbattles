@@ -4,13 +4,13 @@
       <h2 class="text-center">War Room {{ room.name }}</h2>
     </div>
     <div class="grid-item grid-warriors">
-      <room-users></room-users>
+      <room-users :propRoomUsers="room.users" v-if="loaded"></room-users>
     </div>
     <div class="grid-item grid-chat">
       <room-chat></room-chat>
     </div>
-    <div class="grid-item grid-challenge">
-      <room-challenge></room-challenge>
+    <div class="grid-item grid-battle">
+      <room-battle :propBattle="room.active_battle" v-if="loaded"></room-battle>
     </div>
     <div class="grid-item grid-leaderboard">
       <room-leaderboard></room-leaderboard>
@@ -26,18 +26,22 @@
 
   export default {
     props: [
-      "room",
+      "props",
+      "propRoom",
       "currentUser"
     ],
     data() {
       return {
+        room: this.propRoom,
+        loaded: false
       }
     },
     created() {
-      // SpeedBattlesApi.getRoom(this.room.id)
-      //   .then(response => {
-      //     this.room = JSON.stringify(response);
-      // })
+      SpeedBattlesApi.getRoom(this.room.id)
+        .then(response => {
+          this.room = response
+          this.loaded = true
+      })
     }
   }
 </script>
@@ -55,8 +59,8 @@
   .grid-chat {
     grid-area: chat;
   }
-  .grid-challenge {
-    grid-area: challenge;
+  .grid-battle {
+    grid-area: battle;
   }
   .grid-leaderboard {
     grid-area: leaderboard;
@@ -74,7 +78,7 @@
     grid-template-rows: 80px calc(55% - 80px) 45%;
     grid-template-areas:
       "header header header"
-      "warriors controls challenge"
+      "warriors controls battle"
       "warriors chat leaderboard"
   }
 </style>

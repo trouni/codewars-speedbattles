@@ -1,4 +1,26 @@
 <room
-  :room="<%= @room.to_json %>"
+  :prop-room="<%= @room.to_json %>"
   :current-user="<%= current_user.to_json %>">
 </room>
+
+
+<div id="room">
+  <div class="grid-item grid-header">
+    <h2 class="text-center">War Room</h2>
+  </div>
+  <div class="grid-item grid-warriors">
+    <%= render 'rooms/users' %>
+  </div>
+  <div class="grid-item grid-chat">
+    <!-- <room-chat></room-chat> -->
+  </div>
+  <div class="grid-item grid-challenge">
+    <%#= render 'rooms/battle' %>
+  </div>
+  <div class="grid-item grid-leaderboard">
+    <!-- <room-leaderboard></room-leaderboard> -->
+  </div>
+  <div class="grid-item grid-controls">
+    <%= render 'rooms/battle' %>
+  </div>
+</div>
