@@ -1,26 +1,26 @@
-CODEWARS_USERNAMES = %w[Uraza glebec Leig TinoC lwoo1999] # jnicol MiraliN EnigmaWasp asltyn brubru777 NyxTo xSmallDeadGuyx gabrielsiedler mlabrum richardhsu]
+# CODEWARS_USERNAMES = %w[Uraza glebec Leig TinoC lwoo1999] # jnicol MiraliN EnigmaWasp asltyn brubru777 NyxTo xSmallDeadGuyx gabrielsiedler mlabrum richardhsu]
 
-Battle.destroy_all
-Room.destroy_all
-User.destroy_all
+# Battle.destroy_all
+# Room.destroy_all
+# User.destroy_all
 
-# ============================
-# USERS
+# # ============================
+# # USERS
 
-User.create!(
-  email: "trouni@me.com",
-  username: "trouni",
-  password: "secret",
-  admin: true
-)
+# User.create!(
+#   email: "trouni@me.com",
+#   username: "trouni",
+#   password: "secret",
+#   admin: true
+# )
 
-CODEWARS_USERNAMES.each do |username|
-  User.create!(
-    email: "#{username.downcase}@me.com",
-    username: username,
-    password: "secret"
-  )
-end
+# CODEWARS_USERNAMES.each do |username|
+#   User.create!(
+#     email: "#{username.downcase}@me.com",
+#     username: username,
+#     password: "secret"
+#   )
+# end
 
 # ============================
 # Rooms & RoomUsers

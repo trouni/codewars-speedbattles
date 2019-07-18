@@ -7,7 +7,7 @@
       <room-users :users="room.users" v-if="loaded"></room-users>
     </div>
     <div class="grid-item grid-chat">
-      <room-chat></room-chat>
+      <room-chat :chat-id="room.chat_id" :user-id="currentUserId" v-if="loaded"></room-chat>
     </div>
     <div class="grid-item grid-battle">
       <room-battle :active-battle="room.active_battle" v-if="loaded"></room-battle>
@@ -35,7 +35,8 @@
         loaded: false,
         room: this.roomInit,
         controlsType: '',
-        activeBattleId: ''
+        activeBattleId: '',
+        currentUserId: this.currentUser.id
       }
     },
     created() {

@@ -1,5 +1,8 @@
 class Api::V1::BaseController < ActionController::API
   include Pundit
+  include ActionController::RequestForgeryProtection
+  protect_from_forgery with: :exception, unless: -> { request.format.json? }
+  before_action :authenticate_user!
 
   after_action :verify_authorized, except: :index
   after_action :verify_policy_scoped, only: :index
@@ -27,5 +30,9 @@ class Api::V1::BaseController < ActionController::API
       response = { error: "Internal Server Error" }
     end
     render json: response, status: :internal_server_error
+  end
+
+  def skip_pundit?
+    devise_controller? || params[:controller] =~ /(^(rails_)?admin)|(^pages$)/
   end
 end

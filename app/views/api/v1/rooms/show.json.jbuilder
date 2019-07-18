@@ -15,3 +15,6 @@ end
 
 # PAST BATTLES
 json.finished_battles @room.finished_battles, partial: 'api/v1/battles/battle', as: :battle
+
+# CHAT
+json.chat_id @room.chat.id

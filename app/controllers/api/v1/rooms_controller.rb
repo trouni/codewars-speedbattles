@@ -2,7 +2,6 @@ class Api::V1::RoomsController < Api::V1::BaseController
   acts_as_token_authentication_handler_for User, except: %i[index show]
   before_action :set_room, only: %i[show update]
   before_action :set_expand, only: %i[index show]
-  after_create :create_chat
 
   def index
     @rooms = policy_scope(Room)
@@ -47,10 +46,5 @@ class Api::V1::RoomsController < Api::V1::BaseController
 
   def render_error
     render json: { errors: @room.errors.full_messages }, status: :unprocessable_entity
-  end
-
-  def create_chat
-    skip_authorization
-    Chat.create!(room: self, name: name)
   end
 end

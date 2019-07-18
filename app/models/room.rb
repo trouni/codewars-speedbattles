@@ -16,6 +16,7 @@ class Room < ApplicationRecord
   has_many :battles
   has_one :chat
   validates :name, presence: true
+  after_create :create_chat
 
   def active_battle
     Battle.where(room: self).find_by(end_time: nil)
@@ -56,5 +57,11 @@ class Room < ApplicationRecord
     elsif at_war?
       "at_war"
     end
+  end
+
+  private
+
+  def create_chat
+    Chat.create!(room: self, name: name)
   end
 end
