@@ -7,3 +7,4 @@ json.extract!(
 )
 
 json.invite_status user.invite_status
+json.moderator user.moderator?(user.room)

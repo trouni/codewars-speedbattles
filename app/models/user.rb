@@ -56,6 +56,10 @@ class User < ApplicationRecord
     room.active_battle
   end
 
+  def active_battle_invite
+    BattleInvite.where(battle: battle, player: self)
+  end
+
   def invited?(battle = active_battle)
     return nil unless battle
 
@@ -71,11 +75,7 @@ class User < ApplicationRecord
   def eligible?(battle = active_battle)
     return nil unless battle
 
-    CompletedChallenge.where(
-      "challenge_id = ? AND user_id = ?",
-      battle.challenge_id,
-      id
-    ).count.zero?
+    CompletedChallenge.where(challenge_id: battle.challenge_id, user_id: id).empty?
   end
 
   def invite_status(battle = active_battle)

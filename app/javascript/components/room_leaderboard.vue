@@ -1,5 +1,5 @@
 <template>
-  <div id="room-leaderboard">
+  <div id="room-leaderboard" class="widget">
     <h3 class="highlight">{{ title }}</h3>
   </div>
 </template>

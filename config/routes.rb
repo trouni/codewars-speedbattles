@@ -26,7 +26,9 @@ Rails.application.routes.draw do
       resources :rooms, only: [ :index, :show, :create, :update ] do
         resources :battles, only: :create
       end
-      resources :battles, only: :show do
+      resources :battles, only: %i[show update destroy] do
+        get '/invite', to: 'battles#invite_user'
+        delete '/invite', to: 'battles#uninvite_user'
         get '/invite_all', to: 'battles#invite_all'
         get '/invite_survivors', to: 'battles#invite_survivors'
       end

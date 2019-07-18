@@ -26,13 +26,35 @@ export default {
     }
   },
 
+  postInvite (battle_id, user_id) {
+    return fetch(`/api/v1/battles/${battle_id}/invite?user_id=${user_id}`)
+      .then(response => response.json());
+  },
+
+  deleteInvite (battle_id, user_id) {
+    return fetch(`/api/v1/battles/${battle_id}/invite?user_id=${user_id}`, {
+      method: "DELETE"
+    }).then(response => response.json());
+  },
+
+  inviteAll (battle_id) {
+    return fetch(`/api/v1/battles/${battle_id}/invite_all`)
+      .then(response => response.json());
+  },
+
   postBattle (room_id, attrs) {
-    return fetch(`/api/v1/rooms/${room_id}/battles/`, {
+    return fetch(`/api/v1/rooms/${room_id}/battles`, {
       method: "POST",
       headers: {
         'content-type': 'application/json'
       },
       body: JSON.stringify(attrs)
+    }).then(response => response.json());
+  },
+
+  deleteBattle (battle_id) {
+    return fetch(`/api/v1/battles/${battle_id}`, {
+      method: "DELETE"
     }).then(response => response.json());
   }
 }

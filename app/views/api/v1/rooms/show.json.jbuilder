@@ -6,7 +6,6 @@ json.moderator @room.moderator, partial: 'api/v1/users/user', as: :user
 # USERS
 json.users @room.users do |user|
   json.partial! user, partial: 'api/v1/users/user', as: :user
-  json.moderator user.moderator?(@room)
 end
 
 # ACTIVE BATTLE
