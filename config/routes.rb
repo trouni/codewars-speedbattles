@@ -33,6 +33,9 @@ Rails.application.routes.draw do
         get '/invite_survivors', to: 'battles#invite_survivors'
       end
       resources :challenges, only: :show
+      resources :chats, only: :show do
+        resources :messages, only: :create
+      end
     end
   end
 end
