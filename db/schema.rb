@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_12_122253) do
+ActiveRecord::Schema.define(version: 2019_07_18_011449) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -45,6 +45,14 @@ ActiveRecord::Schema.define(version: 2019_07_12_122253) do
     t.index ["winner_id"], name: "index_battles_on_winner_id"
   end
 
+  create_table "chats", force: :cascade do |t|
+    t.string "name"
+    t.bigint "room_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["room_id"], name: "index_chats_on_room_id"
+  end
+
   create_table "completed_challenges", force: :cascade do |t|
     t.bigint "user_id"
     t.string "challenge_id"
@@ -55,6 +63,16 @@ ActiveRecord::Schema.define(version: 2019_07_12_122253) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_completed_challenges_on_user_id"
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.bigint "user_id"
+    t.bigint "chat_id"
+    t.string "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chat_id"], name: "index_messages_on_chat_id"
+    t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
   create_table "room_users", force: :cascade do |t|
@@ -102,7 +120,10 @@ ActiveRecord::Schema.define(version: 2019_07_12_122253) do
   add_foreign_key "battle_invites", "users", column: "player_id"
   add_foreign_key "battles", "rooms"
   add_foreign_key "battles", "users", column: "winner_id"
+  add_foreign_key "chats", "rooms"
   add_foreign_key "completed_challenges", "users"
+  add_foreign_key "messages", "chats"
+  add_foreign_key "messages", "users"
   add_foreign_key "room_users", "rooms"
   add_foreign_key "room_users", "users"
   add_foreign_key "rooms", "users", column: "moderator_id"
