@@ -20,16 +20,4 @@ class BattlePolicy < ApplicationPolicy
   def destroy?
     user == record.room.moderator
   end
-
-  def invite_user?
-    user == record.room.moderator
-  end
-
-  def invite_all?
-    invite_user?
-  end
-
-  def invite_survivors?
-    invite_user?
-  end
 end

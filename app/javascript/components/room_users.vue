@@ -13,18 +13,53 @@
 </template>
 
 <script>
-  import SpeedBattlesApi from '../services/api/speedbattles_api'
-
   export default {
     props: {
-      users: Array
+      users: Array,
+      roomId: Number,
+      userId: Number
     },
     data() {
       return {
         title: "CodeWarriors"
       }
     },
+    channels: {
+        UsersChannel: {
+            connected() {
+              this.$root.$emit('refresh-users')
+            },
+            rejected() {},
+            received(data) {
+              // console.log("ActionCable data => ", data)
+              if (data.unsubscribed) {
+                this.$root.$emit('remove-user', data)
+                // this.removeFromUsers(data)
+              } else {
+                this.$root.$emit('push-user', data)
+                // this.pushToUsers(data)
+              }
+              // this.$root.$emit('refreshUsers')
+            },
+            disconnected() {}
+        }
+    },
+    mounted() {
+        this.$cable.subscribe({ channel: 'UsersChannel', room_id: this.roomId, user_id: this.userId });
+    },
     methods: {
+      sendMessage() {
+        const message = {
+          chat_id: this.chatId,
+          user_id: this.userId,
+          content: this.input
+        }
+        this.$cable.perform({
+            channel: 'ChatChannel',
+            action: 'send_message',
+            data: message
+        });
+      },
       userClass(user) {
         return [
           'list-group-item',

@@ -1,8 +1,8 @@
 <template>
   <div id="room-chat" class="widget">
     <h3 class="highlight">{{ title }}</h3>
-    <ul>
-      <li v-for="message in messages">
+    <ul class="messages" v-chat-scroll="{always: true, smooth: true}" v-if="loaded">
+      <li v-for="message in sortedMessages" class="message">
         {{ `${message.author.username} > ${message.content}` }}
       </li>
     </ul>
@@ -22,24 +22,57 @@
       return {
         title: "Chat",
         input: "",
-        messages: ''
+        messages: [],
+        loaded: false
       }
     },
     created() {
-      // App[`chat_${this.chatId}`] = App.cable.subscriptions.create(
-      //   { channel: 'ChatChannel', chat_id: this.chatId },
-      //   {
-      //     received: (data) => {
-      //       console.log(data)
-      //       // console.log("Received WebSocket Data!!!")
-      //     }
-      //   }
-      // )
       this.loadChat()
+    },
+    channels: {
+      ChatChannel: {
+          connected() {
+            console.log('WebSockets connected to ChatChannel.')
+          },
+          rejected() {},
+          received(data) {
+            this.messages.push(data)
+            // console.log(this.messages)
+          },
+          disconnected() {}
+      }
+    },
+    computed: {
+      sortedMessages() {
+        return this.messages.sort((message) => {
+          message.created_at
+        })
+      }
+    },
+    methods: {
+      sendMessage() {
+        const message = {
+          chat_id: this.chatId,
+          user_id: this.userId,
+          content: this.input
+        }
+        this.$cable.perform({
+            channel: 'ChatChannel',
+            action: 'send_message',
+            data: message
+        });
+      }
+    },
+    mounted() {
+        this.$cable.subscribe({ channel: 'ChatChannel', chat_id: this.chatId });
     },
     methods: {
       loadChat() {
-        Chat.getMessages(this.chatId).then(response => this.messages = response.messages)
+        Chat.getMessages(this.chatId).then((response) => {
+          // console.log(response)
+          this.messages = response.messages
+          this.loaded = true
+        })
       },
       sendMessage() {
         const message = {
@@ -48,9 +81,8 @@
           content: this.input
         }
         Chat.postMessage(message, this.getToken()).then(response => {
-          this.input = ''
-          this.messages.push(response)
         })
+        this.input = ''
       },
       getToken() {
         return document.querySelector('meta[name="csrf-token"]').getAttribute('content')
@@ -60,4 +92,8 @@
 </script>
 
 <style scoped>
+.messages {
+  overflow: scroll;
+  height: 90%;
+}
 </style>

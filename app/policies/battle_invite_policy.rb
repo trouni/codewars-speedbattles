@@ -17,15 +17,27 @@ class BattleInvitePolicy < ApplicationPolicy
     record.battle.room.moderator == user || record.battle.room.moderator == record.player
   end
 
-  def invite_all?
+  def invitation?
     true
   end
 
   def invite_user?
-    create?
+    user == record.battle.room.moderator
   end
 
   def uninvite_user?
-    destroy?
+    user == record.battle.room.moderator || user == record.player
+  end
+
+  def confirm_user?
+    user == record.battle.room.moderator || user == record.player
+  end
+
+  def invite_all?
+    invite_user?
+  end
+
+  def invite_survivors?
+    invite_user?
   end
 end

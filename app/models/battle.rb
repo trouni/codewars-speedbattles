@@ -25,6 +25,31 @@ class Battle < ApplicationRecord
   has_many :battle_invites, dependent: :destroy
   has_many :players, through: :battle_invites, class_name: "User"
 
+  def challenge
+    {
+      id: challenge_id,
+      name: challenge_name,
+      url: challenge_url,
+      language: challenge_language,
+      rank: challenge_rank,
+      description: challenge_description
+    }
+  end
+
+  def api_expose
+    {
+      id: id,
+      room_id: room.id,
+      max_survivors: max_survivors,
+      time_limit: time_limit,
+      start_time: start_time,
+      end_time: end_time,
+      winner: winner&.api_expose,
+      challenge: challenge,
+      players: players.map(&:api_expose)
+    }
+  end
+
   def survivors
     battle_invites.where(survived: true)
   end

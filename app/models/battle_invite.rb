@@ -14,4 +14,9 @@
 class BattleInvite < ApplicationRecord
   belongs_to :battle
   belongs_to :player, class_name: "User"
+  after_commit :broadcast_invite_status
+
+  def broadcast_invite_status
+    player.broadcast_user_status(battle.room)
+  end
 end

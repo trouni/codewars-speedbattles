@@ -1,6 +1,6 @@
 <ol>
   <% @rooms.each do |room| %>
-    <li><%= link_to room.name, room_room_users_path(room), method: :post %>
+    <li><%= link_to room.name, room_path(room)%>
       <h3>Users</h3>
       <ul>
         <% room.users.each do |user| %>

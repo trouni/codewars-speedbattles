@@ -1,5 +1,7 @@
 import "bootstrap";
 import Vue from 'vue/dist/vue.esm'
+import ActionCableVue from 'actioncable-vue';
+import VueChatScroll from 'vue-chat-scroll'
 import App from '../app.vue'
 import Room from '../components/room.vue'
 import RoomUsers from '../components/room_users.vue'
@@ -17,6 +19,14 @@ Vue.component('room-controls-mod', RoomControlsMod)
 Vue.component('room-chat', RoomChat)
 Vue.component('room-leaderboard', RoomLeaderboard)
 Vue.component('room-battle', RoomBattle)
+
+Vue.use(VueChatScroll)
+
+Vue.use(ActionCableVue, {
+    debug: true,
+    debugLevel: 'error',
+    connectionUrl: 'ws://localhost:3000/api/cable/'
+});
 
 document.addEventListener('DOMContentLoaded', () => {
   const app = new Vue({

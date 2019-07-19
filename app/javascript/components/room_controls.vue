@@ -1,18 +1,15 @@
 <template>
   <div id="room-controls" class="widget">
     <h3 class="highlight">{{ title }}</h3>
+    <button @click="$root.$emit('confirm-invite', userId)">Confirm Invite</button>
   </div>
 </template>
 
 <script>
-  import SpeedBattlesApi from '../services/api/speedbattles_api'
-
   export default {
     props: {
-      roomId: {
-        type: Number,
-        required: true
-      }
+      room: Object,
+      userId: Number
     },
     data() {
       return {

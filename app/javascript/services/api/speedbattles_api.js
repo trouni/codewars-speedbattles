@@ -1,6 +1,11 @@
 export default {
-  getRoom (id) {
-    return fetch(`/api/v1/rooms/${id}`)
+  getRoom (room_id) {
+    return fetch(`/api/v1/rooms/${room_id}`)
+      .then(response => response.json());
+  },
+
+  getRoomUsers (room_id) {
+    return fetch(`/api/v1/rooms/${room_id}/users`)
       .then(response => response.json());
   },
 
@@ -26,19 +31,30 @@ export default {
     }
   },
 
+
+  invitation (battle_id, action, user_id = null, ) {
+    return fetch(`/api/v1/battles/${battle_id}/invitation?${user_id ? `user_id=${user_id}&` : ''}perform=${action}`)
+      .then(response => response);
+  },
+
   postInvite (battle_id, user_id) {
     return fetch(`/api/v1/battles/${battle_id}/invite?user_id=${user_id}`)
-      .then(response => response.json());
+      .then(response => response);
   },
 
   deleteInvite (battle_id, user_id) {
-    return fetch(`/api/v1/battles/${battle_id}/invite?user_id=${user_id}`, {
+    return fetch(`/api/v1/battles/${battle_id}/invite?user_id=${user_id}&perform=uninvite`, {
       method: "DELETE"
-    }).then(response => response.json());
+    }).then(response => response);
+  },
+
+  confirmInvite (battle_id, user_id) {
+    return fetch(`/api/v1/battles/${battle_id}/invite?user_id=${user_id}&perform=confirm`)
+      .then(response => response);
   },
 
   inviteAll (battle_id) {
-    return fetch(`/api/v1/battles/${battle_id}/invite_all`)
+    return fetch(`/api/v1/battles/${battle_id}/invitation?perform=all`)
       .then(response => response.json());
   },
 

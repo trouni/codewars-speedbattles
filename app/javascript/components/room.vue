@@ -4,19 +4,19 @@
       <h2 class="text-center">War Room {{ room.name }}</h2>
     </div>
     <div class="grid-item grid-warriors">
-      <room-users :users="room.users" v-if="loaded"></room-users>
+      <room-users :users="users" :room-id="room.id" :user-id="currentUserId"></room-users>
     </div>
     <div class="grid-item grid-chat">
       <room-chat :chat-id="room.chat_id" :user-id="currentUserId" v-if="loaded"></room-chat>
     </div>
     <div class="grid-item grid-battle">
-      <room-battle :active-battle="room.active_battle" v-if="loaded"></room-battle>
+      <room-battle :active-battle="activeBattle" v-if="loaded"></room-battle>
     </div>
     <div class="grid-item grid-leaderboard">
       <room-leaderboard></room-leaderboard>
     </div>
     <div class="grid-item grid-controls">
-      <component v-bind:is="controlsType" :room="room" v-if="loaded"></component>
+      <component v-bind:is="controlsType" :room="room" :user-id="currentUserId" v-if="loaded"></component>
       <!-- <room-controls :roomId="this.room.id"></room-controls> -->
     </div>
   </div>
@@ -28,66 +28,94 @@
   export default {
     props: {
       roomInit: Object,
+      usersInit: Array,
       currentUser: Object
     },
     data() {
       return {
         loaded: false,
         room: this.roomInit,
+        users: this.usersInit,
         controlsType: '',
-        activeBattleId: '',
+        activeBattle: this.roomInit.active_battle,
         currentUserId: this.currentUser.id
       }
     },
     created() {
-      this.getRoom()
+      this.refreshRoom()
     },
     methods: {
-      getRoom() {
+      // =============
+      //     ROOM
+      // =============
+      refreshRoom() {
         SpeedBattlesApi.getRoom(this.room.id)
           .then(response => {
             this.room = response
             if (this.room.active_battle) {
-              this.activeBattleId = this.room.active_battle.id
+              this.activeBattle = this.room.active_battle
             }
-            this.controlsType = this.room.moderator.id == this.currentUser.id ? 'room-controls-mod' : 'room-controls'
+            this.controlsType = this.room.moderator.id == this.currentUserId ? 'room-controls-mod' : 'room-controls'
             this.loaded = true
         })
       },
+      // =============
+      //     BATTLE
+      // =============
       createBattle(challenge) {
         SpeedBattlesApi.getChallenge(challenge)
           .then(response => {
             if (response != null) {
               SpeedBattlesApi.postBattle(this.room.id, response)
-                .then(response => this.getRoom())
+                .then(response => this.refreshRoom())
             } else {
               console.log("No kata found with this id/slug/url")
             }
           })
       },
       deleteBattle() {
-        SpeedBattlesApi.deleteBattle(this.activeBattleId)
-          .then(response => this.getRoom())
+        SpeedBattlesApi.deleteBattle(this.activeBattle.id)
+          .then(response => this.refreshRoom())
       },
-      inviteUser (userId) {
-        SpeedBattlesApi.postInvite(this.activeBattleId, userId)
-          .then(response => this.getRoom())
+      // =============
+      //     USERS
+      // =============
+      refreshUsers() {
+        SpeedBattlesApi.getRoomUsers(this.room.id)
+          .then(response => {
+            this.users = response
+        })
       },
-      uninviteUser (userId) {
-        SpeedBattlesApi.deleteInvite(this.activeBattleId, userId)
-          .then(response => this.getRoom() )
+      pushToUsers(user) {
+        const index = this.users.findIndex((e) => e.id === user.id);
+
+        if (index === -1) {
+            this.users.push(user);
+        } else {
+            // this.users[index] = user; // Vue cannot detect change in the array with this method
+            this.users.splice(index, 1, user)
+        }
       },
-      inviteAll() {
-        SpeedBattlesApi.inviteAll(this.activeBattleId)
-          .then(response => this.getRoom())
+      removeFromUsers(user) {
+        this.users = this.users.filter(e => e.id != user.id)
+      },
+      invitation (action, userId = null) {
+        // SpeedBattlesApi.postInvite(this.activeBattle.id, userId)
+        SpeedBattlesApi.invitation(this.activeBattle.id, action, userId)
       }
     },
     mounted () {
+      this.$root.$on('refresh-room', () => this.refreshRoom())
       this.$root.$on('create-battle', (challenge) => this.createBattle(challenge))
       this.$root.$on('delete-battle', () => this.deleteBattle())
-      this.$root.$on('invite-user', (userId) => this.inviteUser(userId))
-      this.$root.$on('uninvite-user', (userId) => this.uninviteUser(userId))
-      this.$root.$on('invite-all', () => this.inviteAll())
+      this.$root.$on('refresh-users', () => this.refreshUsers())
+      this.$root.$on('push-user', (user) => this.pushToUsers(user))
+      this.$root.$on('remove-user', (user) => this.removeFromUsers(user))
+      this.$root.$on('invite-user', (userId) => this.invitation(userId, "invite"))
+      this.$root.$on('uninvite-user', (userId) => this.invitation(userId, "uninvite"))
+      this.$root.$on('invite-all', () => this.invitation("all"))
+      this.$root.$on('invite-survivors', () => this.invitation("survivors"))
+      this.$root.$on('confirm-invite', (userId) => this.invitation(userId, "confirm"))
     }
   }
 </script>

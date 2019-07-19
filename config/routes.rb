@@ -22,11 +22,14 @@ Rails.application.routes.draw do
 
   # API Routes
   namespace :api, defaults: { format: :json } do
+    mount ActionCable.server => '/cable'
     namespace :v1 do
       resources :rooms, only: [ :index, :show, :create, :update ] do
         resources :battles, only: :create
+        resources :users, only: :index
       end
       resources :battles, only: %i[show update destroy] do
+        get '/invitation', to: 'battles#invitation'
         get '/invite', to: 'battles#invite_user'
         delete '/invite', to: 'battles#uninvite_user'
         get '/invite_all', to: 'battles#invite_all'

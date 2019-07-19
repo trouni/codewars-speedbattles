@@ -11,5 +11,9 @@
 
 class Chat < ApplicationRecord
   belongs_to :room
-  has_many :messages
+  has_many :messages, dependent: :destroy
+
+  # def broadcast_announcement(content)
+  #   Message.create_announcement(content, id)
+  # end
 end

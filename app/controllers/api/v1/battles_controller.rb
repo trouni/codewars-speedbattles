@@ -1,7 +1,7 @@
 class Api::V1::BattlesController < Api::V1::BaseController
   # include CodewarsHelper
   # include BattleHelper
-  before_action :set_battle, only: %i[show update destroy initialize_invite invite_all invite_last_survivors]
+  # before_action :set_battle, only: %i[show update destroy initialize_invite invite_all invite_last_survivors]
 
   def show
     @battle = Battle.find(params[:id] || params[:battle_id]) || user.active_battle
@@ -24,64 +24,84 @@ class Api::V1::BattlesController < Api::V1::BaseController
     @battle = Battle.find(params[:id] || params[:battle_id]) || user.active_battle
     authorize @battle
     @battle.update(battle_params)
-    redirect_to room_path(@battle.room)
   end
 
   def destroy
     @battle = Battle.find(params[:id] || params[:battle_id]) || user.active_battle
     authorize @battle
     @battle.destroy
+    binding.pry
     render 'api/v1/rooms/show'
   end
 
-  def invite_user(user = nil)
-    initialize_invite(user)
-    @battle_invite.save if @battle_invite.player.eligible?
-    render 'api/v1/battles/invite'
+  def invitation(battle = nil, user = nil, action = nil)
+    # skip_authorization
+    battle ||= Battle.find(params[:battle_id])
+    user ||= User.find(params[:user_id]) if params[:user_id]
+    action ||= params[:perform]
+    case action
+    when "uninvite"
+      uninvite_user(user, battle)
+    when "confirm"
+      confirm_user(user, battle)
+    when "all"
+      invite_all(battle)
+    when "survivors"
+      invite_survivors(battle)
+    else
+      invite_user(user, battle)
+    end
   end
 
-  def uninvite_user(user = nil)
-    initialize_invite(user)
-    @battle_invite.destroy
-    render 'api/v1/battles/invite'
+  def invite_user(user, battle = nil)
+    battle ||= user.active_battle
+    battle_invite = BattleInvite.find_or_initialize_by(battle: battle, player: user)
+    authorize battle_invite
+    battle_invite.save if battle_invite.player.eligible?
   end
 
-  def initialize_invite(user = nil)
-    user ||= User.find(params[:user_id])
-    @battle = Battle.find(params[:id] || params[:battle_id]) || user.active_battle
-    @battle_invite = BattleInvite.find_or_initialize_by(battle: @battle, player: user)
-    authorize @battle_invite
-    return @battle_invite
+  def uninvite_user(user, battle = nil)
+    battle ||= user.active_battle
+    battle_invite = BattleInvite.find_by(battle: battle, player: user)
+    authorize battle_invite
+    battle_invite&.destroy
   end
 
-  def invite_survivors
+  def confirm_user(user, battle = nil)
+    battle ||= user.active_battle
+    battle_invite = BattleInvite.find_by(battle: battle, player: user)
+    authorize battle_invite
+    battle_invite&.update(confirmed: !battle_invite.confirmed)
+  end
+
+  def invite_all(battle)
     skip_authorization
-    return unless @battle.room.last_battle
-
-    @battle.room.last_battle.survivors.each do |user|
+    battle.room.users.each do |user|
       next unless user.eligible?
 
-      initialize_invite(user).save
+      invite_user(user)
     end
-    render 'api/v1/battles/invite'
+    render 'api/v1/users/index'
   end
 
-  def invite_all
+  def invite_survivors(battle)
     skip_authorization
-    @battle.room.users.each do |user|
+    return unless battle.room.last_battle
+
+    battle.room.last_battle.survivors.each do |user|
       next unless user.eligible?
 
-      initialize_invite(user).save
+      invite_user(user)
     end
-    render 'api/v1/battles/invite'
+    render 'api/v1/users/index'
   end
 
   private
 
-  def set_battle
-    @battle = Battle.find(params[:id] || params[:battle_id]) || user.active_battle
-    authorize @battle
-  end
+  # def set_battle
+  #   @battle = Battle.find(params[:id] || params[:battle_id]) || user.active_battle
+  #   authorize @battle
+  # end
 
   def battle_params
     params.require(:battle).permit(
