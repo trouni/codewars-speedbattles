@@ -30,7 +30,6 @@ class Api::V1::BattlesController < Api::V1::BaseController
     @battle = Battle.find(params[:id] || params[:battle_id]) || user.active_battle
     authorize @battle
     @battle.destroy
-    binding.pry
     render 'api/v1/rooms/show'
   end
 

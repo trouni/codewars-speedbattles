@@ -111,11 +111,11 @@
       this.$root.$on('refresh-users', () => this.refreshUsers())
       this.$root.$on('push-user', (user) => this.pushToUsers(user))
       this.$root.$on('remove-user', (user) => this.removeFromUsers(user))
-      this.$root.$on('invite-user', (userId) => this.invitation(userId, "invite"))
-      this.$root.$on('uninvite-user', (userId) => this.invitation(userId, "uninvite"))
+      this.$root.$on('invite-user', (userId) => this.invitation("invite", userId))
+      this.$root.$on('uninvite-user', (userId) => this.invitation("uninvite", userId))
       this.$root.$on('invite-all', () => this.invitation("all"))
       this.$root.$on('invite-survivors', () => this.invitation("survivors"))
-      this.$root.$on('confirm-invite', (userId) => this.invitation(userId, "confirm"))
+      this.$root.$on('confirm-invite', (userId) => this.invitation("confirm", userId))
     }
   }
 </script>

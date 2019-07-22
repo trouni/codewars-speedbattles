@@ -37,27 +37,6 @@ export default {
       .then(response => response);
   },
 
-  postInvite (battle_id, user_id) {
-    return fetch(`/api/v1/battles/${battle_id}/invite?user_id=${user_id}`)
-      .then(response => response);
-  },
-
-  deleteInvite (battle_id, user_id) {
-    return fetch(`/api/v1/battles/${battle_id}/invite?user_id=${user_id}&perform=uninvite`, {
-      method: "DELETE"
-    }).then(response => response);
-  },
-
-  confirmInvite (battle_id, user_id) {
-    return fetch(`/api/v1/battles/${battle_id}/invite?user_id=${user_id}&perform=confirm`)
-      .then(response => response);
-  },
-
-  inviteAll (battle_id) {
-    return fetch(`/api/v1/battles/${battle_id}/invitation?perform=all`)
-      .then(response => response.json());
-  },
-
   postBattle (room_id, attrs) {
     return fetch(`/api/v1/rooms/${room_id}/battles`, {
       method: "POST",
