@@ -1,6 +1,6 @@
 class Api::V1::RoomsController < Api::V1::BaseController
   acts_as_token_authentication_handler_for User, except: %i[index show]
-  before_action :set_room, only: %i[show update]
+  before_action :set_room, only: %i[show update leaderboard]
   before_action :set_expand, only: %i[index show]
 
   def index
@@ -29,10 +29,14 @@ class Api::V1::RoomsController < Api::V1::BaseController
     end
   end
 
+  def leaderboard
+    render json: @room.leaderboard
+  end
+
   private
 
   def set_room
-    @room = Room.find(params[:id])
+    @room = Room.find(params[:id] || params[:room_id])
     authorize @room
   end
 

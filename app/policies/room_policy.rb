@@ -16,4 +16,8 @@ class RoomPolicy < ApplicationPolicy
   def update?
     user = record.moderator
   end
+
+  def leaderboard?
+    show?
+  end
 end

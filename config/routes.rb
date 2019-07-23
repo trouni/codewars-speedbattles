@@ -25,6 +25,7 @@ Rails.application.routes.draw do
     mount ActionCable.server => '/cable'
     namespace :v1 do
       resources :rooms, only: [ :index, :show, :create, :update ] do
+        get '/leaderboard', to: 'rooms#leaderboard'
         resources :battles, only: :create
         resources :users, only: :index
       end

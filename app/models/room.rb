@@ -89,7 +89,7 @@ class Room < ApplicationRecord
   def leaderboard
     players.map do |player|
       {
-        user: player,
+        user: player.api_expose,
         battles_fought: battles_fought(player).count,
         battles_survived: battles_survived(player).count,
         victories: victories(player).count,
