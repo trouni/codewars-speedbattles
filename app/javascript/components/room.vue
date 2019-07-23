@@ -24,8 +24,22 @@
 
 <script>
   import SpeedBattlesApi from '../services/api/speedbattles_api'
+  import RoomUsers from '../components/room_users.vue'
+  import RoomControls from '../components/room_controls.vue'
+  import RoomControlsMod from '../components/room_controls_mod.vue'
+  import RoomChat from '../components/room_chat.vue'
+  import RoomLeaderboard from '../components/room_leaderboard.vue'
+  import RoomBattle from '../components/room_battle.vue'
 
   export default {
+    components: {
+      RoomUsers,
+      RoomControls,
+      RoomControlsMod,
+      RoomChat,
+      RoomLeaderboard,
+      RoomBattle
+    },
     props: {
       roomInit: Object,
       usersInit: Array,

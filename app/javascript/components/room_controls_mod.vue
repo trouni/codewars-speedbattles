@@ -16,7 +16,7 @@
 
 <script>
   export default {
-    props:{
+    props: {
       room: Object,
       currentUser: Object,
       battle: Object,
