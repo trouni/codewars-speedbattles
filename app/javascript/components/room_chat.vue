@@ -27,11 +27,11 @@
       }
     },
     created() {
-      this.loadChat()
     },
     channels: {
       ChatChannel: {
           connected() {
+            this.loadChat()
             console.log('WebSockets connected to ChatChannel.')
           },
           rejected() {},
@@ -44,8 +44,9 @@
     },
     computed: {
       sortedMessages() {
-        return this.messages.sort((message) => {
-          message.created_at
+        // return this.messages
+        return this.messages.sort((a, b) => {
+          return new Date(a.created_at) - new Date(b.created_at)
         })
       }
     },
@@ -64,7 +65,7 @@
       }
     },
     mounted() {
-        this.$cable.subscribe({ channel: 'ChatChannel', chat_id: this.chatId });
+        this.$cable.subscribe({ channel: 'ChatChannel', chat_id: this.chatId })
     },
     methods: {
       loadChat() {
