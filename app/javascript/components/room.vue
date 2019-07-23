@@ -13,7 +13,7 @@
       <room-battle :battle="battle" :room="room" :countdown="countdown" :current-user-is-moderator="currentUserIsModerator"></room-battle>
     </div>
     <div class="grid-item grid-leaderboard">
-      <room-leaderboard></room-leaderboard>
+      <room-leaderboard :leaderboard="leaderboard"></room-leaderboard>
     </div>
     <div class="grid-item grid-controls">
       <component v-bind:is="controlsType" :room="room" :battle="battle" :users="users" :current-user="currentUser" :input="challengeInput"></component>
@@ -52,6 +52,7 @@
         room: this.roomInit,
         users: this.usersInit,
         battle: this.battleInit,
+        leaderboard: [],
         challengeInput: 'beginner-friendly-uppercase-a-string',
         controlsType: '',
         countdownDuration: 3,
@@ -91,6 +92,7 @@
             } else {
               this.battle = null
             }
+            this.refreshLeaderboard()
             this.controlsType = this.currentUserIsModerator ? 'room-controls-mod' : 'room-controls'
             this.loaded = true
         })
@@ -98,6 +100,12 @@
       refreshAll() {
         this.refreshUsers()
         if (this.battle) { this.refreshBattle() }
+      },
+      refreshLeaderboard() {
+        SpeedBattlesApi.getLeaderboard(this.room.id)
+          .then(response => {
+            this.leaderboard = response
+        })
       },
       // =============
       //     BATTLE

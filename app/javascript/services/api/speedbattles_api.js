@@ -15,6 +15,11 @@ export default {
       .then(response => response.json());
   },
 
+  getLeaderboard (room_id) {
+    return fetch(`/api/v1/rooms/${room_id}/leaderboard`)
+      .then(response => response.json());
+  },
+
   parseChallengeInput (input) {
     const urlRegex = /^(https:\/\/)?www\.codewars\.com\/kata\/(?<challengeIdSlug>.+)\/train\/(?<language>.+)$/;
     const matchData = input.match(urlRegex);
