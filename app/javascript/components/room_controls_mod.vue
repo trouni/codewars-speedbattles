@@ -1,8 +1,8 @@
 <template>
   <div id="room-controls" class="widget">
     <h3 class="highlight">{{ title }}</h3>
-    <div class="edit-battle" v-if="this.room.active_battle">
-      <h4>{{ room.active_battle.challenge.name }}</h4>
+    <div class="edit-battle" v-if="this.battle">
+      <h4>{{ battle.challenge.name }}</h4>
       <p>{{ ineligibleUsers }}</p>
       <button @click="$root.$emit('delete-battle')">Delete Battle</button>
       <button @click="$root.$emit('invite-all')">Invite All</button>
@@ -17,7 +17,8 @@
 <script>
   export default {
     props:{
-      room: Object
+      room: Object,
+      battle: Object
     },
     data() {
       return {

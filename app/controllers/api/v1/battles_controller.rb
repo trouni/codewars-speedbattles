@@ -30,7 +30,8 @@ class Api::V1::BattlesController < Api::V1::BaseController
     @battle = Battle.find(params[:id] || params[:battle_id]) || user.active_battle
     authorize @battle
     @battle.destroy
-    render 'api/v1/rooms/show'
+    render json: { status: "success"}
+    # render 'api/v1/rooms/show'
   end
 
   def invitation(battle = nil, user = nil, action = nil)

@@ -24,6 +24,22 @@ class Battle < ApplicationRecord
   belongs_to :winner, class_name: "User", optional: true
   has_many :battle_invites, dependent: :destroy
   has_many :players, through: :battle_invites, class_name: "User"
+  after_commit :broadcast_battle, on: %i[create update]
+  after_destroy :broadcast_battle_destroyed
+
+  def broadcast_battle
+    ActionCable.server.broadcast(
+      "warroom_#{room.id}",
+      api_expose
+    )
+  end
+
+  def broadcast_battle_destroyed
+    ActionCable.server.broadcast(
+      "warroom_#{room.id}",
+      api_expose.merge(deleted: true)
+    )
+  end
 
   def challenge
     {

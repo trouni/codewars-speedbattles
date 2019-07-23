@@ -10,13 +10,13 @@
       <room-chat :chat-id="room.chat_id" :user-id="currentUserId" v-if="loaded"></room-chat>
     </div>
     <div class="grid-item grid-battle">
-      <room-battle :active-battle="activeBattle" v-if="loaded"></room-battle>
+      <room-battle :battle="battle" :room-id="room.id" v-if="loaded"></room-battle>
     </div>
     <div class="grid-item grid-leaderboard">
       <room-leaderboard></room-leaderboard>
     </div>
     <div class="grid-item grid-controls">
-      <component v-bind:is="controlsType" :room="room" :user-id="currentUserId" v-if="loaded"></component>
+      <component v-bind:is="controlsType" :room="room" :battle="battle" :user-id="currentUserId" v-if="loaded"></component>
       <!-- <room-controls :roomId="this.room.id"></room-controls> -->
     </div>
   </div>
@@ -29,6 +29,7 @@
     props: {
       roomInit: Object,
       usersInit: Array,
+      battleInit: Object,
       currentUser: Object
     },
     data() {
@@ -36,8 +37,8 @@
         loaded: false,
         room: this.roomInit,
         users: this.usersInit,
+        battle: this.battleInit,
         controlsType: '',
-        activeBattle: this.roomInit.active_battle,
         currentUserId: this.currentUser.id
       }
     },
@@ -53,7 +54,7 @@
           .then(response => {
             this.room = response
             if (this.room.active_battle) {
-              this.activeBattle = this.room.active_battle
+              this.battle = this.room.active_battle
             }
             this.controlsType = this.room.moderator.id == this.currentUserId ? 'room-controls-mod' : 'room-controls'
             this.loaded = true
@@ -67,15 +68,15 @@
           .then(response => {
             if (response != null) {
               SpeedBattlesApi.postBattle(this.room.id, response)
-                .then(response => this.refreshRoom())
+                // .then(response => this.refreshRoom())
             } else {
               console.log("No kata found with this id/slug/url")
             }
           })
       },
       deleteBattle() {
-        SpeedBattlesApi.deleteBattle(this.activeBattle.id)
-          .then(response => this.refreshRoom())
+        SpeedBattlesApi.deleteBattle(this.battle.id)
+          // .then(response => this.refreshRoom())
       },
       // =============
       //     USERS
@@ -99,9 +100,12 @@
       removeFromUsers(user) {
         this.users = this.users.filter(e => e.id != user.id)
       },
-      invitation (action, userId = null) {
-        // SpeedBattlesApi.postInvite(this.activeBattle.id, userId)
-        SpeedBattlesApi.invitation(this.activeBattle.id, action, userId)
+      invitation(action, userId = null) {
+        // SpeedBattlesApi.postInvite(this.battle.id, userId)
+        SpeedBattlesApi.invitation(this.battle.id, action, userId)
+      },
+      updateBattle(battle) {
+        battle.deleted ? this.battle = null : this.battle = battle
       }
     },
     mounted () {
@@ -116,6 +120,7 @@
       this.$root.$on('invite-all', () => this.invitation("all"))
       this.$root.$on('invite-survivors', () => this.invitation("survivors"))
       this.$root.$on('confirm-invite', (userId) => this.invitation("confirm", userId))
+      this.$root.$on('update-battle', (battle) => this.updateBattle(battle))
     }
   }
 </script>

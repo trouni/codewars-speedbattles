@@ -1,5 +1,6 @@
 <room
   :room-init="<%= @room.to_json %>"
+  :battle-init="<%= @room.active_battle&.api_expose.to_json %>"
   :users-init="<%= @room.users.map(&:api_expose).to_json %>"
   :current-user="<%= current_user.to_json %>">
 </room>
