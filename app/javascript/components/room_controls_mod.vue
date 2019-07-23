@@ -18,6 +18,7 @@
   export default {
     props:{
       room: Object,
+      user: Object,
       battle: Object
     },
     data() {

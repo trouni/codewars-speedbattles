@@ -16,7 +16,7 @@
       <room-leaderboard></room-leaderboard>
     </div>
     <div class="grid-item grid-controls">
-      <component v-bind:is="controlsType" :room="room" :battle="battle" :user-id="currentUserId" v-if="loaded"></component>
+      <component v-bind:is="controlsType" :room="room" :battle="battle" :user="currentUser" v-if="loaded"></component>
       <!-- <room-controls :roomId="this.room.id"></room-controls> -->
     </div>
   </div>
@@ -30,7 +30,7 @@
       roomInit: Object,
       usersInit: Array,
       battleInit: Object,
-      currentUser: Object
+      userInit: Object
     },
     data() {
       return {
@@ -39,11 +39,19 @@
         users: this.usersInit,
         battle: this.battleInit,
         controlsType: '',
-        currentUserId: this.currentUser.id
       }
     },
     created() {
       this.refreshRoom()
+    },
+    computed: {
+      currentUser() {
+        const currentUserIndex = this.users.findIndex((e) => e.id === this.currentUserId);
+        return this.users[currentUserIndex]
+      },
+      currentUserId() {
+        return this.userInit.id
+      }
     },
     methods: {
       // =============
