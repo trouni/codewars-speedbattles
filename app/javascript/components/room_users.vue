@@ -30,6 +30,7 @@
     },
         UsersChannel: {
             connected() {
+              console.log('WebSockets connected to UsersChannel')
               this.$root.$emit('refresh-users')
             },
             rejected() {},

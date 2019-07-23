@@ -7,13 +7,6 @@ User.destroy_all
 # # ============================
 # # USERS
 
-# User.create(
-#   email: "bot@speedbattles.com",
-#   username: "warbot",
-#   name: "Bot",
-#   password: "botsecret"
-# )
-
 User.create!(
   email: "trouni@me.com",
   username: "trouni",

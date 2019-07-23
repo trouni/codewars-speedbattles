@@ -52,6 +52,13 @@ class User < ApplicationRecord
     rooms_as_moderator.include?(for_room)
   end
 
+  def self.find_or_create_bot
+    bot = User.find_or_initialize_by(username: "bot", email: "bot@speedbattles.com")
+    bot.password ||= "secret"
+    bot.save
+    return bot
+  end
+
   def survived_battle?(battle)
     return nil if battle.players.exclude?(self)
 
