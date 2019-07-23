@@ -20,4 +20,8 @@ class BattlePolicy < ApplicationPolicy
   def destroy?
     user == record.room.moderator
   end
+
+  def launch?
+    update?
+  end
 end

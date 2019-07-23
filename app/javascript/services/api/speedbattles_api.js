@@ -37,6 +37,11 @@ export default {
       .then(response => response);
   },
 
+  getBattle (battle_id) {
+    return fetch(`/api/v1/battles/${battle_id}`)
+      .then(response => response.json());
+  },
+
   postBattle (room_id, attrs) {
     return fetch(`/api/v1/rooms/${room_id}/battles`, {
       method: "POST",
@@ -51,5 +56,10 @@ export default {
     return fetch(`/api/v1/battles/${battle_id}`, {
       method: "DELETE"
     }).then(response => response.json());
+  },
+
+  updateBattleStatus (battle_id, action) {
+    return fetch(`/api/v1/battles/${battle_id}/launch?perform=${action}`)
+      .then(response => response.json());
   }
 }

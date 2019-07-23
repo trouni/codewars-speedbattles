@@ -35,15 +35,12 @@
             },
             rejected() {},
             received(data) {
-              // console.log("ActionCable data => ", data)
               if (data.unsubscribed) {
                 this.$root.$emit('remove-user', data)
-                // this.removeFromUsers(data)
               } else {
                 this.$root.$emit('push-user', data)
-                // this.pushToUsers(data)
               }
-              // this.$root.$emit('refreshUsers')
+              this.$root.$emit('refresh-all')
             },
             disconnected() {}
         }

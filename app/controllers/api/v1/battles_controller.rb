@@ -34,6 +34,18 @@ class Api::V1::BattlesController < Api::V1::BaseController
     # render 'api/v1/rooms/show'
   end
 
+  def launch
+    @battle = Battle.find(params[:id] || params[:battle_id])
+    authorize @battle
+    if params[:perform] == 'end'
+      @battle.update(end_time: DateTime.now) unless @battle.end_time
+    else
+      timer = 10.seconds
+      @battle.update(start_time: DateTime.now + timer) unless @battle.start_time
+    end
+    render json: { action: params[:perform], status: "success" }
+  end
+
   def invitation(battle = nil, user = nil, action = nil)
     # skip_authorization
     battle ||= Battle.find(params[:battle_id])

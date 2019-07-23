@@ -30,10 +30,11 @@ Rails.application.routes.draw do
       end
       resources :battles, only: %i[show update destroy] do
         get '/invitation', to: 'battles#invitation'
-        get '/invite', to: 'battles#invite_user'
-        delete '/invite', to: 'battles#uninvite_user'
-        get '/invite_all', to: 'battles#invite_all'
-        get '/invite_survivors', to: 'battles#invite_survivors'
+        get '/launch', to: 'battles#launch'
+        # get '/invite', to: 'battles#invite_user'
+        # delete '/invite', to: 'battles#uninvite_user'
+        # get '/invite_all', to: 'battles#invite_all'
+        # get '/invite_survivors', to: 'battles#invite_survivors'
       end
       resources :challenges, only: :show
       resources :chats, only: :show

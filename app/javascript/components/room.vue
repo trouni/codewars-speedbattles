@@ -16,7 +16,7 @@
       <room-leaderboard></room-leaderboard>
     </div>
     <div class="grid-item grid-controls">
-      <component v-bind:is="controlsType" :room="room" :battle="battle" :current-user="currentUser" :input="challengeInput"></component>
+      <component v-bind:is="controlsType" :room="room" :battle="battle" :users="users" :current-user="currentUser" :input="challengeInput"></component>
       <!-- <room-controls :roomId="this.room.id"></room-controls> -->
     </div>
   </div>
@@ -86,21 +86,33 @@
             this.room = response
             if (this.room.active_battle) {
               this.battle = this.room.active_battle
+            } else {
+              this.battle = null
             }
             this.controlsType = this.currentUserIsModerator ? 'room-controls-mod' : 'room-controls'
             this.loaded = true
         })
       },
+      refreshAll() {
+        this.refreshUsers()
+        if (this.battle) { this.refreshBattle() }
+      },
       // =============
       //     BATTLE
       // =============
+      refreshBattle() {
+        SpeedBattlesApi.getBattle(this.battle.id)
+          .then(response => {
+            this.battle = response
+        })
+      },
       createBattle(challenge) {
         SpeedBattlesApi.getChallenge(challenge)
           .then(response => {
             if (response != null) {
               SpeedBattlesApi.postBattle(this.room.id, response)
                 .then((response) => {
-                  this.refreshRoom()
+                  this.refreshBattle()
                   this.challengeInput = null
                 })
             } else {
@@ -111,6 +123,17 @@
       deleteBattle() {
         SpeedBattlesApi.deleteBattle(this.battle.id)
           // .then(response => this.refreshRoom())
+      },
+      updateBattle(battle) {
+        battle.deleted ? this.battle = null : this.battle = battle
+        this.refreshUsers()
+      },
+      startBattle() {
+        SpeedBattlesApi.updateBattleStatus(this.battle.id, 'start')
+      },
+      endBattle() {
+        SpeedBattlesApi.updateBattleStatus(this.battle.id, 'end')
+          .then(response => this.refreshRoom())
       },
       // =============
       //     USERS
@@ -137,14 +160,10 @@
       invitation(action, userId = null) {
         // SpeedBattlesApi.postInvite(this.battle.id, userId)
         SpeedBattlesApi.invitation(this.battle.id, action, userId)
-      },
-      updateBattle(battle) {
-        battle.deleted ? this.battle = null : this.battle = battle
-        this.refreshUsers()
       }
     },
     mounted () {
-      this.$root.$on('refresh-room', () => this.refreshRoom())
+      this.$root.$on('refresh-all', () => this.refreshAll())
       this.$root.$on('create-battle', (challenge) => this.createBattle(challenge))
       this.$root.$on('delete-battle', () => this.deleteBattle())
       this.$root.$on('refresh-users', () => this.refreshUsers())
@@ -156,6 +175,8 @@
       this.$root.$on('invite-survivors', () => this.invitation("survivors"))
       this.$root.$on('confirm-invite', (userId) => this.invitation("confirm", userId))
       this.$root.$on('update-battle', (battle) => this.updateBattle(battle))
+      this.$root.$on('start-battle', () => this.startBattle())
+      this.$root.$on('end-battle', () => this.endBattle())
     }
   }
 </script>
