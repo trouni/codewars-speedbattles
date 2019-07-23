@@ -58,8 +58,8 @@ export default {
     }).then(response => response.json());
   },
 
-  updateBattleStatus (battle_id, action) {
-    return fetch(`/api/v1/battles/${battle_id}/launch?perform=${action}`)
+  updateBattleStatus (battle_id, action, countdown = 10) {
+    return fetch(`/api/v1/battles/${battle_id}/launch?perform=${action}&countdown=${countdown}`)
       .then(response => response.json());
   }
 }

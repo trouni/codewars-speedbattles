@@ -1,8 +1,11 @@
 <template>
   <div id="room-battle" class="widget">
     <h3 class="highlight">{{ title }}</h3>
-    <h4 v-if="battle">{{ battle.challenge.name }}</h4>
-    <p v-if="battle">{{ battle.challenge.description }}</p>
+    <div v-if="canShowChallenge">
+      <h4>{{ battle.challenge.name }}</h4>
+      <p>{{ battle.challenge.description }}</p>
+    </div>
+    <h4>{{ countdown }}</h4>
   </div>
 </template>
 
@@ -10,28 +13,32 @@
   export default {
     props: {
       roomId: Number,
-      battle: Object
+      battle: Object,
+      countdown: Number,
+      currentUserIsModerator: Boolean
     },
     data: function () {
       return {
         title: "Challenge"
       }
     },
-    channels: {
-      BattleChannel: {
-          connected() {
-            console.log('WebSockets connected to BattleChannel.')
-          },
-          rejected() {},
-          received(data) {
-            this.$root.$emit('update-battle', data)
-          },
-          disconnected() {}
+    computed: {
+      battleInitialized() {
+        if (this.battle) {
+          return this.battle.start_time !== null && this.battle.end_time === null
+        }
+      },
+      battleOngoing() {
+        return this.battleInitialized && this.countdown === 0
+      },
+      canShowChallenge() {
+        if (this.battle) {
+          return this.currentUserIsModerator || this.battleInitialized
+        }
       }
     },
-    mounted() {
-      this.$cable.subscribe({ channel: 'BattleChannel', room_id: this.roomId })
-    },
+    methods: {
+    }
   }
 </script>
 

@@ -9,11 +9,10 @@ class Api::V1::BattlesController < Api::V1::BaseController
   end
 
   def create
-    @battle = Battle.new(battle_params)
     @room = Room.find(params[:room_id])
-    @battle.room = @room
+    @battle = Battle.find_or_initialize_by(room: @room, end_time: nil)
     authorize @battle
-    if @battle.save
+    if @battle.update(battle_params)
       render 'api/v1/rooms/show'
     else
       render_error
@@ -30,7 +29,7 @@ class Api::V1::BattlesController < Api::V1::BaseController
     @battle = Battle.find(params[:id] || params[:battle_id]) || user.active_battle
     authorize @battle
     @battle.destroy
-    render json: { status: "success"}
+    render json: { status: "success" }
     # render 'api/v1/rooms/show'
   end
 
@@ -39,9 +38,11 @@ class Api::V1::BattlesController < Api::V1::BaseController
     authorize @battle
     if params[:perform] == 'end'
       @battle.update(end_time: DateTime.now) unless @battle.end_time
+      @battle.broadcast_action('end-battle')
     else
-      timer = 10.seconds
-      @battle.update(start_time: DateTime.now + timer) unless @battle.start_time
+      countdown = params[:countdown].to_i.seconds
+      @battle.update(start_time: DateTime.now + countdown) unless @battle.start_time
+      @battle.broadcast_action('start-countdown')
     end
     render json: { action: params[:perform], status: "success" }
   end

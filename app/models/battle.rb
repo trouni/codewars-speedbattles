@@ -41,6 +41,13 @@ class Battle < ApplicationRecord
     )
   end
 
+  def broadcast_action(action)
+    ActionCable.server.broadcast(
+      "warroom_#{room.id}",
+      perform: action
+    )
+  end
+
   def challenge
     {
       id: challenge_id,
@@ -62,8 +69,22 @@ class Battle < ApplicationRecord
       end_time: end_time,
       winner: winner&.api_expose,
       challenge: challenge,
-      players: players.map(&:api_expose)
+      players: players.map do |user|
+        {
+          user: user.api_expose,
+          completed_at: user.completed_challenge(self)&.completed_at
+        }
+      end
     }
+  end
+
+  def results
+    players.map do |user|
+      {
+        user: user.api_expose,
+        completed_at: user.completed_challenge(self).completed_at
+      }
+    end
   end
 
   def survivors

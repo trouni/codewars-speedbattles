@@ -5,15 +5,15 @@
       <input type="text" v-model="challengeInput" placeholder="Enter the id, slug or url of a CodeWars Kata">
       <button @click="createBattle">Load</button>
     </div>
-    <div class="edit-battle" v-else-if="!this.ongoingBattle">
+    <div class="edit-battle" v-else-if="!this.battleInitialized">
       <input type="number" name="time-limit" min='1' placeholder="time limit"> min (optional)
       <input type="number" min='1' :max="eligibleUsers.length"> max survivors (optional)
       <p>{{ ineligibleUsers.map(user => user.username ).join(", ") }} already completed this kata and {{ ineligibleUsers.length > 1 ? 'are' : 'is' }} not eligible for the battle</p>
       <button @click="$root.$emit('delete-battle')">Delete Battle</button>
       <button @click="$root.$emit('invite-all')" :disabled="allInvited">Invite All</button>
     </div>
-    <button v-if="battleLoaded" :disabled="!readyToStart" :class="{ 'all-confirmed': allConfirmed }" @click="startBattle">Start Battle ({{ confirmedUsers.length }} of {{ invitedUsers.length }})</button>
-    <button v-else-if="ongoingBattle" @click="endBattle">End Battle</button>
+    <button v-if="battleLoaded" :disabled="!readyToStart" :class="{ 'all-confirmed': allConfirmed }" @click="initializeBattle">Start Battle ({{ confirmedUsers.length }} of {{ invitedUsers.length }})</button>
+    <button v-else-if="battleInitialized" @click="endBattle">End Battle</button>
   </div>
 </template>
 
@@ -61,7 +61,7 @@
       readyToStart() {
         return this.battleLoaded && this.confirmedUsers.length > 0
       },
-      ongoingBattle() {
+      battleInitialized() {
         if (this.battle) {
           return this.battle.start_time !== null && this.battle.end_time === null
         }
@@ -76,11 +76,11 @@
       createBattle() {
         this.$root.$emit('create-battle', this.challengeInput)
       },
-      startBattle() {
-        if (!this.ongoingBattle) { this.$root.$emit('start-battle') }
+      initializeBattle() {
+        if (!this.battleInitialized) { this.$root.$emit('initialize-battle') }
       },
       endBattle() {
-        if (this.ongoingBattle) { this.$root.$emit('end-battle') }
+        if (this.battleInitialized) { this.$root.$emit('end-battle') }
       }
     }
   }

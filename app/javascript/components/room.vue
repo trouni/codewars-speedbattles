@@ -10,7 +10,7 @@
       <room-chat :chat-id="room.chat_id" :user-id="currentUserId"></room-chat>
     </div>
     <div class="grid-item grid-battle">
-      <room-battle :battle="battle" :room-id="room.id"></room-battle>
+      <room-battle :battle="battle" :room-id="room.id" :countdown="countdown" :current-user-is-moderator="currentUserIsModerator"></room-battle>
     </div>
     <div class="grid-item grid-leaderboard">
       <room-leaderboard></room-leaderboard>
@@ -54,6 +54,8 @@
         battle: this.battleInit,
         challengeInput: 'beginner-friendly-uppercase-a-string',
         controlsType: '',
+        countdownDuration: 3,
+        countdown: 0
       }
     },
     created() {
@@ -74,7 +76,7 @@
       },
       currentUserIsModerator() {
         return this.currentUser.id === this.room.moderator.id
-      },
+      }
     },
     methods: {
       // =============
@@ -128,12 +130,34 @@
         battle.deleted ? this.battle = null : this.battle = battle
         this.refreshUsers()
       },
+      initializeBattle() {
+        SpeedBattlesApi.updateBattleStatus(this.battle.id, 'start', this.countdownDuration)
+          // .then(response => {
+          //   this.$cable.perform({
+          //       channel: 'BattleChannel',
+          //       action: 'send_message',
+          //       data: { content: 'start-countdown'}
+          //   })
+          // })
+      },
       startBattle() {
-        SpeedBattlesApi.updateBattleStatus(this.battle.id, 'start')
+        if (this.battle.challenge.language === null) { this.battle.challenge.language = 'ruby' }
+        window.open(`${this.battle.challenge.url}/train/${this.battle.challenge.language}`)
       },
       endBattle() {
         SpeedBattlesApi.updateBattleStatus(this.battle.id, 'end')
-          .then(response => this.refreshRoom())
+      },
+      startCountdown() {
+        this.countdown = this.countdownDuration
+        const timer = setInterval(() => {
+          if (this.countdown > 1) {
+            this.countdown -= 1
+          } else {
+            this.countdown = 0
+            clearInterval(timer);
+            this.startBattle()
+          }
+        }, 1000)
       },
       // =============
       //     USERS
@@ -162,7 +186,27 @@
         SpeedBattlesApi.invitation(this.battle.id, action, userId)
       }
     },
+    channels: {
+      BattleChannel: {
+          connected() {
+            console.log('WebSockets connected to BattleChannel.')
+          },
+          rejected() {},
+          received(data) {
+            console.log(data)
+            if (data.perform === 'start-countdown') {
+              this.startCountdown()
+            } else if (data.perform === 'end-battle') {
+              this.refreshRoom()
+            } else {
+              this.updateBattle(data)
+            }
+          },
+          disconnected() {}
+      }
+    },
     mounted () {
+      this.$cable.subscribe({ channel: 'BattleChannel', room_id: this.room.id })
       this.$root.$on('refresh-all', () => this.refreshAll())
       this.$root.$on('create-battle', (challenge) => this.createBattle(challenge))
       this.$root.$on('delete-battle', () => this.deleteBattle())
@@ -175,7 +219,8 @@
       this.$root.$on('invite-survivors', () => this.invitation("survivors"))
       this.$root.$on('confirm-invite', (userId) => this.invitation("confirm", userId))
       this.$root.$on('update-battle', (battle) => this.updateBattle(battle))
-      this.$root.$on('start-battle', () => this.startBattle())
+      this.$root.$on('initialize-battle', () => this.initializeBattle())
+      this.$root.$on('start-countdown', () => this.startCountdown())
       this.$root.$on('end-battle', () => this.endBattle())
     }
   }

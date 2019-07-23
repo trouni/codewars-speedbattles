@@ -49,18 +49,6 @@
         this.$cable.subscribe({ channel: 'UsersChannel', room_id: this.roomId, user_id: this.currentUser.id });
     },
     methods: {
-      sendMessage() {
-        const message = {
-          chat_id: this.chatId,
-          user_id: this.currentUser.id,
-          content: this.input
-        }
-        this.$cable.perform({
-            channel: 'ChatChannel',
-            action: 'send_message',
-            data: message
-        });
-      },
       showInviteButton(user, inviteStatus) {
         return this.currentUserIsModerator && user.invite_status == inviteStatus
       },
