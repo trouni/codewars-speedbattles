@@ -4,8 +4,8 @@
     <ul class="list-group">
       <li v-bind:class="userClass(user)" v-for="user in users">
         <div>{{ user.username }} <i class="fas fa-crown" v-if="user.moderator"></i></div>
-        <div v-if="user.invite_status == 'eligible'" @click="$root.$emit('invite-user', user.id)">invite</div>
-        <div v-else-if="user.invite_status == 'invited'" @click="$root.$emit('uninvite-user', user.id)">uninvite</div>
+        <div v-if="showInviteButton(user, 'eligible')" @click="$root.$emit('invite-user', user.id)">invite</div>
+        <div v-else-if="showInviteButton(user, 'invited')" @click="$root.$emit('uninvite-user', user.id)">uninvite</div>
         <div v-else></div>
       </li>
     </ul>
@@ -17,7 +17,8 @@
     props: {
       users: Array,
       roomId: Number,
-      userId: Number
+      currentUser: Object,
+      currentUserIsModerator: Boolean
     },
     data() {
       return {
@@ -25,6 +26,8 @@
       }
     },
     channels: {
+    computed: {
+    },
         UsersChannel: {
             connected() {
               this.$root.$emit('refresh-users')
@@ -45,13 +48,13 @@
         }
     },
     mounted() {
-        this.$cable.subscribe({ channel: 'UsersChannel', room_id: this.roomId, user_id: this.userId });
+        this.$cable.subscribe({ channel: 'UsersChannel', room_id: this.roomId, user_id: this.currentUser.id });
     },
     methods: {
       sendMessage() {
         const message = {
           chat_id: this.chatId,
-          user_id: this.userId,
+          user_id: this.currentUser.id,
           content: this.input
         }
         this.$cable.perform({
@@ -59,6 +62,9 @@
             action: 'send_message',
             data: message
         });
+      },
+      showInviteButton(user, inviteStatus) {
+        return this.currentUserIsModerator && user.invite_status == inviteStatus
       },
       userClass(user) {
         return [

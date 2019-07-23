@@ -1,22 +1,22 @@
 <template>
-  <div id="room">
+  <div id="room" v-if="loaded">
     <div class="grid-item grid-header">
       <h2 class="text-center">War Room {{ room.name }}</h2>
     </div>
     <div class="grid-item grid-warriors">
-      <room-users :users="users" :room-id="room.id" :user-id="currentUserId"></room-users>
+      <room-users :users="users" :room-id="room.id" :current-user="currentUser" :current-user-is-moderator="currentUserIsModerator"></room-users>
     </div>
     <div class="grid-item grid-chat">
-      <room-chat :chat-id="room.chat_id" :user-id="currentUserId" v-if="loaded"></room-chat>
+      <room-chat :chat-id="room.chat_id" :user-id="currentUserId"></room-chat>
     </div>
     <div class="grid-item grid-battle">
-      <room-battle :battle="battle" :room-id="room.id" v-if="loaded"></room-battle>
+      <room-battle :battle="battle" :room-id="room.id"></room-battle>
     </div>
     <div class="grid-item grid-leaderboard">
       <room-leaderboard></room-leaderboard>
     </div>
     <div class="grid-item grid-controls">
-      <component v-bind:is="controlsType" :room="room" :battle="battle" :user="currentUser" v-if="loaded"></component>
+      <component v-bind:is="controlsType" :room="room" :battle="battle" :current-user="currentUser" :input="challengeInput"></component>
       <!-- <room-controls :roomId="this.room.id"></room-controls> -->
     </div>
   </div>
@@ -38,6 +38,7 @@
         room: this.roomInit,
         users: this.usersInit,
         battle: this.battleInit,
+        challengeInput: 'beginner-friendly-uppercase-a-string',
         controlsType: '',
       }
     },
@@ -45,13 +46,21 @@
       this.refreshRoom()
     },
     computed: {
-      currentUser() {
-        const currentUserIndex = this.users.findIndex((e) => e.id === this.currentUserId);
-        return this.users[currentUserIndex]
-      },
       currentUserId() {
         return this.userInit.id
-      }
+      },
+      currentUser() {
+        const currentUserIndex = this.users.findIndex((e) => e.id === this.currentUserId);
+
+        if (currentUserIndex === -1) {
+          return this.userInit
+        } else {
+          return this.users[currentUserIndex]
+        }
+      },
+      currentUserIsModerator() {
+        return this.currentUser.id === this.room.moderator.id
+      },
     },
     methods: {
       // =============
@@ -64,7 +73,7 @@
             if (this.room.active_battle) {
               this.battle = this.room.active_battle
             }
-            this.controlsType = this.room.moderator.id == this.currentUserId ? 'room-controls-mod' : 'room-controls'
+            this.controlsType = this.currentUserIsModerator ? 'room-controls-mod' : 'room-controls'
             this.loaded = true
         })
       },
@@ -76,7 +85,10 @@
           .then(response => {
             if (response != null) {
               SpeedBattlesApi.postBattle(this.room.id, response)
-                // .then(response => this.refreshRoom())
+                .then((response) => {
+                  this.refreshRoom()
+                  this.challengeInput = null
+                })
             } else {
               console.log("No kata found with this id/slug/url")
             }
@@ -114,6 +126,7 @@
       },
       updateBattle(battle) {
         battle.deleted ? this.battle = null : this.battle = battle
+        this.refreshUsers()
       }
     },
     mounted () {

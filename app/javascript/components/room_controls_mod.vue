@@ -9,7 +9,7 @@
     </div>
     <div class="new-battle" v-else>
       <input type="text" v-model="challengeInput" placeholder="Enter the id, slug or url of a CodeWars Kata">
-      <button @click="$root.$emit('create-battle', challengeInput)">Load</button>
+      <button @click="createBattle">Load</button>
     </div>
   </div>
 </template>
@@ -18,13 +18,14 @@
   export default {
     props:{
       room: Object,
-      user: Object,
-      battle: Object
+      currentUser: Object,
+      battle: Object,
+      input: String
     },
     data() {
       return {
         title: "Controls",
-        challengeInput: ''
+        challengeInput: this.input
       }
     },
     computed: {
@@ -33,6 +34,10 @@
       }
     },
     methods: {
+      createBattle() {
+        this.$root.$emit('create-battle', this.challengeInput)
+        // this.challengeInput = null
+      }
     }
   }
 </script>
