@@ -3,7 +3,7 @@
     <h3 class="highlight">{{ title }}</h3>
     <ul class="messages" v-chat-scroll="{always: true, smooth: true}" v-if="loaded">
       <li v-for="message in sortedMessages" v-bind:class="messageClass(message)">
-        {{ `${message.author.username} > ${message.content}` }}
+        {{ isAnnouncement(message) ? message.content : `${message.author.username} > ${message.content}` }}
       </li>
     </ul>
     <input type="text" @keyup.enter="sendMessage" v-model="input">
@@ -61,13 +61,13 @@
           this.loaded = true
         })
       },
-      announcement(message) {
+      isAnnouncement(message) {
         return message.author.username === "bot"
       },
       messageClass(message) {
         return [
           'message',
-          { 'bot-announcement': this.announcement(message) }
+          { 'bot-announcement': this.isAnnouncement(message) }
         ]
       },
       sendMessage() {
