@@ -59,6 +59,45 @@ class Room < ApplicationRecord
     end
   end
 
+  def players
+    User.joins(battle_invites: :battle).where(battle_invites: { confirmed: true }, battles: { room_id: id }).uniq
+  end
+
+  def battles_fought(player)
+    Battle.joins(battle_invites: :player).where(battle_invites: { confirmed: true }, battles: { room_id: id }, users: { id: player.id })
+    # player.battle_invites.where(confirmed: true)
+  end
+
+  def battles_survived(player)
+    Battle.joins(battle_invites: { player: :completed_challenges }).where(
+      # battles_fought(player).joins(:completed_challenges).where(
+      "battle_invites.confirmed = true AND battles.room_id = ? AND completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time AND completed_challenges.challenge_id = battles.challenge_id AND completed_challenges.user_id = ?",
+      id,
+      player.id
+    )
+    # player.battle_invites.where(confirmed: true)
+  end
+
+  def victories(player)
+    finished_battles.map(&:winner).select { |winner| winner == player }
+  end
+
+  def total_score(player)
+    finished_battles.map { |battle| battle.score(player) }.reduce(:+)
+  end
+
+  def leaderboard
+    players.map do |player|
+      {
+        user: player,
+        battles_fought: battles_fought(player).count,
+        battles_survived: battles_survived(player).count,
+        victories: victories(player).count,
+        total_score: total_score(player)
+      }
+    end
+  end
+
   private
 
   def create_chat

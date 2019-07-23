@@ -59,29 +59,6 @@ class User < ApplicationRecord
     return bot
   end
 
-  def survived_battle?(battle)
-    return nil if battle.players.exclude?(self)
-
-    CompletedChallenge.where(
-      "completed_at > ? AND completed_at < ? AND challenge_id = ? AND user_id = ?",
-      battle.start_time,
-      battle.end_time,
-      battle.challenge_id,
-      id
-    ).any?
-  end
-
-  def completed_challenge(battle)
-    return nil if battle.players.exclude?(self)
-
-    result = CompletedChallenge.where(
-      "completed_at > ? AND challenge_id = ? AND user_id = ?",
-      battle.start_time,
-      battle.challenge_id,
-      id
-    ).order(completed_at: :asc).limit(1).first
-  end
-
   def active_battle
     room&.active_battle
   end

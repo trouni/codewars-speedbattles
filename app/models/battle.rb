@@ -23,9 +23,13 @@ class Battle < ApplicationRecord
   belongs_to :room
   belongs_to :winner, class_name: "User", optional: true
   has_many :battle_invites, dependent: :destroy
-  has_many :players, through: :battle_invites, class_name: "User"
+  # has_many :players, through: :battle_invites, class_name: "User"
   after_commit :broadcast_battle, on: %i[create update]
   after_destroy :broadcast_battle_destroyed
+
+  def players
+    User.joins(battle_invites: :battle).where(battle_invites: { confirmed: true }, battles: { id: id })
+  end
 
   def broadcast_battle
     ActionCable.server.broadcast(
@@ -69,26 +73,70 @@ class Battle < ApplicationRecord
       end_time: end_time,
       winner: winner&.api_expose,
       challenge: challenge,
-      players: players.map do |user|
-        {
-          user: user.api_expose,
-          completed_at: user.completed_challenge(self)&.completed_at
-        }
+      players: players.map do |player|
+        player.api_expose.merge(completed_at: completed_challenge(player)&.completed_at)
       end
     }
   end
 
-  def results
-    players.map do |user|
-      {
-        user: user.api_expose,
-        completed_at: user.completed_challenge(self).completed_at
-      }
+  def completed_challenge(player)
+    return nil if players.exclude?(player)
+
+    CompletedChallenge.where(
+      "completed_at > ? AND challenge_id = ? AND user_id = ?",
+      start_time,
+      challenge_id,
+      player.id
+    ).order(completed_at: :asc).limit(1).first
+  end
+
+  def survived?(player)
+    return nil if players.exclude?(player)
+
+    CompletedChallenge.where(
+      "completed_at > ? AND completed_at < ? AND challenge_id = ? AND user_id = ?",
+      start_time,
+      end_time,
+      challenge_id,
+      player.id
+    ).limit(1).any?
+  end
+
+  def winner
+    CompletedChallenge.where(
+      "completed_at > ? AND completed_at < ? AND challenge_id = ? AND user_id IN (?)",
+      start_time,
+      end_time,
+      challenge_id,
+      players.pluck(:id)
+    ).order(completed_at: :asc).limit(1).first&.user
+  end
+
+  def finishing_order
+    players.map do |player|
+      completed_challenge(player) || { user_id: player.id, completed_at: DateTime.new(9999) }
+    end.sort_by(&:completed_at).pluck(:user_id)
+  end
+
+  def ranking(player)
+    finishing_order.find_index(player.id) + 1 if finishing_order.find_index(player.id)
+  end
+
+  def score(player)
+    return 0 unless survived?(player)
+
+    case ranking(player)
+    when 1
+      3
+    when 2
+      2
+    else
+      1
     end
   end
 
   def survivors
-    battle_invites.where(survived: true)
+    players.select { |player| survived?(player) }
   end
 
   def can_start?
@@ -104,6 +152,6 @@ class Battle < ApplicationRecord
   end
 
   def ineligible_users
-    CompletedChallenge.where(challenge_id: challenge_id, user: room.users).map(&:user)
+    User.joins(:completed_challenges).where(completed_challenges: { challenge_id: challenge_id, user: room.users })
   end
 end

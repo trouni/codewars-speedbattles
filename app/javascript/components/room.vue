@@ -10,7 +10,7 @@
       <room-chat :chat-id="room.chat_id" :user-id="currentUserId"></room-chat>
     </div>
     <div class="grid-item grid-battle">
-      <room-battle :battle="battle" :room-id="room.id" :countdown="countdown" :current-user-is-moderator="currentUserIsModerator"></room-battle>
+      <room-battle :battle="battle" :room="room" :countdown="countdown" :current-user-is-moderator="currentUserIsModerator"></room-battle>
     </div>
     <div class="grid-item grid-leaderboard">
       <room-leaderboard></room-leaderboard>
