@@ -13,7 +13,7 @@
     },
     data() {
       return {
-        title: "Controls",
+        title: "SYSTEM:/ Settings",
         challengeInput: ''
       }
     },

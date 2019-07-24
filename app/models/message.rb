@@ -13,6 +13,7 @@
 class Message < ApplicationRecord
   belongs_to :user
   belongs_to :chat
+  validates :content, presence: true, allow_blank: false
   after_create :broadcast_message
 
   def api_expose

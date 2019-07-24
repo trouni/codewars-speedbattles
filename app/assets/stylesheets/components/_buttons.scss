@@ -1,0 +1,25 @@
+button {
+  background: none;
+  border: none;
+  font-family: $headers-font;
+  text-transform: uppercase;
+  align-items: center;
+  display: flex;
+  font-weight: 300;
+  color: $headers-color;
+  text-shadow: 0 0 5px $headers-color, 0 0 15px rgba( white ,0.5);
+  &:focus {
+    outline: none;
+  }
+  &:before {
+    font-size: 2em;
+    content: "[";
+  }
+  &:after {
+    font-size: 2em;
+    content: "]";
+  }
+  &.line-height-1 {
+    line-height: 1em;
+  }
+}

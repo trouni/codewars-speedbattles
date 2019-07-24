@@ -2,7 +2,7 @@ class FetchCompletedChallengesJob < ApplicationJob
   include CodewarsHelper
   queue_as :default
 
-  def perform(user_id)
+  def perform(user_id, battle_id = nil)
     user = User.find(user_id)
 
     # Fetching first page and retrieving number of pages
@@ -13,5 +13,7 @@ class FetchCompletedChallengesJob < ApplicationJob
     end
 
     user.update(last_fetched_at: DateTime.now)
+
+    Battle.find(battle_id).broadcast_action('refresh-battle') if battle_id
   end
 end

@@ -1,20 +1,52 @@
 <template>
   <div id="room-battle" class="widget">
-    <h3 class="highlight">{{ title }}</h3>
-    <div v-if="canShowChallenge">
-      <h4>{{ battle.challenge.name }}</h4>
-      <p>{{ battle.challenge.description }}</p>
+    <h3 class="header">{{ headerTitle }}</h3>
+    <div class="widget-body">
+      <div v-if="showChallenge">
+        <h4>{{ battle.challenge.name }}</h4>
+        <p>{{ battle.challenge.description }}</p>
+      </div>
+      <div v-else>
+        <table class="console-table">
+          <thead>
+            <th scope="col"><span class="data">WARRIOR</span></th>
+            <th scope="col"><span class="data">RANK</span></th>
+            <th scope="col"><span class="data">STATUS</span></th>
+            <th scope="col"><span class="data">TIME</span></th>
+          </thead>
+          <tbody>
+            <tr v-for="(result, index) in lastBattle.results.survivors">
+              <th scope="row">
+                <span class="data username">{{ result.username }}</span>
+              </th>
+              <td>
+                <span class="data rank">{{ index + 1 }}</span>
+              </td>
+              <td>
+                <span class="data">Completed</span>
+              </td>
+              <td>
+                <span class="data">{{ formatDuration(completedIn(lastBattle, result.completed_at)) }}</span>
+              </td>
+            </tr>
+            <tr v-for="result in lastBattle.results.not_finished">
+              <th scope="row">
+                <span class="data username">{{ result.username }}</span>
+              </th>
+              <td>
+                <span class="data rank">-</span>
+              </td>
+              <td>
+                <span class="data">{{ lastBattleOver ? 'Defeated' : 'TBC' }}</span>
+              </td>
+              <td>
+                <span class="data">-</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div v-else>
-      <ol>
-        <li v-for="player in lastResults">
-          {{ player.username }}
-          {{ formatDuration(completedIn(lastBattle, player)) }}
-          {{ survived (lastBattle, player) }}
-        </li>
-      </ol>
-    </div>
-    <h4>{{ countdown }}</h4>
   </div>
 </template>
 
@@ -22,16 +54,32 @@
   export default {
     props: {
       room: Object,
+      users: Array,
       battle: Object,
       countdown: Number,
       currentUserIsModerator: Boolean
     },
-    data: function () {
+    data() {
       return {
-        title: "Challenge"
+
       }
     },
     computed: {
+      headerTitle() {
+        const prefix = 'KATA://'
+        if (this.battleOngoing) {
+          return `${prefix}Battle_Report`
+        } else if (this.battleInitialized) {
+          return `${prefix}Mission_Briefing`
+        } else {
+          return `${prefix}Awaiting_Instructions`
+        }
+      },
+      battleNotStarted() {
+        if (this.battle) {
+          return this.battle.start_time === null
+        }
+      },
       battleInitialized() {
         if (this.battle) {
           return this.battle.start_time !== null && this.battle.end_time === null
@@ -40,9 +88,14 @@
       battleOngoing() {
         return this.battleInitialized && this.countdown === 0
       },
-      canShowChallenge() {
+      lastBattleOver() {
+        if (this.lastBattle) {
+          return this.lastBattle.end_time !== null
+        }
+      },
+      showChallenge() {
         if (this.battle) {
-          return this.currentUserIsModerator || this.battleInitialized
+          return (this.currentUserIsModerator || this.battleInitialized) && !this.battleOngoing
         }
       },
       previousBattles() {
@@ -51,17 +104,21 @@
         })
       },
       lastBattle() {
-        return this.previousBattles[0]
-      },
-      lastResults() {
-        return this.lastBattle.players.sort((a, b) => {
-          return new Date(a.completed_at) - new Date(b.completed_at)
-        })
+        // return this.findBattle(168)
+        return this.battle || this.previousBattles[0]
       }
     },
     methods: {
-      completedIn(battle, player) {
-        return (new Date(player.completed_at) - new Date(battle.start_time)) / 1000 // duration in seconds
+      findUser(userId) {
+        const index = this.users.findIndex((e) => e.id === userId);
+        return this.users[index]
+      },
+      findBattle(battleId) {
+        const index = this.previousBattles.findIndex((e) => e.id === battleId);
+        return this.previousBattles[index]
+      },
+      completedIn(battle, completed_at) {
+        return (new Date(completed_at) - new Date(battle.start_time)) / 1000 // duration in seconds
       },
 
       formatDuration(duration) {
@@ -69,10 +126,6 @@
         const minutes = Math.floor(duration / 60) % 60
         const seconds = Math.floor(duration - minutes * 60)
         return `${hours > 0 ? `${String(hours).padStart(2, '0')}:` : ''}${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-      },
-
-      survived(battle, player) {
-        return (new Date(player.completed_at) < new Date(battle.end_time))
       },
     }
   }

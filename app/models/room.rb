@@ -92,16 +92,15 @@ class Room < ApplicationRecord
   end
 
   def leaderboard
-    players.map do |player|
+    (players + users).uniq.map do |user|
       {
-        id: player.id,
-        name: player.name,
-        username: player.username,
-        battles_fought: battles_fought(player).count,
-        battles_survived: battles_survived(player).count,
-        victories: victories(player).count,
-        # defeats: victories(player).count,
-        total_score: total_score(player)
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        battles_fought: battles_fought(user).count,
+        battles_survived: battles_survived(user).count,
+        victories: victories(user).count,
+        total_score: total_score(user)
       }
     end
   end

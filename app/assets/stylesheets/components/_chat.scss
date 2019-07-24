@@ -1,0 +1,60 @@
+#room-chat {
+  // Scrollable window START
+  .header {
+    clip-path: polygon(0 0, $chat-header-width 0, calc(#{$chat-header-width} - #{$bezel}) 100%, 0 100%);
+    width: 100%;
+    padding-right: 0;
+  }
+
+  .widget-body {
+    clip-path: polygon(0 $bezel, calc(#{$chat-header-width} - #{$bezel}) $bezel, $chat-header-width 0, 100% 0, 100% 100%, 0 100%);
+  }
+
+  .messages {
+    flex-grow: 1;
+    margin-top: -1.8em;
+    overflow: scroll;
+    margin-bottom: 0.5em;
+  }
+  // Scrollable window END
+
+
+  .messages li {
+    line-height: 1.2em;
+    list-style: none;
+  }
+
+  .messages .author {
+    font-weight: bold;
+    opacity: 1;
+  }
+
+  .messages .content {
+    opacity: 0.8;
+  }
+
+  #msg-input {
+    // background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    margin-left: -1.5em;
+    padding-left: 1.5em;
+  }
+
+  #msg-input .input-field {
+    background: none;
+    padding-left: 0.5em;
+    // color: white;
+    // border: none;
+    width: 100%;
+  }
+
+  #msg-input .input-field:focus {
+    outline: none;
+  }
+
+  .bot-announcement {
+    font-weight: light;
+    font-style: italic;
+    opacity: 0.7;
+  }
+}

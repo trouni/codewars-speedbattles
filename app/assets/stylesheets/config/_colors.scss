@@ -1,23 +1,13 @@
-// Take colors from: https://codepen.io/rgg/pen/MpMmmP?page=2
-// Font: https://fonts2u.com/dosis-semibold.font
-// Design: https://codepen.io/mo3golom/pen/VjGkLy?page=2
-
-
-// Define variables for your color scheme
+// Colors
 $prussianblue: #086788;
-$prussianblue25: #08678840;
-$prussianblue50: #086788CC;
 $darkblue: #1B4353;
-$darkblue25: #1B435340;
-$darkblue50: #1B4353CC;
-$darkblue75: #1B4353C0;
 $skyblue: #DBE9EE;
-$skyblue25: #DBE9EE40;
-$skyblue50: #DBE9EECC;
-
-
-// For example:
-$red: #DB1271;
+$teal: #00D7C0;
+$yellow: #F6DD27;
+$magenta: #DB1271;
+$orange: #FE864E;
+$purple: #8A4BFF;
+$red: red;
 $blue: #167FFB;
 $yellow: #F6DD27;
 $orange: #FE864E;
@@ -25,22 +15,28 @@ $green: #1EDD88;
 $gray: #0E0000;
 $light-gray: #F4F4F4;
 
-// Chart colors:
 
-// $teal: get('colors.teal');
-// $yellow: get('colors.yellow');
-// $magenta: get('colors.magenta');
-// $orange: get('colors.orange');
-// $purple: get('colors.purple');
+// $maincolor: lighten(red, 25%);
+$maincolor: lighten($darkblue, 25%);
 
-$teal: #00D7C0;
-$teal25: #00D7C040;
-$teal50: #00D7C0CC;
-$yellow: #F6DD27;
-$magenta: #DB1271;
-$orange: #FE864E;
-$purple: #8A4BFF;
+$textcolor: lighten( $maincolor, 30% );
+$body-color: $textcolor;
+$highlight: lighten($maincolor, 40%);
+$headers-color: $highlight;
+$widget-color: $maincolor;
+$bezel-color: saturate( $widget-color, 50% );
+$input-color: $body-color;
+$bgcolor1: rgba( desaturate(darken($maincolor, 5%), 10%), .5 );
+$bgcolor2: rgba( lighten($maincolor, 10%), .25 );
 
-$accent: $prussianblue;
-$secondary: $skyblue;
-$highlight: $teal;
+
+$username-invited: $yellow;
+$username-ineligible: rgba($textcolor, 0.5);
+$username-confirmed: $highlight;
+
+
+$primary:    $blue;
+$success:    $green;
+$info:       $yellow;
+$danger:     $red;
+$warning:    $orange;

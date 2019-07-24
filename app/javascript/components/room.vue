@@ -1,22 +1,29 @@
 <template>
-  <div id="room" v-if="loaded">
-    <div class="grid-item grid-header">
-      <h2 class="text-center">War Room {{ room.name }}</h2>
+  <div id="room" v-if="loaded" :class="{ moderator: this.currentUserIsModerator }">
+    <div class="grid-item grid-header widget-bg">
+      <div class="widget">
+        <h3 class="header highlight">PWD:/War_Room/{{ room.name }}</h3>
+        <div class="widget-body position-relative">
+          <span class="flash absolute-centering">
+            {{ flash }}
+          </span>
+        </div>
+      </div>
     </div>
-    <div class="grid-item grid-warriors">
+    <!-- <div class="grid-item grid-warriors widget-bg">
       <room-users :users="users" :room-id="room.id" :current-user="currentUser" :current-user-is-moderator="currentUserIsModerator"></room-users>
-    </div>
-    <div class="grid-item grid-chat">
+    </div> -->
+    <div class="grid-item grid-chat widget-bg">
       <room-chat :chat-id="room.chat_id" :user-id="currentUserId"></room-chat>
     </div>
-    <div class="grid-item grid-battle">
-      <room-battle :battle="battle" :room="room" :countdown="countdown" :current-user-is-moderator="currentUserIsModerator"></room-battle>
+    <div class="grid-item grid-battle widget-bg">
+      <room-battle :battle="battle" :users="users" :room="room" :countdown="countdown" :current-user-is-moderator="currentUserIsModerator"></room-battle>
     </div>
-    <div class="grid-item grid-leaderboard">
-      <room-leaderboard :leaderboard="leaderboard"></room-leaderboard>
+    <div class="grid-item grid-leaderboard widget-bg">
+      <room-leaderboard :leaderboard="leaderboard" :users="users" :room="room" :current-user="currentUser" :current-user-is-moderator="currentUserIsModerator"></room-leaderboard>
     </div>
-    <div class="grid-item grid-controls">
-      <component v-bind:is="controlsType" :room="room" :battle="battle" :users="users" :current-user="currentUser" :input="challengeInput"></component>
+    <div class="grid-item grid-controls widget-bg">
+      <room-controls-mod :room="room" :battle="battle" :users="users" :current-user="currentUser" :input="challengeInput" :current-user-is-moderator="currentUserIsModerator" :countdown="countdown"></room-controls-mod>
       <!-- <room-controls :roomId="this.room.id"></room-controls> -->
     </div>
   </div>
@@ -53,9 +60,9 @@
         users: this.usersInit,
         battle: this.battleInit,
         leaderboard: [],
-        challengeInput: 'beginner-friendly-uppercase-a-string',
+        challengeInput: 'deodorant-evaporator',
         controlsType: '',
-        countdownDuration: 3,
+        countdownDuration: 2,
         countdown: 0
       }
     },
@@ -63,6 +70,11 @@
       this.refreshRoom()
     },
     computed: {
+      flash() {
+        if (this.countdown > 0) {
+          return `Battle starting in ${this.countdown} second${this.countdown > 1 ? 's' : ''}...`
+        }
+      },
       currentUserId() {
         return this.userInit.id
       },
@@ -93,7 +105,7 @@
               this.battle = null
             }
             this.refreshLeaderboard()
-            this.controlsType = this.currentUserIsModerator ? 'room-controls-mod' : 'room-controls'
+            // this.controlsType = this.currentUserIsModerator ? 'room-controls-mod' : 'room-controls'
             this.loaded = true
         })
       },
@@ -155,12 +167,32 @@
       endBattle() {
         SpeedBattlesApi.updateBattleStatus(this.battle.id, 'end')
       },
-      startCountdown() {
-        this.countdown = this.countdownDuration
+      fetchChallenges(userId) {
+        SpeedBattlesApi.fetchChallenges(userId, this.battle.id)
+      },
+      // refreshBattleResults() {
+      //   SpeedBattlesApi.getBattleResults(this.battle.id)
+      // },
+      startCountdown(countdown) {
+        this.countdown = countdown
         const timer = setInterval(() => {
           if (this.countdown > 1) {
+            this.broadcastMessage({
+              author: {
+                username: 'bot'
+              },
+              content: `Starting battle in ${this.countdown} second${ this.countdown > 1 ? 's' : '' }...`,
+              created_at: Date.now
+            })
             this.countdown -= 1
           } else {
+            this.broadcastMessage({
+              author: {
+                username: 'bot'
+              },
+              content: `Starting battle...`,
+              created_at: Date.now
+            })
             this.countdown = 0
             clearInterval(timer);
             this.startBattle()
@@ -190,8 +222,14 @@
         this.users = this.users.filter(e => e.id != user.id)
       },
       invitation(action, userId = null) {
-        // SpeedBattlesApi.postInvite(this.battle.id, userId)
         SpeedBattlesApi.invitation(this.battle.id, action, userId)
+      },
+      broadcastMessage(message) {
+        this.$cable.perform({
+            channel: 'ChatChannel',
+            action: 'send_message',
+            data: { content: message }
+        });
       }
     },
     channels: {
@@ -203,22 +241,56 @@
           received(data) {
             console.log(data)
             if (data.perform === 'start-countdown') {
-              this.startCountdown()
+              this.startCountdown(data.data.countdown)
             } else if (data.perform === 'end-battle') {
               this.refreshRoom()
+            } else if (data.perform === 'refresh-battle') {
+              this.refreshBattle()
             } else {
               this.updateBattle(data)
             }
+          },
+          disconnected() {}
+      },
+      UsersChannel: {
+          connected() {
+            console.log('WebSockets connected to UsersChannel')
+            this.refreshUsers()
+          },
+          rejected() {},
+          received(data) {
+            if (data.unsubscribed) {
+              this.removeFromUsers(data)
+            } else {
+              this.pushToUsers(data)
+            }
+            this.refreshAll()
+          },
+          disconnected() {}
+      },
+      ChatChannel: {
+          connected() {
+            // this.loadChat()
+            console.log('WebSockets connected to ChatChannel.')
+          },
+          rejected() {},
+          received(data) {
+            // this.messages.push(data)
+            // console.log(this.messages)
           },
           disconnected() {}
       }
     },
     mounted () {
       this.$cable.subscribe({ channel: 'BattleChannel', room_id: this.room.id })
+      this.$cable.subscribe({ channel: 'UsersChannel', room_id: this.room.id, user_id: this.currentUser.id });
+      this.$cable.subscribe({ channel: 'ChatChannel', chat_id: this.room.chat_id })
       this.$root.$on('refresh-all', () => this.refreshAll())
       this.$root.$on('create-battle', (challenge) => this.createBattle(challenge))
       this.$root.$on('delete-battle', () => this.deleteBattle())
+      // this.$root.$on('refresh-battle', () => this.refreshBattle())
       this.$root.$on('refresh-users', () => this.refreshUsers())
+      this.$root.$on('fetch-challenges', (userId) => this.fetchChallenges(userId))
       this.$root.$on('push-user', (user) => this.pushToUsers(user))
       this.$root.$on('remove-user', (user) => this.removeFromUsers(user))
       this.$root.$on('invite-user', (userId) => this.invitation("invite", userId))
@@ -235,40 +307,7 @@
 </script>
 
 <style scoped>
-  .grid-item {
-    align-items: middle;
-    padding: 1em;
-  }
-  .grid-header {
-    grid-area: header;
-  }
-  .grid-warriors {
-    grid-area: warriors;
-  }
-  .grid-chat {
-    grid-area: chat;
-  }
-  .grid-battle {
-    grid-area: battle;
-  }
-  .grid-leaderboard {
-    grid-area: leaderboard;
-  }
-  .grid-controls {
-    grid-area: controls;
-  }
-
-  #room {
-    background: radial-gradient(ellipse farthest-corner at top left, #086788CC 10%, #1B435440), linear-gradient(#00000088, #00000033)/*, asset-url('bg_codewars_3.jpg')*/;
-    background-size: cover;
-    height: 100vh;
-    display: grid;
-    grid-template-columns: 18% 41% 41%;
-    grid-template-rows: 70px calc(50% - 70px) 15% 35%;
-    grid-template-areas:
-      "header header header"
-      "warriors battle chat"
-      "warriors battle leaderboard"
-      "warriors controls leaderboard"
-  }
+#room {
+  padding: 1em;
+}
 </style>

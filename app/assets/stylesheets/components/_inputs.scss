@@ -1,0 +1,11 @@
+input {
+  background: rgba(255, 255, 255, 0.1);
+  // padding-left: 0.5em;
+  color: $input-color;
+  border: none;
+  // width: 100%;
+}
+
+input:focus {
+  outline: 1px auto rgba( $maincolor, .5 );
+}

@@ -39,10 +39,12 @@ class Api::V1::BattlesController < Api::V1::BaseController
     if params[:perform] == 'end'
       @battle.update(end_time: DateTime.now) unless @battle.end_time
       @battle.broadcast_action('end-battle')
+      @battle.defeated_players.each(&:async_fetch_codewars_info)
     else
       countdown = params[:countdown].to_i.seconds
       @battle.update(start_time: DateTime.now + countdown) unless @battle.start_time
-      @battle.broadcast_action('start-countdown')
+      @battle.broadcast_action('start-countdown', countdown: params[:countdown].to_i)
+      @battle.battle_invites.where(confirmed: false).destroy_all
     end
     render json: { action: params[:perform], status: "success" }
   end
@@ -107,6 +109,19 @@ class Api::V1::BattlesController < Api::V1::BaseController
       invite_user(user)
     end
     render 'api/v1/users/index'
+  end
+
+  def completed_battle
+    skip_authorization
+    battle ||= Battle.find(params[:battle_id])
+    user ||= User.find(params[:user_id])
+    render json: battle.completed_challenge(user).api_expose
+  end
+
+  def results
+    skip_authorization
+    @battle = Battle.find(params[:battle_id])
+    render json: @battle.results
   end
 
   private

@@ -1,0 +1,39 @@
+table.console-table {
+  table-layout: fixed ;
+  width: 100% ;
+
+  thead th {
+    font-size: 0.8em;
+  }
+
+  tbody th {
+    align-items: center;
+    display: flex;
+  }
+
+  th:first-child .data {
+    justify-content: left;
+  }
+
+  .data:first-child {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+  }
+
+  td:nth-child(2n) .data, th:nth-child(2n) .data {
+    justify-content: space-between;
+    &:before, &:after {
+      font-weight: normal;
+      content: "|"
+    }
+  }
+
+  td:last-child .data, th:last-child .data {
+    &:after {
+      visibility: hidden;
+    }
+  }
+}
+

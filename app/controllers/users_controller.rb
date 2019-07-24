@@ -16,6 +16,7 @@ class UsersController < ApplicationController
 
   def fetch_data
     skip_authorization
-    FetchCompletedChallengesJob.perform_now(params[:user_id])
+    FetchCompletedChallengesJob.perform_later(params[:id] || params[:user_id])
+    render json: { status: "success" }
   end
 end

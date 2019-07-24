@@ -16,4 +16,16 @@
 class CompletedChallenge < ApplicationRecord
   belongs_to :user
   validates :challenge_id, uniqueness: { scope: %i[user completed_at] }
+
+  def api_expose
+    {
+      id: id,
+      user_id: user.id,
+      challenge_id: challenge_id,
+      challenge_name: challenge_name,
+      challenge_slug: challenge_slug,
+      completed_at: completed_at,
+      completed_languages: completed_languages
+    }
+  end
 end

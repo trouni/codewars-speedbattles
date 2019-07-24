@@ -26,8 +26,6 @@
       }
     },
     channels: {
-    computed: {
-    },
         UsersChannel: {
             connected() {
               console.log('WebSockets connected to UsersChannel')
@@ -44,6 +42,8 @@
             },
             disconnected() {}
         }
+    },
+    computed: {
     },
     mounted() {
         this.$cable.subscribe({ channel: 'UsersChannel', room_id: this.roomId, user_id: this.currentUser.id });

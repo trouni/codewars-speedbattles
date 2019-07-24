@@ -45,10 +45,11 @@ class Battle < ApplicationRecord
     )
   end
 
-  def broadcast_action(action)
+  def broadcast_action(action, args = {})
     ActionCable.server.broadcast(
       "warroom_#{room.id}",
-      perform: action
+      perform: action,
+      data: args
     )
   end
 
@@ -73,9 +74,8 @@ class Battle < ApplicationRecord
       end_time: end_time,
       winner: winner&.api_expose,
       challenge: challenge,
-      players: players.map do |player|
-        player.api_expose.merge(completed_at: completed_challenge(player)&.completed_at)
-      end
+      players: players.map(&:api_expose),
+      results: expose_results
     }
   end
 
@@ -112,20 +112,53 @@ class Battle < ApplicationRecord
     ).order(completed_at: :asc).limit(1).first&.user
   end
 
-  def finishing_order
-    players.map do |player|
-      completed_challenge(player) || { user_id: player.id, completed_at: DateTime.new(9999) }
-    end.sort_by(&:completed_at).pluck(:user_id)
+  def surviving_players
+    players
+      .joins(completed_challenges: :user)
+      .select(:completed_at, :user_id)
+      .where(
+        "completed_challenges.completed_at > ? AND completed_challenges.completed_at < ? AND completed_challenges.challenge_id = ?",
+        start_time,
+        end_time,
+        challenge_id
+      )
+      .order(:completed_at)
   end
 
-  def ranking(player)
-    finishing_order.find_index(player.id) + 1 if finishing_order.find_index(player.id)
+  def defeated_players
+    surviving_ids = surviving_players.map(&:user_id)
+    players.reject{ |player| surviving_ids.include?(player.id) }
+  end
+
+  def expose_results
+    survivors = surviving_players.map do |challenge|
+      {
+        user_id: challenge.user_id,
+        username: User.find(challenge.user_id).username,
+        completed_at: challenge.completed_at
+      }
+    end
+    not_finished = defeated_players.map do |player|
+      {
+        user_id: player.id,
+        username: player.username,
+        completed_at: nil
+      }
+    end
+    return {
+      survivors: survivors,
+      not_finished: not_finished
+    }
+  end
+
+  def individual_ranking(player)
+    surviving_players.find_index(player.id) + 1 if surviving_players.find_index(player.id)
   end
 
   def score(player)
     return 0 unless survived?(player)
 
-    case ranking(player)
+    case individual_ranking(player)
     when 1
       3
     when 2
@@ -137,6 +170,14 @@ class Battle < ApplicationRecord
 
   def survivors
     players.select { |player| survived?(player) }
+  end
+
+  def started?
+    !start_time.nil?
+  end
+
+  def over?
+    !end_time.nil?
   end
 
   def can_start?

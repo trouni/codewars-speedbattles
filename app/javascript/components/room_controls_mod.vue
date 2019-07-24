@@ -1,19 +1,27 @@
 <template>
   <div id="room-controls" class="widget">
-    <h3 class="highlight">{{ title }}</h3>
-    <div class="new-battle" v-if="!this.battle">
-      <input type="text" v-model="challengeInput" placeholder="Enter the id, slug or url of a CodeWars Kata">
-      <button @click="createBattle">Load</button>
+    <h3 class="header highlight">{{ title }}</h3>
+    <div class="widget-body">
+      <div v-if="currentUserIsModerator">
+        <div class="new-battle" v-if="!this.battle">
+          <input class="input-field" type="text" v-model="challengeInput" @keyup.enter="createBattle" placeholder="Enter the id, slug or url of a CodeWars Kata">
+          <button @click="createBattle" class="line-height-1">Load</button>
+        </div>
+        <div class="edit-battle" v-else-if="!this.battleInitialized">
+          <!-- <input type="number" name="time-limit" min='1' placeholder="time limit"> min (optional)
+          <input type="number" min='1' :max="eligibleUsers.length"> max survivors (optional) -->
+          <p>{{ ineligibleUsers.map(user => user.username ).join(", ") }} already completed this kata and {{ ineligibleUsers.length > 1 ? 'are' : 'is' }} not eligible for the battle</p>
+          <button @click="$root.$emit('delete-battle')">Delete Battle</button>
+          <button @click="$root.$emit('invite-all')" :disabled="allInvited">Invite All</button>
+        </div>
+        <button v-if="battleLoaded" :disabled="!readyToStart" :class="{ 'all-confirmed': allConfirmed }" @click="initializeBattle">Start Battle ({{ confirmedUsers.length }} of {{ invitedUsers.length }})</button>
+        <button v-else-if="battleInitialized" @click="endBattle">End Battle</button>
+      </div>
+      <div v-else>
+        <button @click="$root.$emit('confirm-invite', currentUser.id)" v-if="currentUser.invite_status == 'invited'">Confirm Invite</button>
+        <button @click="$root.$emit('fetch-challenges', currentUser.id)" v-if="battleInitialized" :disabled="!battleStarted">Challenge Completed</button>
+      </div>
     </div>
-    <div class="edit-battle" v-else-if="!this.battleInitialized">
-      <input type="number" name="time-limit" min='1' placeholder="time limit"> min (optional)
-      <input type="number" min='1' :max="eligibleUsers.length"> max survivors (optional)
-      <p>{{ ineligibleUsers.map(user => user.username ).join(", ") }} already completed this kata and {{ ineligibleUsers.length > 1 ? 'are' : 'is' }} not eligible for the battle</p>
-      <button @click="$root.$emit('delete-battle')">Delete Battle</button>
-      <button @click="$root.$emit('invite-all')" :disabled="allInvited">Invite All</button>
-    </div>
-    <button v-if="battleLoaded" :disabled="!readyToStart" :class="{ 'all-confirmed': allConfirmed }" @click="initializeBattle">Start Battle ({{ confirmedUsers.length }} of {{ invitedUsers.length }})</button>
-    <button v-else-if="battleInitialized" @click="endBattle">End Battle</button>
   </div>
 </template>
 
@@ -24,11 +32,13 @@
       users: Array,
       currentUser: Object,
       battle: Object,
-      input: String
+      input: String,
+      currentUserIsModerator: Boolean,
+      countdown: Number
     },
     data() {
       return {
-        title: "Controls",
+        title: "SYS://Settings",
         challengeInput: this.input
       }
     },
@@ -64,6 +74,11 @@
       battleInitialized() {
         if (this.battle) {
           return this.battle.start_time !== null && this.battle.end_time === null
+        }
+      },
+      battleStarted() {
+        if (this.battle) {
+          return this.battle.start_time !== null && this.battle.end_time === null && this.countdown === 0
         }
       },
       battleOver() {

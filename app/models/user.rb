@@ -82,7 +82,11 @@ class User < ApplicationRecord
   def eligible?(battle = active_battle)
     return nil unless battle
 
-    CompletedChallenge.where(challenge_id: battle.challenge_id, user_id: id).empty?
+    !completed_challenge?(battle.challenge_id)
+  end
+
+  def completed_challenge?(challenge_id)
+    CompletedChallenge.where(challenge_id: challenge_id, user_id: id).any?
   end
 
   def invite_status(battle = active_battle)
@@ -92,7 +96,7 @@ class User < ApplicationRecord
       "confirmed"
     elsif invited?(battle)
       "invited"
-    elsif eligible?(battle)
+    elsif eligible?(battle) && !battle.started?
       "eligible"
     else
       "ineligible"

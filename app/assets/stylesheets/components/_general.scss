@@ -6,22 +6,19 @@
 }
 
 body {
-  color: $secondary;
-  background: black radial-gradient(ellipse farthest-corner at top left, $prussianblue50 10%, $darkblue25);
+  color: $body-color;
+  background: radial-gradient(ellipse farthest-corner at top left, $bgcolor1 10%, $bgcolor2), linear-gradient(#00000088, #00000033), asset-url('bg_codewars_3.jpg');
+  // background: radial-gradient(ellipse farthest-corner at top left, #086788CC 50%, #1B435440), linear-gradient(#00000088, #00000033), asset-url('bg_codewars_3.jpg');
+  background-size: cover;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: $headers-color;
 }
 
 a, a:hover {
   text-decoration: none;
 }
-
-h1, h2, h3, p {
-  color: $secondary;
-}
-
-h4, h5, h6 {
-  color: white;
-}
-
 
 .hidden {
   display: none;
@@ -35,25 +32,17 @@ h4, h5, h6 {
   opacity: 0;
 }
 
-.bg-darkblue50 {
-  background-color: $darkblue50;
-}
-
-.bg-darkblue75 {
-  background-color: $darkblue75;
-}
-
-.bg-darkblue {
-  background-color: $darkblue;
-}
-
 .flex-1 {
   flex: 1;
 }
 
+.position-relative {
+  position: relative;
+}
+
 .absolute-centering {
-  width: 50%;
-  height: 50%;
+  // width: 50%;
+  // height: 50%;
   overflow: auto;
   margin: auto;
   position: absolute;
@@ -75,7 +64,6 @@ h4, h5, h6 {
 }
 
 .highlight-on-hover:hover {
-  // color: $highlight;
   text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
 }
 

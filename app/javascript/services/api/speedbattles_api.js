@@ -36,7 +36,6 @@ export default {
     }
   },
 
-
   invitation (battle_id, action, user_id = null, ) {
     return fetch(`/api/v1/battles/${battle_id}/invitation?${user_id ? `user_id=${user_id}&` : ''}perform=${action}`)
       .then(response => response);
@@ -66,5 +65,15 @@ export default {
   updateBattleStatus (battle_id, action, countdown = 10) {
     return fetch(`/api/v1/battles/${battle_id}/launch?perform=${action}&countdown=${countdown}`)
       .then(response => response.json());
-  }
+  },
+
+  getBattleResults (battle_id) {
+    return fetch(`/api/v1/battles/${battle_id}/results`)
+      .then(response => response.json());
+  },
+
+  fetchChallenges (user_id, battle_id) {
+    return fetch(`/api/v1/users/${user_id}/fetch_data?battle_id=${battle_id}`)
+      .then(response => response.json());
+  },
 }

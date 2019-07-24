@@ -1,0 +1,54 @@
+.username {
+  line-height: 1.5em;
+  font-size: 1em;
+  font-weight: 300;
+  align-items: center;
+  display: inline-flex;
+  .offline {
+    opacity: 0.5;
+    font-style: italic;
+  }
+
+  i.offline {
+    font-style: normal;
+  }
+  .invited {
+    color: $username-invited;
+  }
+
+  .ineligible {
+    color: $username-ineligible;
+  }
+
+  .confirmed {
+    color: $username-confirmed;
+    font-weight: 600;
+  }
+}
+
+.moderator {
+  .username {
+    cursor: default;
+
+    &:after {
+      content: "[ ]";
+      visibility: hidden;
+    }
+
+    .eligible, .invited {
+      cursor: pointer;
+      &:after {
+        margin-left: 0.3em;
+        visibility: visible;
+      }
+    }
+
+    .invited:after {
+      content: "[-]";
+    }
+
+    .eligible:after {
+      content: "[+]";
+    }
+  }
+}

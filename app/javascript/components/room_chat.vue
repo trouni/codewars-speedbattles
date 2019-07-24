@@ -1,12 +1,16 @@
 <template>
   <div id="room-chat" class="widget">
-    <h3 class="highlight">{{ title }}</h3>
-    <ul class="messages" v-chat-scroll="{always: true, smooth: true}" v-if="loaded">
-      <li v-for="message in sortedMessages" v-bind:class="messageClass(message)">
-        {{ isAnnouncement(message) ? message.content : `${message.author.username} > ${message.content}` }}
-      </li>
-    </ul>
-    <input type="text" @keyup.enter="sendMessage" v-model="input">
+    <h3 class="header">{{ title }}</h3>
+    <div class="widget-body">
+      <ul class="messages" v-chat-scroll="{always: true, smooth: true}" v-if="loaded">
+        <li v-for="message in sortedMessages" v-bind:class="messageClass(message)">
+          <span class="author" v-if="!isAnnouncement(message)">{{  `${message.author.username}>` }}</span> <span class="content">{{ message.content }}</span>
+        </li>
+      </ul>
+      <div id="msg-input">
+        > <input class="input-field" type="text" @keyup.enter="sendMessage" v-model="input"><!-- <button class="line-height-1">Send</button> -->
+      </div>
+    </div>
   </div>
 </template>
 
@@ -20,7 +24,7 @@
     },
     data() {
       return {
-        title: "Chat",
+        title: "Comms://Chatlogs",
         input: "",
         messages: [],
         loaded: false
@@ -88,13 +92,4 @@
 </script>
 
 <style scoped>
-  .messages {
-    overflow: scroll;
-    height: 90%;
-  }
-
-  .bot-announcement {
-    font-style: italic;
-    opacity: 0.5;
-  }
 </style>

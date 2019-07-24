@@ -1,0 +1,42 @@
+.widget-bg {
+  clip-path: polygon(0 0, calc(100% - #{$bezel}) 0, 100% $bezel, 100% 100%, $bezel 100%, 0 calc(100% - #{$bezel}));
+  // background: $maincolor;
+  background: linear-gradient(154.9deg, rgba( $bezel-color, .3 ) 0%, rgba( $bezel-color, .6 ) 86.37%);
+  margin: 4px;
+}
+
+.widget {
+  align-content: flex-center;
+  background: linear-gradient(154.9deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.6) 86.37%);
+  // border-radius: 2px;
+  height: 100%;
+  box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 0.4);
+  transition: background 1s ease-out;
+  clip-path: polygon(0 0, calc(100% - #{$bezel}) 0, 100% $bezel, 100% 100%, $bezel 100%, 0 calc(100% - #{$bezel}));
+  // clip-path: polygon(0 0, calc(100% - #{$bezel}) 0, calc(100% - #{$bezel}) 50%, 100% calc(50% + #{$bezel}), 100% $bezel, 100% 100%, $bezel 100%, 0 calc(100% - #{$bezel}));
+  // clip-path: polygon(0 0, calc(100% - #{$bezel}) 0, 100% #{$bezel}, 100% 100%, $bezel 100%, $bezel 33%, 0 calc(33% - #{$bezel}), 0 calc(100% - #{$bezel}));
+  .header {
+    // clip-path: polygon(0 0, 20em 0, calc(20em - #{$bezel}) 100%, 0 100%);
+    // width: 100%;
+    // padding: 0 0.2em 0.1em 0.2em;
+    clip-path: polygon(0 0, 100% 0, calc(100% - #{$bezel}) 100%, 0 100%);
+    width: fit-content;
+    padding: 0 10% 0.1em 0.5em;
+    line-height: 1.4em;
+    background: rgba( $bezel-color, .25 );
+    opacity: 1;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 1em;
+    margin: 0;
+    z-index: 10;
+    position: fixed;
+  }
+  .widget-body {
+    padding-left: $bezel;
+    padding-top: 2em;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+}
