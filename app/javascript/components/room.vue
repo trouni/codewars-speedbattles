@@ -2,7 +2,7 @@
   <div id="room" v-if="loaded" :class="{ moderator: this.currentUserIsModerator }">
     <div class="grid-item grid-header widget-bg">
       <div class="widget">
-        <h3 class="header highlight">PWD:/War_Room/{{ room.name }}</h3>
+        <h3 class="header highlight">PWD://War_Room/{{ room.name }}</h3>
         <div class="widget-body position-relative">
           <span class="flash absolute-centering">
             {{ flash }}
