@@ -1,24 +1,6 @@
 <ol>
   <% @rooms.each do |room| %>
     <li><%= link_to room.name, room_path(room)%>
-      <h3>Users</h3>
-      <ul>
-        <% room.users.each do |user| %>
-        <li><%= user.email %></li>
-        <% end %>
-      </ul>
-      <h3>Battles</h3>
-      <ol>
-        <% room.battles.each do |battle| %>
-        <li>
-          <ul>
-            <% battle.attributes.each do |attr| %>
-              <li><%= "#{attr[0]}: #{attr[1]}" %></li>
-            <% end %>
-          </ul>
-        </li>
-        <% end %>
-      </ol>
     </li>
   <% end %>
 </ol>
