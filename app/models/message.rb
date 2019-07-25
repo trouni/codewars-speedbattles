@@ -25,13 +25,13 @@ class Message < ApplicationRecord
     }
   end
 
-  def self.create_announcement(content, chat_id)
-    return Message.create(
-      user: User.find_or_create_bot,
-      content: content,
-      chat: Chat.find(chat_id)
-    )
-  end
+  # def self.create_announcement(content, chat_id)
+  #   return Message.create(
+  #     user: User.find_or_create_bot,
+  #     content: content,
+  #     chat: Chat.find(chat_id)
+  #   )
+  # end
 
   def broadcast_message
     ActionCable.server.broadcast(
