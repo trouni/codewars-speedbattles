@@ -45,6 +45,13 @@ a, a:hover {
   position: relative;
 }
 
+.flex-centering {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
 .absolute-centering {
   // width: 50%;
   // height: 50%;
@@ -55,6 +62,10 @@ a, a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.scrollable {
+  overflow: scroll;
 }
 
 .highlight-white {

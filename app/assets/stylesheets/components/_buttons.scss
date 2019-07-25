@@ -29,4 +29,7 @@ button, a.button {
     color: $highlight;
     text-shadow: 0 0 5px $headers-color, 0 0 15px rgba( $headers-color, 0.8);
   }
+  &.large {
+    font-size: 1.5em;
+  }
 }

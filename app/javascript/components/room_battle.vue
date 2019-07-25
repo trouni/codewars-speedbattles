@@ -1,55 +1,57 @@
 <template>
-  <div id="room-battle" class="widget">
-    <h3 class="header">{{ headerTitle }}</h3>
-    <div class="widget-body">
+  <div class="widget-bg">
+    <div id="room-battle" class="widget">
+      <h3 class="header">{{ headerTitle }}</h3>
+      <div class="widget-body">
 
-      <div v-if="showChallenge">
-        <h4>{{ battle.challenge.name }}</h4>
-        <p>{{ battle.challenge.description }}</p>
-      </div>
+        <div v-if="showChallenge">
+          <h4>{{ battle.challenge.name }}</h4>
+          <p>{{ battle.challenge.description }}</p>
+        </div>
 
-      <div v-else-if="lastBattle" class="d-flex flex-column align-items-center">
-        <a :href="challengeUrl" target="_blank" class="button my-4" v-if="battleOngoing">
-          Launch Battle on CodeWars
-        </a>
-        <table class="console-table">
-          <thead>
-            <th scope="col"><span class="data">WARRIOR</span></th>
-            <th scope="col"><span class="data">RANK</span></th>
-            <th scope="col"><span class="data">STATUS</span></th>
-            <th scope="col"><span class="data">TIME</span></th>
-          </thead>
-          <tbody>
-            <tr v-for="(result, index) in lastBattle.results.survivors">
-              <th scope="row">
-                <span class="data username">{{ result.username }}</span>
-              </th>
-              <td>
-                <span class="data rank">{{ index + 1 }}</span>
-              </td>
-              <td>
-                <span class="data">Completed</span>
-              </td>
-              <td>
-                <span class="data">{{ formatDuration(completedIn(lastBattle, result.completed_at)) }}</span>
-              </td>
-            </tr>
-            <tr v-for="result in lastBattle.results.not_finished">
-              <th scope="row">
-                <span class="data username">{{ result.username }}</span>
-              </th>
-              <td>
-                <span class="data rank">-</span>
-              </td>
-              <td>
-                <span class="data">{{ lastBattleOver ? 'Defeated' : 'TBC' }}</span>
-              </td>
-              <td>
-                <span class="data">-</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div v-else-if="lastBattle" class="d-flex flex-column align-items-center">
+          <a :href="challengeUrl" target="_blank" class="button my-4" v-if="battleOngoing">
+            Launch Battle on CodeWars
+          </a>
+          <table class="console-table">
+            <thead>
+              <th scope="col"><span class="data">WARRIOR</span></th>
+              <th scope="col"><span class="data">RANK</span></th>
+              <th scope="col"><span class="data">STATUS</span></th>
+              <th scope="col"><span class="data">TIME</span></th>
+            </thead>
+            <tbody>
+              <tr v-for="(result, index) in lastBattle.results.survivors">
+                <th scope="row">
+                  <span class="data username">{{ result.username }}</span>
+                </th>
+                <td>
+                  <span class="data rank">{{ index + 1 }}</span>
+                </td>
+                <td>
+                  <span class="data">Completed</span>
+                </td>
+                <td>
+                  <span class="data">{{ formatDuration(completedIn(lastBattle, result.completed_at)) }}</span>
+                </td>
+              </tr>
+              <tr v-for="result in lastBattle.results.not_finished">
+                <th scope="row">
+                  <span class="data username">{{ result.username }}</span>
+                </th>
+                <td>
+                  <span class="data rank">-</span>
+                </td>
+                <td>
+                  <span class="data">{{ lastBattleOver ? 'Defeated' : 'TBC' }}</span>
+                </td>
+                <td>
+                  <span class="data">-</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>

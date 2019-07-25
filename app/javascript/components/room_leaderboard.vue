@@ -1,38 +1,40 @@
 <template>
-  <div id="room-leaderboard" class="widget">
-    <h3 class="header highlight">{{ title }}</h3>
-    <div class="widget-body">
-      <table class="console-table">
-        <thead>
-          <th scope="col"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
-          <th scope="col"><span class="data">RANK</span></th>
-          <th scope="col"><span class="data">SCORE</span></th>
-          <th scope="col"><span class="data">WON</span></th>
-          <th scope="col"><span class="data">COMPLETED/LOST</span></th>
-          <th scope="col"><span class="data">TOTAL</span></th>
-        </thead>
-        <tbody>
-          <tr v-for="(player, index) in sortedLeaderboard">
-            <th scope="row">
-              <span class="data username">
-                <i :class="['mr-1', { highlight: isOnline(player.id) }, { offline: !isOnline(player.id) }]">●</i>
-                <span v-bind:class="userClass(player.id)" v-if="showInviteButton(player.id, 'eligible')" @click="$root.$emit('invite-user', player.id)">{{ player.username }}</span>
-                <span v-bind:class="userClass(player.id)" v-else-if="showInviteButton(player.id, 'invited')" @click="$root.$emit('uninvite-user', player.id)">{{ player.username }}</span>
-                <span v-bind:class="userClass(player.id)" v-else>{{ player.username }}
-                  <!--  <i v-if="showInviteButton(player.id, 'confirmed')" class="fas fa-fist-raised highlight ml-1"></i> -->
+  <div class="widget-bg">
+    <div id="room-leaderboard" class="widget">
+      <h3 class="header">{{ title }}</h3>
+      <div class="widget-body">
+        <table class="console-table">
+          <thead>
+            <th scope="col"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
+            <th scope="col"><span class="data">RANK</span></th>
+            <th scope="col"><span class="data">SCORE</span></th>
+            <th scope="col"><span class="data">WON</span></th>
+            <th scope="col"><span class="data">COMPLETED/LOST</span></th>
+            <th scope="col"><span class="data">TOTAL</span></th>
+          </thead>
+          <tbody>
+            <tr v-for="(player, index) in sortedLeaderboard">
+              <th scope="row">
+                <span class="data username">
+                  <i :class="['mr-1', { highlight: isOnline(player.id) }, { offline: !isOnline(player.id) }]">●</i>
+                  <span v-bind:class="userClass(player.id)" v-if="showInviteButton(player.id, 'eligible')" @click="$root.$emit('invite-user', player.id)">{{ player.username }}</span>
+                  <span v-bind:class="userClass(player.id)" v-else-if="showInviteButton(player.id, 'invited')" @click="$root.$emit('uninvite-user', player.id)">{{ player.username }}</span>
+                  <span v-bind:class="userClass(player.id)" v-else>{{ player.username }}
+                    <!--  <i v-if="showInviteButton(player.id, 'confirmed')" class="fas fa-fist-raised highlight ml-1"></i> -->
+                  </span>
                 </span>
-              </span>
-            </th>
-            <td>
-              <span class="data rank">{{ index + 1 }}</span>
-            </td>
-            <td><span class="data">{{ player.total_score }}</span></td>
-            <td><span class="data">{{ player.victories }}</span></td>
-            <td><span class="data">{{ player.battles_survived }} / {{ defeats(player) }}</span></td>
-            <td><span class="data">{{ player.battles_fought }}</span></td>
-          </tr>
-        </tbody>
-      </table>
+              </th>
+              <td>
+                <span class="data rank">{{ index + 1 }}</span>
+              </td>
+              <td><span class="data">{{ player.total_score }}</span></td>
+              <td><span class="data">{{ player.victories }}</span></td>
+              <td><span class="data">{{ player.battles_survived }} / {{ defeats(player) }}</span></td>
+              <td><span class="data">{{ player.battles_fought }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>

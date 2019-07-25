@@ -1,14 +1,16 @@
 <template>
-  <div id="room-chat" class="widget">
-    <h3 class="header">{{ title }}</h3>
-    <div class="widget-body">
-      <ul class="messages" v-chat-scroll="{always: true, smooth: true}" v-if="loaded">
-        <li v-for="message in sortedMessages" v-bind:class="messageClass(message)">
-          <span class="author" v-if="!isAnnouncement(message)">{{  `${message.author.username}>` }}</span> <span class="content">{{ message.content }}</span>
-        </li>
-      </ul>
-      <div id="msg-input">
-        > <input class="input-field" type="text" @keyup.enter="sendMessage" v-model="input"><!-- <button class="line-height-1">Send</button> -->
+  <div class="widget-bg">
+    <div id="room-chat" class="widget">
+      <h3 class="header">{{ title }}</h3>
+      <div class="widget-body">
+        <ul class="messages" v-chat-scroll="{always: true, smooth: true}" v-if="loaded">
+          <li v-for="message in sortedMessages" v-bind:class="messageClass(message)">
+            <span class="author" v-if="!isAnnouncement(message)">{{  `${message.author.username}>` }}</span> <span class="content">{{ message.content }}</span>
+          </li>
+        </ul>
+        <div id="msg-input">
+          > <input class="input-field" type="text" @keyup.enter="sendMessage" v-model="input"><!-- <button class="line-height-1">Send</button> -->
+        </div>
       </div>
     </div>
   </div>

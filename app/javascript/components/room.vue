@@ -1,28 +1,30 @@
 <template>
   <div id="room" v-if="loaded" :class="{ moderator: this.currentUserIsModerator }">
-    <div class="grid-item grid-header widget-bg">
-      <div class="widget">
-        <h3 class="header highlight">PWD://War_Room/{{ room.name }}</h3>
-        <div class="widget-body align-content-center justify-content-center pt-0">
-          <span :class="['announcer', 'text-center', announcerWindow.status]">
-            {{ announcerWindow.content }}
-          </span>
+    <div class="grid-item grid-header">
+      <div class="widget-bg">
+        <div class="widget">
+          <h3 class="header highlight">PWD://War_Room/{{ room.name }}</h3>
+          <div class="widget-body align-content-center justify-content-center pt-0">
+            <span :class="['announcer', 'text-center', announcerWindow.status]">
+              {{ announcerWindow.content }}
+            </span>
+          </div>
         </div>
       </div>
     </div>
     <!-- <div class="grid-item grid-warriors widget-bg">
       <room-users :users="users" :room-id="room.id" :current-user="currentUser" :current-user-is-moderator="currentUserIsModerator"></room-users>
     </div> -->
-    <div class="grid-item grid-chat widget-bg">
+    <div class="grid-item grid-chat">
       <room-chat :chat-id="room.chat_id" :user-id="currentUserId"></room-chat>
     </div>
-    <div class="grid-item grid-battle widget-bg">
+    <div class="grid-item grid-battle">
       <room-battle :battle="battle" :users="users" :room="room" :countdown="countdown" :current-user-is-moderator="currentUserIsModerator"></room-battle>
     </div>
-    <div class="grid-item grid-leaderboard widget-bg">
+    <div class="grid-item grid-leaderboard">
       <room-leaderboard :leaderboard="leaderboard" :users="users" :room="room" :current-user="currentUser" :current-user-is-moderator="currentUserIsModerator"></room-leaderboard>
     </div>
-    <div class="grid-item grid-controls widget-bg">
+    <div class="grid-item grid-controls">
       <room-controls-mod :room="room" :battle="battle" :users="users" :current-user="currentUser" :input="challengeInput" :current-user-is-moderator="currentUserIsModerator" :countdown="countdown"></room-controls-mod>
       <!-- <room-controls :roomId="this.room.id"></room-controls> -->
     </div>
