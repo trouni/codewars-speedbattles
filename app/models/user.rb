@@ -21,6 +21,8 @@
 #  last_fetched_at               :datetime
 #  authentication_token          :string(30)
 #
+require 'json'
+require 'open-uri'
 
 class User < ApplicationRecord
   acts_as_token_authenticatable
@@ -38,6 +40,10 @@ class User < ApplicationRecord
 
   after_create :async_fetch_codewars_info
 
+  def email_required?
+    false
+  end
+
   def api_expose
     {
       id: id,
@@ -46,6 +52,19 @@ class User < ApplicationRecord
       name: name,
       username: username
     }
+  end
+
+  def self.valid_username?(username)
+    url = "https://www.codewars.com/api/v1/users/#{username}"
+    puts "Fetching data from #{url}"
+    json = JSON.parse(open(url).read)
+    if json["username"] == username
+      return true
+    else
+      return false
+    end
+  rescue
+    return false
   end
 
   def moderator?(for_room = room)
