@@ -1,0 +1,15 @@
+current directory: /Users/trouni/code/trouni/codewars-speedbattles/vendor/cache/ruby/2.5.0/gems/bindex-0.7.0/ext/skiptrace
+/Users/trouni/.rbenv/versions/2.5.3/bin/ruby -r ./siteconf20190725-1604-1ovyswp.rb extconf.rb
+creating Makefile
+
+current directory: /Users/trouni/code/trouni/codewars-speedbattles/vendor/cache/ruby/2.5.0/gems/bindex-0.7.0/ext/skiptrace
+make "DESTDIR=" clean
+
+current directory: /Users/trouni/code/trouni/codewars-speedbattles/vendor/cache/ruby/2.5.0/gems/bindex-0.7.0/ext/skiptrace
+make "DESTDIR="
+compiling cruby.c
+linking shared-object skiptrace/cruby.bundle
+
+current directory: /Users/trouni/code/trouni/codewars-speedbattles/vendor/cache/ruby/2.5.0/gems/bindex-0.7.0/ext/skiptrace
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 cruby.bundle ./.gem.20190725-1604-1acuxwk/skiptrace

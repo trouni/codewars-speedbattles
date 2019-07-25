@@ -1,0 +1,21 @@
+language: ruby
+sudo: false
+cache: bundler
+services:
+  - redis-server
+before_install:
+  - gem install bundler
+  - gem update bundler
+rvm:
+  - jruby-9.1.6.0
+  - 2.2.4
+  - 2.3.0
+  - 2.4.0
+env:
+  matrix:
+    - SIDEKIQ_VERSION="~> 4.0"
+    - SIDEKIQ_VERSION="~> 4.2"
+    - SIDEKIQ_VERSION="~> 5.0"
+matrix:
+  allow_failures:
+    - rvm: jruby-9.1.6.0 
