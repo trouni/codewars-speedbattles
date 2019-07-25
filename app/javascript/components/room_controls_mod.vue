@@ -18,8 +18,19 @@
         <button v-else-if="battleInitialized" @click="endBattle">End Battle</button>
       </div>
       <div v-else>
-        <button @click="$root.$emit('confirm-invite', currentUser.id)" v-if="currentUser.invite_status == 'invited'">Confirm Invite</button>
-        <button @click="$root.$emit('fetch-challenges', currentUser.id)" v-if="battleInitialized" :disabled="!battleStarted">Challenge Completed</button>
+        <div v-if="battleInitialized">
+          Click the button below once you have completed the kata on CodeWars.
+          <button @click="$root.$emit('fetch-challenges', currentUser.id)" :disabled="!battleStarted">Challenge Completed</button>
+        </div>
+        <div v-else-if="currentUser.invite_status == 'invited'">
+          <button @click="$root.$emit('confirm-invite', currentUser.id)">Confirm Invite</button>
+        </div>
+        <div v-else-if="currentUser.invite_status == 'confirmed'">
+          You are confirmed for the next battle. Get ready!
+        </div>
+        <div v-else>
+          Invitations to join a battle will show up in this window.
+        </div>
       </div>
     </div>
   </div>
