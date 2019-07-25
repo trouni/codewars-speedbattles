@@ -29,6 +29,6 @@ class Chat < ApplicationRecord
   private
 
   def welcome_message
-    create_announcement("#{room.name} has been created.")
+    create_announcement("War room \"#{room.name}\" has been created.")
   end
 end

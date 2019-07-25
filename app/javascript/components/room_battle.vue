@@ -9,7 +9,9 @@
       </div>
 
       <div v-else-if="lastBattle" class="d-flex flex-column align-items-center">
-        <a :href="challengeUrl" target="_blank" class="button my-4" v-if="battleOngoing">Launch Battle on CodeWars</a>
+        <a :href="challengeUrl" target="_blank" class="button my-4" v-if="battleOngoing">
+          Launch Battle on CodeWars
+        </a>
         <table class="console-table">
           <thead>
             <th scope="col"><span class="data">WARRIOR</span></th>
@@ -60,12 +62,10 @@
       users: Array,
       battle: Object,
       countdown: Number,
-      currentUserIsModerator: Boolean,
-      challengeUrl: String
+      currentUserIsModerator: Boolean
     },
     data() {
       return {
-
       }
     },
     computed: {

@@ -22,8 +22,10 @@
             <button v-else-if="battleInitialized" @click="endBattle" :disabled="!battleStarted">End Battle</button>
           </div>
 
-          <p :class="['my-0', { 'highlight': allConfirmed }]" v-if="!battleInitialized && invitedUsers.length > 0">Confirmed players: {{ confirmedUsers.length }} of {{ invitedUsers.length }}</p>
-          <p class='mt-0 font-italic'>Unconfirmed players will be uninvited when the battle starts.</p>
+          <div v-if="!battleInitialized && invitedUsers.length > 0">
+            <p :class="['my-0', { 'highlight': allConfirmed }]">Confirmed players: {{ confirmedUsers.length }} of {{ invitedUsers.length }}</p>
+            <p class='mt-0 font-italic'>Unconfirmed players will be uninvited when the battle starts.</p>
+          </div>
         </div>
 
       </div>

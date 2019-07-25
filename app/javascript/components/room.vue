@@ -179,10 +179,10 @@
           //   })
           // })
       },
-      startBattle() {
+      openCodeWars() {
         if (this.battle.challenge.language === null) { this.battle.challenge.language = 'ruby' }
         const challengeUrl = `${this.battle.challenge.url}/train/${this.battle.challenge.language}`
-        window.open(this.challengeUrl)
+        window.open(challengeUrl)
       },
       endBattle() {
         SpeedBattlesApi.updateBattleStatus(this.battle.id, 'end')
@@ -215,7 +215,7 @@
             })
             this.countdown = 0
             clearInterval(timer);
-            this.startBattle()
+            if (!this.currentUserIsModerator) this.openCodeWars();
           }
         }, 1000)
       },

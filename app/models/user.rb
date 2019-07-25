@@ -101,7 +101,7 @@ class User < ApplicationRecord
   def eligible?(battle = active_battle)
     return nil unless battle
 
-    !completed_challenge?(battle.challenge_id)
+    !completed_challenge?(battle.challenge_id) && !moderator? && !battle.started?
   end
 
   def completed_challenge?(challenge_id)
@@ -115,7 +115,7 @@ class User < ApplicationRecord
       "confirmed"
     elsif invited?(battle)
       "invited"
-    elsif eligible?(battle) && !battle.started?
+    elsif eligible?(battle)
       "eligible"
     else
       "ineligible"
@@ -124,7 +124,7 @@ class User < ApplicationRecord
 
   def async_fetch_codewars_info
     FetchUserInfoJob.perform_later(id)
-    FetchCompletedChallengesJob.perform_later(id)
+    FetchCompletedChallengesJob.perform_later(user_id: id, all_pages: true)
   end
 
   def broadcast_user_status(room)

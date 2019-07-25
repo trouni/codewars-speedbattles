@@ -4,12 +4,14 @@ require 'json'
 module CodewarsHelper
   def fetch_page(user, page = 0)
     json = fetch_url("https://www.codewars.com/api/v1/users/#{user.username}/code-challenges/completed?page=#{page}")
+    return 0 unless json
+
     if json["totalItems"] == user.completed_challenges.count
       puts "Already up-to-date."
     else
       json["data"].each do |challenge|
         CompletedChallenge.create(
-          user: User.find_by(username: user.username),
+          user: user,
           challenge_id: challenge["id"],
           challenge_slug: challenge["slug"],
           challenge_name: challenge["name"],
@@ -18,7 +20,6 @@ module CodewarsHelper
         )
       end
     end
-
     return json["totalPages"]
   end
 
@@ -43,6 +44,7 @@ module CodewarsHelper
       puts "Fetching data from #{url}"
       return JSON.parse(open(url).read)
     rescue OpenURI::HTTPError => e
+      puts e
       return nil
     end
   end

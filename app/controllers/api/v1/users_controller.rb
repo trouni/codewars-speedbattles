@@ -13,7 +13,7 @@ class Api::V1::UsersController < ApplicationController
     elsif User.find(params[:user_id]).last_fetched_at > (DateTime.now - 5.seconds)
       render json: { status: "job already scheduled less than 5 seconds ago" }
     else
-      FetchCompletedChallengesJob.perform_later(params[:id] || params[:user_id], params[:battle_id])
+      FetchCompletedChallengesJob.perform_later(user_id: params[:user_id], battle_id: params[:battle_id], all_pages: false)
       render json: { status: "fetching job scheduled" }
     end
   end

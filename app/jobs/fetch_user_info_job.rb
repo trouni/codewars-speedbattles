@@ -16,5 +16,8 @@ class FetchUserInfoJob < ApplicationJob
       codewars_overall_rank: json["ranks"]["overall"]["rank"],
       codewars_overall_score: json["ranks"]["overall"]["score"]
     )
+  rescue OpenURI::HTTPError => e
+    puts e
+    return nil
   end
 end
