@@ -1,9 +1,8 @@
 <template>
   <div id="room" v-if="loaded" :class="[roomStatus, { moderator: this.currentUserIsModerator }]">
 
-
     <div class="grid-item grid-header">
-      <div id="room-announcer" class="widget-bg">
+      <div id="room-announcer" :class="['widget-bg', seekAttention]">
         <div class="widget">
           <h3 class="header highlight">PWD://War_Room/{{ room.name }}</h3>
           <div class="widget-body align-content-center justify-content-center pt-0">
@@ -13,9 +12,6 @@
         </div>
       </div>
     </div>
-    <!-- <div class="grid-item grid-warriors widget-bg">
-      <room-users :users="users" :room-id="room.id" :current-user="currentUser" :current-user-is-moderator="currentUserIsModerator"></room-users>
-    </div> -->
     <div class="grid-item grid-chat">
       <room-chat :chat-id="room.chat_id" :user-id="currentUserId"></room-chat>
     </div>
@@ -77,8 +73,12 @@
       this.refreshRoom()
     },
     computed: {
-      roomStatus() {
-
+      seekAttention() {
+        if (this.battleStatus.battleOngoing) {
+          return ['animated pulse seek-attention']
+        } else {
+          return null
+        }
       },
       announcerWindow() {
         let status = this.announcement.status || 'normal'

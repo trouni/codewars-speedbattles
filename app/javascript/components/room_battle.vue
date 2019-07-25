@@ -10,9 +10,9 @@
         </div>
 
         <div v-else-if="lastBattle" class="d-flex flex-column align-items-center">
-          <a :href="challengeUrl" target="_blank" class="button my-4" v-if="battleStatus.battleOngoing">
+          <!-- <a :href="challengeUrl" target="_blank" class="button my-4" v-if="battleStatus.battleOngoing">
             Open Kata on CodeWars
-          </a>
+          </a> -->
           <table class="console-table">
             <thead>
               <th scope="col"><span class="data">WARRIOR</span></th>
@@ -80,7 +80,7 @@
       headerTitle() {
         const prefix = 'KATA://'
         if (this.battleStatus.battleOngoing) {
-          this.$root.$emit('announce',{content: 'This is (code) WAAAAAAAR!!'})
+          this.$root.$emit('announce',{content: `<span class="d-flex justify-content-center"><a href="${this.challengeUrl}" target="_blank" class="button large mx-auto">Launch CodeWars</a></span>`})
           return `${prefix}Battle_Report`
         } else if (this.battleStatus.battleLoaded) {
           this.$root.$emit('announce',{content: 'Prepare for battle...'})
