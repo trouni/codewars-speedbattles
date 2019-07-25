@@ -3,9 +3,9 @@
     <div class="grid-item grid-header widget-bg">
       <div class="widget">
         <h3 class="header highlight">PWD://War_Room/{{ room.name }}</h3>
-        <div class="widget-body position-relative">
-          <span class="flash absolute-centering">
-            {{ flash }}
+        <div class="widget-body align-content-center justify-content-center pt-0">
+          <span :class="['announcer', 'text-center', announcerWindow.status]">
+            {{ announcerWindow.content }}
           </span>
         </div>
       </div>
@@ -62,17 +62,30 @@
         leaderboard: [],
         challengeInput: 'deodorant-evaporator',
         controlsType: '',
-        countdownDuration: 2,
-        countdown: 0
+        countdownDuration: 10,
+        countdown: 0,
+        announcement: {
+          status: 'normal',
+          content: `Welcome to ${this.roomInit.name}`
+        }
       }
     },
     created() {
       this.refreshRoom()
     },
     computed: {
-      flash() {
+      announcerWindow() {
+        let status = this.announcement.status || 'normal'
+        let content = this.announcement.content
+
         if (this.countdown > 0) {
-          return `Battle starting in ${this.countdown} second${this.countdown > 1 ? 's' : ''}...`
+          status = 'warning'
+          content = `Battle starting in ${this.countdown} second${this.countdown > 1 ? 's' : ''}...`
+        }
+
+        return {
+          status: status,
+          content: content
         }
       },
       currentUserId() {
@@ -95,6 +108,12 @@
       // =============
       //     ROOM
       // =============
+      announce(message) {
+        this.announcement = {
+          status: message.status || 'normal',
+          content: message.content
+        }
+      },
       refreshRoom() {
         SpeedBattlesApi.getRoom(this.room.id)
           .then(response => {
@@ -144,7 +163,7 @@
       },
       deleteBattle() {
         SpeedBattlesApi.deleteBattle(this.battle.id)
-          // .then(response => this.refreshRoom())
+          .then(response => this.announce({content: 'Awaiting mission briefing...'}))
       },
       updateBattle(battle) {
         battle.deleted ? this.battle = null : this.battle = battle
@@ -280,6 +299,7 @@
       this.$cable.subscribe({ channel: 'BattleChannel', room_id: this.room.id })
       this.$cable.subscribe({ channel: 'UsersChannel', room_id: this.room.id, user_id: this.currentUser.id });
       this.$cable.subscribe({ channel: 'ChatChannel', chat_id: this.room.chat_id })
+      this.$root.$on('announce', (message) => this.announce(message))
       this.$root.$on('refresh-all', () => this.refreshAll())
       this.$root.$on('create-battle', (challenge) => this.createBattle(challenge))
       this.$root.$on('delete-battle', () => this.deleteBattle())

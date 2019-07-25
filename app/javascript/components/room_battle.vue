@@ -68,16 +68,24 @@
       headerTitle() {
         const prefix = 'KATA://'
         if (this.battleOngoing) {
+          this.$root.$emit('announce',{content: 'This is a code WAAAAAAAR!!'})
           return `${prefix}Battle_Report`
-        } else if (this.battleInitialized) {
+        } else if (this.battleLoaded) {
+          this.$root.$emit('announce',{content: 'Prepare for battle...'})
           return `${prefix}Mission_Briefing`
         } else if (this.lastBattleOver) {
+          this.$root.$emit('announce',{content: 'Battle over. Awaiting next mission...'})
           return `${prefix}Last_Battle_Report`
         } else {
           return `${prefix}Awaiting_Mission`
         }
       },
       battleNotStarted() {
+        if (this.battle) {
+          return this.battle.start_time === null
+        }
+      },
+      battleLoaded() {
         if (this.battle) {
           return this.battle.start_time === null
         }

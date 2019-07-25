@@ -7,7 +7,7 @@ $yellow: #F6DD27;
 $magenta: #DB1271;
 $orange: #FE864E;
 $purple: #8A4BFF;
-$red: red;
+$red: #FC0307;
 $blue: #167FFB;
 $yellow: #F6DD27;
 $orange: #FE864E;
@@ -16,17 +16,18 @@ $gray: #0E0000;
 $light-gray: #F4F4F4;
 
 
-// $maincolor: lighten(red, 25%);
+// $maincolor: lighten($orange, 5%);
+// $maincolor: lighten($red, 15%);
 $maincolor: lighten($darkblue, 25%);
 
-$textcolor: lighten( $maincolor, 30% );
+$textcolor: lighten( $maincolor, 40% );
 $body-color: $textcolor;
 $highlight: lighten($maincolor, 40%);
 $headers-color: $highlight;
 $widget-color: $maincolor;
 $bezel-color: saturate( $widget-color, 50% );
 $input-color: $body-color;
-$bgcolor1: rgba( desaturate(darken($maincolor, 5%), 10%), .5 );
+$bgcolor1: rgba( desaturate(lighten($maincolor, 15%), 10%), .5 );
 $bgcolor2: rgba( lighten($maincolor, 10%), .25 );
 
 

@@ -7,19 +7,26 @@ button {
   display: flex;
   font-weight: 300;
   color: $headers-color;
-  text-shadow: 0 0 5px $headers-color, 0 0 15px rgba( white ,0.5);
+  text-shadow: 0 0 1px $headers-color, 0 0 15px rgba( $headers-color, 0.3);
   &:focus {
     outline: none;
   }
   &:before {
+    color: $headers-color;
     font-size: 2em;
     content: "[";
   }
   &:after {
+    color: $headers-color;
     font-size: 2em;
     content: "]";
   }
-  &.line-height-1 {
-    line-height: 1em;
+  &:disabled, &:hover:disabled {
+    color: rgba($headers-color, 0.4);
+    text-shadow: none;
+  }
+  &:hover {
+    color: $highlight;
+    text-shadow: 0 0 5px $headers-color, 0 0 15px rgba( $headers-color, 0.8);
   }
 }
