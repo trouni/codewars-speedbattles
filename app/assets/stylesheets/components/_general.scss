@@ -6,6 +6,7 @@
 }
 
 body {
+  height: 100vh;
   color: $body-color;
   background: radial-gradient(ellipse farthest-corner at top left, $bgcolor1 10%, $bgcolor2), linear-gradient(#00000088, #00000033), asset-url('bg_codewars_3.jpg');
   // background: radial-gradient(ellipse farthest-corner at top left, #086788CC 50%, #1B435440), linear-gradient(#00000088, #00000033), asset-url('bg_codewars_3.jpg');
