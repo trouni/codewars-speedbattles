@@ -239,7 +239,6 @@
           },
           rejected() {},
           received(data) {
-            console.log(data)
             if (data.perform === 'start-countdown') {
               this.startCountdown(data.data.countdown)
             } else if (data.perform === 'end-battle') {
