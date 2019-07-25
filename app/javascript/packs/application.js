@@ -11,7 +11,7 @@ Vue.use(VueChatScroll)
 Vue.use(ActionCableVue, {
     debug: true,
     debugLevel: 'error',
-    connectionUrl: 'ws://speedbattles.herokuapp.com/api/cable/'
+    connectionUrl: 'wss://speedbattles.herokuapp.com/cable/'
 });
 
 document.addEventListener('DOMContentLoaded', () => {
