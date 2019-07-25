@@ -158,14 +158,7 @@ class Battle < ApplicationRecord
   def score(player)
     return 0 unless survived?(player)
 
-    case individual_ranking(player)
-    when 1
-      3
-    when 2
-      2
-    else
-      1
-    end
+    return individual_ranking(player) == 1 ? 2 : 1
   end
 
   def survivors

@@ -4,7 +4,6 @@
   background-color: rgba( $bezel-color, .4 );
   // background: linear-gradient(154.9deg, rgba( $bezel-color, .3 ) 0%, rgba( $bezel-color, .6 ) 86.37%);
   height: 100%;
-  transition: 0.5s background-color;
 
   &.seek-attention {
     background-color: rgba( lighten($bezel-color, 10%), .9 );
@@ -17,7 +16,6 @@
   // border-radius: 2px;
   height: 100%;
   box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 0.4);
-  transition: background 1s ease-out;
   clip-path: polygon(0 0, calc(100% - #{$bezel}) 0, 100% $bezel, 100% 100%, $bezel 100%, 0 calc(100% - #{$bezel}));
   // clip-path: polygon(0 0, calc(100% - #{$bezel}) 0, calc(100% - #{$bezel}) 50%, 100% calc(50% + #{$bezel}), 100% $bezel, 100% 100%, $bezel 100%, 0 calc(100% - #{$bezel}));
   // clip-path: polygon(0 0, calc(100% - #{$bezel}) 0, 100% #{$bezel}, 100% 100%, $bezel 100%, $bezel 33%, 0 calc(33% - #{$bezel}), 0 calc(100% - #{$bezel}));

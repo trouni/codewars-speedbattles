@@ -6,25 +6,25 @@
         <div v-if="currentUserIsModerator" class="h-100">
 
           <div class="new-battle d-flex">
-            <input class="input-field flex-grow-1" type="text" v-model="challengeInput" @keyup.enter="createBattle" placeholder="ID, slug or url of CodeWars Kata" :disabled="battleLoaded">
-            <button @click="createBattle" class="line-height-1" v-if="!battleLoaded">Load</button>
-            <button @click="cancelBattle" class="line-height-1" v-if="battleLoaded && !battleInitialized">Cancel</button>
+            <input class="input-field flex-grow-1" type="text" v-model="challengeInput" @keyup.enter="createBattle" placeholder="ID, slug or url of CodeWars Kata" :disabled="battleStatus.battleLoaded">
+            <button @click="createBattle" class="line-height-1" v-if="!battleStatus.battleLoaded">Load</button>
+            <button @click="cancelBattle" class="line-height-1" v-if="battleStatus.battleLoaded && !battleStatus.battleInitialized">Cancel</button>
           </div>
 
           <div class="flex-centering flex-column pt-0 pb-4">
 
-            <div class="battle-settings d-flex flex-grow-1 justify-content-between mt-5" v-if="battleLoaded && !battleInitialized">
+            <div class="battle-settings d-flex flex-grow-1 justify-content-between mt-5" v-if="battleStatus.battleLoaded && !battleStatus.battleInitialized">
               <p class="mx-3"><input type="number" name="time-limit" min='1' placeholder="Time limit" disabled> min</p>
               <p class="mx-3"><input type="number" name="max-survivors" min='1' placeholder="Max survivors" disabled></p> <!-- :max="eligibleUsers.length" -->
             </div>
 
             <div class="controls d-flex justify-content-around flex-grow-1 h-100 w-100">
-              <button @click="$root.$emit('invite-all')" v-if="battleLoaded && !battleInitialized" :disabled="allInvited">Invite All</button>
-              <button v-if="battleLoaded && !battleInitialized" :disabled="!readyToStart" @click="initializeBattle">Start Battle</button>
-              <button class="large" v-else-if="battleInitialized" @click="endBattle" :disabled="!battleStarted">End Battle</button>
+              <button @click="$root.$emit('invite-all')" v-if="battleStatus.battleLoaded && !battleStatus.battleInitialized" :disabled="allInvited">Invite All</button>
+              <button v-if="battleStatus.battleLoaded && !battleStatus.battleInitialized" :disabled="!battleStatus.readyToStart" @click="initializeBattle">Start Battle</button>
+              <button class="large" v-else-if="battleStatus.battleInitialized" @click="endBattle" :disabled="!battleStatus.battleOngoing">End Battle</button>
             </div>
 
-            <div v-if="!battleInitialized && invitedUsers.length > 0">
+            <div v-if="!battleStatus.battleInitialized && invitedUsers.length > 0">
               <p :class="['my-0', { 'highlight': allConfirmed }]">Confirmed players: {{ confirmedUsers.length }} of {{ invitedUsers.length }}</p>
               <p class='mt-0 font-italic'>Unconfirmed players will be uninvited when the battle starts.</p>
             </div>
@@ -34,9 +34,9 @@
         </div>
 
         <div v-else class="flex-centering pt-0 pb-4">
-          <div v-if="battleInitialized">
+          <div v-if="battleStatus.battleInitialized">
             <p class="text-center">Click the button below once you have completed the kata on CodeWars.</p>
-            <button class="mx-auto large" @click="$root.$emit('fetch-challenges', currentUser.id)" :disabled="!battleStarted">Challenge Completed</button>
+            <button class="mx-auto large" @click="$root.$emit('fetch-challenges', currentUser.id)" :disabled="!battleStatus.battleOngoing">Challenge Completed</button>
           </div>
           <div v-else-if="currentUser.invite_status == 'invited'">
             <p class="text-center">You have been requested to join this battle.</p>
@@ -63,7 +63,8 @@
       battle: Object,
       input: String,
       currentUserIsModerator: Boolean,
-      countdown: Number
+      countdown: Number,
+      battleStatus: Object
     },
     data() {
       return {
@@ -103,31 +104,8 @@
         return this.invitedUsers.length === this.eligibleUsers.length
       },
       allConfirmed() {
-        return this.readyToStart && this.confirmedUsers.length === this.invitedUsers.length
+        return this.battleStatus.readyToStart && this.confirmedUsers.length === this.invitedUsers.length
       },
-      readyToStart() {
-        return this.battleLoaded && this.confirmedUsers.length > 0
-      },
-      battleLoaded() {
-        if (this.battle) {
-          return this.battleInitialized || this.battle.start_time === null
-        }
-      },
-      battleInitialized() {
-        if (this.battle) {
-          return this.battle.start_time !== null && this.battle.end_time === null
-        }
-      },
-      battleStarted() {
-        if (this.battle) {
-          return this.battle.start_time !== null && this.battle.end_time === null && this.countdown === 0
-        }
-      },
-      battleOver() {
-        if (this.battle) {
-          return this.battle.start_time !== null && this.battle.end_time !== null
-        }
-      }
     },
     methods: {
       isInvited(user) {
@@ -143,10 +121,10 @@
         this.$root.$emit('delete-battle')
       },
       initializeBattle() {
-        if (!this.battleInitialized) { this.$root.$emit('initialize-battle') }
+        if (!this.battleStatus.battleInitialized) { this.$root.$emit('initialize-battle') }
       },
       endBattle() {
-        if (this.battleInitialized) { this.$root.$emit('end-battle') }
+        if (this.battleStatus.battleInitialized) { this.$root.$emit('end-battle') }
       },
     }
   }

@@ -1,5 +1,5 @@
 <template>
-  <div id="room" v-if="loaded" :class="{ moderator: this.currentUserIsModerator }">
+  <div id="room" v-if="loaded" :class="[roomStatus, { moderator: this.currentUserIsModerator }]">
 
 
     <div class="grid-item grid-header">
@@ -20,13 +20,13 @@
       <room-chat :chat-id="room.chat_id" :user-id="currentUserId"></room-chat>
     </div>
     <div class="grid-item grid-battle">
-      <room-battle :battle="battle" :users="users" :room="room" :countdown="countdown" :current-user-is-moderator="currentUserIsModerator"></room-battle>
+      <room-battle :battle="battle" :last-battle="lastBattle" :users="users" :room="room" :countdown="countdown" :battle-status="battleStatus" :current-user-is-moderator="currentUserIsModerator"></room-battle>
     </div>
     <div class="grid-item grid-leaderboard">
       <room-leaderboard :leaderboard="leaderboard" :users="users" :room="room" :current-user="currentUser" :current-user-is-moderator="currentUserIsModerator"></room-leaderboard>
     </div>
     <div class="grid-item grid-controls">
-      <room-controls-mod :room="room" :battle="battle" :users="users" :current-user="currentUser" :input="challengeInput" :current-user-is-moderator="currentUserIsModerator" :countdown="countdown"></room-controls-mod>
+      <room-controls-mod :room="room" :battle="battle" :users="users" :current-user="currentUser" :input="challengeInput" :current-user-is-moderator="currentUserIsModerator" :countdown="countdown" :battle-status="battleStatus"></room-controls-mod>
       <!-- <room-controls :roomId="this.room.id"></room-controls> -->
     </div>
   </div>
@@ -77,6 +77,9 @@
       this.refreshRoom()
     },
     computed: {
+      roomStatus() {
+
+      },
       announcerWindow() {
         let status = this.announcement.status || 'normal'
         let content = this.announcement.content
@@ -105,7 +108,75 @@
       },
       currentUserIsModerator() {
         return this.currentUser.id === this.room.moderator.id
-      }
+      },
+      invitedUsers() {
+        if (!this.battle) { return [] }
+        return this.battle.players
+      },
+      confirmedUsers() {
+        if (!this.battle) { return [] }
+        return this.battle.players.filter(user => user.invite_status == 'confirmed')
+      },
+      // STATUSES
+      roomStatus() {
+        // if (this.battleStatus.lastBattleOver && !this.battleStatus.battleLoaded) {
+          // return "battle-over"
+        if (!this.battleStatus.battleLoaded) {
+          return "peace"
+        // } else if (!this.battleStatus.readyToStart) {
+        //   return "preparation"
+        } else if (!this.battleStatus.battleInitialized) {
+          return "brink-of-war"
+        } else if (!this.battleStatus.battleOngoing) {
+          return "countdown"
+        } else if (!this.battleStatus.lastBattleOver) {
+          return "war"
+        } else {
+          return "peace"
+        }
+      },
+      battleStatus() {
+        // return {
+        //   battleLoaded: this.battleLoaded,
+        //   readyToStart: this.readyToStart,
+        //   battleInitialized: this.battleInitialized,
+        //   battleOngoing: this.battleOngoing,
+        //   battleRecentlyOver: this.battleRecentlyOver,
+        // }
+        return {
+          battleLoaded: this.battle !== null,
+          readyToStart: this.battle !== null && this.confirmedUsers && this.confirmedUsers.length > 0,
+          battleInitialized: this.battle !== null && this.battle.start_time !== null,
+          battleOngoing: this.battle !== null && this.battle.start_time !== null && this.countdown === 0,
+          lastBattleOver: this.lastBattleOver,
+        }
+      },
+      // battleRecentlyOver() {
+      //   return new Date(this.previousBattles[0].end_time) > new Date(Date.now() - 1000 * 60 * 3)
+      // },
+      // battleLoaded() {
+      //   return this.battle !== null
+      // },
+      // readyToStart() {
+      //   return this.battleLoaded && this.confirmedUsers && this.confirmedUsers.length > 0
+      // },
+      // battleInitialized() {
+      //   return this.battleLoaded && this.battle.start_time !== null
+      // },
+      // battleOngoing() {
+      //   return this.battleInitialized && this.countdown === 0
+      // },
+      previousBattles() {
+        return this.room.finished_battles.sort((a, b) => {
+          return new Date(b.end_time) - new Date(a.end_time)
+        })
+      },
+      lastBattle() {
+        return this.battle || this.previousBattles[0]
+      },
+      lastBattleOver() {
+        if (this.lastBattle) return this.lastBattle.end_time !== null
+      },
     },
     methods: {
       // =============

@@ -1,4 +1,14 @@
-@mixin color-theme($maincolor, $transition-speed, $bg-image) {
+@mixin theme-transitions($transition-speed) {
+  transition: all $transition-speed ease-in;
+  // transition: color $transition-speed ease-in, background-color $transition-speed ease-in, text-shadow $transition-speed ease-in, box-shadow $transition-speed ease-in;
+  * {
+    transition: all $transition-speed ease-in;
+    // transition: color $transition-speed ease-in, background-color $transition-speed ease-in, text-shadow $transition-speed ease-in, box-shadow $transition-speed ease-in;
+  }
+}
+
+
+@mixin theme-color($maincolor, $bg-image) {
   $textcolor: lighten( $maincolor, 40% );
   $body-color: $textcolor;
   $highlight: lighten($maincolor, 40%);
@@ -12,19 +22,13 @@
   $username-ineligible: rgba($textcolor, 0.5);
   $username-confirmed: $highlight;
 
-  &.theme-transition {
-    * {
-      transition: color $transition-speed ease-in, background-color $transition-speed ease-in, text-shadow $transition-speed ease-in, box-shadow $transition-speed ease-in;
-    }
-  }
-
   // _general.scss
 
-  #room {
-    color: $body-color;
-    background: radial-gradient(ellipse farthest-corner at top left, $bgcolor1 10%, $bgcolor2), linear-gradient(#00000088, #00000033), asset-url($bg-image);
-    background-size: cover;
-  }
+  // #room {
+  color: $body-color;
+  background: radial-gradient(ellipse farthest-corner at top left, $bgcolor1 10%, $bgcolor2), linear-gradient(#00000088, #00000033), asset-url($bg-image);
+  background-size: cover;
+  // }
 
   h1, h2, h3, h4, h5, h6 {
     color: $headers-color;
@@ -124,14 +128,21 @@
   }
 }
 
-body {
-  @include color-theme($maincolor-normal, 2s, $bg-image-normal)
+#room.peace, #room.preparation, #room.battle-over, #room.brink-of-war {
+  @include theme-color($maincolor-normal, $bg-image-normal)
+  @include theme-transitions(0.5s)
 }
 
-body.brink-of-war {
-  @include color-theme($maincolor-brink-of-war, 3s, $bg-image-brink-of-war)
+// #room.brink-of-war {
+//   @include theme-color($maincolor-brink-of-war, 3s, $bg-image-brink-of-war)
+// }
+
+#room.countdown {
+  @include theme-color($maincolor-at-war, $bg-image-at-war)
+  @include theme-transitions(13s)
 }
 
-body.at-war {
-  @include color-theme($maincolor-at-war, 15s, $bg-image-at-war)
+#room.war {
+  @include theme-color($maincolor-at-war, $bg-image-at-war)
+  @include theme-transitions(0.5s)
 }

@@ -10,8 +10,8 @@
         </div>
 
         <div v-else-if="lastBattle" class="d-flex flex-column align-items-center">
-          <a :href="challengeUrl" target="_blank" class="button my-4" v-if="battleOngoing">
-            Launch Battle on CodeWars
+          <a :href="challengeUrl" target="_blank" class="button my-4" v-if="battleStatus.battleOngoing">
+            Open Kata on CodeWars
           </a>
           <table class="console-table">
             <thead>
@@ -43,7 +43,7 @@
                   <span class="data rank">-</span>
                 </td>
                 <td>
-                  <span class="data">{{ lastBattleOver ? 'Defeated' : 'TBC' }}</span>
+                  <span class="data">{{ battleStatus.lastBattleOver ? 'Defeated' : 'TBC' }}</span>
                 </td>
                 <td>
                   <span class="data">-</span>
@@ -63,8 +63,10 @@
       room: Object,
       users: Array,
       battle: Object,
+      lastBattle: Object,
       countdown: Number,
-      currentUserIsModerator: Boolean
+      currentUserIsModerator: Boolean,
+      battleStatus: Object
     },
     data() {
       return {
@@ -77,45 +79,17 @@
       },
       headerTitle() {
         const prefix = 'KATA://'
-        if (this.battleOngoing) {
+        if (this.battleStatus.battleOngoing) {
           this.$root.$emit('announce',{content: 'This is (code) WAAAAAAAR!!'})
           return `${prefix}Battle_Report`
-        } else if (this.battleLoaded) {
+        } else if (this.battleStatus.battleLoaded) {
           this.$root.$emit('announce',{content: 'Prepare for battle...'})
           return `${prefix}Mission_Briefing`
-        } else if (this.lastBattleOver) {
+        } else if (this.battleStatus.lastBattleOver) {
           this.$root.$emit('announce',{content: 'Battle over. Awaiting next mission...'})
           return `${prefix}Last_Battle_Report`
         } else {
           return `${prefix}Awaiting_Mission`
-        }
-      },
-      battleNotStarted() {
-        if (this.battle) {
-          return this.battle.start_time === null
-        }
-      },
-      battleLoaded() {
-        if (this.battle) {
-          return this.battle.start_time === null
-        }
-      },
-      battleInitialized() {
-        if (this.battle) {
-          return this.battle.start_time !== null && this.battle.end_time === null
-        }
-      },
-      battleOngoing() {
-        return this.battleInitialized && this.countdown === 0
-      },
-      lastBattleOver() {
-        if (this.lastBattle) {
-          return this.lastBattle.end_time !== null
-        }
-      },
-      showChallenge() {
-        if (this.battle) {
-          return (this.currentUserIsModerator || this.battleInitialized) && !this.battleOngoing
         }
       },
       previousBattles() {
@@ -123,10 +97,11 @@
           return new Date(b.end_time) - new Date(a.end_time)
         })
       },
-      lastBattle() {
-        // return this.findBattle(168)
-        return this.battle || this.previousBattles[0]
-      }
+      showChallenge() {
+        if (this.battle) {
+          return (this.currentUserIsModerator || this.battleStatus.battleInitialized) && !this.battleStatus.battleOngoing
+        }
+      },
     },
     methods: {
       launchCodeWars() {
