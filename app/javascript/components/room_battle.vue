@@ -2,11 +2,14 @@
   <div id="room-battle" class="widget">
     <h3 class="header">{{ headerTitle }}</h3>
     <div class="widget-body">
+
       <div v-if="showChallenge">
         <h4>{{ battle.challenge.name }}</h4>
         <p>{{ battle.challenge.description }}</p>
       </div>
-      <div v-else-if="lastBattle">
+
+      <div v-else-if="lastBattle" class="d-flex flex-column align-items-center">
+        <a :href="challengeUrl" target="_blank" class="button my-4" v-if="battleOngoing">Launch Battle on CodeWars</a>
         <table class="console-table">
           <thead>
             <th scope="col"><span class="data">WARRIOR</span></th>
@@ -57,7 +60,8 @@
       users: Array,
       battle: Object,
       countdown: Number,
-      currentUserIsModerator: Boolean
+      currentUserIsModerator: Boolean,
+      challengeUrl: String
     },
     data() {
       return {
@@ -65,6 +69,10 @@
       }
     },
     computed: {
+      challengeUrl() {
+        if (this.battle.challenge.language === null) { this.battle.challenge.language = 'ruby' }
+        return `${this.battle.challenge.url}/train/${this.battle.challenge.language}`
+      },
       headerTitle() {
         const prefix = 'KATA://'
         if (this.battleOngoing) {
@@ -119,6 +127,9 @@
       }
     },
     methods: {
+      launchCodeWars() {
+
+      },
       findUser(userId) {
         const index = this.users.findIndex((e) => e.id === userId);
         return this.users[index]

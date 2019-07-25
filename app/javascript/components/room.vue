@@ -67,7 +67,7 @@
         announcement: {
           status: 'normal',
           content: `Welcome to ${this.roomInit.name}`
-        }
+        },
       }
     },
     created() {
@@ -181,7 +181,8 @@
       },
       startBattle() {
         if (this.battle.challenge.language === null) { this.battle.challenge.language = 'ruby' }
-        window.open(`${this.battle.challenge.url}/train/${this.battle.challenge.language}`)
+        const challengeUrl = `${this.battle.challenge.url}/train/${this.battle.challenge.language}`
+        window.open(this.challengeUrl)
       },
       endBattle() {
         SpeedBattlesApi.updateBattleStatus(this.battle.id, 'end')
