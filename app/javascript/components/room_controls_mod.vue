@@ -1,6 +1,6 @@
 <template>
-  <div :class="['widget-bg', seekAttention]">
-    <div id="room-controls" class="widget">
+  <div id="room-controls" :class="['widget-bg', seekAttention]">
+    <div class="widget">
       <h3 class="header highlight">{{ title }}</h3>
       <div class="widget-body">
         <div v-if="currentUserIsModerator" class="h-100">

@@ -1,4 +1,7 @@
 #room {
+  background: radial-gradient(ellipse farthest-corner at top left, $bgcolor1 10%, $bgcolor2), linear-gradient(#00000088, #00000033), asset-url('bg_codewars_3.jpg');
+  background-size: cover;
+  padding: 1em;
   height: 100vh;
   display: grid;
   // grid-template-columns: 18% 41% 41%;
@@ -19,7 +22,7 @@
 
 .grid-item {
   align-items: middle;
-  margin: 5px;
+  margin: 0.5em;
 }
 .grid-header {
   grid-area: header;

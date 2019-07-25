@@ -1,6 +1,6 @@
 <template>
-  <div class="widget-bg">
-    <div id="room-leaderboard" class="widget">
+  <div id="room-leaderboard" class="widget-bg">
+    <div class="widget">
       <h3 class="header">{{ title }}</h3>
       <div class="widget-body">
         <table class="console-table">

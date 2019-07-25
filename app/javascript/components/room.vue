@@ -1,12 +1,13 @@
 <template>
   <div id="room" v-if="loaded" :class="{ moderator: this.currentUserIsModerator }">
+
+
     <div class="grid-item grid-header">
-      <div class="widget-bg">
+      <div id="room-announcer" class="widget-bg">
         <div class="widget">
           <h3 class="header highlight">PWD://War_Room/{{ room.name }}</h3>
           <div class="widget-body align-content-center justify-content-center pt-0">
-            <span :class="['announcer', 'text-center', announcerWindow.status]">
-              {{ announcerWindow.content }}
+            <span :class="['announcer', 'text-center', announcerWindow.status]" v-html="announcerWindow.content">
             </span>
           </div>
         </div>
@@ -62,9 +63,9 @@
         users: this.usersInit,
         battle: this.battleInit,
         leaderboard: [],
-        challengeInput: 'deodorant-evaporator',
+        challengeInput: 'is-the-string-uppercase',
         controlsType: '',
-        countdownDuration: 10,
+        countdownDuration: 15,
         countdown: 0,
         announcement: {
           status: 'normal',
@@ -82,7 +83,7 @@
 
         if (this.countdown > 0) {
           status = 'warning'
-          content = `Battle starting in ${this.countdown} second${this.countdown > 1 ? 's' : ''}...`
+          content = `Battle starting in... <span class="timer highlight">${this.countdown}</span>`
         }
 
         return {
@@ -325,7 +326,5 @@
 </script>
 
 <style scoped>
-#room {
-  padding: 1em;
-}
+
 </style>

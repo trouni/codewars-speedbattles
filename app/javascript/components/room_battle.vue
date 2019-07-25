@@ -1,6 +1,6 @@
 <template>
-  <div class="widget-bg">
-    <div id="room-battle" class="widget">
+  <div id="room-battle" class="widget-bg">
+    <div class="widget">
       <h3 class="header">{{ headerTitle }}</h3>
       <div class="widget-body">
 
@@ -78,7 +78,7 @@
       headerTitle() {
         const prefix = 'KATA://'
         if (this.battleOngoing) {
-          this.$root.$emit('announce',{content: 'This is a code WAAAAAAAR!!'})
+          this.$root.$emit('announce',{content: 'This is (code) WAAAAAAAR!!'})
           return `${prefix}Battle_Report`
         } else if (this.battleLoaded) {
           this.$root.$emit('announce',{content: 'Prepare for battle...'})

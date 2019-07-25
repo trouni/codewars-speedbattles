@@ -1,5 +1,4 @@
 #room-chat {
-  // Scrollable window START
   .header {
     clip-path: polygon(0 0, $chat-header-width 0, calc(#{$chat-header-width} - #{$bezel}) 100%, 0 100%);
     width: 100%;
@@ -11,16 +10,9 @@
   }
 
   .messages {
-    // flex-grow: 1;
     margin-top: -1.8em;
-    // overflow: scroll;
     margin-bottom: 0.5em;
-    // justify-content: flex-end;
-    // display: flex;
-    // flex-direction: column;
   }
-  // Scrollable window END
-
 
   .messages li {
     line-height: 1.2em;

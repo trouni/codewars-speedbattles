@@ -16,9 +16,17 @@ $gray: #0E0000;
 $light-gray: #F4F4F4;
 
 
-// $maincolor: lighten($orange, 5%);
-// $maincolor: lighten($red, 15%);
-$maincolor: lighten($darkblue, 25%);
+$maincolor-normal: lighten($darkblue, 25%);
+$maincolor-brink-of-war: lighten($orange, 5%);
+$maincolor-at-war: lighten($red, 15%);
+
+
+$bg-image-normal: 'bg_codewars_4.jpg';
+$bg-image-brink-of-war: 'bg_codewars_3.jpg';
+$bg-image-at-war: 'bg_codewars_3.jpg';
+
+
+$maincolor: $maincolor-normal;
 
 $textcolor: lighten( $maincolor, 40% );
 $body-color: $textcolor;
@@ -29,12 +37,9 @@ $bezel-color: saturate( $widget-color, 50% );
 $input-color: $body-color;
 $bgcolor1: rgba( desaturate(lighten($maincolor, 15%), 10%), .5 );
 $bgcolor2: rgba( lighten($maincolor, 10%), .25 );
-
-
 $username-invited: $yellow;
 $username-ineligible: rgba($textcolor, 0.5);
 $username-confirmed: $highlight;
-
 
 $primary:    $blue;
 $success:    $green;

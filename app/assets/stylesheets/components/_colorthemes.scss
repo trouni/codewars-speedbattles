@@ -1,0 +1,137 @@
+@mixin color-theme($maincolor, $transition-speed, $bg-image) {
+  $textcolor: lighten( $maincolor, 40% );
+  $body-color: $textcolor;
+  $highlight: lighten($maincolor, 40%);
+  $headers-color: $highlight;
+  $widget-color: $maincolor;
+  $bezel-color: saturate( $widget-color, 50% );
+  $input-color: $body-color;
+  $bgcolor1: rgba( desaturate(lighten($maincolor, 15%), 10%), .5 );
+  $bgcolor2: rgba( lighten($maincolor, 10%), .25 );
+  $username-invited: $yellow;
+  $username-ineligible: rgba($textcolor, 0.5);
+  $username-confirmed: $highlight;
+
+  &.theme-transition {
+    * {
+      transition: color $transition-speed ease-in, background-color $transition-speed ease-in, text-shadow $transition-speed ease-in, box-shadow $transition-speed ease-in;
+    }
+  }
+
+  // _general.scss
+
+  #room {
+    color: $body-color;
+    background: radial-gradient(ellipse farthest-corner at top left, $bgcolor1 10%, $bgcolor2), linear-gradient(#00000088, #00000033), asset-url($bg-image);
+    background-size: cover;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: $headers-color;
+  }
+
+  .highlight-white {
+    text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+  }
+  .highlight {
+    color: $highlight;
+    text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+  }
+
+  .highlight-on-hover:hover {
+    text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+  }
+
+  .box-highlight {
+    border-color: $highlight;
+    box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+  }
+
+  .box-highlight-white {
+    box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+  }
+
+  .box-highlight-white-hover:hover {
+    box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+  }
+
+  // _buttons.scss
+
+  button, a.button {
+    color: $headers-color;
+    text-shadow: 0 0 1px $headers-color, 0 0 15px rgba( $headers-color, 0.3);
+    &:before {
+      color: $headers-color;
+    }
+    &:after {
+      color: $headers-color;
+
+    }
+    &:disabled, &:hover:disabled {
+      color: rgba($headers-color, 0.4);
+    }
+    &:hover {
+      color: $highlight;
+      text-shadow: 0 0 5px $headers-color, 0 0 15px rgba( $headers-color, 0.8);
+    }
+  }
+
+  // _inputs.scss
+
+  input {
+    color: $input-color;
+    &::placeholder {
+      color: rgba($input-color, 0.5);
+    }
+    &:disabled {
+      outline: 1px auto rgba( $maincolor, .3 );
+      color: rgba($input-color, 0.5);
+    }
+  }
+
+  input:focus {
+    outline: 1px auto rgba( $maincolor, .5 );
+  }
+
+  // _usernames.scss
+
+  .username {
+    .invited {
+      color: $username-invited;
+    }
+
+    .ineligible {
+      color: $username-ineligible;
+    }
+
+    .confirmed {
+      color: $username-confirmed;
+    }
+  }
+
+  .widget-bg {
+    background-color: rgba( $bezel-color, .4 );
+
+    &.seek-attention {
+      background-color: rgba( lighten($bezel-color, 10%), .9 );
+    }
+  }
+
+  .widget {
+    .header {
+      background-color: rgba( $bezel-color, .25 );
+    }
+  }
+}
+
+body {
+  @include color-theme($maincolor-normal, 2s, $bg-image-normal)
+}
+
+body.brink-of-war {
+  @include color-theme($maincolor-brink-of-war, 3s, $bg-image-brink-of-war)
+}
+
+body.at-war {
+  @include color-theme($maincolor-at-war, 15s, $bg-image-at-war)
+}
