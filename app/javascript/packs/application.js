@@ -11,7 +11,8 @@ Vue.use(VueChatScroll)
 Vue.use(ActionCableVue, {
     debug: true,
     debugLevel: 'error',
-    connectionUrl: 'wss://speedbattles.herokuapp.com/cable/'
+    connectionUrl: `${process.env.NODE_ENV === "production" ? "wss://speedbattles.herokuapp.com" : "ws://localhost:3000"}/cable`
+    // connectionUrl: 'wss://localhost:3000/cable/'
 });
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,19 +20,3 @@ document.addEventListener('DOMContentLoaded', () => {
     el: '[data-behavior="vue"]'
   })
 })
-
-
-// import App from '../app.vue'
-// import RoomUsers from '../components/room_users.vue'
-// import RoomControls from '../components/room_controls.vue'
-// import RoomControlsMod from '../components/room_controls_mod.vue'
-// import RoomChat from '../components/room_chat.vue'
-// import RoomLeaderboard from '../components/room_leaderboard.vue'
-// import RoomBattle from '../components/room_battle.vue'
-// Vue.component('app', App)
-// Vue.component('room-users', RoomUsers)
-// Vue.component('room-controls', RoomControls)
-// Vue.component('room-controls-mod', RoomControlsMod)
-// Vue.component('room-chat', RoomChat)
-// Vue.component('room-leaderboard', RoomLeaderboard)
-// Vue.component('room-battle', RoomBattle)

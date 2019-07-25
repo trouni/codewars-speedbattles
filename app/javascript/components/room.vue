@@ -269,13 +269,9 @@
       },
       ChatChannel: {
           connected() {
-            // this.loadChat()
-            console.log('WebSockets connected to ChatChannel.')
           },
           rejected() {},
           received(data) {
-            // this.messages.push(data)
-            // console.log(this.messages)
           },
           disconnected() {}
       }
