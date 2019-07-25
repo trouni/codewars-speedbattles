@@ -6,7 +6,7 @@
         <h4>{{ battle.challenge.name }}</h4>
         <p>{{ battle.challenge.description }}</p>
       </div>
-      <div v-else>
+      <div v-else-if="lastBattle">
         <table class="console-table">
           <thead>
             <th scope="col"><span class="data">WARRIOR</span></th>
@@ -71,8 +71,10 @@
           return `${prefix}Battle_Report`
         } else if (this.battleInitialized) {
           return `${prefix}Mission_Briefing`
+        } else if (this.lastBattleOver) {
+          return `${prefix}Last_Battle_Report`
         } else {
-          return `${prefix}Awaiting_Instructions`
+          return `${prefix}Awaiting_Mission`
         }
       },
       battleNotStarted() {
