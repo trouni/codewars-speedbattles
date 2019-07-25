@@ -2,18 +2,10 @@ Rails.application.routes.draw do
   root to: 'rooms#index'
   mount ActionCable.server => '/cable'
   devise_for :users
-  resources :users do
-    post '/fetch_data', to: 'users#fetch_data'
-  end
-  resources :rooms do
-    resources :battles, only: %i[index create]
-    resources :room_users, only: :create
-  end
-  resources :room_users, only: :destroy
-  resources :battles, only: %i[update destroy] do
-    resources :battle_invites, only: %i[create]
-  end
-  resources :battle_invites, only: %i[update destroy]
+  # resources :users do
+  #   post '/fetch_data', to: 'users#fetch_data'
+  # end
+  resources :rooms, only: [ :index, :show, :new, :create ]
 
   # Sidekiq Web UI, only for admins.
   require "sidekiq/web"
@@ -23,7 +15,7 @@ Rails.application.routes.draw do
 
   # API Routes
   namespace :api, defaults: { format: :json } do
-    mount ActionCable.server => '/cable'
+    # mount ActionCable.server => '/cable'
     namespace :v1 do
       resources :rooms, only: [ :index, :show, :create, :update ] do
         get '/leaderboard', to: 'rooms#leaderboard'

@@ -9,6 +9,10 @@ class RoomPolicy < ApplicationPolicy
     true
   end
 
+  def new?
+    create?
+  end
+
   def create?
     true
   end
