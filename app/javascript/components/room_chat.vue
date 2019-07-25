@@ -3,7 +3,8 @@
     <div id="room-chat" class="widget">
       <h3 class="header">{{ title }}</h3>
       <div class="widget-body">
-        <ul class="messages" v-chat-scroll="{always: true, smooth: true}" v-if="loaded">
+        <div class="flex-grow-1"></div>
+        <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true}" v-if="loaded">
           <li v-for="message in sortedMessages" v-bind:class="messageClass(message)">
             <span class="author" v-if="!isAnnouncement(message)">{{  `${message.author.username}>` }}</span> <span class="content">{{ message.content }}</span>
           </li>

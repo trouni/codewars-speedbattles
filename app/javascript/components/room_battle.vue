@@ -4,7 +4,7 @@
       <h3 class="header">{{ headerTitle }}</h3>
       <div class="widget-body">
 
-        <div v-if="showChallenge">
+        <div v-if="showChallenge" class="scrollable">
           <h4>{{ battle.challenge.name }}</h4>
           <p>{{ battle.challenge.description }}</p>
         </div>
