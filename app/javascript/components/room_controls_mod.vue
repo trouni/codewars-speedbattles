@@ -10,7 +10,7 @@
           <button @click="cancelBattle" class="line-height-1" v-if="battleLoaded && !battleInitialized">Cancel</button>
         </div>
 
-        <div class="d-flex flex-column align-items-center justify-content-around pt-0 pb-4 h-100">
+        <div class="d-flex flex-column align-items-center justify-content-around pt-0 pb-4">
           <div class="battle-settings d-flex flex-grow-1 justify-content-between mt-5" v-if="battleLoaded && !battleInitialized">
             <p class="mx-3"><input type="number" name="time-limit" min='1' placeholder="Time limit" disabled> min</p>
             <p class="mx-3"><input type="number" name="max-survivors" min='1' placeholder="Max survivors" disabled></p> <!-- :max="eligibleUsers.length" -->
