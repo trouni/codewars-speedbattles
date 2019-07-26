@@ -59,7 +59,7 @@
         users: this.usersInit,
         battle: this.battleInit,
         leaderboard: [],
-        challengeInput: 'is-the-string-uppercase',
+        challengeInput: this.battleInit.challenge.slug,
         controlsType: '',
         countdownDuration: 15,
         countdown: 0,
@@ -228,7 +228,6 @@
               SpeedBattlesApi.postBattle(this.room.id, response)
                 .then((response) => {
                   this.refreshBattle()
-                  this.challengeInput = null
                 })
             } else {
               console.log("No kata found with this id/slug/url")

@@ -17,6 +17,11 @@
               <small>Difficulty:</small> <span class="highlight">{{-battle.challenge.rank}} kyu</span>
             </div>
           </div>
+<!--           <VueShowdown
+            :markdown="lastBattle.challenge.description"
+            flavor="github"
+            :options="{ emoji: true }"
+            class="scrollable"/> -->
           <p class="scrollable" v-if="showChallenge">{{ lastBattle.challenge.description }}</p>
           <p class="scrollable" v-else>The instructions for the challenge will appear here during the countdown.</p>
         </div>
@@ -87,6 +92,7 @@
     },
     data() {
       return {
+
       }
     },
     computed: {
