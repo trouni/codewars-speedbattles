@@ -92,7 +92,7 @@ class Room < ApplicationRecord
   end
 
   def leaderboard
-    (players + users + current_user).uniq.map do |user|
+    (players + users).uniq.map do |user|
       {
         id: user.id,
         name: user.name,
