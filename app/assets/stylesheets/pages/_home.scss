@@ -1,1 +1,25 @@
-// Specific CSS for your home-page
+.main-logo {
+  animation-duration: 0.2s;
+
+  .main-title {
+    .speed {
+      font-size: 2.5em;
+      color: $highlight;
+      text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+      animation-duration: 0.5s;
+      animation-delay: 1s;
+    }
+    .battles {
+      font-size: 1.85em;
+      color: #AD3933;
+      text-shadow: 0 0 5px #AD3933, 0 0 5px rgba(255,255,255, 0.8);
+      animation-duration: 0.5s;
+      animation-delay: 1.7s;
+    }
+  }
+
+  .codewars-logo {
+    animation-duration: 0.5s;
+    animation-delay: 1s;
+  }
+}

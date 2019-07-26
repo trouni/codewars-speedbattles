@@ -1,3 +1,7 @@
+<div class="absolute-top-right-corner sign-out">
+  <%= link_to "Leave room", rooms_path, class: "button" %>
+</div>
+
 <room
   :room-init="<%= @room.to_json %>"
   :battle-init="<%= @room.active_battle&.api_expose.to_json %>"

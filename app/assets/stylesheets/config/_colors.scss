@@ -21,6 +21,7 @@ $maincolor-brink-of-war: lighten($orange, 5%);
 $maincolor-at-war: lighten($red, 15%);
 
 
+$bg-image: 'bg_warriors_2.jpg';
 $bg-image-normal: 'bg_codewars_4.jpg';
 $bg-image-brink-of-war: 'bg_codewars_3.jpg';
 $bg-image-at-war: 'bg_codewars_3.jpg';
@@ -29,12 +30,13 @@ $bg-image-at-war: 'bg_codewars_3.jpg';
 $maincolor: $maincolor-normal;
 
 $textcolor: lighten( $maincolor, 40% );
+$link-color: lighten( $maincolor, 10% );
 $body-color: $textcolor;
 $highlight: lighten($maincolor, 40%);
 $headers-color: $highlight;
 $widget-color: $maincolor;
 $bezel-color: saturate( $widget-color, 50% );
-$input-color: $body-color;
+$input-color: $maincolor;
 $bgcolor1: rgba( desaturate(lighten($maincolor, 15%), 10%), .5 );
 $bgcolor2: rgba( lighten($maincolor, 10%), .25 );
 $username-invited: $yellow;

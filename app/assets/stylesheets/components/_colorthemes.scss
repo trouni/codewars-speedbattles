@@ -10,6 +10,7 @@
 
 @mixin theme-color($maincolor, $bg-image) {
   $textcolor: lighten( $maincolor, 40% );
+  $link-color: lighten( $maincolor, 10% );
   $body-color: $textcolor;
   $highlight: lighten($maincolor, 40%);
   $headers-color: $highlight;
@@ -29,6 +30,10 @@
   background: radial-gradient(ellipse farthest-corner at top left, $bgcolor1 10%, $bgcolor2), linear-gradient(#00000088, #00000033), asset-url($bg-image);
   background-size: cover;
   // }
+
+  a {
+    color: $link-color;
+  }
 
   h1, h2, h3, h4, h5, h6 {
     color: $headers-color;
@@ -128,7 +133,7 @@
   }
 }
 
-#room.peace, #room.preparation, #room.battle-over, #room.brink-of-war {
+#room, #room.peace, #room.preparation, #room.battle-over, #room.brink-of-war {
   @include theme-color($maincolor-normal, $bg-image-normal)
   @include theme-transitions(0.5s)
 }

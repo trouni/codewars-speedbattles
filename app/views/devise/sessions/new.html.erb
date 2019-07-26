@@ -1,8 +1,8 @@
-<div class="container">
-  <div class="widget-bg m-auto w-50">
+<div class="grid-item">
+  <div class="widget-bg mx-auto mt-5 w-50">
     <div class="widget">
       <h3 class="header">Log in</h3>
-      <div class="widget-body mt-5 pr-4 pb-4">
+      <div class="widget-body pr-4 pb-4">
         <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
           <div class="form-inputs">
             <%#= f.input :email,
@@ -19,7 +19,7 @@
           </div>
 
           <div class="form-actions d-flex justify-content-center">
-            <%= f.button :submit, "Log in" %>
+            <%= f.button :submit, "Log in", input_html: { class: "button" } %>
           </div>
         <% end %>
 

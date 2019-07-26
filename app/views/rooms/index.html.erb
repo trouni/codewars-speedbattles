@@ -1,6 +1,33 @@
-<ol>
-  <% @rooms.each do |room| %>
-    <li><%= link_to room.name, room_path(room)%>
-    </li>
-  <% end %>
-</ol>
+
+<div class="absolute-top-right-corner sign-out">
+  <%= link_to "Log out", destroy_user_session_path, method: :delete, class: "button" %>
+</div>
+
+<div class="main-logo d-flex justify-content-center align-items-center animated fadeIn mt-5">
+  <div class="codewars-logo animated slideInRight mr-3"><%= image_tag "codewars_logo.png" %></div>
+  <h1 class="main-title mx-5">
+    <div class="speed animated lightSpeedIn">
+    <div>SPEED</div>
+    </div>
+    <div class="battles animated flipInY ">
+    <div class="animated pulse delay-2s slower">BATTLES</div>
+    </div>
+  </h1>
+</div>
+
+<div class="grid-item">
+  <div class="widget-bg mx-auto mt-5 w-50">
+    <div class="widget">
+      <h3 class="header">Join a war room</h3>
+      <div class="widget-body p-5">
+        <ol>
+          <% @rooms.each do |room| %>
+            <li><%= link_to room.name, room_path(room)%>
+            </li>
+          <% end %>
+        </ol>
+
+      </div>
+    </div>
+  </div>
+</div>
