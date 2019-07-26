@@ -21,7 +21,7 @@ class Message < ApplicationRecord
       id: id,
       content: content,
       created_at: created_at,
-      author: user.api_expose
+      author: user ? user&.api_expose : User.find_by(username: bot)&.api_expose
     }
   end
 
