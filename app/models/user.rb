@@ -38,7 +38,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  before_create :fill_email
+  before_validation :fill_email
   after_create :async_fetch_codewars_info
 
   def email_required?
