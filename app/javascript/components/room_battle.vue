@@ -26,7 +26,7 @@
           <p class="scrollable" v-else>The instructions for the challenge will appear here during the countdown.</p>
         </div>
 
-        <div v-else-if="!battle && lastBattle" class="d-flex flex-column align-items-center">
+        <div v-else-if="(!battle || battleStatus.battleOngoing) && lastBattle" class="d-flex flex-column align-items-center">
           <div class="d-flex justify-content-between w-100 mb-3">
             <p><strong>{{ lastBattle.challenge.name }}</strong></p>
             <div>
