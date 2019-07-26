@@ -2,7 +2,7 @@
   <div id="room-leaderboard" class="widget-bg">
     <div class="widget">
       <h3 class="header">{{ title }}</h3>
-      <div class="widget-body">
+      <div class="widget-body scrollable">
         <table class="console-table">
           <thead class="first-row">
             <th scope="col"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
