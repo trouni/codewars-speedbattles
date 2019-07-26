@@ -30,7 +30,7 @@ User.create!(
 # Rooms & RoomUsers
 
 room = Room.create!(name: "CodeWars SpeedBattles tutorial", moderator: User.find_by(username: 'moderator'))
-room = Room.create!(name: "Le Wagon Tokyo 252", moderator: User.find_by(username: 'moderator'))
+room = Room.create!(name: "Le Wagon Tokyo 279", moderator: User.find_by(username: 'moderator'))
 # User.all.each do |user|
 #   RoomUser.create!(room: room, user: user)
 # end

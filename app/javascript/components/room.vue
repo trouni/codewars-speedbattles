@@ -61,7 +61,7 @@
         leaderboard: [],
         challengeInput: this.battleInit.challenge.slug,
         controlsType: '',
-        countdownDuration: 15,
+        countdownDuration: 10,
         countdown: 0,
         announcement: {
           status: 'normal',
