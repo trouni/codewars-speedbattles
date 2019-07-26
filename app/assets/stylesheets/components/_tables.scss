@@ -3,7 +3,8 @@ table.console-table {
   width: 100% ;
 
   thead th {
-    font-size: 0.8em;
+    overflow: hidden;
+    font-size: 0.9em;
   }
 
   tbody th {
@@ -13,6 +14,7 @@ table.console-table {
 
   th:first-child .data {
     justify-content: left;
+    padding-left: 1em;
   }
 
   .data:first-child {
@@ -30,10 +32,33 @@ table.console-table {
     }
   }
 
+  tr {
+    height: 1em;
+  }
+
+  tr:hover {
+    background-color: rgba(lighten($maincolor, 10%), 0.1);
+    transition: background-color 0.2s;
+  }
+
+  td {
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
   td:last-child .data, th:last-child .data {
     &:after {
       visibility: hidden;
     }
+  }
+
+  .bg-highlight {
+    background-color: rgba(white, 0.1);
+  }
+
+  .first-row {
+    background-color: rgba(white, 0.3);
+    color: rgba(darken($maincolor, 40%), 0.8);
   }
 }
 

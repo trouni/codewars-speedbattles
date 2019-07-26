@@ -4,13 +4,13 @@
       <h3 class="header">{{ title }}</h3>
       <div class="widget-body">
         <table class="console-table">
-          <thead>
+          <thead class="first-row">
             <th scope="col"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
-            <th scope="col"><span class="data">RANK</span></th>
-            <th scope="col"><span class="data">SCORE</span></th>
-            <th scope="col"><span class="data">WON</span></th>
-            <th scope="col"><span class="data">COMPLETED/LOST</span></th>
-            <th scope="col"><span class="data">TOTAL</span></th>
+            <th scope="col" style="width: 10%;"><span class="data">RANK</span></th>
+            <th scope="col" style="width: 10%;"><span class="data">SCORE</span></th>
+            <th scope="col" style="width: 10%;"><span class="data">WON</span></th>
+            <th scope="col" style="width: 14%;"><span class="data">COMPLETED/LOST</span></th>
+            <th scope="col" style="width: 10%;"><span class="data">TOTAL</span></th>
           </thead>
           <tbody>
             <tr v-for="(player, index) in sortedLeaderboard">

@@ -4,24 +4,41 @@
       <h3 class="header">{{ headerTitle }}</h3>
       <div class="widget-body">
 
-        <div v-if="showChallenge" class="scrollable">
-          <h4>{{ battle.challenge.name }}</h4>
-          <p>{{ battle.challenge.description }}</p>
+
+        <div v-if="battle">
+          <div class="d-flex justify-content-between w-100 mb-3">
+            <div>
+              <p v-if="showChallenge"><strong>{{ battle.challenge.name }}</strong></p>
+              <p v-else><strong>Upcoming battle</strong></p>
+            </div>
+            <div>
+              <small>Language:</small> <span class="highlight">{{battle.challenge.language || "Ruby"}}</span>
+               |
+              <small>Difficulty:</small> <span class="highlight">{{-battle.challenge.rank}} kyu</span>
+            </div>
+          </div>
+          <p class="scrollable" v-if="showChallenge">{{ lastBattle.challenge.description }}</p>
+          <p class="scrollable" v-else>The instructions for the challenge will appear here during the countdown.</p>
         </div>
 
-        <div v-else-if="lastBattle" class="d-flex flex-column align-items-center">
-          <!-- <a :href="challengeUrl" target="_blank" class="button my-4" v-if="battleStatus.battleOngoing">
-            Open Kata on CodeWars
-          </a> -->
+        <div v-else-if="!battle && lastBattle" class="d-flex flex-column align-items-center">
+          <div class="d-flex justify-content-between w-100 mb-3">
+            <p><strong>{{ lastBattle.challenge.name }}</strong></p>
+            <div>
+              <small>Language:</small> <span class="highlight">{{lastBattle.challenge.language || "Ruby"}}</span>
+               |
+              <small>Difficulty:</small> <span class="highlight">{{-lastBattle.challenge.rank}} kyu</span>
+            </div>
+          </div>
           <table class="console-table">
-            <thead>
+            <thead class="first-row">
               <th scope="col"><span class="data">WARRIOR</span></th>
-              <th scope="col"><span class="data">RANK</span></th>
-              <th scope="col"><span class="data">STATUS</span></th>
-              <th scope="col"><span class="data">TIME</span></th>
+              <th scope="col" style="width: 10%;"><span class="data">RANK</span></th>
+              <th scope="col" style="width: 22%;"><span class="data">STATUS</span></th>
+              <th scope="col" style="width: 22%;"><span class="data">TIME</span></th>
             </thead>
             <tbody>
-              <tr v-for="(result, index) in lastBattle.results.survivors">
+              <tr v-for="(result, index) in lastBattle.results.survivors" class="highlight bg-highlight">
                 <th scope="row">
                   <span class="data username">{{ result.username }}</span>
                 </th>

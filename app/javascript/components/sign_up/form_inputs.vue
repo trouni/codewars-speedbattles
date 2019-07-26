@@ -2,8 +2,6 @@
   <div class="form-inputs">
     <div class="form-group string required user_username">
 
-      <div class="form-group email required user_email hidden"><label for="user_email" class="form-control-label email required">Email <abbr title="required">*</abbr></label><input autocomplete="email" autofocus="autofocus" v-model="email" required="required" aria-required="true" type="email" name="user[email]" id="user_email" class="form-control string email required"></div>
-
       <label for="user_username" class="form-control-label string required">CodeWars username <abbr title="required">*</abbr></label>
       <input autofocus="autofocus" required="required" aria-required="true" type="text" value="" name="user[username]" id="user_username" :class="['form-control string required', { 'is-valid': validUsername }, { 'is-invalid': username && fetched && !validUsername }]" v-model="username" @blur="checkUsername" placeholder="Enter a valid CodeWars username">
       <div :class="[{ 'valid-feedback': validUsername }, { 'invalid-feedback': !validUsername }]">{{ error }}</div>

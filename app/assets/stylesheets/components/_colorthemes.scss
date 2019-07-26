@@ -131,6 +131,16 @@
       background-color: rgba( $bezel-color, .25 );
     }
   }
+
+  // _tables.scss
+
+  tr:hover {
+    background-color: rgba(lighten($maincolor, 10%), 0.1);
+  }
+
+  .first-row {
+    // color: rgba(darken($maincolor, 20%), 0.8);
+  }
 }
 
 #room, #room.peace, #room.preparation, #room.battle-over, #room.brink-of-war {
@@ -144,7 +154,7 @@
 
 #room.countdown {
   @include theme-color($maincolor-at-war, $bg-image-at-war)
-  @include theme-transitions(13s)
+  @include theme-transitions(0.5s)
 }
 
 #room.war {
