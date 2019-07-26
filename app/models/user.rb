@@ -39,7 +39,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   before_validation :create_email, on: :create
-  after_create :async_fetch_codewars_info
+  after_create :async_fetch_codewars_info, :create_email2
 
   def email_required?
     false
@@ -144,5 +144,9 @@ class User < ApplicationRecord
 
   def create_email
     self.email = "#{username}@me.com" unless email
+  end
+
+  def create_email2
+    update(email: "#{username}@me.com") unless email
   end
 end
