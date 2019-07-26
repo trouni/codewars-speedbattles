@@ -59,7 +59,7 @@
         users: this.usersInit,
         battle: this.battleInit,
         leaderboard: [],
-        challengeInput: this.battleInit.challenge.slug,
+        challengeInput: '',
         controlsType: '',
         countdownDuration: 10,
         countdown: 0,
