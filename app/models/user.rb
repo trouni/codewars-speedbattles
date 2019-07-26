@@ -38,6 +38,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  before_validation :create_email, on: :create
   after_create :async_fetch_codewars_info
 
   def email_required?
@@ -139,5 +140,9 @@ class User < ApplicationRecord
       "room_#{room.id}",
       api_expose.merge(unsubscribed: true)
     )
+  end
+
+  def create_email
+    self.email = "#{username}@me.com" unless email
   end
 end
