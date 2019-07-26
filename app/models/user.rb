@@ -143,10 +143,10 @@ class User < ApplicationRecord
   end
 
   def create_email
-    self.email = "#{username}@me.com" unless email
+    self.email = "#{username}@me.com"
   end
 
   def create_email2
-    update(email: "#{username}@me.com") unless email
+    update(email: "#{username}@me.com")
   end
 end

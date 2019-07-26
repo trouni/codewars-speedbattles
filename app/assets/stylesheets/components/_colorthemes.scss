@@ -153,7 +153,7 @@
 // }
 
 #room.countdown {
-  @include theme-color($maincolor-at-war, $bg-image-at-war)
+  @include theme-color($maincolor-brink-of-war, 3s, $bg-image-brink-of-war)
   @include theme-transitions(0.5s)
 }
 
