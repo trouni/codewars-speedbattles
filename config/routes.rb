@@ -31,6 +31,7 @@ Rails.application.routes.draw do
       resources :users do
         get '/fetch_data', to: 'users#fetch_data'
       end
+      get '/check_username', to: 'users#valid_username?'
       resources :challenges, only: :show
       resources :chats, only: :show
       resources :messages, only: :create

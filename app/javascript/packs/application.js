@@ -3,8 +3,10 @@ import Vue from 'vue/dist/vue.esm'
 import ActionCableVue from 'actioncable-vue';
 import VueChatScroll from 'vue-chat-scroll'
 import Room from '../components/room.vue'
+import SignUpFormInputs from '../components/sign_up/form_inputs.vue'
 
 Vue.component('room', Room)
+Vue.component('sign-up-form-inputs', SignUpFormInputs)
 
 Vue.use(VueChatScroll)
 
