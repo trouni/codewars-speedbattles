@@ -36,7 +36,7 @@
         <div v-else class="flex-centering pt-0 pb-4">
           <div v-if="battleStatus.battleInitialized">
             <p class="text-center">Click the button below once you have completed the kata on CodeWars.</p>
-            <button class="mx-auto large" @click="$root.$emit('fetch-challenges', currentUser.id)" :disabled="!battleStatus.battleOngoing">Challenge Completed</button>
+            <button class="mx-auto large" @click="$root.$emit('fetch-challenges', currentUser.id)" v-if="notClicked" :disabled="!battleStatus.battleOngoing">Challenge Completed</button>
           </div>
           <div v-else-if="currentUser.invite_status == 'invited'">
             <p class="text-center">You have been requested to join this battle.</p>
@@ -69,7 +69,8 @@
     data() {
       return {
         title: "SYS://Settings",
-        challengeInput: this.input
+        challengeInput: this.input,
+        notClicked: true
       }
     },
     computed: {

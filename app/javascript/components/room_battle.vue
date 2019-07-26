@@ -5,7 +5,7 @@
       <div class="widget-body">
 
 
-        <div v-if="battle">
+        <!-- <div v-if="battle">
           <div class="d-flex justify-content-between w-100 mb-3">
             <div>
               <p v-if="showChallenge"><strong>{{ battle.challenge.name }}</strong></p>
@@ -17,16 +17,16 @@
               <small>Difficulty:</small> <span class="highlight">{{-battle.challenge.rank}} kyu</span>
             </div>
           </div>
-<!--           <VueShowdown
+           <VueShowdown
             :markdown="lastBattle.challenge.description"
             flavor="github"
             :options="{ emoji: true }"
-            class="scrollable"/> -->
+            class="scrollable"/>
           <p class="scrollable" v-if="showChallenge">{{ lastBattle.challenge.description }}</p>
           <p class="scrollable" v-else>The instructions for the challenge will appear here during the countdown.</p>
-        </div>
+        </div> -->
 
-        <div v-else-if="(!battle || battleStatus.battleOngoing) && lastBattle" class="d-flex flex-column align-items-center">
+        <div v-if="lastBattle" class="d-flex flex-column align-items-center">
           <div class="d-flex justify-content-between w-100 mb-3">
             <p><strong>{{ lastBattle.challenge.name }}</strong></p>
             <div>
