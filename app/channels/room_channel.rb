@@ -25,11 +25,14 @@ class RoomChannel < ApplicationCable::Channel
     case data[:subchannel]
     when "chat"
       # data[:payload] = "message content"
-      message = Message.create(user_id: user.id, chat_id: room.chat.id, content: data[:payload])
-      ActionCable.server.broadcast("room_#{@room.id}_chat", message.api_expose) if message.save
+      Message.create(user_id: user.id, chat_id: room.chat.id, content: data[:payload])
+      # ActionCable.server.broadcast("room_#{@room.id}_chat", message.api_expose) if message.save
     end
+  end
 
-    ActionCable.server.broadcast("chat_#{params[:chat_id]}", data)
+  def create_message(data)
+    set_room_and_user
+    Message.create(user_id: @user.id, chat_id: @room.chat.id, content: data["message"])
   end
 
   private

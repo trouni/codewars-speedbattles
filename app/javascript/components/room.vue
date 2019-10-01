@@ -13,7 +13,7 @@
       </div>
     </div>
     <div class="grid-item grid-chat">
-      <room-chat :chat-id="room.chat_id" :user-id="currentUserId"></room-chat>
+      <room-chat :messages="messages"></room-chat>
     </div>
     <div class="grid-item grid-battle">
       <room-battle :battle="battle" :last-battle="lastBattle" :users="users" :room="room" :countdown="countdown" :battle-status="battleStatus" :current-user-is-moderator="currentUserIsModerator"></room-battle>
@@ -50,7 +50,8 @@
       roomInit: Object,
       usersInit: Array,
       battleInit: Object,
-      userInit: Object
+      userInit: Object,
+      messagesInit: Array,
     },
     data() {
       return {
@@ -58,6 +59,7 @@
         room: this.roomInit,
         users: this.usersInit,
         battle: this.battleInit,
+        messages: this.messagesInit,
         leaderboard: [],
         challengeInput: '',
         controlsType: '',
@@ -187,6 +189,15 @@
           status: message.status || 'normal',
           content: message.content
         }
+      },
+      sendChatMessage(content) {
+        const data = { message: content };
+        this.$cable.perform({
+            channel: 'RoomChannel',
+            action: 'create_message',
+            data: data
+        });
+        this.input = ''
       },
       refreshRoom() {
         SpeedBattlesApi.getRoom(this.room.id)
@@ -367,13 +378,32 @@
           received(data) {
           },
           disconnected() {}
+      },
+      RoomChannel: {
+        connected() {
+        },
+        rejected() {},
+        received(data) {
+          console.log(data)
+          switch (data.subchannel) {
+            case "chat":
+            this.messages.push(data.payload)
+            break;
+
+            default:
+            console.log(data)
+          }
+        },
+        disconnected() {}
       }
     },
     mounted () {
-      this.$cable.subscribe({ channel: 'BattleChannel', room_id: this.room.id })
-      this.$cable.subscribe({ channel: 'UsersChannel', room_id: this.room.id, user_id: this.currentUser.id });
-      this.$cable.subscribe({ channel: 'ChatChannel', chat_id: this.room.chat_id })
+      this.$cable.subscribe({ channel: 'RoomChannel', room_id: this.room.id, user_id: this.currentUser.id });
+      // this.$cable.subscribe({ channel: 'BattleChannel', room_id: this.room.id })
+      // this.$cable.subscribe({ channel: 'UsersChannel', room_id: this.room.id, user_id: this.currentUser.id });
+      // this.$cable.subscribe({ channel: 'ChatChannel', chat_id: this.room.chat_id })
       this.$root.$on('announce', (message) => this.announce(message))
+      this.$root.$on('send-chat-message', (message) => this.sendChatMessage(message))
       this.$root.$on('refresh-all', () => this.refreshAll())
       this.$root.$on('create-battle', (challenge) => this.createBattle(challenge))
       this.$root.$on('delete-battle', () => this.deleteBattle())

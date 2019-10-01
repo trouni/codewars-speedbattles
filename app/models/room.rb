@@ -15,6 +15,7 @@ class Room < ApplicationRecord
   has_many :users, through: :room_users
   has_many :battles
   has_one :chat, dependent: :destroy
+  has_many :messages, through: :chat
   validates :name, presence: true
   after_create :create_chat
 

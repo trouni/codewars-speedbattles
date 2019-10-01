@@ -6,5 +6,7 @@
   :room-init="<%= @room.to_json %>"
   :battle-init="<%= @room.active_battle&.api_expose.to_json %>"
   :users-init="<%= @room.users.map(&:api_expose).to_json %>"
-  :user-init="<%= current_user.api_expose.to_json %>">
+  :user-init="<%= current_user.api_expose.to_json %>"
+  :messages-init="<%= @room.messages.map(&:api_expose).to_json %>"
+  >
 </room>

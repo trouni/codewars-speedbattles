@@ -13,8 +13,9 @@
 class Message < ApplicationRecord
   belongs_to :user
   belongs_to :chat
+  has_one :room, through: :chat
   validates :content, presence: true, allow_blank: false
-  after_create :broadcast_message
+  after_create_commit :broadcast_message
 
   def api_expose
     {
@@ -35,8 +36,9 @@ class Message < ApplicationRecord
 
   def broadcast_message
     ActionCable.server.broadcast(
-      "chat_#{chat.id}",
-      api_expose
+      "room_#{room.id}_chat",
+      subchannel: "chat",
+      payload: api_expose
     )
   end
 end
