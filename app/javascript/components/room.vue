@@ -1,5 +1,5 @@
 <template>
-  <div id="room" :class="[roomStatus, { moderator: this.currentUserIsModerator }]">
+  <div id="room" :class="[roomStatus, { moderator: this.currentUserIsModerator, 'page-loading': !this.pageLoaded }]">
 
     <div class="grid-item grid-header">
       <div id="room-announcer" :class="['widget-bg', seekAttention]">
@@ -51,6 +51,7 @@
     },
     data() {
       return {
+        pageLoaded: false,
         room: this.roomInit,
         users: this.usersInit,
         roomPlayers: this.roomPlayersInit,
@@ -69,6 +70,7 @@
     },
     created() {
       this.pushToUsers(this.currentUser);
+      setTimeout(() => { this.pageLoaded = true }, 500);
     },
     computed: {
       leaderboard() {
@@ -327,9 +329,17 @@
             break;
 
             case "battles":
-            this.activeBattle = data.payload.battles.active
-            this.pastBattles = data.payload.battles.finished
-            console.info(`Refreshed all battles`)
+            switch (data.payload.action) {
+              case "active":
+              this.activeBattle = data.payload.battle;
+              break;
+
+              default:
+              this.activeBattle = data.payload.battles.active;
+              this.pastBattles = data.payload.battles.finished;
+              console.info(`Refreshed all battles`);
+              break;
+            }
             break;
 
             default:

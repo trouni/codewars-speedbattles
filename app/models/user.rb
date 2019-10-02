@@ -48,7 +48,7 @@ class User < ApplicationRecord
   def api_expose(room: nil)
     standard_result = {
       id: id,
-      invite_status: invite_status,
+      invite_status: invite_status(room),
       last_fetched_at: last_fetched_at,
       name: name,
       username: username
@@ -60,9 +60,9 @@ class User < ApplicationRecord
 
   def stats(room)
     {
-      battles_fought: room.battles_fought(self).count,
-      battles_survived: room.battles_survived(self).count,
-      victories: room.victories(self).count,
+      battles_fought: room.battles_fought(self).size,
+      battles_survived: room.battles_survived(self).size,
+      victories: room.victories(self).size,
       total_score: room.total_score(self)
     }
   end
@@ -117,14 +117,14 @@ class User < ApplicationRecord
     CompletedChallenge.where(challenge_id: challenge_id, user_id: id).any?
   end
 
-  def invite_status(battle = active_battle)
-    return nil unless battle
+  def invite_status(room)
+    return nil unless room && room.active_battle
 
-    if confirmed?(battle)
+    if confirmed?(room.active_battle)
       "confirmed"
-    elsif invited?(battle)
+    elsif invited?(room.active_battle)
       "invited"
-    elsif eligible?(battle)
+    elsif eligible?(room.active_battle)
       "eligible"
     else
       "ineligible"

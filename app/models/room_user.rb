@@ -25,10 +25,13 @@ class RoomUser < ApplicationRecord
   end
 
   def join_room
+    room.broadcast_active_battle
     room.broadcast_user(action: "add", user: user)
   end
 
   def leave_room
+    BattleInvite.find_by(battle: room.active_battle, player: user, confirmed: false)&.destroy if room.active_battle
+    room.broadcast_active_battle
     room.broadcast_user(action: "remove", user: user)
   end
 end

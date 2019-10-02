@@ -23,6 +23,8 @@
 .grid-item {
   align-items: middle;
   margin: 0.5em;
+  align-items: center;
+  display: flex;
 }
 .grid-header {
   grid-area: header;

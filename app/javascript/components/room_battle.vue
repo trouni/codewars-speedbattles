@@ -58,8 +58,8 @@
                 </td>
               </tr>
               <tr v-for="result in lastBattle.results.not_finished">
-                <th scope="row">
-                  <span class="data username">{{ result.username }}</span>
+                <th scope="row" :class="['username', { pending: !userIsConfirmed(result.user_id) }]">
+                  <span class="data username">{{ result.username }}<small v-if="!userIsConfirmed(result.user_id)" class="ml-1">(pending)</small></span>
                 </th>
                 <td>
                   <span class="data rank">-</span>
@@ -122,12 +122,16 @@
       },
     },
     methods: {
-      launchCodeWars() {
-
+      userIsConfirmed(userId) {
+        return this.battleStatus.lastBattleOver || this.findPlayer(userId).invite_status === 'confirmed';
       },
       findUser(userId) {
         const index = this.users.findIndex((e) => e.id === userId);
         return this.users[index]
+      },
+      findPlayer(userId) {
+        const index = this.lastBattle.players.findIndex((e) => e.id === userId);
+        return this.lastBattle.players[index]
       },
       findBattle(battleId) {
         const index = this.previousBattles.findIndex((e) => e.id === battleId);

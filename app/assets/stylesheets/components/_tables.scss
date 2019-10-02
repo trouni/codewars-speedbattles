@@ -17,6 +17,11 @@ table.console-table {
     padding-left: 1em;
   }
 
+  th.username.pending {
+    font-style: italic;
+    opacity: 0.5;
+  }
+
   .data:first-child {
     display: flex;
     justify-content: center;

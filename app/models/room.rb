@@ -14,13 +14,19 @@ class Room < ApplicationRecord
   has_many :room_users, dependent: :destroy
   has_many :users, through: :room_users
   has_many :battles
+  has_many :players, through: :battles
   has_one :chat, dependent: :destroy
   has_many :messages, through: :chat
   validates :name, presence: true
   after_create :create_chat
 
+  def players
+    super.uniq
+    # User.joins(battle_invites: :battle).where(battle_invites: { confirmed: true }, battles: { room_id: id }).uniq
+  end
+
   def active_battle
-    Battle.where(room: self).find_by(end_time: nil)
+    Battle.includes(:room).joins(:room).where(room: self).find_by(end_time: nil)
   end
 
   def active_battle?
@@ -35,16 +41,17 @@ class Room < ApplicationRecord
   end
 
   def finished_battles
-    battles.where.not(end_time: nil)
+    Battle.includes(:room).joins(:room).where(room_id: id).where.not(end_time: nil).order(end_time: :desc)
+    # battles.where.not(end_time: nil)
   end
 
   def last_battle
-    finished_battles.order(end_time: :asc).last
+    finished_battles.first
   end
 
   # Room has no battle set up
   def at_peace?
-    active_battle.nil?
+    Battle.includes(:room).joins(:room).where(room: id, end_time: nil).size.zero?
   end
 
   # Room has an ongoing battle (started but not finished)
@@ -54,7 +61,7 @@ class Room < ApplicationRecord
 
   # Room has a pending battle (set up but not yet started)
   def brink_of_war?
-    active_battle.present? && !at_war?
+    Battle.includes(:room).joins(:room).where(room: self, end_time: nil).where.not(start_time: nil).present?
   end
 
   def battle_status
@@ -67,17 +74,19 @@ class Room < ApplicationRecord
     end
   end
 
-  def players
-    User.joins(battle_invites: :battle).where(battle_invites: { confirmed: true }, battles: { room_id: id }).uniq
-  end
-
   def battles_fought(player)
-    Battle.joins(battle_invites: :player).where(battle_invites: { confirmed: true }, battles: { room_id: id }, users: { id: player.id })
+    BattleInvite.includes(:player, :battle, :room).joins(:player, :battle, :room).where(
+      confirmed: true,
+      battles: { room_id: id },
+      users: { id: player }
+    )
+    # Battle.joins(battle_invites: :player).where(battle_invites: { confirmed: true }, battles: { room_id: id }, users: { id: player.id })
     # player.battle_invites.where(confirmed: true)
   end
 
   def battles_survived(player)
-    Battle.joins(battle_invites: { player: :completed_challenges }).where(
+    # Battle.joins(battle_invites: { player: :completed_challenges }).where(
+    BattleInvite.includes(:player, :room, player: :completed_challenges).joins(:player, :room, player: :completed_challenges).where(
       "battle_invites.confirmed = true AND battles.room_id = ? AND completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time AND completed_challenges.challenge_id = battles.challenge_id AND completed_challenges.user_id = ?",
       id,
       player.id
@@ -85,7 +94,10 @@ class Room < ApplicationRecord
   end
 
   def victories(player)
-    finished_battles.map(&:winner).select { |winner| winner == player }
+    finished_battles.includes(:players, players: :completed_challenges)
+                    .joins(players: :completed_challenges)
+                    .map(&:winner)
+                    .select { |winner| winner == player }
   end
 
   def defeats(player)
@@ -96,7 +108,7 @@ class Room < ApplicationRecord
   end
 
   def total_score(player)
-    finished_battles.map { |battle| battle.score(player) }.reduce(:+)
+    finished_battles.map { |battle| battle.score(player.id) }.reduce(:+)
   end
 
   def leaderboard
@@ -131,50 +143,22 @@ class Room < ApplicationRecord
 
   def broadcast_action(action:, data: nil)
     broadcast(subchannel: "action", payload: { action: action, data: data })
-    # ActionCable.server.broadcast(
-    #   "room_#{id}",
-    #   subchannel: "action",
-    #   payload: {
-    #     action: action,
-    #     data: data
-    #   }
-    # )
   end
 
   def broadcast_user(action: "add", user:)
     broadcast(subchannel: "users", payload: { action: action, user: user.api_expose(room: self) })
-    # ActionCable.server.broadcast(
-    #   "room_#{id}",
-    #   subchannel: "users",
-    #   payload: {
-    #     action: action,
-    #     user: user.api_expose(room: self)
-    #   }
-    # )
   end
 
   def broadcast_users
     broadcast(subchannel: "users", payload: { action: "all", users: users.map(&:api_expose) })
-    # ActionCable.server.broadcast(
-    #   "room_#{id}",
-    #   subchannel: "users",
-    #   payload: {
-    #     action: 'all',
-    #     users: users.map(&:api_expose)
-    #   }
-    # )
+  end
+
+  def broadcast_active_battle
+    broadcast(subchannel: "battles", payload: { action: "active", battle: active_battle&.api_expose })
   end
 
   def broadcast_battles
     broadcast(subchannel: "battles", payload: { action: "replace", battles: battles_index })
-    # ActionCable.server.broadcast(
-    #   "room_#{id}",
-    #   subchannel: "battles",
-    #   payload: {
-    #     action: 'replace',
-    #     battles: battles_index
-    #   }
-    # )
   end
 
   private

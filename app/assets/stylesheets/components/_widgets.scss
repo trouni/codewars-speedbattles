@@ -4,10 +4,18 @@
   background-color: rgba( $bezel-color, .4 );
   // background: linear-gradient(154.9deg, rgba( $bezel-color, .3 ) 0%, rgba( $bezel-color, .6 ) 86.37%);
   height: 100%;
+  flex-grow: 1;
+  transition: height 0.2s ease-in !important;
 
   &.seek-attention {
     background-color: rgba( lighten($bezel-color, 10%), .9 );
   }
+}
+
+.page-loading .widget-bg {
+  height: 0%;
+  opacity: 0;
+  // color: rgba(255,255,255,0);
 }
 
 .widget {
