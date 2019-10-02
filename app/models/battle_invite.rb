@@ -13,10 +13,16 @@
 
 class BattleInvite < ApplicationRecord
   belongs_to :battle
+  has_one :room, through: :battle
   belongs_to :player, class_name: "User"
-  after_commit :broadcast_invite_status
+  after_commit :broadcast_user, :broadcast_battles
 
-  def broadcast_invite_status
-    player.broadcast_user_status(battle.room)
+  def broadcast_user
+    user = User.find(player_id)
+    room.broadcast_user(user: user)
+  end
+
+  def broadcast_battles
+    room.broadcast_battles
   end
 end

@@ -24,33 +24,29 @@ class Battle < ApplicationRecord
   belongs_to :winner, class_name: "User", optional: true
   has_many :battle_invites, dependent: :destroy
   # has_many :players, through: :battle_invites, class_name: "User"
-  after_commit :broadcast_battle, on: %i[create update]
-  after_destroy :broadcast_battle_destroyed
+  after_commit :broadcast_battles, :broadcast_users
 
   def players
     User.joins(battle_invites: :battle).where(battle_invites: { confirmed: true }, battles: { id: id })
+    # BattleInvite.includes(:users).where(confirmed: true, battle_id: id).map(&:user)
   end
 
-  def broadcast_battle
-    ActionCable.server.broadcast(
-      "warroom_#{room.id}",
-      api_expose
-    )
+  def launch(countdown)
+    while countdown.positive?
+      countdown -= 1
+      sleep(1)
+      room.broadcast_action(action: "update-countdown", data: { countdown: countdown })
+    end
+
+    room.broadcast_action(action: "launch-codewars") if countdown <= 0
   end
 
-  def broadcast_battle_destroyed
-    ActionCable.server.broadcast(
-      "warroom_#{room.id}",
-      api_expose.merge(deleted: true)
-    )
+  def broadcast_battles
+    room.broadcast_battles
   end
 
-  def broadcast_action(action, args = {})
-    ActionCable.server.broadcast(
-      "warroom_#{room.id}",
-      perform: action,
-      data: args
-    )
+  def broadcast_users
+    room.broadcast_users
   end
 
   def challenge
@@ -88,6 +84,16 @@ class Battle < ApplicationRecord
       challenge_id,
       player.id
     ).order(completed_at: :asc).limit(1).first
+  end
+
+  def invitation(user: nil, action: nil)
+    case action
+    when "uninvite" then uninvite_user(user)
+    when "confirm" then confirm_user(user)
+    when "all" then invite_all
+    when "survivors" then invite_survivors
+    else invite_user(user)
+    end
   end
 
   def survived?(player)
@@ -187,5 +193,45 @@ class Battle < ApplicationRecord
 
   def ineligible_users
     User.joins(:completed_challenges).where(completed_challenges: { challenge_id: challenge_id, user: room.users })
+  end
+
+  private
+
+  def invite_user(user)
+    battle_invite = BattleInvite.find_or_initialize_by(battle: self, player: user)
+    return unless battle_invite.player.eligible?
+
+    battle_invite.save
+    # room.broadcast_user(user: user)
+  end
+
+  def uninvite_user(user)
+    battle_invite = BattleInvite.find_by(battle: self, player: user)
+    battle_invite&.destroy
+    # room.broadcast_user(user: user)
+  end
+
+  def confirm_user(user)
+    battle_invite = BattleInvite.find_by(battle: self, player: user)
+    battle_invite&.update(confirmed: !battle_invite.confirmed)
+    # room.broadcast_user(user: user)
+  end
+
+  def invite_all
+    room.users.each do |user|
+      next unless user.eligible?
+
+      invite_user(user)
+    end
+  end
+
+  def invite_survivors
+    return unless room.last_battle
+
+    room.last_battle.survivors.each do |user|
+      next unless user.eligible?
+
+      invite_user(user)
+    end
   end
 end

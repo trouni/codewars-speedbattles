@@ -27,6 +27,13 @@ class Room < ApplicationRecord
     active_battle.present?
   end
 
+  def battles_index
+    {
+      active: active_battle&.api_expose,
+      finished: finished_battles.map(&:api_expose)
+    }
+  end
+
   def finished_battles
     battles.where.not(end_time: nil)
   end
@@ -104,6 +111,70 @@ class Room < ApplicationRecord
         total_score: total_score(user)
       }
     end
+  end
+
+  def broadcast(subchannel: "logs", payload: nil)
+    ActionCable.server.broadcast(
+      "room_#{id}",
+      subchannel: subchannel,
+      payload: payload
+    )
+  end
+
+  def broadcast_to_moderator(subchannel: "logs", payload: nil)
+    ActionCable.server.broadcast(
+      "room_#{id}_moderator",
+      subchannel: subchannel,
+      payload: payload
+    )
+  end
+
+  def broadcast_action(action:, data: nil)
+    broadcast(subchannel: "action", payload: { action: action, data: data })
+    # ActionCable.server.broadcast(
+    #   "room_#{id}",
+    #   subchannel: "action",
+    #   payload: {
+    #     action: action,
+    #     data: data
+    #   }
+    # )
+  end
+
+  def broadcast_user(action: "add", user:)
+    broadcast(subchannel: "users", payload: { action: action, user: user.api_expose(room: self) })
+    # ActionCable.server.broadcast(
+    #   "room_#{id}",
+    #   subchannel: "users",
+    #   payload: {
+    #     action: action,
+    #     user: user.api_expose(room: self)
+    #   }
+    # )
+  end
+
+  def broadcast_users
+    broadcast(subchannel: "users", payload: { action: "all", users: users.map(&:api_expose) })
+    # ActionCable.server.broadcast(
+    #   "room_#{id}",
+    #   subchannel: "users",
+    #   payload: {
+    #     action: 'all',
+    #     users: users.map(&:api_expose)
+    #   }
+    # )
+  end
+
+  def broadcast_battles
+    broadcast(subchannel: "battles", payload: { action: "replace", battles: battles_index })
+    # ActionCable.server.broadcast(
+    #   "room_#{id}",
+    #   subchannel: "battles",
+    #   payload: {
+    #     action: 'replace',
+    #     battles: battles_index
+    #   }
+    # )
   end
 
   private

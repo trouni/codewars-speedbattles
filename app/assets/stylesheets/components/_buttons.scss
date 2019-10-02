@@ -1,4 +1,5 @@
 button, a.button, input.button {
+  cursor: pointer;
   background: none;
   border: none;
   font-family: $headers-font;
@@ -22,8 +23,8 @@ button, a.button, input.button {
     content: "]";
   }
   &:disabled, &:hover:disabled {
-    color: rgba($headers-color, 0.4);
-    text-shadow: none;
+    color: rgba($headers-color, 0.2) !important;
+    text-shadow: none !important;
   }
   &:hover {
     color: $highlight;

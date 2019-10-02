@@ -45,13 +45,25 @@ class User < ApplicationRecord
     false
   end
 
-  def api_expose
-    {
+  def api_expose(room: nil)
+    standard_result = {
       id: id,
       invite_status: invite_status,
       last_fetched_at: last_fetched_at,
       name: name,
       username: username
+    }
+    return standard_result unless room
+
+    return standard_result.merge stats(room)
+  end
+
+  def stats(room)
+    {
+      battles_fought: room.battles_fought(self).count,
+      battles_survived: room.battles_survived(self).count,
+      victories: room.victories(self).count,
+      total_score: room.total_score(self)
     }
   end
 
@@ -59,11 +71,7 @@ class User < ApplicationRecord
     url = "https://www.codewars.com/api/v1/users/#{username}"
     puts "Fetching data from #{url}"
     json = JSON.parse(open(url).read)
-    if json["username"] == username
-      return true
-    else
-      return false
-    end
+    return json["username"] == username
   rescue
     return false
   end
@@ -128,19 +136,19 @@ class User < ApplicationRecord
     FetchCompletedChallengesJob.perform_later(user_id: id, all_pages: true)
   end
 
-  def broadcast_user_status(room)
-    ActionCable.server.broadcast(
-      "room_#{room.id}",
-      api_expose
-    )
-  end
+  # def broadcast_user_status(room)
+  #   ActionCable.server.broadcast(
+  #     "room_#{room.id}",
+  #     api_expose
+  #   )
+  # end
 
-  def broadcast_user_unsubscribe(room)
-    ActionCable.server.broadcast(
-      "room_#{room.id}",
-      api_expose.merge(unsubscribed: true)
-    )
-  end
+  # def broadcast_user_unsubscribe(room)
+  #   ActionCable.server.broadcast(
+  #     "room_#{room.id}",
+  #     api_expose.merge(unsubscribed: true)
+  #   )
+  # end
 
   def create_email
     self.email = "#{username}@me.com"

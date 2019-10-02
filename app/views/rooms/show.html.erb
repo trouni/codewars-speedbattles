@@ -4,9 +4,11 @@
 
 <room
   :room-init="<%= @room.to_json %>"
-  :battle-init="<%= @room.active_battle&.api_expose.to_json %>"
-  :users-init="<%= @room.users.map(&:api_expose).to_json %>"
-  :user-init="<%= current_user.api_expose.to_json %>"
+  :battles-init="<%= @room.battles_index.to_json %>"
+  :users-init="<%= @room.users.map{ |user| user.api_expose(room: @room) }.to_json %>"
+  :room-players-init="<%= @room.players.map{ |user| user.api_expose(room: @room) }.to_json %>"
+  :current-user-init="<%= current_user.api_expose(room: @room).to_json %>"
+  :current-user-id="<%= current_user.id %>"
   :messages-init="<%= @room.messages.map(&:api_expose).to_json %>"
   >
 </room>

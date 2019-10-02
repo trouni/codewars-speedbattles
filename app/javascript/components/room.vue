@@ -1,5 +1,5 @@
 <template>
-  <div id="room" v-if="loaded" :class="[roomStatus, { moderator: this.currentUserIsModerator }]">
+  <div id="room" :class="[roomStatus, { moderator: this.currentUserIsModerator }]">
 
     <div class="grid-item grid-header">
       <div id="room-announcer" :class="['widget-bg', seekAttention]">
@@ -16,32 +16,26 @@
       <room-chat :messages="messages"></room-chat>
     </div>
     <div class="grid-item grid-battle">
-      <room-battle :battle="battle" :last-battle="lastBattle" :users="users" :room="room" :countdown="countdown" :battle-status="battleStatus" :current-user-is-moderator="currentUserIsModerator"></room-battle>
+      <room-battle :battle="activeBattle" :last-battle="lastBattle" :users="users" :room="room" :countdown="countdown" :battle-status="battleStatus" :current-user-is-moderator="currentUserIsModerator"></room-battle>
     </div>
     <div class="grid-item grid-leaderboard">
-      <room-leaderboard :leaderboard="leaderboard" :users="users" :room="room" :current-user="currentUser" :current-user-is-moderator="currentUserIsModerator"></room-leaderboard>
+      <room-leaderboard :leaderboard="leaderboard" :users="users" :room="room" :room-players="roomPlayers" :current-user="currentUser" :current-user-is-moderator="currentUserIsModerator"></room-leaderboard>
     </div>
     <div class="grid-item grid-controls">
-      <room-controls-mod :room="room" :battle="battle" :users="users" :current-user="currentUser" :input="challengeInput" :current-user-is-moderator="currentUserIsModerator" :countdown="countdown" :battle-status="battleStatus"></room-controls-mod>
-      <!-- <room-controls :roomId="this.room.id"></room-controls> -->
+      <room-controls :room="room" :battle="activeBattle" :users="users" :current-user="currentUser" :input="challengeInput" :current-user-is-moderator="currentUserIsModerator" :countdown="countdown" :battle-status="battleStatus"></room-controls>
     </div>
   </div>
 </template>
 
 <script>
-  import SpeedBattlesApi from '../services/api/speedbattles_api'
-  import RoomUsers from '../components/room_users.vue'
   import RoomControls from '../components/room_controls.vue'
-  import RoomControlsMod from '../components/room_controls_mod.vue'
   import RoomChat from '../components/room_chat.vue'
   import RoomLeaderboard from '../components/room_leaderboard.vue'
   import RoomBattle from '../components/room_battle.vue'
 
   export default {
     components: {
-      RoomUsers,
       RoomControls,
-      RoomControlsMod,
       RoomChat,
       RoomLeaderboard,
       RoomBattle
@@ -49,21 +43,23 @@
     props: {
       roomInit: Object,
       usersInit: Array,
-      battleInit: Object,
-      userInit: Object,
+      roomPlayersInit: Array,
+      battlesInit: Object,
+      currentUserId: Number,
+      currentUserInit: Object,
       messagesInit: Array,
     },
     data() {
       return {
-        loaded: false,
         room: this.roomInit,
         users: this.usersInit,
-        battle: this.battleInit,
+        roomPlayers: this.roomPlayersInit,
+        activeBattle: this.battlesInit.active,
+        pastBattles: this.battlesInit.finished,
         messages: this.messagesInit,
-        leaderboard: [],
         challengeInput: '',
         controlsType: '',
-        countdownDuration: 10,
+        countdownDuration: 5,
         countdown: 0,
         announcement: {
           status: 'normal',
@@ -72,9 +68,15 @@
       }
     },
     created() {
-      this.refreshRoom()
+      this.pushToUsers(this.currentUser);
     },
     computed: {
+      leaderboard() {
+        const allUsers = this.roomPlayers.concat(this.users);
+        return allUsers.reduce((uniqueUsers, user) => {
+          return uniqueUsers.map(user => user.username).includes(user.username) ? uniqueUsers : [...uniqueUsers, user]
+        }, [])
+      },
       seekAttention() {
         if (this.battleStatus.battleOngoing) {
           return ['animated pulse seek-attention']
@@ -96,40 +98,36 @@
           content: content
         }
       },
-      currentUserId() {
-        return this.userInit.id
-      },
       currentUser() {
         const currentUserIndex = this.users.findIndex((e) => e.id === this.currentUserId);
 
         if (currentUserIndex === -1) {
-          return this.userInit
+          console.log("Current user not found in list of room users!")
+          return this.currentUserInit
         } else {
           return this.users[currentUserIndex]
         }
       },
       currentUserIsModerator() {
-        return this.currentUser.id === this.room.moderator.id
+        return this.currentUserId === this.room.moderator_id
       },
-      invitedUsers() {
-        if (!this.battle) { return [] }
-        return this.battle.players
-      },
+      // invitedUsers() {
+      //   if (!this.activeBattle) { return [] }
+      //   return this.activeBattle.players
+      // },
       confirmedUsers() {
-        if (!this.battle) { return [] }
-        return this.battle.players.filter(user => user.invite_status == 'confirmed')
+        if (!this.activeBattle) { return [] }
+        return this.activeBattle.players.filter(user => user.invite_status == 'confirmed')
       },
       // STATUSES
       roomStatus() {
-        // if (this.battleStatus.lastBattleOver && !this.battleStatus.battleLoaded) {
-          // return "battle-over"
         if (!this.battleStatus.battleLoaded) {
           return "peace"
         // } else if (!this.battleStatus.readyToStart) {
         //   return "preparation"
-        } else if (!this.battleStatus.battleInitialized) {
+        } else if (!this.battleStatus.battleInitialized && this.countdown === 0) {
           return "brink-of-war"
-        } else if (!this.battleStatus.battleOngoing) {
+        } else if (this.countdown > 0 || !this.battleStatus.battleOngoing) {
           return "countdown"
         } else if (!this.battleStatus.lastBattleOver) {
           return "war"
@@ -138,49 +136,55 @@
         }
       },
       battleStatus() {
-        // return {
-        //   battleLoaded: this.battleLoaded,
-        //   readyToStart: this.readyToStart,
-        //   battleInitialized: this.battleInitialized,
-        //   battleOngoing: this.battleOngoing,
-        //   battleRecentlyOver: this.battleRecentlyOver,
-        // }
         return {
-          battleLoaded: this.battle !== null,
-          readyToStart: this.battle !== null && this.confirmedUsers && this.confirmedUsers.length > 0,
-          battleInitialized: this.battle !== null && this.battle.start_time !== null,
-          battleOngoing: this.battle !== null && this.battle.start_time !== null && this.countdown === 0,
+          battleLoaded: this.battleLoaded,
+          readyToStart: this.readyToStart,
+          battleInitialized: this.battleInitialized,
+          battleOngoing: this.battleOngoing,
           lastBattleOver: this.lastBattleOver,
+          showBattleInfo: this.battleOngoing || this.lastBattleOver,
         }
       },
-      // battleRecentlyOver() {
-      //   return new Date(this.previousBattles[0].end_time) > new Date(Date.now() - 1000 * 60 * 3)
-      // },
-      // battleLoaded() {
-      //   return this.battle !== null
-      // },
-      // readyToStart() {
-      //   return this.battleLoaded && this.confirmedUsers && this.confirmedUsers.length > 0
-      // },
-      // battleInitialized() {
-      //   return this.battleLoaded && this.battle.start_time !== null
-      // },
-      // battleOngoing() {
-      //   return this.battleInitialized && this.countdown === 0
-      // },
+      battleLoaded() {
+        return !!this.activeBattle;
+      },
+      readyToStart() {
+        if (!this.activeBattle) return false
+
+        return this.confirmedUsers && this.confirmedUsers.length > 0;
+      },
+      battleInitialized() {
+        if (!this.activeBattle) return false
+
+        return this.activeBattle.start_time !== null;
+      },
+      battleOngoing() {
+        if (!this.activeBattle) return false
+
+        return this.activeBattle.start_time !== null && this.countdown === 0;
+      },
       previousBattles() {
-        return this.room.finished_battles.sort((a, b) => {
+        if (!this.pastBattles) return []
+
+        return this.pastBattles.sort((a, b) => {
           return new Date(b.end_time) - new Date(a.end_time)
         })
       },
       lastBattle() {
-        return this.battle || this.previousBattles[0]
+        return this.activeBattle || this.previousBattles[0]
       },
       lastBattleOver() {
         if (this.lastBattle) return this.lastBattle.end_time !== null
       },
     },
     methods: {
+      sendCable(action, data) {
+        this.$cable.perform({
+          channel: 'RoomChannel',
+          action: action,
+          data: data
+        });
+      },
       // =============
       //     ROOM
       // =============
@@ -191,112 +195,57 @@
         }
       },
       sendChatMessage(content) {
-        const data = { message: content };
-        this.$cable.perform({
-            channel: 'RoomChannel',
-            action: 'create_message',
-            data: data
-        });
+        this.sendCable('create_message', { message: content })
         this.input = ''
-      },
-      refreshRoom() {
-        SpeedBattlesApi.getRoom(this.room.id)
-          .then(response => {
-            this.room = response
-            if (this.room.active_battle) {
-              this.battle = this.room.active_battle
-            } else {
-              this.battle = null
-            }
-            this.refreshLeaderboard()
-            // this.controlsType = this.currentUserIsModerator ? 'room-controls-mod' : 'room-controls'
-            this.loaded = true
-        })
-      },
-      refreshAll() {
-        this.refreshUsers()
-        if (this.battle) { this.refreshBattle() }
-      },
-      refreshLeaderboard() {
-        SpeedBattlesApi.getLeaderboard(this.room.id)
-          .then(response => {
-            this.leaderboard = response
-        })
       },
       // =============
       //     BATTLE
       // =============
-      refreshBattle() {
-        SpeedBattlesApi.getBattle(this.battle.id)
-          .then(response => {
-            this.battle = response
-        })
-      },
       createBattle(challenge) {
-        SpeedBattlesApi.getChallenge(challenge)
-          .then(response => {
-            if (response != null) {
-              SpeedBattlesApi.postBattle(this.room.id, response)
-                .then((response) => {
-                  this.refreshBattle()
-                })
-            } else {
-              console.log("No kata found with this id/slug/url")
-            }
-          })
+        const challengeIdSlug = this.parseChallengeInput(challenge).challengeIdSlug
+        this.sendCable('create_battle', { challenge_id: challengeIdSlug });
       },
       deleteBattle() {
-        SpeedBattlesApi.deleteBattle(this.battle.id)
-          .then(response => this.announce({content: 'Awaiting mission briefing...'}))
+        this.sendCable('delete_battle', { battle_id: this.activeBattle.id });
       },
-      updateBattle(battle) {
-        battle.deleted ? this.battle = null : this.battle = battle
-        this.refreshUsers()
+      // updateBattle(battle) {
+      //   battle.deleted ? this.activeBattle = null : this.activeBattle = battle
+      // },
+      parseChallengeInput(input) {
+        const urlRegex = /^(https:\/\/)?www\.codewars\.com\/kata\/(?<challengeIdSlug>.+)\/train\/(?<language>.+)$/;
+        const matchData = input.match(urlRegex);
+        if (matchData) {
+          return {
+            "challengeIdSlug": matchData.groups.challengeIdSlug,
+            "language": matchData.groups.language
+          };
+        } else {
+          return {
+            "challengeIdSlug": input,
+            "language": null
+          }
+        }
       },
       initializeBattle() {
-        SpeedBattlesApi.updateBattleStatus(this.battle.id, 'start', this.countdownDuration)
-          // .then(response => {
-          //   this.$cable.perform({
-          //       channel: 'BattleChannel',
-          //       action: 'send_message',
-          //       data: { content: 'start-countdown'}
-          //   })
-          // })
-      },
-      openCodeWars() {
-        if (this.battle.challenge.language === null) { this.battle.challenge.language = 'ruby' }
-        const challengeUrl = `${this.battle.challenge.url}/train/${this.battle.challenge.language}`
-        window.open(challengeUrl)
+        this.sendCable('update_battle', { battle_action: 'start', battle_id: this.activeBattle.id, countdown: this.countdownDuration });
       },
       endBattle() {
-        SpeedBattlesApi.updateBattleStatus(this.battle.id, 'end')
+        this.sendCable('update_battle', { battle_action: 'end', battle_id: this.activeBattle.id });
       },
       fetchChallenges(userId) {
-        SpeedBattlesApi.fetchChallenges(userId, this.battle.id)
+        this.sendCable('fetch_user_challenges', { user_id: userId, battle_id: this.activeBattle.id })
       },
-      // refreshBattleResults() {
-      //   SpeedBattlesApi.getBattleResults(this.battle.id)
-      // },
+      openCodeWars() {
+        if (this.activeBattle.challenge.language === null) { this.activeBattle.challenge.language = 'ruby' }
+        const challengeUrl = `${this.activeBattle.challenge.url}/train/${this.activeBattle.challenge.language}`
+        window.open(challengeUrl)
+      },
       startCountdown(countdown) {
         this.countdown = countdown
         const timer = setInterval(() => {
           if (this.countdown > 1) {
-            this.broadcastMessage({
-              author: {
-                username: 'bot'
-              },
-              content: `Starting battle in ${this.countdown} second${ this.countdown > 1 ? 's' : '' }...`,
-              created_at: Date.now
-            })
             this.countdown -= 1
           } else {
-            this.broadcastMessage({
-              author: {
-                username: 'bot'
-              },
-              content: `Starting battle...`,
-              created_at: Date.now
-            })
             this.countdown = 0
             clearInterval(timer);
             if (!this.currentUserIsModerator) this.openCodeWars();
@@ -306,12 +255,6 @@
       // =============
       //     USERS
       // =============
-      refreshUsers() {
-        SpeedBattlesApi.getRoomUsers(this.room.id)
-          .then(response => {
-            this.users = response
-        })
-      },
       pushToUsers(user) {
         const index = this.users.findIndex((e) => e.id === user.id);
 
@@ -325,90 +268,83 @@
       removeFromUsers(user) {
         this.users = this.users.filter(e => e.id != user.id)
       },
-      invitation(action, userId = null) {
-        SpeedBattlesApi.invitation(this.battle.id, action, userId)
+      invitation(inviteAction, userId = null) {
+        this.sendCable('invitation', { battle_id: this.activeBattle.id, invite_action: inviteAction, user_id: userId })
       },
-      broadcastMessage(message) {
-        this.$cable.perform({
-            channel: 'ChatChannel',
-            action: 'send_message',
-            data: { content: message }
-        });
-      }
     },
     channels: {
-      BattleChannel: {
-          connected() {
-            console.log('WebSockets connected to BattleChannel.')
-          },
-          rejected() {},
-          received(data) {
-            if (data.perform === 'start-countdown') {
-              this.startCountdown(data.data.countdown)
-            } else if (data.perform === 'end-battle') {
-              this.refreshRoom()
-            } else if (data.perform === 'refresh-battle') {
-              this.refreshBattle()
-            } else {
-              this.updateBattle(data)
-            }
-          },
-          disconnected() {}
-      },
-      UsersChannel: {
-          connected() {
-            console.log('WebSockets connected to UsersChannel')
-            this.refreshUsers()
-          },
-          rejected() {},
-          received(data) {
-            if (data.unsubscribed) {
-              this.removeFromUsers(data)
-            } else {
-              this.pushToUsers(data)
-            }
-            this.refreshAll()
-          },
-          disconnected() {}
-      },
-      ChatChannel: {
-          connected() {
-          },
-          rejected() {},
-          received(data) {
-          },
-          disconnected() {}
-      },
       RoomChannel: {
         connected() {
+          console.log('WebSockets connected to RoomChannel.')
         },
         rejected() {},
         received(data) {
-          console.log(data)
           switch (data.subchannel) {
+            case "action":
+            switch (data.payload.action) {
+              case 'update-countdown':
+              this.countdown = data.payload.data.countdown;
+              break;
+
+              case 'launch-codewars':
+              if (!this.currentUserIsModerator) this.openCodeWars();
+              break;
+
+              case 'start-countdown':
+              this.startCountdown(data.payload.data.countdown);
+              break;
+
+              default:
+              console.log("Received data, without matching subchannel:", data);
+            }
+            break;
+
             case "chat":
             this.messages.push(data.payload)
             break;
 
+            case "logs":
+            console.info(data.payload)
+            break;
+
+            case "users":
+            switch (data.payload.action) {
+              case "add":
+              this.pushToUsers(data.payload.user);
+              console.info(`Added user ${data.payload.user.username}`)
+              break;
+
+              case "remove":
+              this.removeFromUsers(data.payload.user);
+              console.info(`Removed user ${data.payload.user.username}`)
+              break;
+
+              case "all":
+              this.users = data.payload.users
+              console.info(`Refreshed all users`)
+              break;
+            }
+            break;
+
+            case "battles":
+            this.activeBattle = data.payload.battles.active
+            this.pastBattles = data.payload.battles.finished
+            console.info(`Refreshed all battles`)
+            break;
+
             default:
-            console.log(data)
+            console.log("Received data, without matching subchannel:", data)
           }
         },
         disconnected() {}
       }
     },
     mounted () {
-      this.$cable.subscribe({ channel: 'RoomChannel', room_id: this.room.id, user_id: this.currentUser.id });
-      // this.$cable.subscribe({ channel: 'BattleChannel', room_id: this.room.id })
-      // this.$cable.subscribe({ channel: 'UsersChannel', room_id: this.room.id, user_id: this.currentUser.id });
-      // this.$cable.subscribe({ channel: 'ChatChannel', chat_id: this.room.chat_id })
+      this.$cable.subscribe({ channel: 'RoomChannel', room_id: this.room.id, user_id: this.currentUserId });
       this.$root.$on('announce', (message) => this.announce(message))
       this.$root.$on('send-chat-message', (message) => this.sendChatMessage(message))
-      this.$root.$on('refresh-all', () => this.refreshAll())
       this.$root.$on('create-battle', (challenge) => this.createBattle(challenge))
       this.$root.$on('delete-battle', () => this.deleteBattle())
-      // this.$root.$on('refresh-battle', () => this.refreshBattle())
-      this.$root.$on('refresh-users', () => this.refreshUsers())
       this.$root.$on('fetch-challenges', (userId) => this.fetchChallenges(userId))
       this.$root.$on('push-user', (user) => this.pushToUsers(user))
       this.$root.$on('remove-user', (user) => this.removeFromUsers(user))
@@ -417,11 +353,11 @@
       this.$root.$on('invite-all', () => this.invitation("all"))
       this.$root.$on('invite-survivors', () => this.invitation("survivors"))
       this.$root.$on('confirm-invite', (userId) => this.invitation("confirm", userId))
-      this.$root.$on('update-battle', (battle) => this.updateBattle(battle))
+      // this.$root.$on('update-battle', (battle) => this.updateBattle(battle))
       this.$root.$on('initialize-battle', () => this.initializeBattle())
       this.$root.$on('start-countdown', () => this.startCountdown())
       this.$root.$on('end-battle', () => this.endBattle())
-    }
+    },
   }
 </script>
 

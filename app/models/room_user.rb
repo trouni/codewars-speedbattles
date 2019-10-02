@@ -13,6 +13,8 @@ class RoomUser < ApplicationRecord
   belongs_to :room
   belongs_to :user
   after_create :async_fetch_codewars_info
+  after_create_commit :join_room
+  after_destroy_commit :leave_room
   validates :user, uniqueness: { scope: :room }
 
   private
@@ -20,5 +22,13 @@ class RoomUser < ApplicationRecord
   def async_fetch_codewars_info
     # FetchCompletedChallengesJob.perform_later(user.id)
     user.async_fetch_codewars_info
+  end
+
+  def join_room
+    room.broadcast_user(action: "add", user: user)
+  end
+
+  def leave_room
+    room.broadcast_user(action: "remove", user: user)
   end
 end

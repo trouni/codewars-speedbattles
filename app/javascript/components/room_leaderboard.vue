@@ -25,12 +25,12 @@
                 </span>
               </th>
               <td>
-                <span class="data rank">{{ index + 1 }}</span>
+                <span class="data rank">{{ player.battles_fought ? index + 1 : "-" }}</span>
               </td>
-              <td><span class="data">{{ player.total_score }}</span></td>
-              <td><span class="data">{{ player.victories }}</span></td>
-              <td><span class="data">{{ player.battles_survived }} / {{ defeats(player) }}</span></td>
-              <td><span class="data">{{ player.battles_fought }}</span></td>
+              <td><span class="data">{{ player.battles_fought ? player.total_score : "-" }}</span></td>
+              <td><span class="data">{{ player.battles_fought ? player.victories : "-" }}</span></td>
+              <td><span class="data">{{ player.battles_fought ? `${player.battles_survived} / ${defeats(player)}` : "-" }}</span></td>
+              <td><span class="data">{{ player.battles_fought ? player.battles_fought : "-" }}</span></td>
             </tr>
           </tbody>
         </table>

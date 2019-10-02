@@ -25,8 +25,8 @@ Rails.application.routes.draw do
       resources :battles, only: %i[show update destroy] do
         get '/invitation', to: 'battles#invitation'
         get '/launch', to: 'battles#launch'
-        get '/results', to: 'battles#results'
-        get '/completed_battle', to: 'battles#completed_battle'
+        # get '/results', to: 'battles#results'
+        # get '/completed_battle', to: 'battles#completed_battle'
       end
       resources :users do
         get '/fetch_data', to: 'users#fetch_data'

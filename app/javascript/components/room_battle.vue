@@ -27,8 +27,8 @@
         </div> -->
 
         <div v-if="lastBattle" class="d-flex flex-column align-items-center">
-          <div class="d-flex justify-content-between w-100 mb-3">
-            <p><strong>{{ lastBattle.challenge.name }}</strong></p>
+          <div class="w-100 mb-3">
+            <p class="m-0"><strong>{{ (currentUserIsModerator || battleStatus.showBattleInfo) ? lastBattle.challenge.name : "Upcoming challenge..." }}</strong></p>
             <div>
               <small>Language:</small> <span class="highlight">{{lastBattle.challenge.language || "Ruby"}}</span>
                |
@@ -65,7 +65,7 @@
                   <span class="data rank">-</span>
                 </td>
                 <td>
-                  <span class="data">{{ battleStatus.lastBattleOver ? 'Defeated' : 'TBC' }}</span>
+                  <span class="data">{{ battleStatus.lastBattleOver ? 'Defeated' : '-' }}</span>
                 </td>
                 <td>
                   <span class="data">-</span>
@@ -89,11 +89,6 @@
       countdown: Number,
       currentUserIsModerator: Boolean,
       battleStatus: Object
-    },
-    data() {
-      return {
-
-      }
     },
     computed: {
       challengeUrl() {
