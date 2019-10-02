@@ -21,7 +21,7 @@ Vue.use(VueShowdown, {
 })
 
 Vue.use(ActionCableVue, {
-    debug: true,
+    debug: process.env.NODE_ENV === "development",
     debugLevel: 'error',
     connectionUrl: `${process.env.NODE_ENV === "production" ? "wss://speedbattles.herokuapp.com" : "ws://localhost:3000"}/cable`
     // connectionUrl: 'wss://localhost:3000/cable/'
