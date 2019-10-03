@@ -35,6 +35,6 @@ Rails.application.routes.draw do
   #     resources :challenges, only: :show
   #     resources :chats, only: :show
   #     resources :messages, only: :create
-  #   end
-  # end
+    end
+  end
 end
