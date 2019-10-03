@@ -14,9 +14,9 @@ Rails.application.routes.draw do
   end
 
   # # API Routes
-  # namespace :api, defaults: { format: :json } do
+  namespace :api, defaults: { format: :json } do
   #   # mount ActionCable.server => '/cable'
-  #   namespace :v1 do
+    namespace :v1 do
   #     resources :rooms, only: [ :index, :show, :create, :update ] do
   #       get '/leaderboard', to: 'rooms#leaderboard'
   #       resources :battles, only: :create
@@ -31,7 +31,7 @@ Rails.application.routes.draw do
   #     resources :users do
   #       get '/fetch_data', to: 'users#fetch_data'
   #     end
-  #     get '/check_username', to: 'users#valid_username?'
+      get '/check_username', to: 'users#valid_username?'
   #     resources :challenges, only: :show
   #     resources :chats, only: :show
   #     resources :messages, only: :create
