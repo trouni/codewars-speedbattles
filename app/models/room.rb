@@ -108,7 +108,7 @@ class Room < ApplicationRecord
   end
 
   def total_score(player)
-    finished_battles.map { |battle| battle.score(player.id) }.reduce(:+)
+    finished_battles.map { |battle| battle.score(player) }.reduce(:+)
   end
 
   def leaderboard
