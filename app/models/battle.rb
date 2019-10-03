@@ -162,8 +162,8 @@ class Battle < ApplicationRecord
     surviving_players.find_index(player.id) + 1 if surviving_players.find_index(player.id)
   end
 
-  def score(player_id)
-    return 0 unless survived?(player_id)
+  def score(player)
+    return 0 unless survived?(player)
 
     return individual_ranking(player) == 1 ? 2 : 1
   end
