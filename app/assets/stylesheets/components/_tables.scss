@@ -43,7 +43,7 @@ table.console-table {
 
   tr:hover {
     background-color: rgba(lighten($maincolor, 10%), 0.1);
-    transition: background-color 0.2s;
+    transition: background-color 0.1s !important;
   }
 
   td {
