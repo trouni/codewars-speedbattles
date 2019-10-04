@@ -25,7 +25,7 @@ class Battle < ApplicationRecord
   has_many :battle_invites, dependent: :destroy
   has_many :battles, through: :battle_invites
   has_many :players, through: :battle_invites, class_name: "User"
-  after_commit :broadcast_battles, :broadcast_users
+  after_commit :broadcast_active_battle, :broadcast_users
 
   # def players
   #   # User.joins(battle_invites: :battle).where(battle_invites: { confirmed: true }, battles: { id: id })
@@ -40,6 +40,10 @@ class Battle < ApplicationRecord
     end
 
     room.broadcast_action(action: "launch-codewars") if countdown <= 0
+  end
+
+  def broadcast_active_battle
+    room.broadcast_active_battle
   end
 
   def broadcast_battles
@@ -71,7 +75,7 @@ class Battle < ApplicationRecord
       end_time: end_time,
       winner: winner&.api_expose,
       challenge: challenge,
-      players: players.map { |user| user.api_expose(room: room) },
+      players: players.map { |user| user.api_expose(room) },
       results: expose_results
     }
   end

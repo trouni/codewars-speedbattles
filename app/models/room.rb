@@ -146,7 +146,7 @@ class Room < ApplicationRecord
   end
 
   def broadcast_user(action: "add", user:)
-    broadcast(subchannel: "users", payload: { action: action, user: user.api_expose(room: self) })
+    broadcast(subchannel: "users", payload: { action: action, user: user.api_expose(self) })
   end
 
   def broadcast_users

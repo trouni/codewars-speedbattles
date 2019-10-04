@@ -45,25 +45,25 @@ class User < ApplicationRecord
     false
   end
 
-  def api_expose(room: nil)
+  def api_expose(for_room = room)
     standard_result = {
       id: id,
-      invite_status: invite_status(room),
+      invite_status: invite_status(for_room),
       last_fetched_at: last_fetched_at,
       name: name,
       username: username
     }
-    return standard_result unless room
+    return standard_result unless for_room
 
-    return standard_result.merge stats(room)
+    return standard_result.merge stats(for_room)
   end
 
-  def stats(room)
+  def stats(for_room)
     {
-      battles_fought: room.battles_fought(self).size,
-      battles_survived: room.battles_survived(self).size,
-      victories: room.victories(self).size,
-      total_score: room.total_score(self)
+      battles_fought: for_room.battles_fought(self).size,
+      battles_survived: for_room.battles_survived(self).size,
+      victories: for_room.victories(self).size,
+      total_score: for_room.total_score(self)
     }
   end
 

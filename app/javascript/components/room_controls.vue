@@ -25,7 +25,7 @@
             </div>
 
             <div v-if="!battleStatus.battleInitialized && invitedUsers.length > 0">
-              <p :class="['my-0', { 'highlight': allConfirmed }]">Confirmed players: {{ confirmedUsers.length }} of {{ invitedUsers.length }}</p>
+              <p :class="['my-0', { 'highlight': allConfirmed }]">Confirmed players: {{ confirmedUsers.length }} of {{ invitedUsers.length }} invited</p>
               <p class='mt-0 font-italic'>Unconfirmed players will be uninvited when the battle starts.</p>
             </div>
 
