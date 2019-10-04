@@ -108,6 +108,11 @@
         return this.battleStatus.readyToStart && this.confirmedUsers.length === this.invitedUsers.length
       },
     },
+    watch: {
+      battleStatus: function() {
+        this.completedButtonClicked = false;
+      }
+    },
     methods: {
       completedChallenge() {
         this.completedButtonClicked = true;

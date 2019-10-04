@@ -23,6 +23,7 @@ class Battle < ApplicationRecord
   belongs_to :room
   belongs_to :winner, class_name: "User", optional: true
   has_many :battle_invites, dependent: :destroy
+  has_many :battles, through: :battle_invites
   has_many :players, through: :battle_invites, class_name: "User"
   after_commit :broadcast_battles, :broadcast_users
 
@@ -96,16 +97,17 @@ class Battle < ApplicationRecord
     end
   end
 
-  def survived?(player_id)
-    return nil if players.pluck(:id).exclude? player_id
+  def survived?(player)
+    return nil if players.pluck(:id).exclude? player.id
 
-    Battle.includes(:players, players: :completed_challenges).joins(:players).where(
-    # CompletedChallenge.includes(:user).joins(:user).where(
+    query_end_time = end_time || DateTime.now
+
+    CompletedChallenge.includes(:user).joins(:user).where(
       "completed_at > ? AND completed_at < ? AND completed_challenges.challenge_id = ? AND user_id = ?",
       start_time,
-      end_time,
+      query_end_time,
       challenge_id,
-      player_id
+      player.id
     ).limit(1).size.positive?
   end
 
@@ -119,26 +121,29 @@ class Battle < ApplicationRecord
     ).order(completed_at: :asc).limit(1).first&.user
   end
 
-  def surviving_players
-    players
-      .joins(completed_challenges: :user)
-      .select(:completed_at, :user_id)
+  def completed_challenges
+    query_end_time = end_time || DateTime.now
+
+    CompletedChallenge
+      .includes(:user)
+      .joins(:user)
       .where(
         "completed_challenges.completed_at > ? AND completed_challenges.completed_at < ? AND completed_challenges.challenge_id = ?",
         start_time,
-        end_time,
+        query_end_time,
         challenge_id
       )
       .order(:completed_at)
+      # .map(&:user)
   end
 
   def defeated_players
-    surviving_ids = surviving_players.pluck(:id)
+    surviving_ids = completed_challenges.pluck(:user_id)
     players.reject{ |player| surviving_ids.include?(player.id) }
   end
 
   def expose_results
-    survivors = surviving_players.map do |challenge|
+    survivors = completed_challenges.map do |challenge|
       {
         user_id: challenge.user_id,
         username: User.find(challenge.user_id).username,
@@ -159,7 +164,7 @@ class Battle < ApplicationRecord
   end
 
   def individual_ranking(player)
-    surviving_players.find_index(player) + 1 if surviving_players.find_index(player.id)
+    completed_challenges.find_index(player) + 1 if completed_challenges.find_index(player.id)
   end
 
   def score(player)
@@ -169,7 +174,7 @@ class Battle < ApplicationRecord
   end
 
   def survivors
-    players.select { |player| survived?(player_id) }
+    players.select { |player| survived?(player) }
   end
 
   def started?

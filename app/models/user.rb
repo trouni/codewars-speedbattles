@@ -87,13 +87,23 @@ class User < ApplicationRecord
     return bot
   end
 
-  def active_battle
-    room&.active_battle
+  def active_room
+    RoomUser.includes(:room).joins(:room).find_by(user: self).room
   end
 
-  def active_battle_invite
-    BattleInvite.where(battle: battle, player: self)
+  def active_battle
+    active_room.active_battle
   end
+
+  # def current_battle_invite
+  #   BattleInvite.includes(:battle, :player)
+  #               .joins(:battle, :player)
+  #               .find_by(confirmed: true, battles: { end_time: nil }, player: self)
+  # end
+
+  # def current_battle
+  #   current_battle_invite&.battle
+  # end
 
   def invited?(battle = active_battle)
     return nil unless battle
@@ -108,6 +118,7 @@ class User < ApplicationRecord
   end
 
   def eligible?(battle = active_battle)
+    p battle
     return nil unless battle
 
     !completed_challenge?(battle.challenge_id) && !moderator? && !battle.started?

@@ -13,7 +13,7 @@
       </div>
     </div>
     <div class="grid-item grid-chat">
-      <room-chat :messages="messages"></room-chat>
+      <room-chat :messages="messages" :current-user-name="currentUser.username"></room-chat>
     </div>
     <div class="grid-item grid-battle">
       <room-battle :battle="activeBattle" :last-battle="lastBattle" :users="users" :room="room" :countdown="countdown" :battle-status="battleStatus" :current-user-is-moderator="currentUserIsModerator"></room-battle>
@@ -258,13 +258,15 @@
       //     USERS
       // =============
       pushToUsers(user) {
-        const index = this.users.findIndex((e) => e.id === user.id);
+        const userIndex = this.users.findIndex((e) => e.id === user.id);
+        const playerIndex = this.lastBattle.players.findIndex((e) => e.id === user.id);
+        if (playerIndex !== -1) this.lastBattle.players.splice(playerIndex, 1, user)
 
-        if (index === -1) {
+        if (userIndex === -1) {
             this.users.push(user);
         } else {
             // this.users[index] = user; // Vue cannot detect change in the array with this method
-            this.users.splice(index, 1, user)
+            this.users.splice(userIndex, 1, user)
         }
       },
       removeFromUsers(user) {

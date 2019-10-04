@@ -9,8 +9,8 @@
             <span class="author" v-if="!isAnnouncement(message)">{{  `${message.author.username}>` }}</span> <span class="content">{{ message.content }}</span>
           </li>
         </ul>
-        <div id="msg-input">
-          > <input class="input-field" type="text" @keyup.enter="sendMessage" v-model="input" placeholder="Type your message here...">
+        <div id="msg-input" class="d-flex">
+          <span class="d-flex">{{ currentUserName }}></span><input class="input-field flex-grow-1" type="text" @keyup.enter="sendMessage" v-model="input" placeholder="Type your message here...">
         </div>
       </div>
     </div>
@@ -21,6 +21,7 @@
   export default {
     props: {
       messages: Array,
+      currentUserName: String,
     },
     data() {
       return {

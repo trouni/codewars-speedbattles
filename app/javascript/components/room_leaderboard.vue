@@ -13,10 +13,10 @@
             <th scope="col" style="width: 10%;"><span class="data">TOTAL</span></th>
           </thead>
           <tbody>
-            <tr v-for="(player, index) in sortedLeaderboard">
+            <tr v-for="(player, index) in sortedLeaderboard" :class="{ 'highlight': isCurrentUser(player.id) }">
               <th scope="row">
                 <span class="data username">
-                  <i :class="['mr-1', { highlight: isOnline(player.id) }, { offline: !isOnline(player.id) }]">●</i>
+                  <i v-if="isOnline(player.id)" :class="['mr-1', { highlight: isOnline(player.id) }, { offline: !isOnline(player.id) }]">●</i>
                   <span v-bind:class="userClass(player.id)" v-if="showInviteButton(player.id, 'eligible')" @click="$root.$emit('invite-user', player.id)">{{ player.username }}</span>
                   <span v-bind:class="userClass(player.id)" v-else-if="showInviteButton(player.id, 'invited')" @click="$root.$emit('uninvite-user', player.id)">{{ player.username }}</span>
                   <span v-bind:class="userClass(player.id)" v-else>{{ player.username }}
@@ -94,6 +94,9 @@ export default {
     },
     isOnline(userId) {
       return this.users.map(e => e.id).includes(userId)
+    },
+    isCurrentUser(userId) {
+      return this.currentUser.id === userId
     },
     userClass(userId) {
       const user = this.findUser(userId)

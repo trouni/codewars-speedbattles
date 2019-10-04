@@ -16,6 +16,7 @@
 class CompletedChallenge < ApplicationRecord
   belongs_to :user
   validates :challenge_id, uniqueness: { scope: %i[user completed_at] }
+  after_create :update_active_battle
 
   def api_expose
     {
@@ -27,5 +28,10 @@ class CompletedChallenge < ApplicationRecord
       completed_at: completed_at,
       completed_languages: completed_languages
     }
+  end
+
+  def update_active_battle
+    room = user.active_battle&.room
+    room&.broadcast_active_battle
   end
 end
