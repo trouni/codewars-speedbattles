@@ -13,7 +13,11 @@ class Room < ApplicationRecord
   belongs_to :moderator, class_name: "User"
   has_many :room_users, dependent: :destroy
   has_many :users, through: :room_users
-  has_many :battles
+  has_many :battles do
+    def for_challenge(challenge_id)
+      where(challenge_id: challenge_id)
+    end
+  end
   has_many :players, through: :battles
   has_one :chat, dependent: :destroy
   has_many :messages, through: :chat
@@ -75,6 +79,13 @@ class Room < ApplicationRecord
     end
   end
 
+  # def challenge_winner(challenge_id)
+  #   battles.for_challenge(challenge_id)
+  #          .includes(:players, players: :completed_challenges)
+  #          .joins(:players, players: :completed_challenges)
+  #          .select("users.id, DATEDIFF(completed_challenges.completed_at, battles.start_time)")
+  # end
+
   def battles_fought(player)
     BattleInvite.includes(:player, :battle, :room).joins(:player, :battle, :room).where(
       confirmed: true,
@@ -112,19 +123,19 @@ class Room < ApplicationRecord
     finished_battles.map { |battle| battle.score(player) }.reduce(:+)
   end
 
-  def leaderboard
-    (players + users).uniq.map do |user|
-      {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        battles_fought: battles_fought(user).count,
-        battles_survived: battles_survived(user).count,
-        victories: victories(user).count,
-        total_score: total_score(user)
-      }
-    end
-  end
+  # def leaderboard
+  #   (players + users).uniq.map do |user|
+  #     {
+  #       id: user.id,
+  #       name: user.name,
+  #       username: user.username,
+  #       battles_fought: battles_fought(user).count,
+  #       battles_survived: battles_survived(user).count,
+  #       victories: victories(user).count,
+  #       total_score: total_score(user)
+  #     }
+  #   end
+  # end
 
   def broadcast(subchannel: "logs", payload: nil)
     ActionCable.server.broadcast(
@@ -151,7 +162,13 @@ class Room < ApplicationRecord
   end
 
   def broadcast_users
-    broadcast(subchannel: "users", payload: { action: "all", users: users.map(&:api_expose) })
+    broadcast(
+      subchannel: "users",
+      payload: {
+        action: "all",
+        users: users.includes(:battles, :room, :completed_challenges, :battle_invites)
+                    .map(&:api_expose)
+      })
   end
 
   def broadcast_active_battle

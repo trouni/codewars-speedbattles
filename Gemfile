@@ -25,6 +25,8 @@ group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
   gem 'annotate'
+  gem 'bullet'
+  # gem 'ruby-growl'
 end
 
 group :development, :test do

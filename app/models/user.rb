@@ -30,7 +30,11 @@ class User < ApplicationRecord
   has_one :room, through: :room_user, required: false
   has_many :rooms_as_moderator, class_name: "Room", foreign_key: 'moderator_id'
   has_many :battle_invites, foreign_key: 'player_id'
-  has_many :battles, through: :battle_invites
+  has_many :battles, through: :battle_invites do
+    def for_room(room)
+      where(room_id: room.id)
+    end
+  end
   has_many :battles_as_winner, class_name: 'Battle', foreign_key: 'winner_id'
   has_many :completed_challenges, dependent: :destroy
   # Include default devise modules. Others available are:
@@ -53,19 +57,27 @@ class User < ApplicationRecord
       name: name,
       username: username
     }
-    return standard_result unless for_room
+    # return standard_result unless for_room
 
-    return standard_result.merge stats(for_room)
+    # return standard_result.merge stats
   end
 
-  def stats(for_room)
-    {
-      battles_fought: for_room.battles_fought(self).size,
-      battles_survived: for_room.battles_survived(self).size,
-      victories: for_room.victories(self).size,
-      total_score: for_room.total_score(self),
-      completed_at: active_battle&.completed_challenge_at(self)
-    }
+  def stats
+    return {} unless room
+
+    result =
+    api_expose.merge(battles_survived: survived(room).size)
+              .merge(battles_fought: battles.for_room(room).size)
+              .merge(completed_at: active_battle&.completed_challenge_at(self))
+              .merge(victories: room.victories(self).size)
+              .merge(total_score: room.total_score(self))
+    # {
+    #   battles_fought: battles.for_room(room).size,
+    #   battles_survived: survived(room).size,
+    #   victories: room.victories(self).size,
+    #   total_score: room.total_score(self),
+    #   completed_at: active_battle&.completed_challenge_at(self)
+    # }
   end
 
   def self.valid_username?(username)
@@ -96,25 +108,6 @@ class User < ApplicationRecord
     room&.active_battle
   end
 
-  # def current_battle_invite
-  #   BattleInvite.includes(:battle, :player)
-  #               .joins(:battle, :player)
-  #               .find_by(confirmed: true, battles: { end_time: nil }, player: self)
-  # end
-
-  # def current_battle
-  #   current_battle_invite&.battle
-  # end
-
-  def battles_fought(room = nil)
-    result = BattleInvite.includes(:player, :battle)
-                         .joins(:player, :battle)
-                         .where(confirmed: true, users: { id: self.id })
-    return result.map(&:battle) unless room
-
-    return result.includes(:room).joins(:room).where(rooms: { id: room.id }).map(&:battle)
-  end
-
   def invited?(battle = active_battle)
     return nil unless battle
 
@@ -134,8 +127,41 @@ class User < ApplicationRecord
   end
 
   def completed_challenge?(challenge_id)
-    CompletedChallenge.where(challenge_id: challenge_id, user_id: id).exists?
+    completed_challenges.where(challenge_id: challenge_id).exists?
   end
+
+  def survived?(battle)
+    completed_challenges.includes(user: :battles)
+                        .joins(user: :battles)
+                        .where(challenge_id: battle.challenge_id)
+                        .where("completed_at > ? AND completed_at < ?", battle.start_time, battle.end_time)
+                        .exists?
+  end
+
+  def survived(room = nil)
+    result =
+    battles.includes(:players, players: :completed_challenges)
+          .joins(:players, players: :completed_challenges)
+          .where("battles.challenge_id = completed_challenges.challenge_id AND completed_challenges.user_id = ?", self.id)
+          .where("completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time")
+
+    return result unless room
+
+    return result.includes(:room).joins(:room).where(rooms: { id: room.id })
+    # CompletedChallenge.includes(:user)
+    #                   .joins(:user)
+    #                   .where(challenge_id: challenge_id, user: self)
+    #                   .where("completed_at > ? AND completed_at < ?", start_time, end_time)
+    #                   .order(completed_at: :asc).first
+  end
+
+  # def won(room = room)
+  #   result =
+  #   battles.includes(:players, players: :completed_challenges)
+  #         .joins(:players, players: :completed_challenges)
+  #         .where("battles.challenge_id = completed_challenges.challenge_id AND completed_challenges.user_id = ?", self.id)
+  #         .where("completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time")
+  # end
 
   def invite_status(room)
     return nil unless room && room.active_battle
@@ -155,20 +181,6 @@ class User < ApplicationRecord
     FetchUserInfoJob.perform_later(id)
     FetchCompletedChallengesJob.perform_later(user_id: id, all_pages: true)
   end
-
-  # def broadcast_user_status(room)
-  #   ActionCable.server.broadcast(
-  #     "room_#{room.id}",
-  #     api_expose
-  #   )
-  # end
-
-  # def broadcast_user_unsubscribe(room)
-  #   ActionCable.server.broadcast(
-  #     "room_#{room.id}",
-  #     api_expose.merge(unsubscribed: true)
-  #   )
-  # end
 
   def create_email
     self.email = "#{username}@me.com"

@@ -6,7 +6,7 @@ class RoomsController < ApplicationController
   end
 
   def show
-    @battle = Battle.find_by(end_time: nil)
+    # @battle = Battle.includes(:room).find_by(end_time: nil)
     @room = Room.find(params[:id])
     authorize @room
   end

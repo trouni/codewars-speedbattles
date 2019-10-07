@@ -1,5 +1,5 @@
 <template>
-  <div id="room" :class="[roomStatus, { moderator: this.currentUserIsModerator, 'page-loading': !this.pageLoaded }]">
+  <div v-if="this.pageLoaded" id="room" :class="[roomStatus, { moderator: this.currentUserIsModerator, 'page-loading': !this.pageLoaded }]">
 
     <div class="grid-item grid-header">
       <div id="room-announcer" :class="['widget-bg', seekAttention]">
@@ -42,7 +42,7 @@
     },
     props: {
       roomInit: Object,
-      usersInit: Array,
+      // usersInit: Array,
       roomPlayersInit: Array,
       battleInit: Object,
       currentUserId: Number,
@@ -51,9 +51,10 @@
     },
     data() {
       return {
-        pageLoaded: false,
+        // pageLoaded: false,
         room: this.roomInit,
-        users: this.usersInit,
+        // users: this.usersInit,
+        users: [],
         roomPlayers: this.roomPlayersInit,
         battle: this.battleInit,
         messages: this.messagesInit,
@@ -68,9 +69,9 @@
       }
     },
     created() {
-      this.pushToUsers(this.currentUser);
-      setTimeout(() => { this.pageLoaded = true }, 500);
-      this.$set(this.battle, "stage", this.battleStage);
+      // this.pushToUsers(this.currentUser);
+      // setTimeout(() => { this.pageLoaded = true }, 500);
+      // this.$set(this.battle, "stage", this.battleStage);
     },
     watch: {
       battle: function() {
@@ -78,6 +79,9 @@
       }
     },
     computed: {
+      pageLoaded() {
+        return this.users.length > 0
+      },
       leaderboard() {
         const allUsers = this.roomPlayers.concat(this.users);
         return allUsers.reduce((uniqueUsers, user) => {

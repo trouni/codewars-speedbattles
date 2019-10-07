@@ -8,6 +8,7 @@ class RoomChannel < ApplicationCable::Channel
     stream_from "room_#{@room.id}"
     stream_from "room_#{@room.id}_moderator" if @current_user == @room.moderator
     # room_user.broadcast("add")
+    @room.broadcast_users
   end
 
   def unsubscribed

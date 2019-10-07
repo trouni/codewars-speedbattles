@@ -24,8 +24,8 @@ class Battle < ApplicationRecord
   has_many :users, through: :room
   belongs_to :winner, class_name: "User", optional: true
   has_many :battle_invites, dependent: :destroy
-  has_many :battles, through: :battle_invites
   has_many :players, through: :battle_invites, class_name: "User"
+  has_many :completed_challenges, through: :players
   scope :active, -> { where(end_time: nil) }
   after_commit :broadcast_active_battle, :broadcast_users
 
@@ -128,13 +128,20 @@ class Battle < ApplicationRecord
   end
 
   def winner
-    CompletedChallenge.includes(:user).joins(:user).where(
-      "completed_at > ? AND completed_at < ? AND challenge_id = ? AND user_id IN (?)",
-      start_time,
-      end_time,
-      challenge_id,
-      players.pluck(:id)
-    ).order(completed_at: :asc).limit(1).first&.user
+    completed_challenges.order(completed_at: :asc).first&.user
+    # CompletedChallenge.includes(:user)
+    #                   .joins(:user)
+    #                   .where(challenge_id: challenge_id, user: players)
+    #                   .where("completed_at > ? AND completed_at < ?", start_time, end_time)
+    #                   .order(completed_at: :asc).first&.user
+
+    # CompletedChallenge.includes(:user).joins(:user).where(
+    #   "completed_at > ? AND completed_at < ? AND challenge_id = ? AND user_id IN (?)",
+    #   start_time,
+    #   end_time,
+    #   challenge_id,
+    #   players.pluck(:id)
+    # ).order(completed_at: :asc).limit(1).first&.user
   end
 
   def completed_challenges
@@ -190,7 +197,7 @@ class Battle < ApplicationRecord
   end
 
   def survivors
-    players.select { |player| survived?(player) }
+    completed_challenges.includes(:user).joins(:user).map(&:user)
   end
 
   def started?
