@@ -16,13 +16,13 @@
       <room-chat :messages="messages" :current-user-name="currentUser.username"></room-chat>
     </div>
     <div class="grid-item grid-battle">
-      <room-battle :battle="activeBattle" :last-battle="lastBattle" :users="users" :room="room" :countdown="countdown" :battle-status="battleStatus" :current-user-is-moderator="currentUserIsModerator"></room-battle>
+      <room-battle :battle="battle" :users="users" :room="room" :countdown="countdown" :battle-status="battleStatus" :current-user-is-moderator="currentUserIsModerator"></room-battle>
     </div>
     <div class="grid-item grid-leaderboard">
       <room-leaderboard :leaderboard="leaderboard" :users="users" :room="room" :room-players="roomPlayers" :current-user="currentUser" :current-user-is-moderator="currentUserIsModerator"></room-leaderboard>
     </div>
     <div class="grid-item grid-controls">
-      <room-controls :room="room" :battle="activeBattle" :users="users" :current-user="currentUser" :input="challengeInput" :current-user-is-moderator="currentUserIsModerator" :countdown="countdown" :battle-status="battleStatus"></room-controls>
+      <room-controls :room="room" :battle="battle" :users="users" :current-user="currentUser" :input="challengeInput" :current-user-is-moderator="currentUserIsModerator" :countdown="countdown" :battle-status="battleStatus"></room-controls>
     </div>
   </div>
 </template>
@@ -44,7 +44,7 @@
       roomInit: Object,
       usersInit: Array,
       roomPlayersInit: Array,
-      battlesInit: Object,
+      battleInit: Object,
       currentUserId: Number,
       currentUserInit: Object,
       messagesInit: Array,
@@ -55,8 +55,7 @@
         room: this.roomInit,
         users: this.usersInit,
         roomPlayers: this.roomPlayersInit,
-        activeBattle: this.battlesInit.active,
-        pastBattles: this.battlesInit.finished,
+        battle: this.battleInit,
         messages: this.messagesInit,
         challengeInput: '',
         controlsType: '',
@@ -71,6 +70,12 @@
     created() {
       this.pushToUsers(this.currentUser);
       setTimeout(() => { this.pageLoaded = true }, 500);
+      this.$set(this.battle, "stage", this.battleStage);
+    },
+    watch: {
+      battle: function() {
+        this.$set(this.battle, "stage", this.battleStage);
+      }
     },
     computed: {
       leaderboard() {
@@ -114,70 +119,89 @@
         return this.currentUserId === this.room.moderator_id
       },
       // invitedUsers() {
-      //   if (!this.activeBattle) { return [] }
-      //   return this.activeBattle.players
+      //   if (!this.battle) { return [] }
+      //   return this.battle.players
       // },
       confirmedUsers() {
-        if (!this.activeBattle) { return [] }
-        return this.activeBattle.players.filter(user => user.invite_status == 'confirmed')
+        if (!this.battle) { return [] }
+        return this.battle.players.filter(user => user.invite_status == 'confirmed')
       },
       // STATUSES
       roomStatus() {
-        if (!this.battleStatus.battleLoaded) {
-          return "peace"
+        // if (this.battleStage <= 2) {
+        //   return "peace"
         // } else if (!this.battleStatus.readyToStart) {
         //   return "preparation"
-        } else if (!this.battleStatus.battleInitialized && this.countdown === 0) {
-          return "brink-of-war"
-        } else if (this.countdown > 0 || !this.battleStatus.battleOngoing) {
+        // } else if (!this.battleStatus.battleCountdown && this.countdown === 0) {
+        //   return "brink-of-war"
+         if (this.battleStage === 3) {
           return "countdown"
-        } else if (!this.battleStatus.lastBattleOver) {
+        } else if (this.battleStage === 4) {
           return "war"
         } else {
           return "peace"
         }
       },
+      // Battle Status
+      // 1 - Loaded (no start_time, no confirmed players)
+      // 2 - Can Start (no start_time, at least one confirmed player)
+      // 3 - Countdown (start_time exists, no end_time and countdown not zero)
+      // 4 - Battle Ongoing (start_time exists, no end_time)
+      // 5 - Battle Over (end_time exists)
       battleStatus() {
         return {
           battleLoaded: this.battleLoaded,
           readyToStart: this.readyToStart,
-          battleInitialized: this.battleInitialized,
+          battleCountdown: this.battleCountdown,
           battleOngoing: this.battleOngoing,
-          lastBattleOver: this.lastBattleOver,
-          showBattleInfo: this.battleOngoing || this.lastBattleOver,
+          battleOver: this.battleOver,
+          showBattleInfo: this.battleOngoing || this.battleOver,
         }
       },
+      battleStage() {
+        if (this.battleLoaded) return 1
+        else if (this.readyToStart) return 2
+        else if (this.battleCountdown) return 3
+        else if (this.battleOngoing) return 4
+        // else if (this.battleOver) return 0
+        else return 0
+      },
       battleLoaded() {
-        return !!this.activeBattle;
+        if (!this.battle) return false
+
+        return !this.battle.start_time && !this.battle.end_time;
       },
       readyToStart() {
-        if (!this.activeBattle) return false
+        if (!this.battle) return false
 
-        return this.confirmedUsers && this.confirmedUsers.length > 0;
+        return !this.battle.start_time && !this.battle.end_time && this.confirmedUsers.length > 0;
       },
-      battleInitialized() {
-        if (!this.activeBattle) return false
+      battleCountdown() {
+        if (!this.battle) return false
 
-        return this.activeBattle.start_time !== null;
+        return !!this.battle.start_time &&  !this.battle.end_time && this.countdown !== 0;
       },
       battleOngoing() {
-        if (!this.activeBattle) return false
+        if (!this.battle) return false
 
-        return this.activeBattle.start_time !== null && this.countdown === 0;
+        return !!this.battle.start_time &&  !this.battle.end_time && this.countdown === 0;
       },
-      previousBattles() {
-        if (!this.pastBattles) return []
+      battleOver() {
+        if (!this.battle) return true
 
-        return this.pastBattles.sort((a, b) => {
-          return new Date(b.end_time) - new Date(a.end_time)
-        })
+        return !!this.battle.end_time
       },
-      lastBattle() {
-        return this.activeBattle || this.previousBattles[0]
-      },
-      lastBattleOver() {
-        if (this.lastBattle) return this.lastBattle.end_time !== null
-      },
+      // previousBattles() {
+      //   if (!this.pastBattles) return []
+
+      //   return this.pastBattles.sort((a, b) => {
+      //     return new Date(b.end_time) - new Date(a.end_time)
+      //   })
+      // },
+      // lastBattle() {
+      //   return this.battle
+      //   // return this.battle || this.previousBattles[0]
+      // },
     },
     methods: {
       sendCable(action, data) {
@@ -208,10 +232,10 @@
         this.sendCable('create_battle', { challenge_id: challengeIdSlug });
       },
       deleteBattle() {
-        this.sendCable('delete_battle', { battle_id: this.activeBattle.id });
+        this.sendCable('delete_battle', { battle_id: this.battle.id });
       },
       // updateBattle(battle) {
-      //   battle.deleted ? this.activeBattle = null : this.activeBattle = battle
+      //   battle.deleted ? this.battle = null : this.battle = battle
       // },
       parseChallengeInput(input) {
         const urlRegex = /^(https:\/\/)?www\.codewars\.com\/kata\/(?<challengeIdSlug>.+)\/train\/(?<language>.+)$/;
@@ -229,17 +253,17 @@
         }
       },
       initializeBattle() {
-        this.sendCable('update_battle', { battle_action: 'start', battle_id: this.activeBattle.id, countdown: this.countdownDuration });
+        this.sendCable('update_battle', { battle_action: 'start', battle_id: this.battle.id, countdown: this.countdownDuration });
       },
       endBattle() {
-        this.sendCable('update_battle', { battle_action: 'end', battle_id: this.activeBattle.id });
+        this.sendCable('update_battle', { battle_action: 'end', battle_id: this.battle.id });
       },
       fetchChallenges(userId) {
-        this.sendCable('fetch_user_challenges', { user_id: userId, battle_id: this.activeBattle.id })
+        this.sendCable('fetch_user_challenges', { user_id: userId, battle_id: this.battle.id })
       },
       openCodeWars() {
-        if (this.activeBattle.challenge.language === null) { this.activeBattle.challenge.language = 'ruby' }
-        const challengeUrl = `${this.activeBattle.challenge.url}/train/${this.activeBattle.challenge.language}`
+        if (this.battle.challenge.language === null) { this.battle.challenge.language = 'ruby' }
+        const challengeUrl = `${this.battle.challenge.url}/train/${this.battle.challenge.language}`
         window.open(challengeUrl)
       },
       startCountdown(countdown) {
@@ -257,23 +281,53 @@
       // =============
       //     USERS
       // =============
-      pushToUsers(user) {
-        const userIndex = this.users.findIndex((e) => e.id === user.id);
-        const playerIndex = this.lastBattle.players.findIndex((e) => e.id === user.id);
-        if (playerIndex !== -1) this.lastBattle.players.splice(playerIndex, 1, user)
-
-        if (userIndex === -1) {
-            this.users.push(user);
+      pushToArray(array, element) {
+        const elementIndex = array.findIndex((e) => e.id === element.id);
+        if (elementIndex === -1) {
+            array.push(element);
+            console.info(`Added element ${element}`)
         } else {
-            // this.users[index] = user; // Vue cannot detect change in the array with this method
-            this.users.splice(userIndex, 1, user)
+            // array[index] = user; // Vue cannot detect change in the array with this method
+            array.splice(elementIndex, 1, element)
+            console.info(`Updated element ${element}`)
         }
       },
+      pushToUsers(user) {
+        this.pushToArray(this.users, user)
+        // const userIndex = this.users.findIndex((e) => e.id === user.id);
+        // if (userIndex === -1) {
+        //     this.users.push(user);
+        //     console.info(`Added user ${user.username}`)
+        // } else {
+        //     // this.users[index] = user; // Vue cannot detect change in the array with this method
+        //     this.users.splice(userIndex, 1, user)
+        //     console.info(`Updated user ${user.username}`)
+        // }
+
+        if (user.invite_status === 'invited' || user.invite_status === 'confirmed') {
+          this.pushToArray(this.battle.players, user)
+        } else {
+          this.battle.players = this.battle.players.filter(e => e.id !== user.id);
+        }
+
+        // if (this.battle) {
+        //   const playerIndex = this.battle.players.findIndex((e) => e.id === user.id);
+        //   if (playerIndex !== -1) {
+        //     if (user.invite_status === 'invited' || user.invite_status === 'confirmed') {
+        //       this.battle.players.splice(playerIndex, 1, user);
+        //       console.info(`Updated player ${user.username}`);
+        //     }
+        //   }
+        // }
+      },
+      removeFromArray(array, user) {
+        return array.filter(e => e.id !== user.id);
+      },
       removeFromUsers(user) {
-        this.users = this.users.filter(e => e.id != user.id)
+        this.removeFromArray(this.users, user);
       },
       invitation(inviteAction, userId = null) {
-        this.sendCable('invitation', { battle_id: this.activeBattle.id, invite_action: inviteAction, user_id: userId })
+        this.sendCable('invitation', { battle_id: this.battle.id, invite_action: inviteAction, user_id: userId })
       },
     },
     channels: {
@@ -315,11 +369,11 @@
             switch (data.payload.action) {
               case "add":
               this.pushToUsers(data.payload.user);
-              console.info(`Added user ${data.payload.user.username}`)
               break;
 
               case "remove":
-              this.removeFromUsers(data.payload.user);
+              this.users.filter(e => e.id !== data.payload.user.id);
+              // this.removeFromUsers(data.payload.user);
               console.info(`Removed user ${data.payload.user.username}`)
               break;
 
@@ -333,12 +387,12 @@
             case "battles":
             switch (data.payload.action) {
               case "active":
-              this.activeBattle = data.payload.battle;
+              this.battle = data.payload.battle;
               break;
 
               default:
-              this.activeBattle = data.payload.battles.active;
-              this.pastBattles = data.payload.battles.finished;
+              this.battle = data.payload.battles.active;
+              // this.pastBattles = data.payload.battles.finished;
               console.info(`Refreshed all battles`);
               break;
             }

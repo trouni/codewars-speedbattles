@@ -13,7 +13,8 @@ class RoomChannel < ApplicationCable::Channel
   def unsubscribed
     set_room
     set_current_user
-    room_user = RoomUser.find_by(room: @room, user: @current_user).destroy
+    room_user = RoomUser.find_by(room: @room, user: @current_user)
+    room_user.destroy
     # room_user.broadcast("remove")
     stop_all_streams
     # broadcast_users @room

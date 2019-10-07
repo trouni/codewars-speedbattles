@@ -21,10 +21,12 @@
 
 class Battle < ApplicationRecord
   belongs_to :room
+  has_many :users, through: :room
   belongs_to :winner, class_name: "User", optional: true
   has_many :battle_invites, dependent: :destroy
   has_many :battles, through: :battle_invites
   has_many :players, through: :battle_invites, class_name: "User"
+  scope :active, -> { where(end_time: nil) }
   after_commit :broadcast_active_battle, :broadcast_users
 
   # def players
@@ -46,9 +48,9 @@ class Battle < ApplicationRecord
     room.broadcast_active_battle
   end
 
-  def broadcast_battles
-    room.broadcast_battles
-  end
+  # def broadcast_battles
+  #   room.broadcast_battles
+  # end
 
   def broadcast_users
     room.broadcast_users
@@ -73,10 +75,10 @@ class Battle < ApplicationRecord
       time_limit: time_limit,
       start_time: start_time,
       end_time: end_time,
-      winner: winner&.api_expose,
+      # winner: winner&.api_expose,
       challenge: challenge,
       players: players.map { |user| user.api_expose(room) },
-      results: expose_results
+      # results: expose_results
     }
   end
 
@@ -91,6 +93,16 @@ class Battle < ApplicationRecord
     ).order(completed_at: :asc).limit(1).first
   end
 
+  def completed_challenge_at(player)
+    return nil if players.exclude?(player)
+
+    CompletedChallenge.includes(:user).joins(:user).where(
+      "challenge_id = ? AND user_id = ?",
+      challenge_id,
+      player.id
+    ).order(completed_at: :asc).limit(1).first&.completed_at
+  end
+
   def invitation(user: nil, action: nil)
     case action
     when "uninvite" then uninvite_user(user)
@@ -102,7 +114,7 @@ class Battle < ApplicationRecord
   end
 
   def survived?(player)
-    return nil if players.pluck(:id).exclude? player.id
+    return nil if players.exclude? player
 
     query_end_time = end_time || DateTime.now
 
@@ -112,11 +124,11 @@ class Battle < ApplicationRecord
       query_end_time,
       challenge_id,
       player.id
-    ).limit(1).size.positive?
+    ).exists?
   end
 
   def winner
-    CompletedChallenge.where(
+    CompletedChallenge.includes(:user).joins(:user).where(
       "completed_at > ? AND completed_at < ? AND challenge_id = ? AND user_id IN (?)",
       start_time,
       end_time,
@@ -197,42 +209,66 @@ class Battle < ApplicationRecord
     battle_invites.map(&:player)
   end
 
+  def eligible_users
+    sql_query = <<-SQL
+      users.id NOT IN (
+        SELECT users.id
+        FROM users
+        JOIN completed_challenges
+        ON users.id = completed_challenges.user_id
+        WHERE challenge_id = ?
+      )
+    SQL
+    users.includes(:completed_challenges).where(sql_query, challenge_id)
+  end
+
+  def non_invited_users
+    sql_query = <<-SQL
+      users.id NOT IN (
+        SELECT users.id
+        FROM users
+        JOIN battle_invites
+        ON users.id = battle_invites.player_id
+        WHERE battle_id = ?
+      )
+    SQL
+    eligible_users.includes(:battle_invites).where(sql_query, id)
+  end
+
   def unconfirmed_players
     battle_invites.where(confirmed: false).map(&:player)
   end
 
   def ineligible_users
-    User.joins(:completed_challenges).where(completed_challenges: { challenge_id: challenge_id, user: room.users })
+    users.joins(:completed_challenges).where("completed_challenges.challenge_id = ?", challenge_id)
+    # User.joins(:completed_challenges).where(completed_challenges: { challenge_id: challenge_id, user: room.users })
   end
 
   private
 
   def invite_user(user)
-    battle_invite = BattleInvite.find_or_initialize_by(battle: self, player: user)
-    return unless battle_invite.player.eligible?
+    return unless non_invited_users.where(id: user.id).exists?
 
-    battle_invite.save
-    # room.broadcast_user(user: user)
+    BattleInvite.includes(:battle, :player).joins(:battle, :player).create(battle: self, player: user)
+    room.broadcast_user(user: user)
   end
 
   def uninvite_user(user)
-    battle_invite = BattleInvite.find_by(battle: self, player: user)
-    battle_invite&.destroy
-    # room.broadcast_user(user: user)
+    BattleInvite.find_by(battle: self, player: user)&.destroy
+    room.broadcast_user(user: user)
   end
 
   def confirm_user(user)
     battle_invite = BattleInvite.find_by(battle: self, player: user)
-    battle_invite&.update(confirmed: !battle_invite.confirmed)
-    # room.broadcast_user(user: user)
+    battle_invite.update(confirmed: !battle_invite.confirmed)
+    room.broadcast_user(user: user)
+    room.broadcast_active_battle
   end
 
   def invite_all
-    room.users.each do |user|
-      next unless user.eligible?
-
-      invite_user(user)
-    end
+    BattleInvite.create(non_invited_users.map { |user| { player: user, battle: self } })
+    room.broadcast_users
+    room.broadcast_active_battle
   end
 
   def invite_survivors

@@ -5,26 +5,26 @@
       <div class="widget-body">
         <div v-if="currentUserIsModerator" class="h-100">
 
-          <div class="new-battle d-flex">
-            <input class="input-field flex-grow-1" type="text" v-model="challengeInput" @keyup.enter="createBattle" placeholder="ID, slug or url of CodeWars Kata" :disabled="battleStatus.battleLoaded">
-            <button @click="createBattle" class="line-height-1 ml-3" v-if="!battleStatus.battleLoaded">Load</button>
-            <button @click="cancelBattle" class="line-height-1 ml-3" v-if="battleStatus.battleLoaded && !battleStatus.battleInitialized">Cancel</button>
+          <div class="new-battle">
+            <input class="input-field w-100" type="text" v-model="challengeInput" @keyup.enter="createBattle" placeholder="ID, slug or url of CodeWars Kata" :disabled="battle.stage > 0">
+            <button @click="createBattle" class="line-height-1 mt-4 mx-auto" v-if="battle.stage < 1">Load</button>
+            <button @click="cancelBattle" class="line-height-1 mt-4 mx-auto" v-if="battle.stage > 0 && battle.stage < 3">Cancel</button>
           </div>
 
           <div class="flex-centering flex-column pt-0 pb-4">
 
-            <!-- <div class="battle-settings d-flex flex-grow-1 justify-content-between mt-5" v-if="battleStatus.battleLoaded && !battleStatus.battleInitialized">
+            <!-- <div class="battle-settings d-flex flex-grow-1 justify-content-between mt-5" v-if="battle.stage > 0 && battle.stage < 3">
               <p class="mx-3"><input type="number" name="time-limit" min='1' placeholder="Time limit" disabled> min</p>
               <p class="mx-3"><input type="number" name="max-survivors" min='1' :max="eligibleUsers.length" placeholder="Max survivors"></p>
             </div> -->
 
             <div class="controls d-flex justify-content-around flex-grow-1 h-100 w-100">
-              <button @click="$root.$emit('invite-all')" v-if="battleStatus.battleLoaded && !battleStatus.battleInitialized" :disabled="allInvited">Invite All</button>
-              <button v-if="battleStatus.battleLoaded && !battleStatus.battleInitialized" :disabled="!battleStatus.readyToStart" @click="initializeBattle">Start Battle</button>
-              <button class="large" v-else-if="battleStatus.battleInitialized" @click="endBattle" :disabled="!battleStatus.battleOngoing">End Battle</button>
+              <button @click="$root.$emit('invite-all')" v-if="battle.stage <= 2" :disabled="allInvited">Invite All</button>
+              <button v-if="battle.stage <= 2" :disabled="battle.stage < 2" @click="initializeBattle">Start Battle</button>
+              <button class="large" v-else-if="battle.stage >= 3" @click="endBattle" :disabled="battle.stage < 4">End Battle</button>
             </div>
 
-            <div v-if="!battleStatus.battleInitialized && invitedUsers.length > 0">
+            <div v-if="battle.stage === 2 && invitedUsers.length > 0">
               <p :class="['my-0', { 'highlight': allConfirmed }]">Confirmed players: {{ confirmedUsers.length }} of {{ invitedUsers.length }} invited</p>
               <p class='mt-0 font-italic'>Unconfirmed players will be uninvited when the battle starts.</p>
             </div>
@@ -34,9 +34,9 @@
         </div>
 
         <div v-else class="flex-centering pt-0 pb-4">
-          <div v-if="battleStatus.battleInitialized">
+          <div v-if="battle.stage >= 3">
             <p class="text-center">Click the button below once you have completed the kata on CodeWars.</p>
-            <button class="mx-auto large" @click="completedChallenge" :disabled="completedButtonClicked || !battleStatus.battleOngoing">Challenge Completed</button>
+            <button class="mx-auto large" @click="completedChallenge" :disabled="completedButtonClicked || battle.stage < 4">Challenge Completed</button>
           </div>
           <div v-else-if="currentUser.invite_status == 'invited'">
             <p class="text-center">You have been requested to join this battle.</p>
@@ -95,21 +95,25 @@
       },
       invitedUsers() {
         if (!this.battle) { return [] }
-        return this.battle.players
+        // return this.battle.players
+      return this.users.filter(user => user.invite_status === 'invited')
       },
       confirmedUsers() {
         if (!this.battle) { return [] }
-        return this.battle.players.filter(user => user.invite_status == 'confirmed')
+        return this.battle.players.filter(user => user.invite_status == 'confirmed');
       },
       allInvited() {
-        return this.invitedUsers.length === this.eligibleUsers.length
+        return this.invitedUsers.length === this.eligibleUsers.length;
       },
       allConfirmed() {
-        return this.battleStatus.readyToStart && this.confirmedUsers.length === this.invitedUsers.length
+        return this.battle.stage === 2 && this.confirmedUsers.length === this.invitedUsers.length;
+      },
+      battleStage() {
+        return this.battle.stage;
       },
     },
     watch: {
-      battleStatus: function() {
+      battleStage: function() {
         this.completedButtonClicked = false;
       }
     },
@@ -131,10 +135,10 @@
         this.$root.$emit('delete-battle')
       },
       initializeBattle() {
-        if (!this.battleStatus.battleInitialized) { this.$root.$emit('initialize-battle') }
+        if (this.battle.stage < 3) { this.$root.$emit('initialize-battle') }
       },
       endBattle() {
-        if (this.battleStatus.battleInitialized) { this.$root.$emit('end-battle') }
+        if (this.battle.stage > 3) { this.$root.$emit('end-battle') }
       },
     }
   }

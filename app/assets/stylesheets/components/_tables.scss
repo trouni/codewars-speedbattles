@@ -17,9 +17,16 @@ table.console-table {
     padding-left: 1em;
   }
 
+  .pending-label {
+    display: none;
+  }
+
   th.username.pending {
     font-style: italic;
     opacity: 0.5;
+    .pending-label {
+      display: inherit;
+    }
   }
 
   .data:first-child {

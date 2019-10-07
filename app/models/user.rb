@@ -63,7 +63,8 @@ class User < ApplicationRecord
       battles_fought: for_room.battles_fought(self).size,
       battles_survived: for_room.battles_survived(self).size,
       victories: for_room.victories(self).size,
-      total_score: for_room.total_score(self)
+      total_score: for_room.total_score(self),
+      completed_at: active_battle&.completed_challenge_at(self)
     }
   end
 
@@ -87,12 +88,12 @@ class User < ApplicationRecord
     return bot
   end
 
-  def active_room
-    RoomUser.includes(:room).joins(:room).find_by(user: self).room
-  end
+  # def active_room
+  #   RoomUser.includes(:room).joins(:room).find_by(user: self)&.room
+  # end
 
   def active_battle
-    active_room.active_battle
+    room&.active_battle
   end
 
   # def current_battle_invite
@@ -105,27 +106,35 @@ class User < ApplicationRecord
   #   current_battle_invite&.battle
   # end
 
+  def battles_fought(room = nil)
+    result = BattleInvite.includes(:player, :battle)
+                         .joins(:player, :battle)
+                         .where(confirmed: true, users: { id: self.id })
+    return result.map(&:battle) unless room
+
+    return result.includes(:room).joins(:room).where(rooms: { id: room.id }).map(&:battle)
+  end
+
   def invited?(battle = active_battle)
     return nil unless battle
 
-    BattleInvite.where(battle: battle, player: self).any?
+    BattleInvite.where(battle: battle, player: self).exists?
   end
 
   def confirmed?(battle = active_battle)
     return nil unless battle
 
-    BattleInvite.where(battle: battle, player: self, confirmed: true).any?
+    BattleInvite.where(battle: battle, player: self, confirmed: true).exists?
   end
 
   def eligible?(battle = active_battle)
-    p battle
     return nil unless battle
 
     !completed_challenge?(battle.challenge_id) && !moderator? && !battle.started?
   end
 
   def completed_challenge?(challenge_id)
-    CompletedChallenge.where(challenge_id: challenge_id, user_id: id).any?
+    CompletedChallenge.where(challenge_id: challenge_id, user_id: id).exists?
   end
 
   def invite_status(room)

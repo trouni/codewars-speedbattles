@@ -26,19 +26,20 @@ class Room < ApplicationRecord
   end
 
   def active_battle
-    Battle.includes(:room).joins(:room).where(room: self).find_by(end_time: nil)
+    active_battle = Battle.includes(:room).joins(:room).find_by(room: self, end_time: nil)
+    return active_battle || last_battle
   end
 
   def active_battle?
     active_battle.present?
   end
 
-  def battles_index
-    {
-      active: active_battle&.api_expose,
-      finished: finished_battles.map(&:api_expose)
-    }
-  end
+  # def battles_index
+  #   {
+  #     active: active_battle&.api_expose,
+  #     finished: finished_battles.map(&:api_expose)
+  #   }
+  # end
 
   def finished_battles
     Battle.includes(:room).joins(:room).where(room_id: id).where.not(end_time: nil).order(end_time: :desc)
@@ -157,9 +158,9 @@ class Room < ApplicationRecord
     broadcast(subchannel: "battles", payload: { action: "active", battle: active_battle&.api_expose })
   end
 
-  def broadcast_battles
-    broadcast(subchannel: "battles", payload: { action: "replace", battles: battles_index })
-  end
+  # def broadcast_battles
+  #   broadcast(subchannel: "battles", payload: { action: "replace", battles: battles_index })
+  # end
 
   private
 
