@@ -44,7 +44,7 @@
   }
   .highlight {
     color: $highlight;
-    text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+    text-shadow: 0 0 5px $maincolor, 0 0 15px rgba(255,255,255,0.5);
   }
 
   .highlight-on-hover:hover {
@@ -53,7 +53,7 @@
 
   .box-highlight {
     border-color: $highlight;
-    box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+    box-shadow: 0 0 5px $maincolor, 0 0 15px rgba(255,255,255,0.5);
   }
 
   .box-highlight-white {
@@ -106,23 +106,23 @@
 
   .username {
     .invited {
-      color: $username-invited;
+      // color: $username-invited;
     }
 
     .ineligible {
-      color: $username-ineligible;
+      // color: $username-ineligible;
     }
 
     .confirmed {
-      color: $username-confirmed;
+      // color: $username-confirmed;
     }
   }
 
   .widget-bg {
-    background-color: rgba( $bezel-color, .4 );
+    background-color: rgba( $bezel-color, .1 );
 
     &.seek-attention {
-      background-color: rgba( lighten($bezel-color, 10%), .9 );
+      background-color: rgba( lighten($bezel-color, 10%), .7 );
     }
   }
 

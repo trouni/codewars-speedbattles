@@ -1,7 +1,7 @@
 #room-chat {
   .header {
     clip-path: polygon(0 0, $chat-header-width 0, calc(#{$chat-header-width} - #{$bezel}) 100%, 0 100%);
-    width: 100%;
+    width: 50%;
     padding-right: 0;
   }
 

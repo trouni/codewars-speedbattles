@@ -9,6 +9,9 @@ class RoomChannel < ApplicationCable::Channel
     stream_from "room_#{@room.id}_moderator" if @current_user == @room.moderator
     # room_user.broadcast("add")
     @room.broadcast_users
+    @room.broadcast_active_battle
+    @room.broadcast_messages
+    # @room.broadcast_room_players
   end
 
   def unsubscribed
@@ -19,9 +22,6 @@ class RoomChannel < ApplicationCable::Channel
     # room_user.broadcast("remove")
     stop_all_streams
     # broadcast_users @room
-  end
-
-  def receive(data)
   end
 
   # =============
@@ -46,18 +46,21 @@ class RoomChannel < ApplicationCable::Channel
   end
 
   def update_battle(data)
+    set_room
     battle = Battle.find(data["battle_id"])
     case data["battle_action"]
     when "start"
       countdown = data["countdown"].to_i
+      battle.uninvite_unconfirmed
       @room.broadcast_action(action: 'start-countdown', data: { countdown: countdown })
       battle.update(start_time: DateTime.now + countdown.seconds) unless battle.start_time
       # battle.launch(countdown)
-      battle.battle_invites.where(confirmed: false).destroy_all
     when "end"
       battle.update(end_time: DateTime.now) unless battle.end_time
       battle.defeated_players.each(&:async_fetch_codewars_info)
+      @room.broadcast_room_players
     end
+    # @room.broadcast_active_battle
   end
 
   def delete_battle(data)
@@ -88,6 +91,11 @@ class RoomChannel < ApplicationCable::Channel
       all_pages: false
     )
     @room.broadcast_to_moderator(subchannel: "logs", payload: "Fetching challenges for #{user.username}...")
+  end
+
+  def get_room_players
+    set_room
+    @room.broadcast_room_players
   end
 
   private

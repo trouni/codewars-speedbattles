@@ -3,44 +3,4 @@
   background-size: cover;
   padding: 1em;
   height: 100vh;
-  display: grid;
-  // grid-template-columns: 18% 41% 41%;
-  // grid-template-rows: 70px calc(50% - 70px) 15% 35%;
-  // grid-template-areas:
-  //   "header header header"
-  //   "warriors battle chat"
-  //   "warriors battle leaderboard"
-  //   "warriors controls leaderboard"
-  grid-template-columns: 40% 60%;
-  grid-template-rows: 150px calc(50% - 150px) 15% 35%;
-  grid-template-areas:
-    "header battle"
-    "chat battle"
-    "chat leaderboard"
-    "controls leaderboard"
-}
-
-.grid-item {
-  align-items: middle;
-  margin: 0.5em;
-  align-items: center;
-  display: flex;
-}
-.grid-header {
-  grid-area: header;
-}
-.grid-warriors {
-  grid-area: warriors;
-}
-.grid-chat {
-  grid-area: chat;
-}
-.grid-battle {
-  grid-area: battle;
-}
-.grid-leaderboard {
-  grid-area: leaderboard;
-}
-.grid-controls {
-  grid-area: controls;
 }

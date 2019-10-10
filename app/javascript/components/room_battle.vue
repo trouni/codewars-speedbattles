@@ -26,9 +26,11 @@
           <p class="scrollable" v-else>The instructions for the challenge will appear here during the countdown.</p>
         </div> -->
 
-        <div v-if="battle" class="d-flex flex-column align-items-center">
-          <div class="w-100 mb-3">
-            <p class="m-0"><strong>{{ (currentUserIsModerator || battle.stage > 2) ? battle.challenge.name : "Upcoming challenge..." }}</strong></p>
+        <div class="d-flex flex-column align-items-center">
+          <div v-if="battle.challenge" class="w-100 mb-3">
+            <p class="m-0"><small>{{ battlePrefix }} </small>
+              <strong class="highlight"> {{ displayChallengeName ? battle.challenge.name : 'CONFIDENTIAL' }}</strong>
+            </p>
             <div>
               <small>Language:</small> <span class="highlight">{{battle.challenge.language || "Ruby"}}</span>
                |
@@ -45,7 +47,7 @@
             <tbody>
               <tr v-for="(result, index) in survivors" class="highlight bg-highlight">
                 <th scope="row">
-                  <span class="data username">{{ result.username }}</span>
+                  <span class="data username animated flipInY ">{{ result.username }}</span>
                 </th>
                 <td>
                   <span class="data rank">{{ index + 1 }}</span>
@@ -58,19 +60,34 @@
                 </td>
               </tr>
 
+              <tr v-if="battle.stage === 0">
+                <th scope="row" :class="[]">
+                  <span class="data">Battle over</span>
+                </th>
+                <td>
+                  <span class="data rank">-</span>
+                </td>
+                <td>
+                  <span class="data">End time</span>
+                </td>
+                <td>
+                  <span class="data">{{ formatDuration((Date.parse(battle.end_time) - Date.parse(battle.start_time)) / 1000) }}</span>
+                </td>
+              </tr>
+
               <tr v-for="result in defeated">
                 <th scope="row" :class="['username', { pending: !userIsConfirmed(result.id) && battle.stage < 5 }]">
-                  <span class="data username">{{ result.username }}</span>
+                  <span class="data username animated flipInY">{{ result.username }}</span>
                   <small class="pending-label ml-1">(pending)</small>
                 </th>
                 <td>
                   <span class="data rank">-</span>
                 </td>
                 <td>
-                  <span class="data">{{ battle.stage < 5 ? '-' : 'Defeated' }}</span>
+                  <span class="data">{{ battle.stage === 0 ? 'Defeated' : '-' }}</span>
                 </td>
                 <td>
-                  <span class="data">-</span>
+                  <span class="data">{{ result.completed_at ? formatDuration(completedIn(battle, result.completed_at)) : '-' }}</span>
                 </td>
               </tr>
             </tbody>
@@ -90,7 +107,8 @@
       battle: Object,
       countdown: Number,
       currentUserIsModerator: Boolean,
-      battleStatus: Object
+      battleStatus: Object,
+      viewMode: String
     },
     computed: {
       challengeUrl() {
@@ -100,7 +118,6 @@
       headerTitle() {
         const prefix = 'KATA://'
         if (this.battle.stage === 4) {
-          this.$root.$emit('announce',{content: `<span class="d-flex justify-content-center"><a href="${this.challengeUrl}" target="_blank" class="button large mx-auto">Launch CodeWars</a></span>`})
           return `${prefix}Battle_Report`
         } else if (this.battle.stage === 5) {
           this.$root.$emit('announce',{content: 'Battle over. Awaiting next mission...'})
@@ -123,18 +140,38 @@
         }
       },
       survivors() {
-        return this.battle.players.filter(user => !!user.completed_at);
+        if (this.battle.players) {
+          return this.battle.players.filter(user => this.completedOnTime(user));
+        }
       },
       defeated() {
-        return this.battle.players.filter(user => !user.completed_at);
+        if (this.battle.players) {
+          return this.battle.players.filter(user => !this.completedOnTime(user)).sort((a,b) => {
+            return (b.invite_status || [""])[0] < (a.invite_status || [""])[0] ? 1 : -1
+          });
+        }
       },
+      battlePrefix() {
+        if (this.battle.stage > 0 && this.battle.stage < 4) {
+          return 'NEXT BATTLE:'
+        } else if (this.battle.stage === 4) {
+          return 'CHALLENGE:'
+        } else {
+          return 'PREVIOUS BATTLE:'
+        }
+      },
+      displayChallengeName() {
+        return (this.currentUserIsModerator && this.viewMode !== 'observer') || this.battle.stage === 0 || this.battle.stage > 2
+      }
     },
     methods: {
       userIsConfirmed(userId) {
-        console.log(this.findPlayer(userId))
         if (this.findPlayer(userId)) {
           return this.findPlayer(userId).invite_status === 'confirmed';
         }
+      },
+      completedOnTime(user) {
+        return user.completed_at < this.battle.end_time && user.completed_at > this.battle.start_time;
       },
       findUser(userId) {
         const index = this.users.findIndex((e) => e.id === userId);
@@ -152,10 +189,10 @@
         return (new Date(completed_at) - new Date(battle.start_time)) / 1000 // duration in seconds
       },
 
-      formatDuration(duration) {
-        const hours = Math.floor(duration / 60 / 60)
-        const minutes = Math.floor(duration / 60) % 60
-        const seconds = Math.floor(duration - minutes * 60)
+      formatDuration(durationInSeconds) {
+        const hours = Math.floor(durationInSeconds / 60 / 60)
+        const minutes = Math.floor(durationInSeconds / 60) % 60
+        const seconds = Math.floor(durationInSeconds - hours * 60 * 60 - minutes * 60)
         return `${hours > 0 ? `${String(hours).padStart(2, '0')}:` : ''}${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
       },
     }

@@ -30,7 +30,7 @@ class RoomUser < ApplicationRecord
   end
 
   def leave_room
-    BattleInvite.find_by(battle: room.active_battle, player: user, confirmed: false)&.destroy
+    # BattleInvite.find_by(battle: room.active_battle, player: user, confirmed: false)&.destroy
     room.broadcast_active_battle
     room.broadcast_user(action: "remove", user: user)
   end

@@ -25,7 +25,7 @@ class Room < ApplicationRecord
   after_create :create_chat
 
   def players
-    super.uniq
+    super.distinct
     # User.joins(battle_invites: :battle).where(battle_invites: { confirmed: true }, battles: { room_id: id }).uniq
   end
 
@@ -158,7 +158,7 @@ class Room < ApplicationRecord
   end
 
   def broadcast_user(action: "add", user:)
-    broadcast(subchannel: "users", payload: { action: action, user: user.api_expose(self) })
+    broadcast(subchannel: "users", payload: { action: action, user: user.api_expose(self, active_battle) })
   end
 
   def broadcast_users
@@ -167,8 +167,30 @@ class Room < ApplicationRecord
       payload: {
         action: "all",
         users: users.includes(:battles, :room, :completed_challenges, :battle_invites)
-                    .map(&:api_expose)
-      })
+                    .map { |user| user.api_expose(self, active_battle) }
+      }
+    )
+  end
+
+  def broadcast_messages
+    broadcast(
+      subchannel: "chat",
+      payload: {
+        action: "all",
+        messages: messages.includes(:user).map(&:api_expose)
+      }
+    )
+  end
+
+  def broadcast_room_players
+    broadcast(
+      subchannel: "users",
+      payload: {
+        action: "room-players",
+        players: players.includes(:battles, :room, :completed_challenges, :battle_invites)
+                    .map { |user| user.api_expose(self, active_battle) }
+      }
+    )
   end
 
   def broadcast_active_battle

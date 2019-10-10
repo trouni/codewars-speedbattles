@@ -15,7 +15,7 @@ class BattleInvite < ApplicationRecord
   belongs_to :battle
   has_one :room, through: :battle
   belongs_to :player, class_name: "User"
-  # after_commit :broadcast_user, :broadcast_battles
+  # after_commit :broadcast_user, only: :destroy
 
   def broadcast_user
     user = User.find(player_id)

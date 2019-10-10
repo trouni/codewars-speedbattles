@@ -9,6 +9,7 @@ button, a.button, input.button {
   font-weight: 300;
   color: $headers-color;
   text-shadow: 0 0 1px $headers-color, 0 0 15px rgba( $headers-color, 0.3);
+  transition-duration: 0.2s !important;
   &:focus {
     outline: none;
   }

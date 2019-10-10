@@ -1,0 +1,32 @@
+.observer {
+  font-size: 1.5em;
+  #leave-button {
+    display: none;
+  }
+  #room {
+    grid-template-columns: 40% 60%;
+    grid-template-rows: 30% 70%;
+    grid-template-areas:
+      "header header"
+      "chat battle";
+    .grid-leaderboard {
+      grid-area: battle;
+    }
+    .grid-controls {
+      display: none;
+    }
+    #msg-input {
+      display: none !important;
+    }
+    &.war, &.countdown, &.battle-confirmed, &.battle-loaded {
+      .grid-leaderboard {
+        display: none;
+      }
+    }
+    &.peace {
+      .grid-battle {
+        display: none;
+      }
+    }
+  }
+}

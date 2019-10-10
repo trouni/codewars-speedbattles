@@ -1,15 +1,11 @@
-<div class="absolute-top-right-corner sign-out">
-  <%= link_to "Leave room", rooms_path, class: "button" %>
-</div>
-
 <room
   :room-init="<%= @room.to_json %>"
-  :battle-init="<%= @room.active_battle&.api_expose.to_json %>"
-  :room-players-init="<%= @room.players.map{ |user| user.api_expose }.to_json %>"
   :current-user-init="<%= current_user.api_expose.to_json %>"
   :current-user-id="<%= current_user.id %>"
-  :messages-init="<%= @room.messages.map(&:api_expose).to_json %>"
   >
 </room>
 
+  <!-- :battle-init="<%#= @room.active_battle&.api_expose.to_json %>" -->
   <!-- :users-init="<%#= @room.users.map{ |user| user.api_expose }.to_json %>" -->
+  <!-- :room-players-init="<%#= @room.players.map{ |user| user.api_expose }.to_json %>" -->
+  <!-- :messages-init="<%#= @room.messages.includes(:user).map(&:api_expose).to_json %>" -->

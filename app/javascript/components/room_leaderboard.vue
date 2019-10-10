@@ -2,7 +2,8 @@
   <div id="room-leaderboard" class="widget-bg">
     <div class="widget">
       <h3 class="header">{{ title }}</h3>
-      <div class="widget-body scrollable">
+      <div class="widget-body">
+        <small class="ml-auto"><a class="button" @click="showOfflineClicked">{{ showOffline ? 'Hide' : 'Show' }} offline players</a></small>
         <table class="console-table">
           <thead class="first-row">
             <th scope="col"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
@@ -12,11 +13,11 @@
             <th scope="col" style="width: 14%;"><span class="data">COMPLETED/LOST</span></th>
             <th scope="col" style="width: 10%;"><span class="data">TOTAL</span></th>
           </thead>
-          <tbody>
-            <tr v-for="(player, index) in sortedLeaderboard" :class="{ 'highlight': isCurrentUser(player.id) }">
+          <tbody class="scrollable">
+            <tr v-for="(player, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(player.id) }">
               <th scope="row">
                 <span class="data username">
-                  <i v-if="isOnline(player.id)" :class="['mr-1', { highlight: isOnline(player.id) }, { offline: !isOnline(player.id) }]">●</i>
+                  <span v-if="isOnline(player.id)" :class="['mr-1', { 'highlight': isOnline(player.id) }, { offline: !isOnline(player.id) }]">●</span>
                   <span v-bind:class="userClass(player.id)" v-if="showInviteButton(player.id, 'eligible')" @click="$root.$emit('invite-user', player.id)">{{ player.username }}</span>
                   <span v-bind:class="userClass(player.id)" v-else-if="showInviteButton(player.id, 'invited')" @click="$root.$emit('uninvite-user', player.id)">{{ player.username }}</span>
                   <span v-bind:class="userClass(player.id)" v-else>{{ player.username }}
@@ -42,7 +43,7 @@
 <script>
 export default {
   props: {
-    leaderboard: Array,
+    roomPlayers: Array,
     users: Array,
     room: Object,
     currentUser: Object,
@@ -50,28 +51,37 @@ export default {
   },
   data() {
     return {
-      title: "NETWORK://Leaderboard"
+      title: "NETWORK://Leaderboard",
+      showOffline: false,
     }
   },
   computed: {
     moderator() {
       this.findUser(this.room.moderator.id);
     },
+    leaderboard() {
+      const allUsers = this.showOffline ? this.roomPlayers.concat(this.users) : this.users;
+      return allUsers.reduce((uniqueUsers, user) => {
+        return uniqueUsers.map(user => user.username).includes(user.username) ? uniqueUsers : [...uniqueUsers, user]
+      }, [])
+    },
     sortedLeaderboard() {
       return this.leaderboard.sort((a, b) => {
-        if (b.total_score - a.total_score !== 0) {
+        if (b.total_score !== a.total_score) {
           return b.total_score - a.total_score
         } else if (a.battles_fought === 0 || b.battles_fought === 0) {
           return b.battles_fought - a.battles_fought
         } else {
-          if (b.victories - a.victories !== 0) {
+          if (b.victories !== a.victories) {
             return b.victories - a.victories
           } else {
-            if (b.battles_survived - a.battles_survived !== 0) {
+            if (b.battles_survived !== a.battles_survived) {
               return b.battles_survived - a.battles_survived
             } else {
-              if (this.defeats(a) - this.defeats(b) !== 0) {
+              if (this.defeats(a) !== this.defeats(b)) {
                 return this.defeats(a) - this.defeats(b)
+              } else {
+                return b.username[0] > a.username[0] ? 1 : -1
               }
             }
           }
@@ -88,7 +98,7 @@ export default {
       return player.battles_fought - player.battles_survived
     },
     showInviteButton(userId, inviteStatus) {
-      if (this.isOnline(userId)) {
+      if (this.isOnline(userId) && this.battle && this.battle.stage > 0 && this.battle.stage < 3) {
         return this.currentUserIsModerator && this.findUser(userId).invite_status == inviteStatus
       }
     },
@@ -102,17 +112,22 @@ export default {
       const user = this.findUser(userId)
 
       if (user) {
+        const inviteStatus = user.invite_status
         return [
-          user.invite_status,
-          { online: this.isOnline(userId) },
+          { inviteStatus: this.showInviteButton(userId, user.invite_status) },
+          { 'animated flipInY online': this.isOnline(userId) },
           { offline: !this.isOnline(userId) }
         ]
       } else {
         return [
-          { online: this.isOnline(userId) },
+          { 'animated flipInY online': this.isOnline(userId) },
           { offline: !this.isOnline(userId) }
         ]
       }
+    },
+    showOfflineClicked() {
+      this.showOffline = !this.showOffline;
+      this.$root.$emit('get-room-players');
     }
   }
 }

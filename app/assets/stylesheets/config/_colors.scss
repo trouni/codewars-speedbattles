@@ -19,10 +19,11 @@ $maincolor-brink-of-war: lighten($orange, 5%);
 $maincolor-at-war: lighten($red, 15%);
 
 
-$bg-image: 'bg_warriors_2.jpg';
 $bg-image-normal: 'bg_codewars_4.jpg';
 $bg-image-brink-of-war: 'bg_codewars_4.jpg';
 $bg-image-at-war: 'bg_codewars_3.jpg';
+$bg-image: $bg-image-normal;
+// $bg-image: 'bg_warriors_2.jpg';
 
 
 $maincolor: $maincolor-normal;

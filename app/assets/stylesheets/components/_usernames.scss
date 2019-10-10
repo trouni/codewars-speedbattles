@@ -1,3 +1,10 @@
+tr.current-user {
+  background-color: rgba($highlight, 0.1);
+  &:hover {
+    background-color: rgba($highlight, 0.2);
+  }
+}
+
 .username {
   line-height: 1.5em;
   font-size: 1em;
@@ -13,16 +20,16 @@
     font-style: normal;
   }
   .invited {
-    color: $username-invited;
+    // color: $username-invited;
   }
 
   .ineligible {
-    color: $username-ineligible;
+    // color: $username-ineligible;
   }
 
   .confirmed {
-    color: $username-confirmed;
-    font-weight: 600;
+    // color: $username-confirmed;
+    // font-weight: 600;
   }
 }
 
