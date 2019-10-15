@@ -1,6 +1,9 @@
 table.console-table {
-  table-layout: fixed ;
+  // height: inherit;
+  // table-layout: fixed ;
   width: 100% ;
+  overflow: scroll;
+  display: block;
 
   thead th {
     overflow: hidden;
@@ -24,9 +27,15 @@ table.console-table {
   th.username.pending {
     font-style: italic;
     opacity: 0.5;
-    .pending-label {
-      display: inherit;
+    .data.username:after {
+      content: "(pending confirmation)";
+      visibility: visible;
+      font-size: smaller;
+      margin-left: 0.5em;
     }
+    // .pending-label {
+    //   // display: inherit;
+    // }
   }
 
   .data:first-child {
@@ -40,7 +49,8 @@ table.console-table {
     justify-content: space-between;
     &:before, &:after {
       font-weight: normal;
-      content: "|"
+      content: "|";
+      margin: 0 1em;
     }
   }
 
@@ -51,6 +61,13 @@ table.console-table {
   tr:hover {
     background-color: rgba(lighten($maincolor, 10%), 0.1);
     transition: background-color 0.1s !important;
+  }
+
+  tr.battle-over {
+    background-color: rgba($red, 0.2);
+    &:hover {
+      background-color: rgba($red, 0.2) !important;
+    }
   }
 
   td {
@@ -68,9 +85,20 @@ table.console-table {
     background-color: rgba(white, 0.1);
   }
 
-  .first-row {
+  thead {
     background-color: rgba(white, 0.3);
     color: rgba(darken($maincolor, 40%), 0.8);
   }
 }
 
+.fixed-header {
+  thead {
+    display: block;
+  }
+  tbody {
+    display:block;
+    overflow:auto;
+    height:100%;
+    width:100%;
+  }
+}

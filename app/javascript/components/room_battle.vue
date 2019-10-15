@@ -3,46 +3,26 @@
     <div class="widget">
       <h3 class="header">{{ headerTitle }}</h3>
       <div class="widget-body">
-
-
-        <!-- <div v-if="battle">
-          <div class="d-flex justify-content-between w-100 mb-3">
-            <div>
-              <p v-if="showChallenge"><strong>{{ battle.challenge.name }}</strong></p>
-              <p v-else><strong>Upcoming battle</strong></p>
-            </div>
-            <div>
-              <small>Language:</small> <span class="highlight">{{battle.challenge.language || "Ruby"}}</span>
-               |
-              <small>Difficulty:</small> <span class="highlight">{{-battle.challenge.rank}} kyu</span>
-            </div>
-          </div>
-           <VueShowdown
-            :markdown="battle.challenge.description"
-            flavor="github"
-            :options="{ emoji: true }"
-            class="scrollable"/>
-          <p class="scrollable" v-if="showChallenge">{{ battle.challenge.description }}</p>
-          <p class="scrollable" v-else>The instructions for the challenge will appear here during the countdown.</p>
-        </div> -->
-
-        <div class="d-flex flex-column align-items-center">
+        <div v-if="battle.id">
           <div v-if="battle.challenge" class="w-100 mb-3">
             <p class="m-0"><small>{{ battlePrefix }} </small>
-              <strong class="highlight"> {{ displayChallengeName ? battle.challenge.name : 'CONFIDENTIAL' }}</strong>
+              <strong class="highlight"> {{ displayChallengeName ? battle.challenge.name : 'TOP SECRET' }}</strong>
             </p>
-            <div>
-              <small>Language:</small> <span class="highlight">{{battle.challenge.language || "Ruby"}}</span>
-               |
-              <small>Difficulty:</small> <span class="highlight">{{-battle.challenge.rank}} kyu</span>
+            <div class="d-flex">
+              <p><small>Language:</small> <span class="highlight">{{battle.challenge.language || "Ruby"}} </span></p>
+              <p><span class="mx-2">|</span><small>Difficulty:</small> <span class="highlight">{{-battle.challenge.rank}} kyu</span></p>
+              <p v-if="timeLimit > 0"><span class="mx-2">|</span><small>Time limit:</small> <span class="highlight">{{("0" + timeLimit).slice(-2)}} min</span></p>
             </div>
           </div>
-          <table class="console-table">
-            <thead class="first-row">
-              <th scope="col"><span class="data">WARRIOR</span></th>
-              <th scope="col" style="width: 10%;"><span class="data">RANK</span></th>
-              <th scope="col" style="width: 22%;"><span class="data">STATUS</span></th>
-              <th scope="col" style="width: 22%;"><span class="data">TIME</span></th>
+          <p v-if="battle.stage === 1 && defeated.length < 1" class="m-auto highlight">> Waiting for players to join the battle...</p>
+          <table v-else class="console-table">
+            <thead>
+              <tr>
+                <th scope="col" style="width: 50%;"><span class="data">WARRIOR</span></th>
+                <th scope="col" style="width: 10%;"><span class="data">RANK</span></th>
+                <th scope="col" style="width: 20%;"><span class="data">STATUS</span></th>
+                <th scope="col" style="width: 20%;"><span class="data">TIME</span></th>
+              </tr>
             </thead>
             <tbody>
               <tr v-for="(result, index) in survivors" class="highlight bg-highlight">
@@ -60,7 +40,7 @@
                 </td>
               </tr>
 
-              <tr v-if="battle.stage === 0">
+              <tr v-if="battle.stage === 0" class="battle-over">
                 <th scope="row" :class="[]">
                   <span class="data">Battle over</span>
                 </th>
@@ -76,9 +56,8 @@
               </tr>
 
               <tr v-for="result in defeated">
-                <th scope="row" :class="['username', { pending: !userIsConfirmed(result.id) && battle.stage < 5 }]">
+                <th scope="row" :class="['username', { pending: !userIsConfirmed(result.id) && battle.stage > 0 && battle.stage < 3 }]">
                   <span class="data username animated flipInY">{{ result.username }}</span>
-                  <small class="pending-label ml-1">(pending)</small>
                 </th>
                 <td>
                   <span class="data rank">-</span>
@@ -92,6 +71,9 @@
               </tr>
             </tbody>
           </table>
+        </div>
+        <div v-else>
+          <p class="highlight">> No previous battle records...</p>
         </div>
       </div>
     </div>
@@ -108,7 +90,8 @@
       countdown: Number,
       currentUserIsModerator: Boolean,
       battleStatus: Object,
-      viewMode: String
+      viewMode: String,
+      timeLimit: Number
     },
     computed: {
       challengeUrl() {
@@ -171,7 +154,7 @@
         }
       },
       completedOnTime(user) {
-        return user.completed_at < this.battle.end_time && user.completed_at > this.battle.start_time;
+        return (user.completed_at < this.battle.end_time || !this.battle.end_time) && user.completed_at > this.battle.start_time;
       },
       findUser(userId) {
         const index = this.users.findIndex((e) => e.id === userId);

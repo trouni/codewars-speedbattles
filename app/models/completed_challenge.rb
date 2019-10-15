@@ -33,5 +33,6 @@ class CompletedChallenge < ApplicationRecord
   def update_active_battle
     room = user.active_battle&.room
     room&.broadcast_active_battle
+    room&.broadcast_user(user: user)
   end
 end

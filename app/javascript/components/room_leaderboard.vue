@@ -5,22 +5,24 @@
       <div class="widget-body">
         <small class="ml-auto"><a class="button" @click="showOfflineClicked">{{ showOffline ? 'Hide' : 'Show' }} offline players</a></small>
         <table class="console-table">
-          <thead class="first-row">
-            <th scope="col"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
-            <th scope="col" style="width: 10%;"><span class="data">RANK</span></th>
-            <th scope="col" style="width: 10%;"><span class="data">SCORE</span></th>
-            <th scope="col" style="width: 10%;"><span class="data">WON</span></th>
-            <th scope="col" style="width: 14%;"><span class="data">COMPLETED/LOST</span></th>
-            <th scope="col" style="width: 10%;"><span class="data">TOTAL</span></th>
+          <thead>
+            <tr>
+              <th scope="col" style="width: 50%;"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
+              <th scope="col" style="width: 10%;"><span class="data">RANK</span></th>
+              <th scope="col" style="width: 10%;"><span class="data">SCORE</span></th>
+              <th scope="col" style="width: 10%;"><span class="data">WON</span></th>
+              <th scope="col" style="width: 14%;"><span class="data">COMPLETED/LOST</span></th>
+              <th scope="col" style="width: 10%;"><span class="data">TOTAL</span></th>
+            </tr>
           </thead>
-          <tbody class="scrollable">
+          <tbody>
             <tr v-for="(player, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(player.id) }">
               <th scope="row">
                 <span class="data username">
-                  <span v-if="isOnline(player.id)" :class="['mr-1', { 'highlight': isOnline(player.id) }, { offline: !isOnline(player.id) }]">●</span>
-                  <span v-bind:class="userClass(player.id)" v-if="showInviteButton(player.id, 'eligible')" @click="$root.$emit('invite-user', player.id)">{{ player.username }}</span>
-                  <span v-bind:class="userClass(player.id)" v-else-if="showInviteButton(player.id, 'invited')" @click="$root.$emit('uninvite-user', player.id)">{{ player.username }}</span>
-                  <span v-bind:class="userClass(player.id)" v-else>{{ player.username }}
+                  <span v-if="isOnline(player.id)" :class="['mr-1', { 'current-user highlight': isOnline(player.id) }, { offline: !isOnline(player.id) }]">●</span>
+                  <!-- <span :class="userClass(player.id)" v-if="showInviteButton(player.id, 'eligible')" @click="$root.$emit('invite-user', player.id)">{{ player.username }}</span>
+                  <span :class="userClass(player.id)" v-else-if="showInviteButton(player.id, 'invited')" @click="$root.$emit('uninvite-user', player.id)">{{ player.username }}</span> -->
+                  <span :class="userClass(player.id)" @click="toggleInvite(player.id)">{{ player.username }}
                     <!--  <i v-if="showInviteButton(player.id, 'confirmed')" class="fas fa-fist-raised highlight ml-1"></i> -->
                   </span>
                 </span>
@@ -45,6 +47,7 @@ export default {
   props: {
     roomPlayers: Array,
     users: Array,
+    battle: Object,
     room: Object,
     currentUser: Object,
     currentUserIsModerator: Boolean
@@ -56,9 +59,9 @@ export default {
     }
   },
   computed: {
-    moderator() {
-      this.findUser(this.room.moderator.id);
-    },
+    // moderator() {
+    //   this.findUser(this.room.moderator.id);
+    // },
     leaderboard() {
       const allUsers = this.showOffline ? this.roomPlayers.concat(this.users) : this.users;
       return allUsers.reduce((uniqueUsers, user) => {
@@ -97,9 +100,10 @@ export default {
     defeats(player) {
       return player.battles_fought - player.battles_survived
     },
-    showInviteButton(userId, inviteStatus) {
+    showInviteButton(userId) {
       if (this.isOnline(userId) && this.battle && this.battle.stage > 0 && this.battle.stage < 3) {
-        return this.currentUserIsModerator && this.findUser(userId).invite_status == inviteStatus
+        return this.currentUserIsModerator
+        // return this.currentUserIsModerator && this.findUser(userId).invite_status == inviteStatus
       }
     },
     isOnline(userId) {
@@ -114,27 +118,26 @@ export default {
       if (user) {
         const inviteStatus = user.invite_status
         return [
-          { inviteStatus: this.showInviteButton(userId, user.invite_status) },
-          { 'animated flipInY online': this.isOnline(userId) },
-          { offline: !this.isOnline(userId) }
+          this.showInviteButton(userId) ? inviteStatus : '',
+          this.isOnline(userId) ? 'animated flipInY online' : 'offline'
         ]
       } else {
         return [
-          { 'animated flipInY online': this.isOnline(userId) },
-          { offline: !this.isOnline(userId) }
+          this.isOnline(userId) ? 'animated flipInY online' : 'offline'
         ]
       }
     },
     showOfflineClicked() {
       this.showOffline = !this.showOffline;
       this.$root.$emit('get-room-players');
+    },
+    toggleInvite(userId) {
+      if (this.findUser(userId).invite_status == 'eligible') this.$root.$emit('invite-user', userId)
+      else this.$root.$emit('uninvite-user', userId)
     }
   }
 }
 </script>
 
 <style scoped>
-  #room-leaderboard {
-    overflow: scroll;
-  }
 </style>

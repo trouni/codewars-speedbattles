@@ -1,5 +1,5 @@
 .observer {
-  font-size: 1.5em;
+  font-size: 1.5rem;
   #leave-button {
     display: none;
   }
@@ -15,18 +15,21 @@
     .grid-controls {
       display: none;
     }
+    .grid-battle {
+      font-size: 1.2rem !important;
+    }
     #msg-input {
       display: none !important;
     }
-    &.war, &.countdown, &.battle-confirmed, &.battle-loaded {
+    &.war, &.countdown, &.battle-confirmed, &.battle-loaded, &.peace {
       .grid-leaderboard {
         display: none;
       }
     }
-    &.peace {
-      .grid-battle {
-        display: none;
-      }
-    }
+    // &.peace {
+    //   .grid-battle {
+    //     display: none;
+    //   }
+    // }
   }
 }

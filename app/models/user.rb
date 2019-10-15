@@ -153,10 +153,12 @@ class User < ApplicationRecord
   end
 
   def survived?(battle)
+    end_time = battle.end_time || DateTime.now
+
     completed_challenges.includes(user: :battles)
                         .joins(user: :battles)
                         .where(challenge_id: battle.challenge_id)
-                        .where("completed_at > ? AND completed_at < ?", battle.start_time, battle.end_time)
+                        .where("completed_at > ? AND completed_at < ?", battle.start_time, end_time)
                         .exists?
   end
 
@@ -186,9 +188,11 @@ class User < ApplicationRecord
   # end
 
   def invite_status(battle = active_battle)
-    return nil unless battle
+    return nil if !room || room.at_peace?
 
-    if confirmed?(battle)
+    if survived?(battle)
+      "survived"
+    elsif confirmed?(battle)
       "confirmed"
     elsif invited?(battle)
       "invited"

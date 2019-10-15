@@ -56,7 +56,7 @@ class Room < ApplicationRecord
 
   # Room has no battle set up
   def at_peace?
-    Battle.includes(:room).joins(:room).where(room: id, end_time: nil).size.zero?
+    !Battle.includes(:room).joins(:room).where(room: id, end_time: nil).exists?
   end
 
   # Room has an ongoing battle (started but not finished)

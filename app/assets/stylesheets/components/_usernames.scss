@@ -42,7 +42,7 @@ tr.current-user {
       visibility: hidden;
     }
 
-    .eligible, .invited {
+    .eligible, .invited, .confirmed {
       cursor: pointer;
       &:after {
         margin-left: 0.3em;
@@ -50,7 +50,7 @@ tr.current-user {
       }
     }
 
-    .invited:after {
+    .invited:after, .confirmed:after {
       content: "[-]";
     }
 

@@ -72,24 +72,25 @@ class Battle < ApplicationRecord
   end
 
   def completed_challenge(player)
-    return nil unless players.where(id: player.id).exists?
+    # return nil unless players.where(id: player.id).exists?
 
-    CompletedChallenge.includes(:user).joins(:user).where(
-      "completed_at > ? AND challenge_id = ? AND user_id = ?",
-      start_time,
-      challenge_id,
-      player.id
-    ).order(completed_at: :asc).limit(1).first
+    CompletedChallenge.includes(:user).joins(:user)
+                      .where(user_id: player.id, challenge_id: challenge_id)
+                      .order(completed_at: :asc).limit(1).first
+                      # .where(
+                      #   "completed_at > ? AND challenge_id = ? AND user_id = ?",
+                      #   start_time,
+                      #   challenge_id,
+                      #   player.id
+                      # )
   end
 
   def completed_challenge_at(player)
-    return nil unless players.where(id: player.id).exists?
+    # return nil unless players.where(id: player.id).exists?
 
-    CompletedChallenge.includes(:user).joins(:user).where(
-      "challenge_id = ? AND user_id = ?",
-      challenge_id,
-      player.id
-    ).order(completed_at: :asc).limit(1).first&.completed_at
+    CompletedChallenge.includes(:user).joins(:user)
+                      .where(user_id: player.id, challenge_id: challenge_id)
+                      .order(completed_at: :asc).limit(1).first&.completed_at
   end
 
   def invitation(user: nil, action: nil)

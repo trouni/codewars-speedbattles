@@ -5,38 +5,53 @@
       <div class="widget-body">
         <div v-if="currentUserIsModerator" class="h-100 d-flex flex-column">
 
-          <div class="new-battle">
+          <div class="new-battle d-flex flex-column h-100">
             <input class="input-field w-100" type="text" v-model="challengeInput" @keyup.enter="createBattle" placeholder="ID, slug or url of CodeWars Kata" :disabled="battle.stage > 0">
             <button @click="createBattle" class="line-height-1 mt-4 mx-auto" v-if="battle.stage < 1">Load</button>
-            <button @click="cancelBattle" class="line-height-1 mt-4 mx-auto" v-if="battle.stage > 0 && battle.stage < 3">Cancel</button>
-          </div>
 
-          <div class="flex-grow-1">
+            <div class="battle-settings d-flex flex-column flex-grow-1 pb-3" v-if="battle.stage > 0 && battle.stage < 3">
 
-            <!-- <div class="battle-settings d-flex flex-grow-1 justify-content-between mt-5" v-if="battle.stage > 0 && battle.stage < 3">
-              <p class="mx-3"><input type="number" name="time-limit" min='1' placeholder="Time limit" disabled> min</p>
-              <p class="mx-3"><input type="number" name="max-survivors" min='1' :max="eligibleUsers.length" placeholder="Max survivors"></p>
-            </div> -->
-
-            <div v-if="battle.stage > 0 && battle.stage <= 2" class="controls d-flex flex-column h-100">
-              <div class="d-flex justify-content-around flex-grow-1 h-100 w-100">
-                <button @click="$root.$emit('invite-all')" :disabled="allInvited">Invite All</button>
-                <button :disabled="confirmedUsers.length === 0" @click="initializeBattle">Start Battle</button>
+              <div class="d-flex justify-content-between mt-1 line-height-1 flex-grow-1 align-items-stretch flex-grow-1">
+                <div class='d-flex justify-content-center align-items-center'>
+                  <h6 class="m-0"><br/><strong>Time Limit:</strong><br/><small>(00 for none)</small></h6>
+                  <div class="text-center ml-3">
+                    <h4 @click="editTimeLimit(5)" class="m-0 scale50">&#9650;</h4>
+                    <p class="m-1 settings-timer">{{("0" + timeLimit).slice(-2)}}</p>
+                    <h4 @click="editTimeLimit(-5)" class="m-0 scale50">&#9660;</h4>
+                  </div>
+                  <span>min</span>
+                </div>
+                <div class="d-flex flex-column justify-content-around">
+                  <button @click="cancelBattle">Cancel</button>
+                  <button @click="$root.$emit('invite-all')" :disabled="allInvited">Invite All</button>
+                  <button :disabled="confirmedUsers.length === 0" @click="initializeBattle">Start Battle</button>
+                </div>
               </div>
-              <div v-if="invitedUsers.length > 0">
-                <p :class="['my-0', { 'highlight': allConfirmed }]">Confirmed players: {{ confirmedUsers.length }} of {{ invitedUsers.length + confirmedUsers.length}} invited</p>
-                <p class='mt-0 font-italic'>Unconfirmed players will be uninvited when the battle starts.</p>
+
+              <div v-if="invitedUsers.length > 0 || confirmedUsers.length > 0">
+                <p class='my-0 highlight'>Confirmed players: {{ confirmedUsers.length }} of {{ invitedUsers.length + confirmedUsers.length}} invited</p>
+                <small class='mt-0 font-italic'>Unconfirmed players will be uninvited when the battle begins.</small>
+              </div>
+              <div v-else>
+                <p class="my-0">You haven't invited any players yet.</p>
+                <small class='mt-0 font-italic'>Invite players from the leaderboard to join your battle.</small>
+              </div>
+
+            </div>
+
+            <div v-else-if="battle.stage >= 3" class="flex-grow-1">
+              <div class="controls d-flex justify-content-around flex-grow-1 h-100 w-100">
+                <button class="large" @click="endBattle" :disabled="battle.stage < 4">End Battle</button>
               </div>
             </div>
-            <div v-else-if="battle.stage >= 3" class="controls d-flex justify-content-around flex-grow-1 h-100 w-100">
-              <button class="large" @click="endBattle" :disabled="battle.stage < 4">End Battle</button>
-            </div>
           </div>
+
+
 
         </div>
 
         <div v-else class="flex-centering pt-0 pb-4">
-          <div v-if="battle.stage >= 3">
+          <div v-if="battle.stage >= 3 && currentUser.invite_status != 'survived'">
             <span class="d-flex justify-content-center">
               <a :href="challengeUrl" target="_blank" class="button large mx-auto">Launch CodeWars</a>
             </span>
@@ -49,11 +64,12 @@
             <p class="text-center">You have been requested to join this battle.</p>
             <button class="mx-auto large" @click="$root.$emit('confirm-invite', currentUser.id)">Join battle</button>
           </div>
-          <div v-else-if="currentUser.invite_status == 'confirmed'">
+          <div v-else-if="currentUser.invite_status == 'confirmed' && battle.stage > 0 && battle.stage < 3">
             <p class="text-center">You are confirmed for the next battle. Get ready!</p>
           </div>
-          <div v-else-if="currentUser.invite_status == 'ineligible'">
-            <p class="text-center">You have already completed this challenge.<br/>You can't participate to this battle...</p>
+          <div v-else-if="currentUser.invite_status == 'ineligible' || currentUser.invite_status == 'survived'">
+            <p class="text-center">You completed this challenge<br/>{{ displayDateTime(currentUser.completed_at) }}.</p>
+            <p v-if="battle.stage < 3" class="text-center">You can't participate in this battle.</p>
           </div>
           <div v-else>
             <p class="text-center">Requests to join battles will show up in this window.</p>
@@ -75,7 +91,8 @@
       currentUserIsModerator: Boolean,
       countdown: Number,
       battleStatus: Object,
-      challengeUrl: String
+      challengeUrl: String,
+      timeLimit: Number,
     },
     data() {
       return {
@@ -108,7 +125,7 @@
       invitedUsers() {
         if (this.battle.stage === 0) { return [] }
         // return this.battle.players
-      return this.users.filter(user => user.invite_status === 'invited')
+        return this.users.filter(user => user.invite_status === 'invited')
       },
       confirmedUsers() {
         if (!this.battle.players) { return [] }
@@ -152,6 +169,22 @@
       endBattle() {
         if (this.battle.stage > 3) { this.$root.$emit('end-battle') }
       },
+      displayDateTime(timestamp) {
+        const monthNames = [
+          "January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"
+          ];
+        const dateTime = new Date(timestamp)
+        const yyyy = dateTime.getYear() + 1900;
+        const M = monthNames[dateTime.getMonth()];
+        const dd = dateTime.getDate();
+        const hh = ("0" + dateTime.getHours()).slice(-2);
+        const mm = ("0" + dateTime.getMinutes()).slice(-2);
+        return `on ${dd} ${M} ${yyyy} at ${hh}:${mm}`;
+      },
+      editTimeLimit(step) {
+        this.$root.$emit('edit-time-limit', step)
+      }
     }
   }
 </script>

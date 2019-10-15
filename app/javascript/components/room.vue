@@ -46,6 +46,7 @@
           :battle-status="battleStatus"
           :current-user-is-moderator="currentUserIsModerator"
           :view-mode="viewMode"
+          :time-limit="timeLimit"
         ></room-battle>
       </div>
       <div :class="['grid-item grid-leaderboard', { 'loading': (!usersInitialized) }]">
@@ -56,6 +57,7 @@
         <room-leaderboard
           :users="users"
           :room="room"
+          :battle="battle"
           :room-players="roomPlayers"
           :current-user="currentUser"
           :current-user-is-moderator="currentUserIsModerator"
@@ -74,6 +76,7 @@
           :input="challengeInput"
           :current-user-is-moderator="currentUserIsModerator"
           :countdown="countdown"
+          :time-limit="timeLimit"
           :battle-status="battleStatus"
           :challenge-url="challengeUrl"
         ></room-controls>
@@ -119,7 +122,8 @@
           status: 'normal',
           content: `Welcome to ${this.roomInit.name}`
         },
-        viewMode: new URL(window.location.href).searchParams.get("view")
+        viewMode: new URL(window.location.href).searchParams.get("view"),
+        timeLimit: 0,
       }
     },
     created() {
@@ -233,7 +237,7 @@
       },
       battleStage() {
         let stage
-        if (this.battleLoaded) stage = 1
+        if (this.battleLoaded && !this.readyToStart) stage = 1
         else if (this.readyToStart) stage = 2
         else if (this.battleCountdown) stage = 3
         else if (this.battleOngoing) stage = 4
@@ -248,22 +252,22 @@
         return !this.battle.start_time && !this.battle.end_time;
       },
       readyToStart() {
-        if (!this.battle) return false
+        if (!this.battle.id) return false
 
         return !this.battle.start_time && !this.battle.end_time && this.confirmedUsers.length > 0;
       },
       battleCountdown() {
-        if (!this.battle) return false
+        if (!this.battle.id) return false
 
         return !!this.battle.start_time &&  !this.battle.end_time && this.countdown !== 0;
       },
       battleOngoing() {
-        if (!this.battle) return false
+        if (!this.battle.id) return false
 
         return !!this.battle.start_time &&  !this.battle.end_time && this.countdown === 0;
       },
       battleOver() {
-        if (!this.battle) return true
+        if (!this.battle.id) return true
 
         return !!this.battle.end_time
       },
@@ -329,7 +333,7 @@
         }
       },
       initializeBattle() {
-        this.sendCable('update_battle', { battle_action: 'start', battle_id: this.battle.id, countdown: this.countdownDuration });
+        this.sendCable('update_battle', { battle_action: 'start', battle_id: this.battle.id, countdown: this.countdownDuration, time_limit: this.timeLimit });
       },
       endBattle() {
         this.sendCable('update_battle', { battle_action: 'end', battle_id: this.battle.id });
@@ -354,7 +358,7 @@
             this.countdown = 0
             clearInterval(timer);
             this.announce({ content: `The battle for <span class='highlight'>${this.battle.challenge.name}</span> has begun!` });
-            if (this.currentUser.invite_status === 'confirmed') this.openCodeWars();
+            if (this.currentUser.invite_status === 'confirmed' && !this.viewMode) this.openCodeWars();
             this.startClock();
           }
         }, 1000)
@@ -398,7 +402,7 @@
 
         if(!this.battle.players) return false;
 
-        if (user.invite_status === 'invited' || user.invite_status === 'confirmed') {
+        if (user.invite_status === 'invited' || user.invite_status === 'confirmed' || user.invite_status === 'survived') {
           this.pushToArray(this.battle.players, user)
         } else {
           this.battle.players = this.battle.players.filter(e => e.id !== user.id);
@@ -412,6 +416,11 @@
       },
       invitation(inviteAction, userId = null) {
         this.sendCable('invitation', { battle_id: this.battle.id, invite_action: inviteAction, user_id: userId })
+      },
+      editTimeLimit(step) {
+        const max = 60;
+        const min = 0;
+        if (this.timeLimit + step >= min && this.timeLimit + step <= max) this.timeLimit += step;
       },
     },
     channels: {
@@ -527,6 +536,7 @@
       this.$root.$on('initialize-battle', () => this.initializeBattle())
       this.$root.$on('start-countdown', () => this.startCountdown())
       this.$root.$on('end-battle', () => this.endBattle())
+      this.$root.$on('edit-time-limit', (step) => this.editTimeLimit(step))
     },
   }
 </script>

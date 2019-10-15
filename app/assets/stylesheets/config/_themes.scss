@@ -137,27 +137,34 @@
   tr:hover {
     background-color: rgba(lighten($maincolor, 10%), 0.1);
   }
-
-  .first-row {
-    // color: rgba(darken($maincolor, 20%), 0.8);
-  }
 }
 
-#room, #room.peace, #room.preparation, #room.battle-over, #room.brink-of-war {
+$bg-image-normal: 'bg_codewars_4.jpg';
+$bg-image-brink-of-war: 'bg_codewars_4.jpg';
+$bg-image-at-war: 'bg_codewars_3.jpg';
+$bg-image: $bg-image-normal;
+// $bg-image: 'bg_warriors_2.jpg';
+
+// #room.peace {
+//   @include theme-color($maincolor-peace, $bg-image-normal)
+//   @include theme-transitions(1s)
+// }
+
+#room, #room.peace, #room.preparation, #room.battle-over, #room.battle-loaded {
   @include theme-color($maincolor-normal, $bg-image-normal)
-  @include theme-transitions(0.5s)
+  @include theme-transitions(1s)
 }
 
 // #room.brink-of-war {
 //   @include theme-color($maincolor-brink-of-war, 3s, $bg-image-brink-of-war)
 // }
 
-#room.countdown {
+#room.battle-confirmed {
   @include theme-color($maincolor-brink-of-war, $bg-image-brink-of-war)
   @include theme-transitions(0.5s)
 }
 
-#room.war {
+#room.countdown, #room.war {
   @include theme-color($maincolor-at-war, $bg-image-at-war)
   @include theme-transitions(0.5s)
 }

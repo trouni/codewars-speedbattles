@@ -5,6 +5,7 @@ $orange: #FE864E;
 $red: #FC0307;
 $blue: #167FFB;
 $green: #1EDD88;
+$peace: #02B997;
 // $prussianblue: #086788;
 // $skyblue: #DBE9EE;
 // $teal: #00D7C0;
@@ -17,14 +18,7 @@ $green: #1EDD88;
 $maincolor-normal: lighten($darkblue, 25%);
 $maincolor-brink-of-war: lighten($orange, 5%);
 $maincolor-at-war: lighten($red, 15%);
-
-
-$bg-image-normal: 'bg_codewars_4.jpg';
-$bg-image-brink-of-war: 'bg_codewars_4.jpg';
-$bg-image-at-war: 'bg_codewars_3.jpg';
-$bg-image: $bg-image-normal;
-// $bg-image: 'bg_warriors_2.jpg';
-
+$maincolor-peace: desaturate(lighten($green, 20%), 50%);
 
 $maincolor: $maincolor-normal;
 
