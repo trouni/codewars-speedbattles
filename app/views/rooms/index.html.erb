@@ -1,56 +1,55 @@
-<div class="d-flex justify-content-center align-items-center vh-100 pb-5">
-  <div class="w-100">
-    <div class="main-logo d-flex justify-content-center align-items-center animated fadeIn mt-5">
-      <div class="codewars-logo animated slideInRight mr-3"><%= image_tag "codewars_logo.png" %></div>
-      <h1 class="main-title mx-3">
-        <div class="speed animated lightSpeedIn">
-        <div>SPEED</div>
-        </div>
-        <div class="battles animated flipInY ">
-        <div class="animated pulse delay-2s slower">BATTLES</div>
-        </div>
-      </h1>
-    </div>
-
-        <% if user_signed_in? %>
-
-          <div class="absolute-top-right-corner sign-out">
-            <%= link_to "Log out", destroy_user_session_path, method: :delete, class: "button" %>
+<div id="home" class="container vh-100">
+  <div class="row justify-content-center align-items-end h-50">
+<!--
+<div class="parent">
+  <div class="child"> -->
+      <div class="main-logo animated fadeIn">
+        <div class="codewars-logo animated slideInRight mr-3"><%= image_tag "codewars_logo.png" %></div>
+        <h1 class="main-title mx-3">
+          <div class="speed animated lightSpeedIn">
+            <div>SPEED</div>
           </div>
+          <div class="battles animated flipInY ">
+            <div class="animated pulse delay-2s slower">BATTLES</div>
+          </div>
+        </h1>
+      </div>
+<!--
+  </div>
+</div>
+ -->
+  </div>
 
-          <div class="grid-item">
-            <div class="widget-bg mx-auto mt-5 w-50">
-              <div class="widget">
-                <h3 class="header">Join a war room</h3>
-                <div class="widget-body p-5">
-                  <ol>
-                    <% @rooms.each do |room| %>
-                      <li><%= link_to room.name, room_path(room)%>
-                      </li>
-                    <% end %>
-                  </ol>
-                </div>
+  <div class="row justify-content-center">
+
+      <div class="grid-item col-xl-9">
+        <div class="widget-bg">
+          <div class="widget">
+
+            <% if user_signed_in? %>
+            <h3 class="header">Join a war room</h3>
+            <div class="widget-body p-5">
+              <ol>
+                <% @rooms.each do |room| %>
+                <li><%= link_to room.name, room_path(room)%>
+                </li>
+                <% end %>
+              </ol>
+            </div>
+            <% else %>
+            <h3 class="header">Join the war!</h3>
+            <div class="widget-body pr-4 py-5">
+              <div class="d-flex justify-content-around">
+                <div><a href="/users/sign_in" class="button large">Log in</a></div>
+                <div><a href="/users/sign_up" class="button large">Sign up</a></div>
               </div>
             </div>
+
+            <% end %>
+
           </div>
-
-        <% else %>
-
-          <div class="grid-item">
-            <div class="widget-bg mx-auto mt-3 w-25">
-              <div class="widget">
-                <h3 class="header">Join the war!</h3>
-                <div class="widget-body pr-4 py-5">
-                  <div class="d-flex justify-content-around">
-                    <div><a href="/users/sign_in" class="button">Log in</a></div>
-                    <div><a href="/users/sign_up" class="button">Sign up</a></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        <% end %>
+        </div>
+      </div>
 
   </div>
 </div>

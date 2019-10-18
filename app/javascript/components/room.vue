@@ -6,9 +6,9 @@
       <h3 class="animated fadeInDown faster">LOADING</h3>
     </div>
 
-    <div id='leave-button' class="absolute-top-right-corner sign-out">
+    <!-- <div id='leave-button' class="absolute-top-right-corner sign-out">
       <a href="/rooms" class="button">Leave room</a>
-    </div>
+    </div> -->
 
     <div id="room" :class="[roomStatus, { moderator: currentUserIsModerator }]">
 
@@ -31,6 +31,7 @@
         <room-chat
           :messages="messages"
           :current-user-name="currentUser.username"
+          :current-user="currentUser"
         ></room-chat>
       </div>
       <div :class="['grid-item grid-battle', { 'loading': (!usersInitialized || !battleInitialized) }]">

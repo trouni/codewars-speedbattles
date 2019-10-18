@@ -1,7 +1,7 @@
-input {
+input[type=text], input[type=password] {
   // background: rgba(255, 255, 255, 0.1);
   background-color: rgba( 0, 0, 0, 0.3 );
-  padding: 0 0.2em;
+  padding: 0 0.5em;
   color: $input-color;
   border: none;
   &::placeholder {
@@ -12,11 +12,12 @@ input {
     outline: 1px auto rgba( $maincolor, .3 );
     color: rgba($input-color, 0.5);
   }
+  &:focus {
+    outline: 1px auto rgba( $maincolor, .5 );
+    background-color: rgba( 0, 0, 0, 0.5 );
+  }
 }
 
-input:focus {
-  outline: 1px auto rgba( $maincolor, .5 );
-}
 
 .settings-timer {
   font-size: 1.7em;

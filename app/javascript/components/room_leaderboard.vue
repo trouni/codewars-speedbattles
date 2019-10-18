@@ -3,7 +3,12 @@
     <div class="widget">
       <h3 class="header">{{ title }}</h3>
       <div class="widget-body">
-        <small class="ml-auto"><a class="button" @click="showOfflineClicked">{{ showOffline ? 'Hide' : 'Show' }} offline players</a></small>
+        <small class="ml-auto">
+          <a class="button" @click="showOfflineClicked">
+            <i :class="['far mr-1', showOffline ? 'fa-eye-slash' : 'fa-eye']"></i>
+            {{ showOffline ? 'Hide' : 'Show' }} offline players
+          </a>
+        </small>
         <table class="console-table">
           <thead>
             <tr>
@@ -16,13 +21,13 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(player, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(player.id) }">
+            <tr v-for="(player, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(player.id) }" :title="player.username">
               <th scope="row">
                 <span class="data username">
                   <span v-if="isOnline(player.id)" :class="['mr-1', { 'current-user highlight': isOnline(player.id) }, { offline: !isOnline(player.id) }]">●</span>
                   <!-- <span :class="userClass(player.id)" v-if="showInviteButton(player.id, 'eligible')" @click="$root.$emit('invite-user', player.id)">{{ player.username }}</span>
                   <span :class="userClass(player.id)" v-else-if="showInviteButton(player.id, 'invited')" @click="$root.$emit('uninvite-user', player.id)">{{ player.username }}</span> -->
-                  <span :class="userClass(player.id)" @click="toggleInvite(player.id)">{{ player.username }}
+                  <span :class="userClass(player.id)" @click="toggleInvite(player.id)">{{ player.name || player.username }}
                     <!--  <i v-if="showInviteButton(player.id, 'confirmed')" class="fas fa-fist-raised highlight ml-1"></i> -->
                   </span>
                 </span>

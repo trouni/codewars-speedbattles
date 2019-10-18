@@ -25,9 +25,9 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(result, index) in survivors" class="highlight bg-highlight">
+              <tr v-for="(result, index) in survivors" class="highlight bg-highlight" :title="result.username">
                 <th scope="row">
-                  <span class="data username animated flipInY ">{{ result.username }}</span>
+                  <span class="data username animated flipInY ">{{ result.name || result.username }}</span>
                 </th>
                 <td>
                   <span class="data rank">{{ index + 1 }}</span>
@@ -55,9 +55,9 @@
                 </td>
               </tr>
 
-              <tr v-for="result in defeated">
+              <tr v-for="result in defeated" :title="result.username">
                 <th scope="row" :class="['username', { pending: !userIsConfirmed(result.id) && battle.stage > 0 && battle.stage < 3 }]">
-                  <span class="data username animated flipInY">{{ result.username }}</span>
+                  <span class="data username animated flipInY">{{ result.name || result.username }}</span>
                 </th>
                 <td>
                   <span class="data rank">-</span>

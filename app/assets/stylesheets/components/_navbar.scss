@@ -1,12 +1,41 @@
-.navbar-lewagon {
-  justify-content: space-between;
-  background: white;
-}
-
-.navbar-lewagon .navbar-collapse {
-  flex-grow: 0;
-}
-
-.navbar-lewagon .navbar-brand img {
-  width: 40px;
+#menu-button {
+  .dropdown-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 0.3em 0.3em 0 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
+    background: rgba(0,0,0,0.5);
+    height: 4.5rem;
+    width: 4.5rem;
+    text-align: right;
+    opacity: 0.5;
+    transition: opacity 0.3s !important;
+    &:hover {
+      opacity: 1;
+    }
+    &:after {
+      display: none;
+    }
+    &.active {
+      background: rgba(0,0,0,1);
+      opacity: 0.8;
+      // height: 2em;
+      // width: 2em;
+    }
+    &.active:hover {
+      opacity: 1;
+    }
+  }
+  .widget-body {
+    flex-direction: row;
+    padding: 1em 3em;
+  }
+  .menu {
+    z-index: 100;
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
 }

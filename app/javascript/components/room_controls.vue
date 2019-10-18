@@ -7,7 +7,7 @@
 
           <div class="new-battle d-flex flex-column h-100">
             <input class="input-field w-100" type="text" v-model="challengeInput" @keyup.enter="createBattle" placeholder="ID, slug or url of CodeWars Kata" :disabled="battle.stage > 0">
-            <button @click="createBattle" class="line-height-1 mt-4 mx-auto" v-if="battle.stage < 1">Load</button>
+            <button @click="createBattle" class="line-height-1 mt-4 mx-auto" v-if="battle.stage < 1"><i class="fas fa-cloud-upload-alt mr-1"></i>Load</button>
 
             <div class="battle-settings d-flex flex-column flex-grow-1 pb-3" v-if="battle.stage > 0 && battle.stage < 3">
 
@@ -22,9 +22,9 @@
                   <span>min</span>
                 </div>
                 <div class="d-flex flex-column justify-content-around">
-                  <button @click="cancelBattle">Cancel</button>
-                  <button @click="$root.$emit('invite-all')" :disabled="allInvited">Invite All</button>
-                  <button :disabled="confirmedUsers.length === 0" @click="initializeBattle">Start Battle</button>
+                  <button @click="cancelBattle"><i class="fas fa-backspace mr-1"></i>Cancel</button>
+                  <button @click="$root.$emit('invite-all')" :disabled="allInvited"><i class="fas fa-user-plus mr-1"></i>Invite All</button>
+                  <button :disabled="confirmedUsers.length === 0" @click="initializeBattle"><i class="fas fa-radiation mr-1"></i>Start Battle</button>
                 </div>
               </div>
 
@@ -41,7 +41,7 @@
 
             <div v-else-if="battle.stage >= 3" class="flex-grow-1">
               <div class="controls d-flex justify-content-around flex-grow-1 h-100 w-100">
-                <button class="large" @click="endBattle" :disabled="battle.stage < 4">End Battle</button>
+                <button class="large" @click="endBattle" :disabled="battle.stage < 4"><i class="fas fa-peace mr-1"></i>End Battle</button>
               </div>
             </div>
           </div>
@@ -53,11 +53,11 @@
         <div v-else class="flex-centering pt-0 pb-4">
           <div v-if="battle.stage >= 3 && currentUser.invite_status != 'survived'">
             <span class="d-flex justify-content-center">
-              <a :href="challengeUrl" target="_blank" class="button large mx-auto">Launch CodeWars</a>
+              <a :href="challengeUrl" target="_blank" class="button large mx-auto"><i class="fas fa-rocket mr-1"></i>Launch CodeWars</a>
             </span>
             <div v-if="currentUser.invite_status == 'confirmed'">
               <!-- <p class="text-center">Click the button below once you have completed the kata on CodeWars.</p> -->
-              <button class="mx-auto large" @click="completedChallenge" :disabled="completedButtonClicked || battle.stage < 4">Challenge Completed</button>
+              <button class="mx-auto large" @click="completedChallenge" :disabled="completedButtonClicked || battle.stage < 4"><i class="fas fa-check-double mr-1"></i>Challenge Completed</button>
             </div>
           </div>
           <div v-else-if="currentUser.invite_status == 'invited'">

@@ -6,11 +6,11 @@
         <div class="flex-grow-1"></div>
         <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true}">
           <li v-for="message in sortedMessages" v-bind:class="messageClass(message)">
-            <span class="author" v-if="!isAnnouncement(message)">{{  `${message.author.username}>` }}</span> <span class="content">{{ message.content }}</span>
+            <span class="author" v-if="!isAnnouncement(message)">{{  `${message.author.name || message.author.username}>` }}</span> <span class="content">{{ message.content }}</span>
           </li>
         </ul>
         <div id="msg-input" class="d-flex">
-          <span class="d-flex">{{ currentUserName }}></span><input class="input-field flex-grow-1" type="text" @keyup.enter="sendMessage" v-model="input" placeholder="Type your message here...">
+          <span class="d-flex">{{ currentUser.name || currentUser.username }}></span><input class="input-field flex-grow-1" type="text" @keyup.enter="sendMessage" v-model="input" placeholder="Type your message here...">
         </div>
       </div>
     </div>
@@ -22,6 +22,7 @@
     props: {
       messages: Array,
       currentUserName: String,
+      currentUser: Object,
     },
     data() {
       return {

@@ -1,34 +1,37 @@
-<div class="grid-item">
-  <div class="widget-bg mx-auto mt-5 w-25">
-    <div class="widget">
-      <h3 class="header">Log in</h3>
-      <div class="widget-body pr-4 pb-4">
-        <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-          <div class="form-inputs">
-            <%#= f.input :email,
-                        required: false,
-                        autofocus: true,
-                        input_html: { autocomplete: "email" } %>
-            <%= f.input :username,
-                        required: false,
-                        autofocus: true %>
-            <%= f.input :password,
-                        required: false,
-                        input_html: { autocomplete: "current-password" } %>
-            <%= f.input :remember_me, as: :boolean if devise_mapping.rememberable? %>
-          </div>
+<div class="container">
+  <div class="text-center mt-5">
+    Don't have a SpeedBattles account yet? <%= link_to "Sign up", new_registration_path(resource_name) %>
+  </div>
+  <div class="row justify-content-center">
+    <div class="grid-item col-md-9 col-lg-6">
+      <div class="widget-bg mx-auto mt-3 w-50">
+        <div class="widget">
+          <h3 class="header">Log in</h3>
+          <div class="widget-body pr-4 pb-4">
+            <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+              <div class="form-inputs">
+                <%#= f.input :email,
+                            required: false,
+                            autofocus: true,
+                            input_html: { autocomplete: "email" } %>
+                <%= f.input :username,
+                            required: false,
+                            autofocus: true %>
+                <%= f.input :password,
+                            required: false,
+                            input_html: { autocomplete: "current-password" } %>
+                <%= f.input :remember_me, as: :boolean if devise_mapping.rememberable? %>
+              </div>
 
-          <div class="form-actions d-flex justify-content-center">
-            <%= f.button :submit, "Log in", input_html: { class: "button" } %>
-          </div>
-        <% end %>
+              <div class="form-actions d-flex justify-content-center">
+                <button type="submit" name="commit" value="Log in" class="button large mx-auto">Log in</button>
+              </div>
+              <p class="text-center mb-0"><%= link_to "Forgot your password?", new_password_path(resource_name) %></p>
+            <% end %>
 
-        <div class="d-flex justify-content-between w-100">
-          <br>
-          <%= render "devise/shared/links" %>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-
