@@ -5,7 +5,7 @@
   // background: linear-gradient(154.9deg, rgba( $bezel-color, .3 ) 0%, rgba( $bezel-color, .6 ) 86.37%);
   height: 100%;
   flex-grow: 1;
-  transition: height 0.2s ease-in !important;
+  // transition: height 0.2s ease-in !important;
 
   &.seek-attention {
     background-color: rgba( lighten($bezel-color, 10%), .9 );
@@ -24,7 +24,7 @@
 
 .widget {
   align-content: flex-center;
-  background: linear-gradient(154.9deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.6) 86.37%);
+  background: linear-gradient(154.9deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.7) 86.37%);
   // border-radius: 2px;
   height: 100%;
   box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 0.4);

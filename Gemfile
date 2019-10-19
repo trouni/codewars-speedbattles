@@ -26,6 +26,8 @@ group :development do
   gem 'binding_of_caller'
   gem 'annotate'
   gem 'bullet'
+  gem 'lol_dba'
+  gem 'active_record_doctor'
   # gem 'ruby-growl'
 end
 

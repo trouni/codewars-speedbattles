@@ -20,7 +20,7 @@ class Api::V1::UsersController < ApplicationController
   def fetch_data
     skip_authorization
 
-    if Battle.find(params[:battle_id]).survived?(User.find(params[:user_id]))
+    if User.find(params[:user_id]).survived?(Battle.find(params[:battle_id]))
       render json: { status: "challenge already completed" }
     elsif User.find(params[:user_id]).last_fetched_at > (DateTime.now - 5.seconds)
       render json: { status: "job already scheduled less than 5 seconds ago" }

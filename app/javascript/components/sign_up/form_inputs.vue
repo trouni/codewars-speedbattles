@@ -3,13 +3,13 @@
     <div class="form-group string required user_username">
       <label for="user_username" class="form-control-label string required"><strong>CodeWars username</strong> <abbr title="required">*</abbr></label>
       <input autofocus="autofocus" required="required" aria-required="true" type="text" value="" name="user[username]" id="user_username" :class="['form-control string required', { 'is-valid': validUsername }, { 'is-invalid': username && fetched && !validUsername }]" v-model="username" @blur="checkUsername" placeholder="Enter your CodeWars username">
-      <small>Spaces are not allowed. <a href="https://www.codewars.com/users/edit" target="_blank">Click here</a> to see/edit your CodeWars username.</small>
+      <small>Spaces not allowed. <a href="https://www.codewars.com/users/edit" target="_blank">Click here</a> to see/edit your CodeWars username.</small>
       <div :class="[{ 'valid-feedback': validUsername }, { 'invalid-feedback': !validUsername }]">{{ error }}</div>
     </div>
     <div class="form-group string user_name">
       <label for="user_name" class="form-control-label"><strong>Display name</strong> <small>(optional)</small></label>
-      <input autocomplete="name" aria-required="false" type="text" name="user[name]" id="user_name" class="form-control" placeholder="The name other players will see you as">
-      <small>Your CodeWars username will be displayed unless you specify a display name.</small>
+      <input autocomplete="name" aria-required="false" type="text" name="user[name]" id="user_name" class="form-control" maxlength="24" placeholder="The name other players will see you as">
+      <small>Your CodeWars username will be shown unless you specify a name.</small>
     </div>
     <div class="form-group password required user_password">
       <label for="user_password" class="form-control-label password required"><strong>Password</strong> <abbr title="required">*</abbr></label>
@@ -24,7 +24,7 @@
       <div class="invalid-feedback">The passwords don't match.</div>
       <div class="valid-feedback">Looks good!</div>
     </div>
-    <button type="submit" name="commit" :disabled="!validForm" value="Sign up" class="button large mx-auto">Sign up</button>
+    <button type="submit" name="commit" :disabled="!validForm" value="Sign up" class="button large mx-auto"><i class="fas fa-star-of-life mr-2"></i>Sign up</button>
   </div>
 
 </template>

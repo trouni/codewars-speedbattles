@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   root to: 'rooms#index'
   mount ActionCable.server => '/cable'
-  devise_for :users
+  devise_for :users, controllers: { registrations: 'registrations' }
   # resources :users do
   #   post '/fetch_data', to: 'users#fetch_data'
   # end

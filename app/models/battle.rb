@@ -104,19 +104,19 @@ class Battle < ApplicationRecord
     end
   end
 
-  def survived?(player)
-    return nil unless players.where(id: player.id).exists?
+  # def survived?(player)
+  #   return nil unless players.where(id: player.id).exists?
 
-    query_end_time = end_time || DateTime.now
+  #   query_end_time = end_time || DateTime.now
 
-    CompletedChallenge.includes(:user).joins(:user).where(
-      "completed_at > ? AND completed_at < ? AND completed_challenges.challenge_id = ? AND user_id = ?",
-      start_time,
-      query_end_time,
-      challenge_id,
-      player.id
-    ).exists?
-  end
+  #   CompletedChallenge.includes(:user).joins(:user).where(
+  #     "completed_at > ? AND completed_at < ? AND completed_challenges.challenge_id = ? AND user_id = ?",
+  #     start_time,
+  #     query_end_time,
+  #     challenge_id,
+  #     player.id
+  #   ).exists?
+  # end
 
   def winner
     completed_challenges.includes(:user).joins(:user).order(completed_at: :asc).limit(1).first&.user
@@ -173,7 +173,7 @@ class Battle < ApplicationRecord
   end
 
   def score(player)
-    return 0 unless survived?(player)
+    return 0 unless player.survived?(self)
 
     return winner?(player) ? 2 : 1
   end

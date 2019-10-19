@@ -1,5 +1,5 @@
 <template>
-  <div :class="[viewMode]">
+  <div id="super-container" :class="[viewMode, roomStatus]">
 
     <div id="spinner" v-if="!someDataLoaded" class="absolute-center display-initial">
       <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
@@ -10,7 +10,7 @@
       <a href="/rooms" class="button">Leave room</a>
     </div> -->
 
-    <div id="room" :class="[roomStatus, { moderator: currentUserIsModerator }]">
+    <div id="room" :class="['fixed-screen', { moderator: currentUserIsModerator }]">
 
       <div :class="['grid-item grid-header', { 'loading': !someDataLoaded }]">
         <div id="room-announcer" :class="['widget-bg', seekAttention]">
@@ -87,6 +87,7 @@
 </template>
 
 <script>
+  import _ from 'lodash'
   import RoomControls from '../components/room_controls.vue'
   import RoomChat from '../components/room_chat.vue'
   import RoomLeaderboard from '../components/room_leaderboard.vue'
@@ -117,7 +118,7 @@
         messages: [],
         challengeInput: '',
         controlsType: '',
-        countdownDuration: 5,
+        countdownDuration: 10,
         countdown: 0,
         announcement: {
           status: 'normal',
@@ -131,6 +132,11 @@
       // this.pushToUsers(this.currentUser);
       // setTimeout(() => { this.someDataLoaded = true }, 500);
       this.$set(this.battle, "stage", this.battleStage);
+    },
+    watch: {
+      battleInitialized: function () {
+        this.timeLimit = this.battle.time_limit || 0;
+      }
     },
     computed: {
       // challengeInput() {
@@ -292,6 +298,13 @@
           data: data
         });
       },
+      debouncedSendCable: _.debounce((cable, action, data) => {
+        cable.perform({
+          channel: 'RoomChannel',
+          action: action,
+          data: data
+        });
+      }, 1000),
       // =============
       //     ROOM
       // =============
@@ -309,6 +322,7 @@
       //     BATTLE
       // =============
       createBattle(challenge) {
+        this.timeLimit = 0;
         const challengeIdSlug = this.parseChallengeInput(challenge).challengeIdSlug
         this.sendCable('create_battle', { challenge_id: challengeIdSlug });
       },
@@ -365,10 +379,16 @@
         }, 1000)
       },
       startClock() {
-        console.log(this.formatDuration(this.timeSpentInSeconds()))
         const clock = setInterval(() => {
           if (this.battle.stage === 4) {
-            this.announce({ content: `<span class='timer highlight'>${this.formatDuration(this.timeSpentInSeconds())}</span>` });
+            let clockTime;
+            if (this.battle.time_limit > 0) {
+              if (this.currentUserIsModerator && this.timeRemainingInSeconds() <= 0) this.endBattle();
+              clockTime = this.timeRemainingInSeconds() > 0 ? this.timeRemainingInSeconds() : 0;
+            } else {
+              clockTime = this.timeSpentInSeconds();
+            }
+            this.announce({ content: `<span class='timer highlight'>${this.formatDuration(clockTime)}</span>` });
           } else {
             clearInterval(clock);
             this.announce({ content: 'The battle is over.' });
@@ -378,7 +398,11 @@
       timeSpentInSeconds() {
         return (Date.now() - Date.parse(this.battle.start_time)) / 1000
       },
+      timeRemainingInSeconds() {
+        return (this.battle.time_limit * 60 - this.timeSpentInSeconds())
+      },
       formatDuration(durationInSeconds) {
+        if (durationInSeconds < 0) durationInSeconds = 0
         const hours = Math.floor(durationInSeconds / 60 / 60)
         const minutes = Math.floor(durationInSeconds / 60) % 60
         const seconds = Math.floor(durationInSeconds - hours * 60 * 60 - minutes * 60)
@@ -422,6 +446,7 @@
         const max = 60;
         const min = 0;
         if (this.timeLimit + step >= min && this.timeLimit + step <= max) this.timeLimit += step;
+        this.debouncedSendCable(this.$cable, 'update_battle', { battle_action: 'update', battle_id: this.battle.id, countdown: this.countdownDuration, battle: { id: this.battle.id, time_limit: this.timeLimit } });
       },
     },
     channels: {

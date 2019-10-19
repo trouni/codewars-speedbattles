@@ -33,5 +33,11 @@ button, a.button, input.button, input[type="submit"] {
   }
   &.large {
     font-size: 1.5em;
+    & > i {
+      margin-right: 0.5rem;
+    }
+  }
+  & > i {
+    margin-right: 0.25rem;
   }
 }

@@ -7,24 +7,25 @@
 
           <div class="new-battle d-flex flex-column h-100">
             <input class="input-field w-100" type="text" v-model="challengeInput" @keyup.enter="createBattle" placeholder="ID, slug or url of CodeWars Kata" :disabled="battle.stage > 0">
-            <button @click="createBattle" class="line-height-1 mt-4 mx-auto" v-if="battle.stage < 1"><i class="fas fa-cloud-upload-alt mr-1"></i>Load</button>
+            <button @click="createBattle" class="line-height-1 mt-4 mx-auto large" v-if="battle.stage < 1"><i class="fas fa-cloud-upload-alt"></i>Load</button>
 
             <div class="battle-settings d-flex flex-column flex-grow-1 pb-3" v-if="battle.stage > 0 && battle.stage < 3">
 
               <div class="d-flex justify-content-between mt-1 line-height-1 flex-grow-1 align-items-stretch flex-grow-1">
                 <div class='d-flex justify-content-center align-items-center'>
-                  <h6 class="m-0"><br/><strong>Time Limit:</strong><br/><small>(00 for none)</small></h6>
-                  <div class="text-center ml-3">
-                    <h4 @click="editTimeLimit(5)" class="m-0 scale50">&#9650;</h4>
-                    <p class="m-1 settings-timer">{{("0" + timeLimit).slice(-2)}}</p>
-                    <h4 @click="editTimeLimit(-5)" class="m-0 scale50">&#9660;</h4>
+                  <h6 class="m-0"><strong>Time Limit:</strong><br/></h6>
+                  <div class="timer-input text-center ml-3">
+                    <h4 @click="editTimeLimit(5)" class="timer-arrow">&#9650;</h4>
+                    <p v-if="timeLimit > 0" class="m-1 settings-timer">{{("0" + timeLimit).slice(-2)}}</p>
+                    <p v-else class="m-1">none</p>
+                    <h4 @click="editTimeLimit(-5)" :class="['timer-arrow', { disabled: timeLimit <= 0 }]">&#9660;</h4>
                   </div>
-                  <span>min</span>
+                  <span v-if="timeLimit > 0">min</span>
                 </div>
-                <div class="d-flex flex-column justify-content-around">
-                  <button @click="cancelBattle"><i class="fas fa-backspace mr-1"></i>Cancel</button>
-                  <button @click="$root.$emit('invite-all')" :disabled="allInvited"><i class="fas fa-user-plus mr-1"></i>Invite All</button>
-                  <button :disabled="confirmedUsers.length === 0" @click="initializeBattle"><i class="fas fa-radiation mr-1"></i>Start Battle</button>
+                <div class="d-flex flex-column justify-content-around align-items-end">
+                  <button @click="cancelBattle"><i class="far fa-times-circle"></i>Cancel</button>
+                  <button @click="$root.$emit('invite-all')" :disabled="allInvited"><i class="fas fa-user-plus"></i>Invite All</button>
+                  <button :disabled="confirmedUsers.length === 0" @click="initializeBattle" class="large"><i class="fas fa-radiation"></i>Start Battle</button>
                 </div>
               </div>
 
@@ -41,7 +42,7 @@
 
             <div v-else-if="battle.stage >= 3" class="flex-grow-1">
               <div class="controls d-flex justify-content-around flex-grow-1 h-100 w-100">
-                <button class="large" @click="endBattle" :disabled="battle.stage < 4"><i class="fas fa-peace mr-1"></i>End Battle</button>
+                <button class="large" @click="endBattle" :disabled="battle.stage < 4"><i class="fas fa-peace"></i>End Battle</button>
               </div>
             </div>
           </div>

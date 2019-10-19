@@ -18,13 +18,11 @@
     .grid-battle {
       font-size: 1.2rem !important;
     }
+    .grid-leaderboard {
+      display: none;
+    }
     #msg-input {
       display: none !important;
-    }
-    &.war, &.countdown, &.battle-confirmed, &.battle-loaded, &.peace {
-      .grid-leaderboard {
-        display: none;
-      }
     }
     // &.peace {
     //   .grid-battle {
@@ -32,4 +30,7 @@
     //   }
     // }
   }
+  // &.war, &.countdown, &.battle-confirmed, &.battle-loaded, &.peace {
+
+  // }
 }

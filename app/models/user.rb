@@ -163,11 +163,10 @@ class User < ApplicationRecord
   end
 
   def survived(room = nil)
-    result =
-    battles.includes(:players, players: :completed_challenges)
-          .joins(:players, players: :completed_challenges)
-          .where("battles.challenge_id = completed_challenges.challenge_id AND completed_challenges.user_id = ?", self.id)
-          .where("completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time")
+    result = battles.includes(:players, players: :completed_challenges)
+                    .joins(:players, players: :completed_challenges)
+                    .where("battles.challenge_id = completed_challenges.challenge_id AND completed_challenges.user_id = ?", self.id)
+                    .where("completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time")
 
     return result unless room
 

@@ -1,0 +1,10 @@
+<div class="widget-bg mx-auto mt-3 w-50">
+  <div class="widget">
+    <% if defined?(title) %>
+    <h3 class="header"><%= title %></h3>
+    <% end %>
+    <div class="widget-body pr-4 pb-4">
+      <%= yield %>
+    </div>
+  </div>
+</div>

@@ -1,7 +1,6 @@
 * {
   padding: 0;
   margin: 0;
-  // transition: opacity 0.3s, box-shadow 0.3s, text-shadow 0.3s, transform 0.3s;
   letter-spacing: 1px;
   overscroll-behavior: none;
 }
@@ -9,8 +8,8 @@
 body {
   height: 100vh;
   color: $body-color;
-  background: radial-gradient(ellipse farthest-corner at top left, $bgcolor1 10%, $bgcolor2), linear-gradient(#00000088, #00000033), asset-url($bg-image);
-  background-size: cover;
+  // background: radial-gradient(ellipse farthest-corner at top left, $bgcolor1 10%, $bgcolor2), linear-gradient(#00000088, #00000033), asset-url($bg-image);
+  // background-size: cover;
   cursor: default;
   user-select: none;
 }
@@ -27,6 +26,12 @@ a {
 a:hover {
   color: lighten($link-color, 50%);
   text-decoration: none;
+}
+
+.fixed-screen {
+  padding: 1em;
+  height: 100vh;
+  background-size: cover;
 }
 
 .hidden {

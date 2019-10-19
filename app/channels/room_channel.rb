@@ -54,13 +54,14 @@ class RoomChannel < ApplicationCable::Channel
       battle.uninvite_unconfirmed
       @room.broadcast_action(action: 'start-countdown', data: { countdown: countdown })
       battle.update(start_time: DateTime.now + countdown.seconds) unless battle.start_time
-      # battle.launch(countdown)
     when "end"
-      battle.update(end_time: DateTime.now) unless battle.end_time
+      end_time = battle.time_limit ? [battle.start_time + battle.time_limit.minutes, DateTime.now].min : DateTime.now
+      battle.update(end_time: end_time) unless battle.end_time
       battle.defeated_players.each(&:async_fetch_codewars_info)
       @room.broadcast_room_players
+    when "update"
+      battle.update(data["battle"])
     end
-    # @room.broadcast_active_battle
   end
 
   def delete_battle(data)
@@ -83,7 +84,7 @@ class RoomChannel < ApplicationCable::Channel
     user = User.find(data["user_id"])
 
     # Don't Fetch challenges if already completed or fetched within last 5 seconds
-    return if battle.survived?(user) || user.last_fetched_at > (DateTime.now - 5.seconds)
+    return if user.survived?(battle) || user.last_fetched_at > (DateTime.now - 5.seconds)
 
     FetchCompletedChallengesJob.perform_later(
       user_id: data["user_id"],

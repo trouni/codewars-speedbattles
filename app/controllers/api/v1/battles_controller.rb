@@ -33,21 +33,22 @@ class Api::V1::BattlesController < Api::V1::BaseController
     # render 'api/v1/rooms/show'
   end
 
-  def launch
-    @battle = Battle.find(params[:id] || params[:battle_id])
-    authorize @battle
-    if params[:perform] == 'end'
-      @battle.update(end_time: DateTime.now) unless @battle.end_time
-      @battle.broadcast_action('end-battle')
-      @battle.defeated_players.each(&:async_fetch_codewars_info)
-    else
-      countdown = params[:countdown].to_i.seconds
-      @battle.update(start_time: DateTime.now + countdown) unless @battle.start_time
-      @battle.broadcast_action('start-countdown', countdown: params[:countdown].to_i)
-      @battle.battle_invites.where(confirmed: false).destroy_all
-    end
-    render json: { action: params[:perform], status: "success" }
-  end
+  # def launch
+  #   @battle = Battle.find(params[:id] || params[:battle_id])
+  #   authorize @battle
+  #   if params[:perform] == 'end'
+  #     final_end_time = @battle.time_limit ? [@battle.start_time + @battle.time_limit.minutes, DateTime.now].min : DateTime.now
+  #     @battle.update(end_time: final_end_time) unless @battle.end_time
+  #     @battle.broadcast_action('end-battle')
+  #     @battle.defeated_players.each(&:async_fetch_codewars_info)
+  #   else
+  #     countdown = params[:countdown].to_i.seconds
+  #     @battle.update(start_time: DateTime.now + countdown) unless @battle.start_time
+  #     @battle.broadcast_action('start-countdown', countdown: params[:countdown].to_i)
+  #     @battle.battle_invites.where(confirmed: false).destroy_all
+  #   end
+  #   render json: { action: params[:perform], status: "success" }
+  # end
 
   # def invitation(battle = nil, user = nil, action = nil)
   #   # skip_authorization
