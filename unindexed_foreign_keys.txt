@@ -1,2 +1,0 @@
-battles challenge_id
-completed_challenges challenge_id
