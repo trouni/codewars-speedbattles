@@ -5,6 +5,11 @@ table.console-table {
   overflow: scroll;
   display: block;
 
+  &.no-stats thead, &.no-stats tbody {
+    display:table;
+    width: 100%;
+  }
+
   thead th {
     overflow: hidden;
     font-size: 0.9em;

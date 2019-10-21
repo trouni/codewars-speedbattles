@@ -3,21 +3,21 @@
     <div class="widget">
       <h3 class="header">{{ title }}</h3>
       <div class="widget-body">
-        <small class="ml-auto">
+        <small class="ml-auto" v-if="room.show_stats">
           <a class="button" @click="showOfflineClicked">
             <i :class="['far', showOffline ? 'fa-eye-slash' : 'fa-eye']"></i>
             {{ showOffline ? 'Hide' : 'Show' }} offline players
           </a>
         </small>
-        <table class="console-table">
+        <table :class="['console-table', { 'no-stats': !room.show_stats }]">
           <thead>
             <tr>
-              <th scope="col" style="width: 50%;"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
-              <th scope="col" style="width: 10%;"><span class="data">RANK</span></th>
-              <th scope="col" style="width: 10%;"><span class="data">SCORE</span></th>
-              <th scope="col" style="width: 10%;"><span class="data">WON</span></th>
-              <th scope="col" style="width: 14%;"><span class="data">COMPLETED/LOST</span></th>
-              <th scope="col" style="width: 10%;"><span class="data">TOTAL</span></th>
+              <th scope="col" :style="room.show_stats ? 'width: 50%;' : 'width: 100%;'"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
+              <th v-if="room.show_stats" scope="col" style="width: 10%;"><span class="data">RANK</span></th>
+              <th v-if="room.show_stats" scope="col" style="width: 10%;"><span class="data">SCORE</span></th>
+              <th v-if="room.show_stats" scope="col" style="width: 10%;"><span class="data">WON</span></th>
+              <th v-if="room.show_stats" scope="col" style="width: 14%;"><span class="data">COMPLETED/LOST</span></th>
+              <th v-if="room.show_stats" scope="col" style="width: 10%;"><span class="data">TOTAL</span></th>
             </tr>
           </thead>
           <tbody>
@@ -32,13 +32,13 @@
                   </span>
                 </span>
               </th>
-              <td>
+              <td v-if="room.show_stats">
                 <span class="data rank">{{ player.battles_fought ? index + 1 : "-" }}</span>
               </td>
-              <td><span class="data">{{ player.battles_fought ? player.total_score : "-" }}</span></td>
-              <td><span class="data">{{ player.battles_fought ? player.victories : "-" }}</span></td>
-              <td><span class="data">{{ player.battles_fought ? `${player.battles_survived} / ${defeats(player)}` : "-" }}</span></td>
-              <td><span class="data">{{ player.battles_fought ? player.battles_fought : "-" }}</span></td>
+              <td v-if="room.show_stats"><span class="data">{{ player.battles_fought ? player.total_score : "-" }}</span></td>
+              <td v-if="room.show_stats"><span class="data">{{ player.battles_fought ? player.victories : "-" }}</span></td>
+              <td v-if="room.show_stats"><span class="data">{{ player.battles_fought ? `${player.battles_survived} / ${defeats(player)}` : "-" }}</span></td>
+              <td v-if="room.show_stats"><span class="data">{{ player.battles_fought ? player.battles_fought : "-" }}</span></td>
             </tr>
           </tbody>
         </table>
