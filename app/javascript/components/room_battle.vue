@@ -125,7 +125,7 @@
       survivors() {
         if (this.battle.players) {
           return this.battle.players.filter(user => this.completedOnTime(user)).sort((a,b) => {
-            return (b.completed_at - a.completed_at)
+            return (new Date(b.completed_at) - new Date(a.completed_at))
           });
         }
       },
