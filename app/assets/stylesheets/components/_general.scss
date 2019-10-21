@@ -26,6 +26,7 @@ a {
 a:hover {
   color: lighten($link-color, 50%);
   text-decoration: none;
+  transition: color 0.3s !important;
 }
 
 .fixed-screen {

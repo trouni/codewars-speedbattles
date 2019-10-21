@@ -16,6 +16,9 @@ input[type=text], input[type=password] {
     // outline: 1px auto rgba( $maincolor, .5 );
     background-color: rgba( 0, 0, 0, 0.5 );
   }
+  & + small {
+    opacity: 0.7;
+  }
 }
 
 .timer-input {
