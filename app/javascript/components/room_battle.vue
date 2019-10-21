@@ -3,7 +3,7 @@
     <div class="widget">
       <h3 class="header">{{ headerTitle }}</h3>
       <div class="widget-body">
-        <div v-if="battle.id">
+        <div v-if="battle.id" class="d-flex flex-column h-100">
           <div v-if="battle.challenge" class="w-100 mb-3">
             <p class="m-0"><small>{{ battlePrefix }} </small>
               <strong class="highlight"> {{ displayChallengeName ? battle.challenge.name : 'TOP SECRET' }}</strong>
@@ -15,7 +15,7 @@
             </div>
           </div>
           <p v-if="battle.stage === 1 && defeated.length < 1" class="m-auto highlight">> Waiting for players to join the battle...</p>
-          <table v-else class="console-table">
+          <table v-else class="console-table h-100">
             <thead>
               <tr>
                 <th scope="col" style="width: 50%;"><span class="data">WARRIOR</span></th>
@@ -124,7 +124,9 @@
       },
       survivors() {
         if (this.battle.players) {
-          return this.battle.players.filter(user => this.completedOnTime(user));
+          return this.battle.players.filter(user => this.completedOnTime(user)).sort((a,b) => {
+            return (b.completed_at - a.completed_at)
+          });
         }
       },
       defeated() {
