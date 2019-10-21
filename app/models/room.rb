@@ -13,7 +13,7 @@ class Room < ApplicationRecord
   belongs_to :moderator, class_name: "User"
   has_many :room_users, dependent: :destroy
   has_many :users, through: :room_users
-  has_many :battles do
+  has_many :battles, dependent: :destroy do
     def for_challenge(challenge_id)
       where(challenge_id: challenge_id)
     end
