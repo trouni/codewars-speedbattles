@@ -248,14 +248,14 @@ class Battle < ApplicationRecord
   end
 
   def uninvite_user(user)
-    battle_invite = BattleInvite.find_by(battle: self, player: user)
+    battle_invite = BattleInvite.find_by(battle: self, player: user, confirmed: false)
     battle_invite&.destroy
     battle_invite.broadcast_user
   end
 
   def confirm_user(user)
     battle_invite = BattleInvite.find_by(battle: self, player: user)
-    battle_invite.update(confirmed: !battle_invite.confirmed)
+    battle_invite.update(confirmed: true)
     room.broadcast_user(user: user)
     room.broadcast_active_battle
   end
@@ -265,7 +265,6 @@ class Battle < ApplicationRecord
     room.broadcast_users
     room.broadcast_active_battle
   end
-
 
   def invite_survivors
     return unless room.last_battle
