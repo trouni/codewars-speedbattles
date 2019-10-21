@@ -10,7 +10,7 @@ class UserSerializer
     user.active_battle&.completed_challenge_at(user)
   end
 
-  attribute :stats, if: proc { |_record, params| _record.room && params[:stats] } do |user|
+  attribute :stats, if: proc { |record, params| record.room && params[:stats] && record.room.show_stats } do |user|
     {
       battles_survived: user.survived(user.room).size,
       battles_fought: user.battles.for_room(user.room).size,

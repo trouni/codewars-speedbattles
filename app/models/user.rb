@@ -87,19 +87,15 @@ class User < ApplicationRecord
       completed_at: battle&.completed_challenge_at(self)
     }
 
-    no_stats = {
-      battles_survived: nil,
-      battles_fought: nil,
-      victories: nil,
-      total_score: nil
-    }
-    return standard_result.merge(no_stats) unless for_room
+    no_stats = { battles_survived: nil, battles_fought: nil, victories: nil, total_score: nil }
+
+    return standard_result.merge(no_stats) unless for_room&.show_stats
 
     return standard_result.merge(battles_survived: survived(for_room).size)
                           .merge(battles_fought: battles.for_room(for_room).size)
                           .merge(victories: for_room.victories(self).size)
                           .merge(total_score: for_room.total_score(self))
-                          # .merge(completed_at: active_battle&.completed_challenge_at(self))
+    # .merge(completed_at: active_battle&.completed_challenge_at(self))
   end
 
   def self.valid_username?(username)
