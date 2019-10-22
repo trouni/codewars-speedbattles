@@ -7,11 +7,10 @@ class RoomChannel < ApplicationCable::Channel
     room_user = RoomUser.find_or_create_by(room: @room, user: @current_user)
     stream_from "room_#{@room.id}"
     stream_from "room_#{@room.id}_moderator" if @current_user == @room.moderator
-    # room_user.broadcast("add")
-    @room.broadcast_active_battle
-    @room.broadcast_users
-    @room.broadcast_messages
-    # @room.broadcast_room_players
+    BroadcastInitialInfoJob.process(params[:room_id])
+    # @room.broadcast_active_battle
+    # @room.broadcast_users
+    # @room.broadcast_messages
   end
 
   def unsubscribed
