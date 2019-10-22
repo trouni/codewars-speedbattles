@@ -504,7 +504,8 @@
               break;
 
               case "all":
-              this.users = data.payload.users
+              this.users = data.payload.users;
+              this.users.forEach(user => this.pushToUsers(user));
               this.usersInitialized = true;
               if (this.currentUserIsModerator) console.info(`Refreshed all users`)
               break;

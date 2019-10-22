@@ -208,7 +208,7 @@ class Battle < ApplicationRecord
         WHERE challenge_id = ?
       )
     SQL
-    users.includes(:completed_challenges).where(sql_query, challenge_id)
+    users.includes(:completed_challenges).where(sql_query, challenge_id).where.not(users: { id: room.moderator_id })
   end
 
   def non_invited_users
