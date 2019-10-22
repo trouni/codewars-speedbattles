@@ -54,7 +54,8 @@
         <div v-else class="flex-centering pt-0 pb-4">
           <div v-if="battle.stage >= 3 && currentUser.invite_status != 'survived'">
             <span class="d-flex justify-content-center">
-              <a :href="challengeUrl" target="_blank" class="button large mx-auto"><i class="fas fa-rocket mr-1"></i>Launch CodeWars</a>
+              <a v-if="battle.stage === 4" :href="challengeUrl" target="_blank" class="button large mx-auto"><i class="fas fa-rocket mr-1"></i>Launch CodeWars</a>
+              <p v-else class="button large mx-auto disabled"><i class="fas fa-rocket mr-1"></i>Launch CodeWars</p>
             </span>
             <div v-if="currentUser.invite_status == 'confirmed'">
               <!-- <p class="text-center">Click the button below once you have completed the kata on CodeWars.</p> -->

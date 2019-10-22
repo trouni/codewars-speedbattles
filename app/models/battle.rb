@@ -257,13 +257,13 @@ class Battle < ApplicationRecord
     battle_invite = BattleInvite.find_by(battle: self, player: user)
     battle_invite.update(confirmed: true)
     room.broadcast_user(user: user)
-    room.broadcast_active_battle
+    # room.broadcast_active_battle
   end
 
   def invite_all
     BattleInvite.create(non_invited_users.map { |user| { player: user, battle: self } })
     room.broadcast_users
-    room.broadcast_active_battle
+    # room.broadcast_active_battle
   end
 
   def invite_survivors

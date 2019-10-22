@@ -8,8 +8,8 @@ class RoomChannel < ApplicationCable::Channel
     stream_from "room_#{@room.id}"
     stream_from "room_#{@room.id}_moderator" if @current_user == @room.moderator
     # room_user.broadcast("add")
-    @room.broadcast_users
     @room.broadcast_active_battle
+    @room.broadcast_users
     @room.broadcast_messages
     # @room.broadcast_room_players
   end

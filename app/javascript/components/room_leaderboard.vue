@@ -59,7 +59,6 @@ export default {
   },
   data() {
     return {
-      title: "NETWORK://Leaderboard",
       showOffline: false,
     }
   },
@@ -67,6 +66,9 @@ export default {
     // moderator() {
     //   this.findUser(this.room.moderator.id);
     // },
+    title() {
+      return this.room.show_stats ? "NETWORK://Leaderboard" : "NETWORK://Users"
+    },
     leaderboard() {
       const allUsers = this.showOffline ? this.roomPlayers.concat(this.users) : this.users;
       return allUsers.reduce((uniqueUsers, user) => {
