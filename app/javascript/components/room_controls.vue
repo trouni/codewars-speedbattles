@@ -59,7 +59,11 @@
             </span>
             <div v-if="currentUser.invite_status == 'confirmed'">
               <!-- <p class="text-center">Click the button below once you have completed the kata on CodeWars.</p> -->
-              <button class="mx-auto large" @click="completedChallenge" :disabled="completedButtonClicked || battle.stage < 4"><i class="fas fa-check-double mr-1"></i>Challenge Completed</button>
+              <button class="mx-auto large" @click="completedChallenge" :disabled="completedButtonClicked || battle.stage < 4">
+                <div id="spinner" v-if="completedButtonClicked" class="centered display-initial">
+                  <div class="lds-ring small"><div></div><div></div><div></div><div></div></div>
+                </div>
+                <i class="fas fa-check-double mr-1"></i>Challenge Completed</button>
             </div>
           </div>
           <div v-else-if="currentUser.invite_status == 'invited'">
@@ -153,7 +157,7 @@
         this.completedButtonClicked = true;
         setTimeout(() => {
           this.completedButtonClicked = false;
-        }, 5000)
+        }, 3000)
         $root.$emit('fetch-challenges', currentUser.id);
       },
       isInvited(user) {

@@ -15,6 +15,11 @@
   right: calc(50% - 32px);
 }
 
+#spinner.centered {
+  position: absolute;
+  left: calc(50% - 32px);
+}
+
 .loading #spinner {
   display: initial;
 }

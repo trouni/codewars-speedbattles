@@ -24,7 +24,7 @@
         </div>
       </div>
       <div :class="['grid-item grid-chat', { 'loading': !messagesInitialized }]">
-        <div v-if="someDataLoaded" id="spinner">
+        <div v-if="someDataLoaded" id="spinner" class="centered">
           <div class="lds-ring small"><div></div><div></div><div></div><div></div></div>
           <!-- <h3 class="animated fadeInDown faster">LOADING</h3> -->
         </div>
@@ -35,7 +35,7 @@
         ></room-chat>
       </div>
       <div :class="['grid-item grid-battle', { 'loading': (!usersInitialized || !battleInitialized) }]">
-        <div v-if="someDataLoaded" id="spinner">
+        <div v-if="someDataLoaded" id="spinner" class="centered">
           <div class="lds-ring small"><div></div><div></div><div></div><div></div></div>
           <!-- <h3 class="animated fadeInDown faster">LOADING</h3> -->
         </div>
@@ -51,7 +51,7 @@
         ></room-battle>
       </div>
       <div :class="['grid-item grid-leaderboard', { 'loading': (!usersInitialized) }]">
-        <div v-if="someDataLoaded" id="spinner">
+        <div v-if="someDataLoaded" id="spinner" class="centered">
           <div class="lds-ring small"><div></div><div></div><div></div><div></div></div>
           <!-- <h3 class="animated fadeInDown faster">LOADING</h3> -->
         </div>
@@ -65,7 +65,7 @@
         ></room-leaderboard>
       </div>
       <div :class="['grid-item grid-controls', { 'loading': (!usersInitialized || !battleInitialized) }]">
-        <div v-if="someDataLoaded" id="spinner">
+        <div v-if="someDataLoaded" id="spinner" class="centered">
           <div class="lds-ring small"><div></div><div></div><div></div><div></div></div>
           <!-- <h3 class="animated fadeInDown faster">LOADING</h3> -->
         </div>
