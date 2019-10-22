@@ -2,7 +2,7 @@ class BroadcastInitialInfoJob < ApplicationJob
   include Cancelerizer
   queue_as :default
 
-  DELAY = 10.seconds
+  DELAY = 30.seconds
 
   class << self
     def process(room_id)
