@@ -41,7 +41,7 @@
     },
     methods: {
       isAnnouncement(message) {
-        return message.author.username === "bot"
+        return !message.author.username || message.author.username === "bot"
       },
       messageClass(message) {
         return [
