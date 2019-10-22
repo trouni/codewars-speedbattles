@@ -13,7 +13,7 @@ module Cancelerizer
       return false unless job.args.count == args.count
 
       arg_pairings = job.args.zip args
-      name == job.klass && arg_pairings.all? { |job_arg, arg| job_arg == arg }
+      self.name == job.klass && arg_pairings.all? { |job_arg, arg| job_arg == arg }
     end
   end
 end
