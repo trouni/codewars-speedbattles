@@ -151,6 +151,9 @@
     methods: {
       completedChallenge() {
         this.completedButtonClicked = true;
+        setTimeout(() => {
+          this.completedButtonClicked = false;
+        }, 5000)
         $root.$emit('fetch-challenges', currentUser.id);
       },
       isInvited(user) {
