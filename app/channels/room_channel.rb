@@ -7,7 +7,7 @@ class RoomChannel < ApplicationCable::Channel
     room_user = RoomUser.find_or_create_by(room: @room, user: @current_user)
     stream_from "room_#{@room.id}"
     stream_from "room_#{@room.id}_moderator" if @current_user == @room.moderator
-    BroadcastInitialInfoJob.process(params[:room_id])
+    BroadcastInitialInfoJob.perform_now(params[:room_id])
     # @room.broadcast_active_battle
     # @room.broadcast_users
     # @room.broadcast_messages
