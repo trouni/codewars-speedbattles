@@ -1,8 +1,13 @@
 <template>
   <div class="form-inputs">
+    <div class="form-group string required user_email">
+      <label for="user_email" class="form-control-label"><strong>Email</strong> <abbr title="required">*</abbr></label>
+      <input autocomplete="email" aria-required="true" type="email" name="user[email]" id="user_email" class="form-control string email required" placeholder="Your email address">
+      <small>Only used in case you need to reset your password.</small>
+    </div>
     <div class="form-group string required user_username">
       <label for="user_username" class="form-control-label string required"><strong>Codewars username</strong> <abbr title="required">*</abbr></label>
-      <input autofocus="autofocus" required="required" aria-required="true" type="text" value="" name="user[username]" id="user_username" :class="['form-control string required', { 'is-valid': validUsername }, { 'is-invalid': username && fetched && !validUsername }]" v-model="username" @blur="checkUsername" placeholder="Enter your Codewars username">
+      <input autofocus="autofocus" required="required" aria-required="true" type="text" value="" name="user[username]" id="user_username" :class="['form-control string required', { 'is-valid': validUsername }, { 'is-invalid': username && fetched && !validUsername }]" v-model="username" @blur="checkUsername" placeholder="Your actual Codewars username">
       <small>Spaces not allowed. <a href="https://www.codewars.com/users/edit" target="_blank">Click here</a> to see/edit your Codewars username.</small>
       <div :class="[{ 'valid-feedback': validUsername }, { 'invalid-feedback': !validUsername }]">{{ error }}</div>
     </div>
@@ -13,7 +18,7 @@
     </div>
     <div class="form-group password required user_password">
       <label for="user_password" class="form-control-label password required"><strong>Password</strong> <abbr title="required">*</abbr></label>
-      <input autocomplete="new-password" required="required" aria-required="true" type="password" name="user[password]" id="user_password" :class="['form-control password required', { 'is-valid': password && validPassword }, { 'is-invalid': password && !validPassword }]" v-model="password" placeholder="Enter a new password.">
+      <input autocomplete="new-password" required="required" aria-required="true" type="password" name="user[password]" id="user_password" :class="['form-control password required', { 'is-valid': password && validPassword }, { 'is-invalid': password && !validPassword }]" v-model="password" placeholder="Your new account's password.">
       <small>Doesn't need to be the same password as your Codewars account.</small>
       <div class="invalid-feedback">6 characters minimum</div>
       <div class="valid-feedback">Looks good!</div>

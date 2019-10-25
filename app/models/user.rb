@@ -208,10 +208,10 @@ class User < ApplicationRecord
   end
 
   def create_email
-    self.email = "#{username}@me.com"
+    self.email = "#{username}@me.com" if email.empty?
   end
 
   def create_email2
-    update(email: "#{username}@me.com")
+    update(email: "#{username}@me.com") if email.empty?
   end
 end
