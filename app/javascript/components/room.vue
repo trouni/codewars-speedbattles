@@ -103,7 +103,9 @@
     props: {
       roomInit: Object,
       currentUserId: Number,
-      currentUserInit: Object
+      currentUserInit: Object,
+      // battleInit: Object,
+      // messagesInit: Array
     },
     data() {
       return {

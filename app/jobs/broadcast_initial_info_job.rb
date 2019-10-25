@@ -14,8 +14,8 @@ class BroadcastInitialInfoJob < ApplicationJob
 
   def perform(room_id)
     room = Room.find(room_id)
-    room.broadcast_active_battle
     room.broadcast_users
     room.broadcast_messages
+    room.broadcast_active_battle
   end
 end
