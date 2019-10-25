@@ -15,10 +15,10 @@
                 <div class='d-flex justify-content-center align-items-center'>
                   <h6 class="m-0"><strong>Time Limit:</strong><br/></h6>
                   <div class="timer-input text-center ml-3">
-                    <h4 @click="editTimeLimit(5)" class="timer-arrow">&#9650;</h4>
+                    <h4 @click="editTimeLimit(1)" class="timer-arrow">&#9650;</h4>
                     <p v-if="timeLimit > 0" class="m-1 settings-timer">{{("0" + timeLimit).slice(-2)}}</p>
                     <p v-else class="m-1">none</p>
-                    <h4 @click="editTimeLimit(-5)" :class="['timer-arrow', { disabled: timeLimit <= 0 }]">&#9660;</h4>
+                    <h4 @click="editTimeLimit(-1)" :class="['timer-arrow', { disabled: timeLimit <= 0 }]">&#9660;</h4>
                   </div>
                   <span v-if="timeLimit > 0">min</span>
                 </div>
