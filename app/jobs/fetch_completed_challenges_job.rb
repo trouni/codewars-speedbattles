@@ -6,7 +6,7 @@ class FetchCompletedChallengesJob < ApplicationJob
   def perform(user_id:, battle_id: nil, all_pages: true)
     user = User.find(user_id)
     # Throttle fetching at once every 10 minutes unless battle_id exists
-    return unless user.last_fetched_at < DateTime.now - 10.minutes || battle_id
+    # return unless user.last_fetched_at < DateTime.now - 10.minutes || battle_id
 
     if battle_id
       battle = Battle.find(battle_id)
