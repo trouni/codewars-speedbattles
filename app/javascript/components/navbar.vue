@@ -8,7 +8,7 @@
         <!-- <h3 class="header">SpeedBattles</h3> -->
         <div class="widget-body">
           <a v-if="roomId >= 0" href="/rooms/" @click="showMenu = false" class="button mx-3"><i class="fas fa-angle-double-left"></i>Leave room</a>
-          <a @click="showMenu = false" href="/users/edit/" class="button mx-3"><i class="fas fa-cog"></i>Settings</a>
+          <a @click="showMenu = false" :href="[roomId >= 0 ? `/users/edit/?current_room_id=${roomId}` : '/users/edit/']" class="button mx-3"><i class="fas fa-cog"></i>Settings</a>
           <a href="/users/sign_out" data-method="delete" class="button mx-3" @click="showMenu = false"><i class="fas fa-sign-out-alt"></i>Log out</a>
         </div>
       </div>

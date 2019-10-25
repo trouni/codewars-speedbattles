@@ -98,6 +98,10 @@ class User < ApplicationRecord
     # .merge(completed_at: active_battle&.completed_challenge_at(self))
   end
 
+  def admin?
+    admin
+  end
+
   def self.valid_username?(username)
     url = "https://www.codewars.com/api/v1/users/#{username}"
     puts "Fetching data from #{url}"

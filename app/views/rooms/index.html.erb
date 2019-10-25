@@ -26,7 +26,12 @@
         <div class="widget-bg">
           <div class="widget">
 
-            <% if user_signed_in? %>
+            <% if user_signed_in? && current_user.admin?%>
+            <h3 class="header">Welcome to Codewars > SpeedBattles</h3>
+            <div class="widget-body p-5">
+              <p>Please use the link given to you by an administrator to join a war room.</p>
+            </div>
+            <% elsif user_signed_in? %>
             <h3 class="header">Join a war room</h3>
             <div class="widget-body p-5">
               <ol>

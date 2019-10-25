@@ -22,4 +22,13 @@ class RegistrationsController < Devise::RegistrationsController
   def update_resource(resource, params)
     resource.update_without_password(params)
   end
+
+  def after_update_path_for(_resource)
+    current_room_id = params[:current_room][:id].to_i
+    if current_room_id.zero?
+      root_path
+    else
+      room_path(Room.find(current_room_id))
+    end
+  end
 end

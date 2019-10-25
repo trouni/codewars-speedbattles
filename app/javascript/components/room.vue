@@ -360,7 +360,7 @@
       getRoomPlayers(userId) {
         this.sendCable('get_room_players')
       },
-      openCodeWars() {
+      openCodewars() {
         if (this.battle.challenge.language === null) this.battle.challenge.language = 'ruby';
         window.open(this.challengeUrl)
       },
@@ -373,7 +373,7 @@
             this.countdown = 0
             clearInterval(timer);
             this.announce({ content: `The battle for <span class='highlight'>${this.battle.challenge.name}</span> has begun!` });
-            if (this.currentUser.invite_status === 'confirmed' && !this.viewMode) this.openCodeWars();
+            if (this.currentUser.invite_status === 'confirmed' && !this.viewMode) this.openCodewars();
             this.startClock();
           }
         }, 1000)

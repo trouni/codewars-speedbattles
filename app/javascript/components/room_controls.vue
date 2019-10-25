@@ -6,7 +6,7 @@
         <div v-if="currentUserIsModerator" class="h-100 d-flex flex-column">
 
           <div class="new-battle d-flex flex-column h-100">
-            <input class="input-field w-100" type="text" v-model="challengeInput" @keyup.enter="createBattle" placeholder="ID, slug or url of CodeWars Kata" :disabled="battle.stage > 0">
+            <input class="input-field w-100" type="text" v-model="challengeInput" @keyup.enter="createBattle" placeholder="ID, slug or url of Codewars Kata" :disabled="battle.stage > 0">
             <button @click="createBattle" class="line-height-1 mt-4 mx-auto large" v-if="battle.stage < 1"><i class="fas fa-cloud-upload-alt"></i>Load</button>
 
             <div class="battle-settings d-flex flex-column flex-grow-1 pb-3" v-if="battle.stage > 0 && battle.stage < 3">
@@ -54,11 +54,11 @@
         <div v-else class="flex-centering pt-0 pb-4">
           <div v-if="battle.stage >= 3 && currentUser.invite_status != 'survived'">
             <span class="d-flex justify-content-center">
-              <a v-if="battle.stage === 4" :href="challengeUrl" target="_blank" class="button large mx-auto"><i class="fas fa-rocket mr-1"></i>Launch CodeWars</a>
-              <p v-else class="button large mx-auto disabled"><i class="fas fa-rocket mr-1"></i>Launch CodeWars</p>
+              <a v-if="battle.stage === 4" :href="challengeUrl" target="_blank" class="button large mx-auto"><i class="fas fa-rocket mr-1"></i>Launch Codewars</a>
+              <p v-else class="button large mx-auto disabled"><i class="fas fa-rocket mr-1"></i>Launch Codewars</p>
             </span>
             <div v-if="currentUser.invite_status == 'confirmed'">
-              <!-- <p class="text-center">Click the button below once you have completed the kata on CodeWars.</p> -->
+              <!-- <p class="text-center">Click the button below once you have completed the kata on Codewars.</p> -->
               <button class="mx-auto large" @click="completedChallenge" :disabled="completedButtonClicked || battle.stage < 4">
                 <div id="spinner" v-if="completedButtonClicked" class="centered display-initial">
                   <div class="lds-ring small"><div></div><div></div><div></div><div></div></div>
