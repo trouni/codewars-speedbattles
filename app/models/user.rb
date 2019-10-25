@@ -89,7 +89,7 @@ class User < ApplicationRecord
 
     no_stats = { battles_survived: nil, battles_fought: nil, victories: nil, total_score: nil }
 
-    return standard_result.merge(no_stats) unless for_room&.show_stats
+    return standard_result unless for_room&.show_stats
 
     return standard_result.merge(battles_survived: survived(for_room).size)
                           .merge(battles_fought: battles.for_room(for_room).size)
