@@ -113,7 +113,7 @@ var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_
   null,
   "6c0dd54e",
   null
-  
+
 )
 
 /* hot reload */
@@ -133,7 +133,7 @@ component.options.__file = "app/javascript/components/room.vue"
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--7-0!../../../node_modules/vue-loader/lib??vue-loader-options!./room.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./app/javascript/components/room.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]);
 
 /***/ }),
 
@@ -182,7 +182,7 @@ var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_
   null,
   "052a7d0e",
   null
-  
+
 )
 
 /* hot reload */
@@ -202,7 +202,7 @@ component.options.__file = "app/javascript/components/room_battle.vue"
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_battle_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--7-0!../../../node_modules/vue-loader/lib??vue-loader-options!./room_battle.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./app/javascript/components/room_battle.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_battle_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_battle_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]);
 
 /***/ }),
 
@@ -253,7 +253,7 @@ var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_
   null,
   "0cc12a59",
   null
-  
+
 )
 
 /* hot reload */
@@ -273,7 +273,7 @@ component.options.__file = "app/javascript/components/room_chat.vue"
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_chat_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--7-0!../../../node_modules/vue-loader/lib??vue-loader-options!./room_chat.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./app/javascript/components/room_chat.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_chat_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_chat_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]);
 
 /***/ }),
 
@@ -289,7 +289,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_chat_vue_vue_type_style_index_0_id_0cc12a59_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/style-loader??ref--3-0!../../../node_modules/css-loader/dist/cjs.js??ref--3-1!../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../node_modules/postcss-loader/src??ref--3-2!../../../node_modules/vue-loader/lib??vue-loader-options!./room_chat.vue?vue&type=style&index=0&id=0cc12a59&scoped=true&lang=css& */ "./node_modules/style-loader/index.js?!./node_modules/css-loader/dist/cjs.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./app/javascript/components/room_chat.vue?vue&type=style&index=0&id=0cc12a59&scoped=true&lang=css&");
 /* harmony import */ var _node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_chat_vue_vue_type_style_index_0_id_0cc12a59_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_chat_vue_vue_type_style_index_0_id_0cc12a59_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__);
 /* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_chat_vue_vue_type_style_index_0_id_0cc12a59_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_chat_vue_vue_type_style_index_0_id_0cc12a59_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_chat_vue_vue_type_style_index_0_id_0cc12a59_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_chat_vue_vue_type_style_index_0_id_0cc12a59_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a);
 
 /***/ }),
 
@@ -338,7 +338,7 @@ var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_
   null,
   "abfabb92",
   null
-  
+
 )
 
 /* hot reload */
@@ -358,7 +358,7 @@ component.options.__file = "app/javascript/components/room_controls.vue"
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_controls_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--7-0!../../../node_modules/vue-loader/lib??vue-loader-options!./room_controls.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./app/javascript/components/room_controls.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_controls_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_controls_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]);
 
 /***/ }),
 
@@ -409,7 +409,7 @@ var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_
   null,
   "7a94910c",
   null
-  
+
 )
 
 /* hot reload */
@@ -429,7 +429,7 @@ component.options.__file = "app/javascript/components/room_controls_mod.vue"
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_controls_mod_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--7-0!../../../node_modules/vue-loader/lib??vue-loader-options!./room_controls_mod.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./app/javascript/components/room_controls_mod.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_controls_mod_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_controls_mod_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]);
 
 /***/ }),
 
@@ -445,7 +445,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_controls_mod_vue_vue_type_style_index_0_id_7a94910c_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/style-loader??ref--3-0!../../../node_modules/css-loader/dist/cjs.js??ref--3-1!../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../node_modules/postcss-loader/src??ref--3-2!../../../node_modules/vue-loader/lib??vue-loader-options!./room_controls_mod.vue?vue&type=style&index=0&id=7a94910c&scoped=true&lang=css& */ "./node_modules/style-loader/index.js?!./node_modules/css-loader/dist/cjs.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./app/javascript/components/room_controls_mod.vue?vue&type=style&index=0&id=7a94910c&scoped=true&lang=css&");
 /* harmony import */ var _node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_controls_mod_vue_vue_type_style_index_0_id_7a94910c_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_controls_mod_vue_vue_type_style_index_0_id_7a94910c_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__);
 /* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_controls_mod_vue_vue_type_style_index_0_id_7a94910c_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_controls_mod_vue_vue_type_style_index_0_id_7a94910c_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_controls_mod_vue_vue_type_style_index_0_id_7a94910c_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_controls_mod_vue_vue_type_style_index_0_id_7a94910c_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a);
 
 /***/ }),
 
@@ -494,7 +494,7 @@ var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_
   null,
   "6bd82b0c",
   null
-  
+
 )
 
 /* hot reload */
@@ -514,7 +514,7 @@ component.options.__file = "app/javascript/components/room_leaderboard.vue"
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_leaderboard_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--7-0!../../../node_modules/vue-loader/lib??vue-loader-options!./room_leaderboard.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./app/javascript/components/room_leaderboard.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_leaderboard_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_leaderboard_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]);
 
 /***/ }),
 
@@ -565,7 +565,7 @@ var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_
   null,
   "42bbb957",
   null
-  
+
 )
 
 /* hot reload */
@@ -585,7 +585,7 @@ component.options.__file = "app/javascript/components/room_users.vue"
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_users_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--7-0!../../../node_modules/vue-loader/lib??vue-loader-options!./room_users.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./app/javascript/components/room_users.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_users_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_7_0_node_modules_vue_loader_lib_index_js_vue_loader_options_room_users_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]);
 
 /***/ }),
 
@@ -601,7 +601,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_users_vue_vue_type_style_index_0_id_42bbb957_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/style-loader??ref--3-0!../../../node_modules/css-loader/dist/cjs.js??ref--3-1!../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../node_modules/postcss-loader/src??ref--3-2!../../../node_modules/vue-loader/lib??vue-loader-options!./room_users.vue?vue&type=style&index=0&id=42bbb957&scoped=true&lang=css& */ "./node_modules/style-loader/index.js?!./node_modules/css-loader/dist/cjs.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./app/javascript/components/room_users.vue?vue&type=style&index=0&id=42bbb957&scoped=true&lang=css&");
 /* harmony import */ var _node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_users_vue_vue_type_style_index_0_id_42bbb957_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_users_vue_vue_type_style_index_0_id_42bbb957_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__);
 /* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_users_vue_vue_type_style_index_0_id_42bbb957_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_users_vue_vue_type_style_index_0_id_42bbb957_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_users_vue_vue_type_style_index_0_id_42bbb957_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_ref_3_0_node_modules_css_loader_dist_cjs_js_ref_3_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_3_2_node_modules_vue_loader_lib_index_js_vue_loader_options_room_users_vue_vue_type_style_index_0_id_42bbb957_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a);
 
 /***/ }),
 
@@ -6118,7 +6118,7 @@ exports.push([module.i, "\n.messages[data-v-0cc12a59] {\n  overflow: scroll;\n  
 
 exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js")(true);
 // Module
-exports.push([module.i, "\n.all-confirmed[data-v-7a94910c] {\n  background-color: green;\n}\n", "",{"version":3,"sources":["/Users/trouni/code/trouni/codewars-speedbattles/app/javascript/components/app/javascript/components/room_controls_mod.vue"],"names":[],"mappings":";AAyFA;EACA,uBAAA;AACA","file":"room_controls_mod.vue?vue&type=style&index=0&id=7a94910c&scoped=true&lang=css&","sourcesContent":["<template>\n  <div id=\"room-controls\" class=\"widget\">\n    <h3 class=\"header highlight\">{{ title }}</h3>\n    <div class=\"new-battle\" v-if=\"!this.battle\">\n      <input type=\"text\" v-model=\"challengeInput\" placeholder=\"Enter the id, slug or url of a CodeWars Kata\">\n      <button @click=\"createBattle\">Load</button>\n    </div>\n    <div class=\"edit-battle\" v-else-if=\"!this.battleInitialized\">\n      <input type=\"number\" name=\"time-limit\" min='1' placeholder=\"time limit\"> min (optional)\n      <input type=\"number\" min='1' :max=\"eligibleUsers.length\"> max survivors (optional)\n      <p>{{ ineligibleUsers.map(user => user.username ).join(\", \") }} already completed this kata and {{ ineligibleUsers.length > 1 ? 'are' : 'is' }} not eligible for the battle</p>\n      <button @click=\"$root.$emit('delete-battle')\">Delete Battle</button>\n      <button @click=\"$root.$emit('invite-all')\" :disabled=\"allInvited\">Invite All</button>\n    </div>\n    <button v-if=\"battleLoaded\" :disabled=\"!readyToStart\" :class=\"{ 'all-confirmed': allConfirmed }\" @click=\"initializeBattle\">Start Battle ({{ confirmedUsers.length }} of {{ invitedUsers.length }})</button>\n    <button v-else-if=\"battleInitialized\" @click=\"endBattle\">End Battle</button>\n  </div>\n</template>\n\n<script>\n  export default {\n    props: {\n      room: Object,\n      users: Array,\n      currentUser: Object,\n      battle: Object,\n      input: String\n    },\n    data() {\n      return {\n        title: \"Controls\",\n        challengeInput: this.input\n      }\n    },\n    computed: {\n      eligibleUsers () {\n        return this.users.filter(user => user.invite_status && user.invite_status !== 'ineligible')\n      },\n      ineligibleUsers () {\n        return this.users.filter(user => user.invite_status === 'ineligible')\n      },\n      invitedUsers() {\n        if (!this.battle) { return [] }\n        return this.battle.players\n      },\n      confirmedUsers() {\n        if (!this.battle) { return [] }\n        return this.battle.players.filter(user => user.invite_status == 'confirmed')\n      },\n      allInvited() {\n        return this.invitedUsers.length === this.eligibleUsers.length\n      },\n      allConfirmed() {\n        return this.readyToStart && this.confirmedUsers.length === this.invitedUsers.length\n      },\n      battleLoaded() {\n        if (this.battle) {\n          return this.battle.start_time === null\n        }\n      },\n      readyToStart() {\n        return this.battleLoaded && this.confirmedUsers.length > 0\n      },\n      battleInitialized() {\n        if (this.battle) {\n          return this.battle.start_time !== null && this.battle.end_time === null\n        }\n      },\n      battleOver() {\n        if (this.battle) {\n          return this.battle.start_time !== null && this.battle.end_time !== null\n        }\n      }\n    },\n    methods: {\n      createBattle() {\n        this.$root.$emit('create-battle', this.challengeInput)\n      },\n      initializeBattle() {\n        if (!this.battleInitialized) { this.$root.$emit('initialize-battle') }\n      },\n      endBattle() {\n        if (this.battleInitialized) { this.$root.$emit('end-battle') }\n      }\n    }\n  }\n</script>\n\n<style scoped>\n  .all-confirmed {\n    background-color: green;\n  }\n</style>\n"]}]);
+exports.push([module.i, "\n.all-confirmed[data-v-7a94910c] {\n  background-color: green;\n}\n", "",{"version":3,"sources":["/Users/trouni/code/trouni/codewars-speedbattles/app/javascript/components/app/javascript/components/room_controls_mod.vue"],"names":[],"mappings":";AAyFA;EACA,uBAAA;AACA","file":"room_controls_mod.vue?vue&type=style&index=0&id=7a94910c&scoped=true&lang=css&","sourcesContent":["<template>\n  <div id=\"room-controls\" class=\"widget\">\n    <h3 class=\"header highlight\">{{ title }}</h3>\n    <div class=\"new-battle\" v-if=\"!this.battle\">\n      <input type=\"text\" v-model=\"challengeInput\" placeholder=\"Enter the id, slug or url of a Codewars Kata\">\n      <button @click=\"createBattle\">Load</button>\n    </div>\n    <div class=\"edit-battle\" v-else-if=\"!this.battleInitialized\">\n      <input type=\"number\" name=\"time-limit\" min='1' placeholder=\"time limit\"> min (optional)\n      <input type=\"number\" min='1' :max=\"eligibleUsers.length\"> max survivors (optional)\n      <p>{{ ineligibleUsers.map(user => user.username ).join(\", \") }} already completed this kata and {{ ineligibleUsers.length > 1 ? 'are' : 'is' }} not eligible for the battle</p>\n      <button @click=\"$root.$emit('delete-battle')\">Delete Battle</button>\n      <button @click=\"$root.$emit('invite-all')\" :disabled=\"allInvited\">Invite All</button>\n    </div>\n    <button v-if=\"battleLoaded\" :disabled=\"!readyToStart\" :class=\"{ 'all-confirmed': allConfirmed }\" @click=\"initializeBattle\">Start Battle ({{ confirmedUsers.length }} of {{ invitedUsers.length }})</button>\n    <button v-else-if=\"battleInitialized\" @click=\"endBattle\">End Battle</button>\n  </div>\n</template>\n\n<script>\n  export default {\n    props: {\n      room: Object,\n      users: Array,\n      currentUser: Object,\n      battle: Object,\n      input: String\n    },\n    data() {\n      return {\n        title: \"Controls\",\n        challengeInput: this.input\n      }\n    },\n    computed: {\n      eligibleUsers () {\n        return this.users.filter(user => user.invite_status && user.invite_status !== 'ineligible')\n      },\n      ineligibleUsers () {\n        return this.users.filter(user => user.invite_status === 'ineligible')\n      },\n      invitedUsers() {\n        if (!this.battle) { return [] }\n        return this.battle.players\n      },\n      confirmedUsers() {\n        if (!this.battle) { return [] }\n        return this.battle.players.filter(user => user.invite_status == 'confirmed')\n      },\n      allInvited() {\n        return this.invitedUsers.length === this.eligibleUsers.length\n      },\n      allConfirmed() {\n        return this.readyToStart && this.confirmedUsers.length === this.invitedUsers.length\n      },\n      battleLoaded() {\n        if (this.battle) {\n          return this.battle.start_time === null\n        }\n      },\n      readyToStart() {\n        return this.battleLoaded && this.confirmedUsers.length > 0\n      },\n      battleInitialized() {\n        if (this.battle) {\n          return this.battle.start_time !== null && this.battle.end_time === null\n        }\n      },\n      battleOver() {\n        if (this.battle) {\n          return this.battle.start_time !== null && this.battle.end_time !== null\n        }\n      }\n    },\n    methods: {\n      createBattle() {\n        this.$root.$emit('create-battle', this.challengeInput)\n      },\n      initializeBattle() {\n        if (!this.battleInitialized) { this.$root.$emit('initialize-battle') }\n      },\n      endBattle() {\n        if (this.battleInitialized) { this.$root.$emit('end-battle') }\n      }\n    }\n  }\n</script>\n\n<style scoped>\n  .all-confirmed {\n    background-color: green;\n  }\n</style>\n"]}]);
 
 
 
@@ -20208,7 +20208,7 @@ function addStyle (obj, options) {
 	// If a transform function was defined, run it on the css
 	if (options.transform && obj.css) {
 	    result = typeof options.transform === 'function'
-		 ? options.transform(obj.css) 
+		 ? options.transform(obj.css)
 		 : options.transform.default(obj.css);
 
 	    if (result) {
@@ -20915,7 +20915,7 @@ var render = function() {
             ],
             attrs: {
               type: "text",
-              placeholder: "Enter the id, slug or url of a CodeWars Kata"
+              placeholder: "Enter the id, slug or url of a Codewars Kata"
             },
             domProps: { value: _vm.challengeInput },
             on: {
