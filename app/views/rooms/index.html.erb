@@ -39,8 +39,9 @@
 
         <% elsif user_signed_in? %>
         <h3 class="header">Welcome to Codewars > SpeedBattles</h3>
-        <div class="widget-body p-5">
-          <p><%= current_user.name || current_user.username %>, please use the link given to you by an administrator to join a war room.</p>
+        <div class="widget-body p-5 text-center">
+          <p>Welcome <%= current_user.name || current_user.username %></p>
+          <p>Please use the link given to you by an administrator to join a war room.</p>
         </div>
 
         <% else %>
