@@ -35,46 +35,49 @@
 </template>
 
 <script>
-export default {
-  data: function () {
-    return {
-      username: '',
-      password: '',
-      passwordCheck: '',
-      validUsername: null,
-      fetched: false,
-      error: null,
-      email: `${this.username}@me.com`,
-    }
-  },
-  computed: {
-    validForm() {
-      return this.validUsername && this.validPassword && this.validPasswordCheck
-    },
-    validPassword() {
-      return this.password.length >= 6
-    },
-    validPasswordCheck() {
-      return this.password === this.passwordCheck
-    },
-  },
-  methods: {
-    checkUsername() {
-      if (this.username !== '') {
-        fetch(`/api/v1/check_username?username=${this.username}`, {
-        headers: {
-          'content-type': 'application/json'
-        }}).then(response => response.json())
-        .then((response) => {
-          this.fetched = true
-          this.validUsername = response.valid
-          this.email = `${this.username}@me.com`
-          this.error = `${this.username} is ${ response.valid ? '' : 'not' } a valid Codewars username${ response.valid ? '' : ' (case sensitive). Please enter your actual Codewars username' }.`
-        })
+  import _ from 'lodash'
+  export default {
+    data: function () {
+      return {
+        username: '',
+        password: '',
+        passwordCheck: '',
+        validUsername: null,
+        fetched: false,
+        error: null
       }
     },
+    computed: {
+      validForm() {
+        return this.validUsername && this.validPassword && this.validPasswordCheck
+      },
+      validPassword() {
+        return this.password.length >= 6
+      },
+      validPasswordCheck() {
+        return this.password === this.passwordCheck
+      },
+    },
+    methods: {
+      checkUsername() {
+        if (this.username !== '') {
+          fetch(`/api/v1/check_username?username=${this.username}`, {
+          headers: {
+            'content-type': 'application/json'
+          }}).then(response => response.json())
+          .then((response) => {
+            this.fetched = true
+            this.validUsername = response.valid && !response.exists
+            if (response.exists) {
+              this.error = `An account with username '${this.username}' already exists. Log in instead.`
+            } else {
+              this.error = `${this.username} is ${ response.valid ? '' : 'not' } a valid Codewars username${ response.valid ? '' : ' (case sensitive). Please enter your actual Codewars username' }.`
+            }
+          })
+        }
+      },
+    }
   }
-}
 </script>
 
 <style scoped>

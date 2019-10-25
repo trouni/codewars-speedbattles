@@ -12,7 +12,7 @@ class Api::V1::UsersController < ApplicationController
   def valid_username?
     skip_authorization
     open("https://www.codewars.com/api/v1/users/#{params[:username]}")
-    render json: { valid: true }
+    render json: { valid: true, exists: User.username_exists?(params[:username]) }
   rescue OpenURI::HTTPError
     render json: { valid: false }
   end

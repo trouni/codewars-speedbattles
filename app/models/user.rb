@@ -111,6 +111,10 @@ class User < ApplicationRecord
     return false
   end
 
+  def self.username_exists?(username)
+    return User.where(username: username).exists?
+  end
+
   def moderator?(for_room = room)
     rooms_as_moderator.include?(for_room)
   end
