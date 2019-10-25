@@ -8,12 +8,12 @@ class FetchCompletedChallengesJob < ApplicationJob
     # Throttle fetching at once every 10 minutes unless battle_id exists
     # return unless user.last_fetched_at < DateTime.now - 10.minutes || battle_id
 
-    if battle_id
-      battle = Battle.find(battle_id)
-      if user.completed_challenge?(battle.challenge_id)
-        battle.room.broadcast_user(user: user)
-      end
-    end
+    # if battle_id
+    #   battle = Battle.find(battle_id)
+    #   if user.completed_challenge?(battle.challenge_id)
+    #     battle.room.broadcast_user(user: user)
+    #   end
+    # end
 
     # Fetching first page and retrieving number of pages
     total_pages = fetch_page(user)
