@@ -427,12 +427,19 @@
       pushToUsers(user) {
         this.pushToArray(this.users, user)
 
-        if(!this.battle.players) return false;
+        if(!this.battle.players) return null;
 
         if (user.invite_status === 'invited' || user.invite_status === 'confirmed' || user.invite_status === 'survived') {
           this.pushToArray(this.battle.players, user)
         } else {
           this.battle.players = this.battle.players.filter(e => e.id !== user.id);
+        }
+      },
+      pushToPlayers(user) {
+        if (user.invite_status === 'ineligible') {
+          this.removeFromArray(this.battle.players, user);
+        } else {
+          this.pushToArray(this.battle.players, user)
         }
       },
       removeFromArray(array, user) {

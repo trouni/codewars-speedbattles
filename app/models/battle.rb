@@ -248,7 +248,9 @@ class Battle < ApplicationRecord
   end
 
   def uninvite_user(user)
-    battle_invite = BattleInvite.find_by(battle: self, player: user, confirmed: false)
+    return if start_time
+
+    battle_invite = BattleInvite.find_by(battle: self, player: user)
     battle_invite&.destroy
     battle_invite.broadcast_user
   end

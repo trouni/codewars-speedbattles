@@ -25,6 +25,7 @@
                 <div class="d-flex flex-column justify-content-around align-items-end">
                   <button @click="cancelBattle"><i class="far fa-times-circle"></i>Cancel</button>
                   <button @click="$root.$emit('invite-all')" :disabled="allInvited"><i class="fas fa-user-plus"></i>Invite All</button>
+                  <button @click="$root.$emit('invite-survivors')"><i class="fas fa-user-plus"></i>Invite Survivors</button>
                   <button :disabled="confirmedUsers.length === 0" @click="initializeBattle" class="large"><i class="fas fa-radiation"></i>Start Battle</button>
                 </div>
               </div>
