@@ -135,7 +135,7 @@
             if (a.completed_at && b.completed_at) {
               return (new Date(a.completed_at) - new Date(b.completed_at))
             } else if (a.completed_at || b.completed_at) {
-              return a.completed_at ? 1 : -1
+              return a.completed_at ? -1 : 1
             } else {
               return (b.invite_status || [""])[0] < (a.invite_status || [""])[0] ? 1 : -1
             }
