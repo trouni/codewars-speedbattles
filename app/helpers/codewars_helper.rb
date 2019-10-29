@@ -20,6 +20,7 @@ module CodewarsHelper
         )
       end
     end
+    user.update(last_fetched_at: DateTime.now)
     return json["totalPages"]
   end
 

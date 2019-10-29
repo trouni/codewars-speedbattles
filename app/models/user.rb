@@ -153,6 +153,8 @@ class User < ApplicationRecord
   end
 
   def completed_challenge?(challenge_id)
+    return false if challenge_id.nil?
+
     completed_challenges.where(challenge_id: challenge_id).exists?
   end
 

@@ -49,13 +49,17 @@ class RoomChannel < ApplicationCable::Channel
     battle = Battle.find(data["battle_id"])
     case data["battle_action"]
     when "start"
+      return if battle.start_time
+
       countdown = data["countdown"].to_i
       battle.uninvite_unconfirmed
       @room.broadcast_action(action: 'start-countdown', data: { countdown: countdown })
-      battle.update(start_time: DateTime.now + countdown.seconds) unless battle.start_time
+      battle.update(start_time: DateTime.now + countdown.seconds)
     when "end"
+      return if battle.end_time
+
       end_time = battle.time_limit ? [battle.start_time + battle.time_limit.minutes, DateTime.now].min : DateTime.now
-      battle.update(end_time: end_time) unless battle.end_time
+      battle.update(end_time: end_time)
       battle.defeated_players.each(&:async_fetch_codewars_info)
       @room.broadcast_room_players
     when "update"
