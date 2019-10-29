@@ -132,7 +132,11 @@
       defeated() {
         if (this.battle.players) {
           return this.battle.players.filter(user => !this.completedOnTime(user)).sort((a,b) => {
-            return (b.invite_status || [""])[0] < (a.invite_status || [""])[0] ? 1 : -1
+            if (a.completed_at || b.completed_at) {
+              return (new Date(a.completed_at) - new Date(b.completed_at))
+            } else {
+              return (b.invite_status || [""])[0] < (a.invite_status || [""])[0] ? 1 : -1
+            }
           });
         }
       },
