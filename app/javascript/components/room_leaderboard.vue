@@ -27,7 +27,7 @@
                   <span v-if="isOnline(player.id)" :class="['mr-1', { 'current-user highlight': isOnline(player.id), offline: !isOnline(player.id) }]">●</span>
                   <!-- <span :class="userClass(player.id)" v-if="showInviteButton(player.id, 'eligible')" @click="$root.$emit('invite-user', player.id)">{{ player.username }}</span>
                   <span :class="userClass(player.id)" v-else-if="showInviteButton(player.id, 'invited')" @click="$root.$emit('uninvite-user', player.id)">{{ player.username }}</span> -->
-                  <span :class="userClass(player.id)" @click="toggleInvite(player.id)">{{ player.name || player.username }}
+                  <span :class="userClass(player.id)" @click="toggleInvite(player.id)" :disabled="!currentUserIsModerator">{{ player.name || player.username }}
                     <!--  <i v-if="showInviteButton(player.id, 'confirmed')" class="fas fa-fist-raised highlight ml-1"></i> -->
                   </span>
                 </span>

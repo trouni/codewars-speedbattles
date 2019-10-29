@@ -353,7 +353,7 @@
         this.sendCable('update_battle', { battle_action: 'start', battle_id: this.battle.id, countdown: this.countdownDuration, time_limit: this.timeLimit });
       },
       endBattle() {
-        this.sendCable('update_battle', { battle_action: 'end', battle_id: this.battle.id });
+        if (this.currentUserIsModerator) this.sendCable('update_battle', { battle_action: 'end', battle_id: this.battle.id });
         this.challengeInput = '';
       },
       fetchChallenges(userId) {
@@ -385,7 +385,7 @@
           if (this.battle.stage === 4) {
             let clockTime;
             if (this.battle.time_limit > 0) {
-              if (this.currentUserIsModerator && this.timeRemainingInSeconds() <= 0) this.endBattle();
+              if (this.timeRemainingInSeconds() <= 0) this.endBattle();
               clockTime = this.timeRemainingInSeconds() > 0 ? this.timeRemainingInSeconds() : 0;
             } else {
               clockTime = this.timeSpentInSeconds();
