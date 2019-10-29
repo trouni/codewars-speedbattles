@@ -427,16 +427,10 @@
       pushToUsers(user) {
         this.pushToArray(this.users, user)
 
-        if(!this.battle.players) return null;
-
-        if (user.invite_status === 'eligible' || user.invite_status === 'ineligible') {
-          this.battle.players = this.battle.players.filter(e => e.id !== user.id);
-        } else {
-          this.pushToArray(this.battle.players, user)
-        }
+        if(this.battle.players) this.pushToPlayers(user);
       },
       pushToPlayers(user) {
-        if (user.invite_status === 'ineligible') {
+        if (user.invite_status === 'eligible' || user.invite_status === 'ineligible') {
           this.removeFromArray(this.battle.players, user);
         } else {
           this.pushToArray(this.battle.players, user)
@@ -539,6 +533,10 @@
               if (this.battleOngoing) this.startClock();
               this.battleInitialized = true;
               if (this.currentUserIsModerator) console.info(`Refreshed active battle`);
+              break;
+
+              case "player":
+              this.pushToPlayers(data.payload.user);
               break;
 
               default:

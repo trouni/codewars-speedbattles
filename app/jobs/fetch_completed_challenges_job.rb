@@ -11,7 +11,7 @@ class FetchCompletedChallengesJob < ApplicationJob
     battle = Battle.find(battle_id) if battle_id
 
     if user.completed_challenge?(battle&.challenge_id)
-      battle.room.broadcast_user(user: user)
+      battle.room.broadcast_player(user: user)
     else
       # Fetching first page and retrieving number of pages
       total_pages = fetch_page(user)

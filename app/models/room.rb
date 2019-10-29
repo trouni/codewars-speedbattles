@@ -153,14 +153,6 @@ class Room < ApplicationRecord
     )
   end
 
-  def broadcast_action(action:, data: nil)
-    broadcast(subchannel: "action", payload: { action: action, data: data })
-  end
-
-  def broadcast_user(action: "add", user:)
-    broadcast(subchannel: "users", payload: { action: action, user: user.api_expose(self, active_battle) })
-  end
-
   def broadcast_users
     broadcast(
       subchannel: "users",
@@ -193,8 +185,20 @@ class Room < ApplicationRecord
     )
   end
 
+  def broadcast_action(action:, data: nil)
+    broadcast(subchannel: "action", payload: { action: action, data: data })
+  end
+
+  def broadcast_user(action: "add", user:)
+    broadcast(subchannel: "users", payload: { action: action, user: user.api_expose(self, active_battle) })
+  end
+
   def broadcast_active_battle
     broadcast(subchannel: "battles", payload: { action: "active", battle: active_battle&.api_expose })
+  end
+
+  def broadcast_player(action: "player", user:)
+    broadcast(subchannel: "battles", payload: { action: action, user: user.api_expose(self, active_battle) })
   end
 
   # def broadcast_battles
