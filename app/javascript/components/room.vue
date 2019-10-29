@@ -429,10 +429,10 @@
 
         if(!this.battle.players) return null;
 
-        if (user.invite_status === 'invited' || user.invite_status === 'confirmed' || user.invite_status === 'survived') {
-          this.pushToArray(this.battle.players, user)
-        } else {
+        if (user.invite_status === 'eligible' || user.invite_status === 'ineligible') {
           this.battle.players = this.battle.players.filter(e => e.id !== user.id);
+        } else {
+          this.pushToArray(this.battle.players, user)
         }
       },
       pushToPlayers(user) {
