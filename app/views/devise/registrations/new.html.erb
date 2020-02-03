@@ -3,13 +3,13 @@
     <div class="grid-item col-md-9 col-lg-6">
 
       <%= render 'shared/widget', title: "Create an account" do %>
-        <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-        <%= f.error_notification %>
-        <%#= f.input :email, placeholder: 'Your email address', hint: 'Only used if you need to reset your password.', required: true %>
+      <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+      <%= f.error_notification %>
+      <%#= f.input :email, placeholder: 'Your email address', hint: 'Only used if you need to reset your password.', required: true %>
 
-        <sign-up-form-inputs></sign-up-form-inputs>
+      <sign-up-form-inputs></sign-up-form-inputs>
 
-        <% end %>
+      <% end %>
       <% end %>
 
     </div>

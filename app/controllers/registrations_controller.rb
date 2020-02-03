@@ -31,4 +31,9 @@ class RegistrationsController < Devise::RegistrationsController
       room_path(Room.find(current_room_id))
     end
   end
+
+  def after_sign_up_path_for(resource)
+    edit_user_registration_path
+  end
 end
+

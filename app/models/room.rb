@@ -169,7 +169,8 @@ class Room < ApplicationRecord
       subchannel: "chat",
       payload: {
         action: "all",
-        messages: messages.includes(:user).limit(30).map(&:api_expose)
+        messages: messages.includes(:user).map(&:api_expose)
+        # messages: messages.includes(:user).limit(30).map(&:api_expose)
       }
     )
   end
