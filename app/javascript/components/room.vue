@@ -417,27 +417,34 @@
         const elementIndex = array.findIndex((e) => e.id === element.id);
         if (elementIndex === -1) {
             array.push(element);
-            if (this.currentUserIsModerator) console.info(`Added element ${element}`)
+            if (this.currentUserIsModerator) console.info('Added element:', element)
         } else {
             // array[index] = user; // Vue cannot detect change in the array with this method
             array.splice(elementIndex, 1, element)
-            if (this.currentUserIsModerator) console.info(`Updated element ${element}`)
+            if (this.currentUserIsModerator) console.info('Updated element:', element)
         }
       },
       pushToUsers(user) {
+        if (this.currentUserIsModerator) console.info('Pushing to Users', user)
         this.pushToArray(this.users, user)
 
         if(this.battle.players) this.pushToPlayers(user);
       },
       pushToPlayers(user) {
         if (user.invite_status === 'eligible' || user.invite_status === 'ineligible') {
+          if (this.currentUserIsModerator) console.info('Removing from Players', user)
           this.removeFromArray(this.battle.players, user);
         } else {
+          if (this.currentUserIsModerator) console.info('Pushing to Players', user)
           this.pushToArray(this.battle.players, user)
         }
       },
-      removeFromArray(array, user) {
-        return array.filter(e => e.id !== user.id);
+      removeFromArray(array, element) {
+        const elementIndex = array.findIndex((e) => e.id === element.id);
+        if (elementIndex !== -1) {
+            array.splice(elementIndex, 1)
+            if (this.currentUserIsModerator) console.info('Removed element:', element)
+        }
       },
       removeFromUsers(user) {
         this.removeFromArray(this.users, user);

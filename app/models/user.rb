@@ -84,6 +84,7 @@ class User < ApplicationRecord
       name: name,
       last_fetched_at: last_fetched_at,
       invite_status: invite_status(battle),
+      invited_at: active_invite(battle)&.created_at,
       completed_at: battle&.completed_challenge_at(self)
     }
 
@@ -134,16 +135,20 @@ class User < ApplicationRecord
     room&.active_battle
   end
 
+  def active_invite(battle = active_battle)
+    battle_invites.find_by(battle: battle)
+  end
+
   def invited?(battle = active_battle)
     return nil unless battle
 
-    BattleInvite.where(battle: battle, player: self).exists?
+    battle_invites.where(battle: battle).exists?
   end
 
   def confirmed?(battle = active_battle)
     return nil unless battle
 
-    BattleInvite.where(battle: battle, player: self, confirmed: true).exists?
+    battle_invites.where(battle: battle, confirmed: true).exists?
   end
 
   def eligible?(battle = active_battle)
