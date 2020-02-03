@@ -12,6 +12,6 @@ class FetchCompletedChallengesJob < ApplicationJob
       total_pages = fetch_page(user)
       (1...total_pages).each { |page| fetch_page(user, page) } if all_pages
     end
-    battle.room.broadcast_player(user: user)
+    user.room&.broadcast_player(user: user)
   end
 end

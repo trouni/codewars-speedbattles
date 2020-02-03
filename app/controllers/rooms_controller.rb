@@ -3,7 +3,6 @@ class RoomsController < ApplicationController
 
   def index
     @rooms = policy_scope(Room)
-    flash[:notice] = "Post successfully created"
   end
 
   def show

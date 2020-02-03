@@ -357,7 +357,7 @@
         this.challengeInput = '';
       },
       fetchChallenges(userId) {
-        this.sendCable('fetch_user_challenges', { user_id: userId, battle_id: this.battle.id })
+        this.sendCable('fetch_user_challenges', { user_id: userId, battle_id: this.battle.id });
       },
       getRoomPlayers(userId) {
         this.sendCable('get_room_players')

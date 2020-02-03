@@ -18,6 +18,7 @@ module CodewarsHelper
           completed_at: DateTime.parse(challenge["completedAt"]),
           completed_languages: challenge["completedLanguages"]
         )
+        puts "Added challenge '#{challenge["id"]}: #{challenge["slug"]}' to #{user.username}"
       end
     end
     user.update(last_fetched_at: DateTime.now)
