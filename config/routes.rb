@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   root to: 'rooms#index'
+
   mount ActionCable.server => '/cable'
   devise_for :users, controllers: { registrations: 'registrations' }
   # resources :users do
@@ -17,6 +18,7 @@ Rails.application.routes.draw do
   namespace :api, defaults: { format: :json } do
   #   # mount ActionCable.server => '/cable'
     namespace :v1 do
+      get '/check_username', to: 'users#valid_username?'
   #     resources :rooms, only: [ :index, :show, :create, :update ] do
   #       get '/leaderboard', to: 'rooms#leaderboard'
   #       resources :battles, only: :create
@@ -31,7 +33,6 @@ Rails.application.routes.draw do
   #     resources :users do
   #       get '/fetch_data', to: 'users#fetch_data'
   #     end
-      get '/check_username', to: 'users#valid_username?'
   #     resources :challenges, only: :show
   #     resources :chats, only: :show
   #     resources :messages, only: :create
