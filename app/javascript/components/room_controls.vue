@@ -159,7 +159,7 @@
         setTimeout(() => {
           this.completedButtonClicked = false;
         }, 3000)
-        $root.$emit('fetch-challenges', currentUser.id);
+        this.$root.$emit('fetch-challenges', currentUser.id);
       },
       isInvited(user) {
         return user.invite_status === 'invited'
