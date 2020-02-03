@@ -139,7 +139,7 @@ export default {
       this.$root.$emit('get-room-players');
     },
     toggleInvite(userId) {
-      if (this.findUser(userId).invite_status == 'eligible') this.$root.$emit('invite-user', userId)
+      if (this.findUser(userId).invite_status == 'eligible' && this.currentUserIsModerator) this.$root.$emit('invite-user', userId)
       else this.$root.$emit('uninvite-user', userId)
     }
   }
