@@ -18,7 +18,7 @@
           <table v-else class="console-table h-100">
             <thead>
               <tr>
-                <th scope="col" style="width: 50%;"><span class="data">WARRIOR</span></th>
+                <th scope="col" style="width: 50%;"><span class="data">WARRIOR {{ battle.stage > 0 && battle.players ? `[${confirmedUsers().length}/${invitedUsers().length}]` : ""}}</span></th>
                 <th scope="col" style="width: 10%;"><span class="data">RANK</span></th>
                 <th scope="col" style="width: 20%;"><span class="data">STATUS</span></th>
                 <th scope="col" style="width: 20%;"><span class="data">TIME</span></th>
@@ -45,7 +45,7 @@
                   <span class="data">Battle over</span>
                 </th>
                 <td>
-                  <span class="data rank">-</span>
+                  <span class="data rank"></span>
                 </td>
                 <td>
                   <span class="data">End time</span>
@@ -60,7 +60,7 @@
                   <span class="data username animated flipInY">{{ result.name || result.username }}</span>
                 </th>
                 <td>
-                  <span class="data rank">-</span>
+                  <span class="data rank">{{ battle.stage === 0 ? '' : '-' }}<i v-if="battle.stage === 0" class="fas fa-skull-crossbones"></i></span>
                 </td>
                 <td>
                   <span class="data">{{ battle.stage === 0 ? 'Defeated' : '-' }}</span>
@@ -157,6 +157,15 @@
       }
     },
     methods: {
+      invitedUsers() {
+        if (this.battle.stage === 0) { return [] }
+        // return this.battle.players
+        return this.users.filter(user => user.invite_status === 'invited')
+      },
+      confirmedUsers() {
+        if (!this.battle.players) { return [] }
+        return this.battle.players.filter(user => user.invite_status == 'confirmed');
+      },
       userIsConfirmed(userId) {
         if (this.findPlayer(userId)) {
           return this.findPlayer(userId).invite_status === 'confirmed';

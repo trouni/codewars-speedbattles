@@ -33,7 +33,7 @@ table.console-table {
     font-style: italic;
     opacity: 0.5;
     .data.username:after {
-      content: "(pending confirmation)";
+      content: "(pending)";
       visibility: visible;
       font-size: smaller;
       margin-left: 0.5em;
