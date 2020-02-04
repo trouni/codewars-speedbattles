@@ -85,6 +85,7 @@ class User < ApplicationRecord
       last_fetched_at: last_fetched_at,
       invite_status: invite_status(battle),
       invited_at: active_invite(battle)&.created_at,
+      joined_at: room_user&.created_at,
       completed_at: battle&.completed_challenge_at(self)
     }
 

@@ -76,24 +76,22 @@ export default {
     },
     sortedLeaderboard() {
       return this.leaderboardUsers.sort((a, b) => {
-        if (b.total_score !== a.total_score) {
-          return b.total_score - a.total_score
-        } else if (a.battles_fought === 0 || b.battles_fought === 0) {
-          return b.battles_fought - a.battles_fought
-        } else {
-          if (b.victories !== a.victories) {
-            return b.victories - a.victories
+        if (this.leaderboard[a.id] && this.leaderboard[b.id]) {
+          if (this.leaderboard[b.id].total_score !== this.leaderboard[a.id].total_score) {
+            return this.leaderboard[b.id].total_score - this.leaderboard[a.id].total_score
+          } else if (this.leaderboard[a.id].battles_fought === 0 || this.leaderboard[b.id].battles_fought === 0) {
+            return this.leaderboard[b.id].battles_fought - this.leaderboard[a.id].battles_fought
+          } else if (this.leaderboard[b.id].battles_survived !== this.leaderboard[a.id].battles_survived) {
+              return this.leaderboard[b.id].battles_survived - this.leaderboard[a.id].battles_survived
+          } else if (this.leaderboard[a.id].battles_lost !== this.leaderboard[b.id].battles_lost) {
+              return this.leaderboard[a.id].battles_lost - this.leaderboard[b.id].battles_lost
           } else {
-            if (b.battles_survived !== a.battles_survived) {
-              return b.battles_survived - a.battles_survived
-            } else {
-              if (this.defeats(a) !== this.defeats(b)) {
-                return this.defeats(a) - this.defeats(b)
-              } else {
-                return b.username[0] > a.username[0] ? 1 : -1
-              }
-            }
+            return b.username[0] > a.username[0] ? 1 : -1
           }
+        } else if (this.leaderboard[a.id] || this.leaderboard[b.id]) {
+          return this.leaderboard[a.id] ? -1 : 1
+        } else {
+          return (new Date(a.joined_at) - new Date(b.joined_at))
         }
       })
     }
