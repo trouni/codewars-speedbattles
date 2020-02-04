@@ -59,6 +59,7 @@
           :users="users"
           :room="room"
           :battle="battle"
+          :leaderboard="leaderboard"
           :room-players="roomPlayers"
           :current-user="currentUser"
           :current-user-is-moderator="currentUserIsModerator"
@@ -117,6 +118,7 @@
         users: [],
         roomPlayers: [],
         battle: {},
+        leaderboard: {},
         messages: [],
         challengeInput: '',
         controlsType: '',
@@ -525,6 +527,17 @@
               this.roomPlayersInitialized = true;
               if (this.currentUserIsModerator) console.info(`Refreshed all room players`)
               break;
+            }
+            break;
+
+            case "leaderboard":
+            switch (data.payload.action) {
+              case 'update':
+              this.leaderboard = data.payload.leaderboard;
+              break;
+
+              default:
+              this.leaderboard = data.payload.leaderboard;
             }
             break;
 

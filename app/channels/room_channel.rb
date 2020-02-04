@@ -11,6 +11,7 @@ class RoomChannel < ApplicationCable::Channel
     @room.broadcast_users
     @room.broadcast_messages
     @room.broadcast_active_battle
+    @room.broadcast_leaderboard
   end
 
   def unsubscribed
@@ -100,6 +101,11 @@ class RoomChannel < ApplicationCable::Channel
   def get_room_players
     set_room
     @room.broadcast_room_players
+  end
+
+  def get_leaderboard
+    set_room
+    @room.broadcast_leaderboard
   end
 
   private

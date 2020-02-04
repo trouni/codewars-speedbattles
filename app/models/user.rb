@@ -63,7 +63,7 @@ class User < ApplicationRecord
       where(room_id: room.id, battle_invites: { confirmed: true }).where.not(end_time: nil)
     end
   end
-  has_many :battles_as_winner, class_name: 'Battle', foreign_key: 'winner_id'
+  # has_many :battles_as_winner, class_name: 'Battle', foreign_key: 'winner_id'
   has_many :completed_challenges, dependent: :destroy
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
@@ -88,13 +88,12 @@ class User < ApplicationRecord
       completed_at: battle&.completed_challenge_at(self)
     }
 
-    no_stats = { battles_survived: nil, battles_fought: nil, victories: nil, total_score: nil }
+    no_stats = { battles_survived: nil, battles_fought: nil, total_score: nil }
 
     return standard_result unless for_room&.show_stats
 
     return standard_result.merge(battles_survived: survived(for_room).size)
                           .merge(battles_fought: battles.for_room(for_room).size)
-                          .merge(victories: for_room.victories(self).size)
                           .merge(total_score: for_room.total_score(self))
     # .merge(completed_at: active_battle&.completed_challenge_at(self))
   end

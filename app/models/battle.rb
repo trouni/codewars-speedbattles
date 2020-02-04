@@ -175,9 +175,7 @@ class Battle < ApplicationRecord
   def score(player)
     return 0 unless player.invited?(self)
 
-    return -1 unless player.survived?(self)
-
-    return winner?(player) ? 10 : 5
+    player.survived?(self) ? 5 : -1
   end
 
   def survivors
