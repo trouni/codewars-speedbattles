@@ -29,7 +29,8 @@
           <!-- <h3 class="animated fadeInDown faster">LOADING</h3> -->
         </div>
         <room-chat
-          :messages="messages"
+          :messages="chat.messages"
+          :authors="chat.authors"
           :current-user-name="currentUser.username"
           :current-user="currentUser"
         ></room-chat>
@@ -81,7 +82,9 @@
           :time-limit="timeLimit"
           :battle-status="battleStatus"
           :challenge-url="challengeUrl"
+          :volume-ambiance="soundFx.volumeAmbiance"
         ></room-controls>
+        <!-- <input type="submit" @click="test" value="test"> -->
       </div>
     </div>
   </div>
@@ -119,11 +122,27 @@
         roomPlayers: [],
         battle: {},
         leaderboard: {},
-        messages: [],
+        chat: {
+          messages: [],
+          authors: []
+        },
         challengeInput: '',
         controlsType: '',
         countdownDuration: 10,
         countdown: 0,
+        soundFx: {
+          volumeFx: 1,
+          volumeAmbiance: 0.4,
+          volumeBackgroundAmbiance: 0.2,
+          countdown: new Audio('../audio/countdown.mp3'),
+          ambiance: [
+            new Audio('../audio/bensound-epic.mp3'),
+            new Audio('../audio/overpowered.mp3'),
+            // new Audio('../audio/infinity-star.mp3'),
+            
+          ]
+        },
+        ambianceMusic: new Audio,
         announcement: {
           status: 'normal',
           content: `Welcome to ${this.roomInit.name}`
@@ -140,6 +159,17 @@
     watch: {
       battleInitialized: function () {
         this.timeLimit = this.battle.time_limit || 0;
+      },
+      soundFx: {
+        handler: function() {
+          console.log("updating volume")
+          this.ambianceMusic.volume = this.soundFx.volumeAmbiance;
+          console.log(this.soundFx.ambiance.volume)
+        },
+        deep: true
+      },
+      battleStage: function() {
+        if (this.battleStage === 4) this.startAmbiance()
       }
     },
     computed: {
@@ -165,6 +195,9 @@
         } else {
           return null
         }
+      },
+      soundActive() {
+        return this.currentUserIsModerator
       },
       announcerWindow() {
         let status = this.announcement.status || 'normal'
@@ -212,12 +245,6 @@
       },
       // STATUSES
       roomStatus() {
-        // if (this.battleStage <= 2) {
-        //   return "peace"
-        // } else if (!this.battleStatus.readyToStart) {
-        //   return "preparation"
-        // } else if (!this.battleStatus.battleCountdown && this.countdown === 0) {
-        //   return "brink-of-war"
         if (this.battleStage === 4) {
           return "war"
         } else if (this.battleStage === 3) {
@@ -309,18 +336,34 @@
           data: data
         });
       }, 1000),
+      test() {
+      },
       // =============
       //     ROOM
       // =============
+      stripHTML(html) {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
+      },
       announce(message) {
         this.announcement = {
           status: message.status || 'normal',
           content: message.content
         }
+        if (message.chat && this.currentUserIsModerator) this.sendChatMessage(message.content, true)
+        
+        const strippedContent = this.stripHTML(message.content)
+        if (message.speak && this.soundActive) this.speak(strippedContent)
       },
-      sendChatMessage(content) {
-        this.sendCable('create_message', { message: content })
+      sendChatMessage(message, announcement = false) {
+        this.sendCable('create_message', { message: message, announcement: announcement })
         this.input = ''
+      },
+      speak(message) {
+        var msg = new SpeechSynthesisUtterance(message)
+        var voices = speechSynthesis.getVoices()
+        msg.voice = voices[voices.findIndex((e) => e.voiceURI === "Google US English")]
+        speechSynthesis.speak(msg)
       },
       // =============
       //     BATTLE
@@ -355,6 +398,7 @@
         this.sendCable('update_battle', { battle_action: 'start', battle_id: this.battle.id, countdown: this.countdownDuration, time_limit: this.timeLimit });
       },
       endBattle() {
+        this.stopAmbiance();
         if (this.currentUserIsModerator) this.sendCable('update_battle', { battle_action: 'end', battle_id: this.battle.id });
         this.challengeInput = '';
       },
@@ -368,6 +412,24 @@
         if (this.battle.challenge.language === null) this.battle.challenge.language = 'ruby';
         window.open(this.challengeUrl)
       },
+      startAmbiance() {
+        console.log("starting ambiance")
+        if (!this.ambianceMusic.paused) return;
+
+        this.ambianceMusic = this.soundFx.ambiance[Math.floor(Math.random() * this.soundFx.ambiance.length)]
+        // this.ambianceMusic.loop = true
+        this.ambianceMusic.volume = this.soundFx.volumeAmbiance;
+        this.ambianceMusic.onended = () => {
+          console.log("restarting ambiance")
+          this.startAmbiance();
+        };
+        if (this.soundActive) this.ambianceMusic.play();
+      },
+      stopAmbiance() {
+        console.log("stopping ambiance")
+        this.ambianceMusic.pause();
+        this.ambianceMusic.currentTime = 0;
+      },
       startCountdown(countdown) {
         this.countdown = countdown
         const timer = setInterval(() => {
@@ -376,9 +438,14 @@
           } else {
             this.countdown = 0
             clearInterval(timer);
-            this.announce({ content: `The battle for <span class='highlight'>${this.battle.challenge.name}</span> has begun!` });
+            this.announce({
+              content: `The battle for <span class="highlight">${this.battle.challenge.name}</span> has begun!`,
+              chat: true,
+              speak: true
+            });
             if (this.currentUser.invite_status === 'confirmed' && !this.viewMode) this.openCodewars();
             this.startClock();
+            // this.startAmbiance();
           }
         }, 1000)
       },
@@ -387,7 +454,12 @@
           if (this.battle.stage === 4) {
             let clockTime;
             if (this.battle.time_limit > 0) {
-              if (this.timeRemainingInSeconds() <= 0) this.endBattle();
+              if (this.timeRemainingInSeconds() <= 11 && this.timeRemainingInSeconds() >= 10) {
+                this.ambianceMusic.volume = Math.min(this.soundFx.volumeAmbiance, this.soundFx.volumeBackgroundAmbiance);
+                if (this.soundActive) this.soundFx.countdown.play();
+              } else if (this.timeRemainingInSeconds() <= 0) {
+                this.endBattle();
+              }
               clockTime = this.timeRemainingInSeconds() > 0 ? this.timeRemainingInSeconds() : 0;
             } else {
               clockTime = this.timeSpentInSeconds();
@@ -395,7 +467,10 @@
             this.announce({ content: `<span class='timer highlight'>${this.formatDuration(clockTime)}</span>` });
           } else {
             clearInterval(clock);
-            this.announce({ content: 'The battle is over.' });
+            this.announce({
+              content: `The battle for <span class='highlight'>${this.battle.challenge.name}</span> is over.`,
+              chat: true
+            });
           }
         }, 1000)
       },
@@ -416,15 +491,18 @@
       //     USERS
       // =============
       pushToArray(array, element) {
+        const result = { newElement: element }
         const elementIndex = array.findIndex((e) => e.id === element.id);
         if (elementIndex === -1) {
-            array.push(element);
-            if (this.currentUserIsModerator) console.info('Added element:', element)
+          array.push(element);
+          if (this.currentUserIsModerator) console.info('Added element:', element)
         } else {
-            // array[index] = user; // Vue cannot detect change in the array with this method
-            array.splice(elementIndex, 1, element)
-            if (this.currentUserIsModerator) console.info('Updated element:', element)
+          // array[index] = user; // Vue cannot detect change in the array with this method
+          result.oldElement = array[elementIndex]
+          array.splice(elementIndex, 1, element)
+          if (this.currentUserIsModerator) console.info('Updated element:', element)
         }
+        return result
       },
       pushToUsers(user) {
         if (this.currentUserIsModerator) console.info('Pushing to Users', user)
@@ -438,7 +516,16 @@
           this.removeFromArray(this.battle.players, user);
         } else {
           if (this.currentUserIsModerator) console.info('Pushing to Players', user)
-          this.pushToArray(this.battle.players, user)
+          const result = this.pushToArray(this.battle.players, user)
+          if (result.oldElement && result.oldElement.invite_status === 'confirmed' && result.newElement.invite_status === 'survived') {
+            if (this.currentUserIsModerator) {
+              this.announce({
+                content: `Challenge completed by @{${user.username}}`,
+                chat: true,
+                speak: true
+              });
+            }
+          }
         }
       },
       removeFromArray(array, element) {
@@ -478,6 +565,7 @@
               case 'start-countdown':
               // this.sendCable('invitation', { battle_id: this.battle.id, invite_action: 'uninvite-unconfirmed' })
               this.startCountdown(data.payload.data.countdown);
+              if (this.soundActive) this.soundFx.countdown.play();
               break;
 
               default:
@@ -488,13 +576,14 @@
             case "chat":
             switch (data.payload.action) {
               case "all":
-              this.messages = data.payload.messages
+              this.chat.messages = data.payload.messages
+              this.chat.authors = data.payload.authors
               if (this.currentUserIsModerator) console.info(`Refreshed all messages`)
               this.messagesInitialized = true;
               break;
 
               default:
-              this.messages.push(data.payload)
+              this.chat.messages.push(data.payload)
               break;
             }
             break;
@@ -575,6 +664,7 @@
       this.$cable.subscribe({ channel: 'RoomChannel', room_id: this.room.id, user_id: this.currentUserId });
       this.$root.$on('announce', (message) => this.announce(message))
       this.$root.$on('send-chat-message', (message) => this.sendChatMessage(message))
+      this.$root.$on('change-volume-ambiance', (volume) => this.soundFx.volumeAmbiance = volume)
       this.$root.$on('create-battle', (challenge) => this.createBattle(challenge))
       this.$root.$on('delete-battle', () => this.deleteBattle())
       this.$root.$on('fetch-challenges', (userId) => this.fetchChallenges(userId))
@@ -591,6 +681,7 @@
       this.$root.$on('start-countdown', () => this.startCountdown())
       this.$root.$on('end-battle', () => this.endBattle())
       this.$root.$on('edit-time-limit', (step) => this.editTimeLimit(step))
+      this.$root.$on('speak', (message) => this.speak(message))
     },
   }
 </script>

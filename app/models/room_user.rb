@@ -20,7 +20,7 @@ class RoomUser < ApplicationRecord
   private
 
   def async_fetch_challenges
-    FetchCompletedChallengesJob.perform_later(user_id: user_id)
+    FetchCompletedChallengesJob.perform_later(user_id: user_id) if user.last_fetched_at && user.last_fetched_at < (DateTime.now - 1.hour)
   end
 
   def join_room

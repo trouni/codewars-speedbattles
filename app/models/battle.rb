@@ -50,6 +50,7 @@ class Battle < ApplicationRecord
   def challenge
     {
       id: challenge_id,
+      url: challenge_url,
       name: challenge_name,
       url: challenge_url,
       language: challenge_language,

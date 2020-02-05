@@ -48,7 +48,9 @@
             </div>
           </div>
 
-
+          <div class="slidecontainer">
+            <input type="range" min="0" max="100" v-model="volumeAmbianceInput" class="slider" id="ambiance-volume" @input="changeVolumeAmbiance">
+          </div>
 
         </div>
 
@@ -100,13 +102,15 @@
       battleStatus: Object,
       challengeUrl: String,
       timeLimit: Number,
+      volumeAmbiance: Number
     },
     data() {
       return {
         title: "SYS://Settings",
         challengeInput: this.input,
         completedButtonClicked: false,
-        attentionHover: false
+        attentionHover: false,
+        volumeAmbianceInput: this.volumeAmbiance * 100
       }
     },
     computed: {
@@ -178,6 +182,9 @@
       },
       endBattle() {
         if (this.battle.stage > 3) { this.$root.$emit('end-battle') }
+      },
+      changeVolumeAmbiance() {
+        this.$root.$emit('change-volume-ambiance', this.volumeAmbianceInput / 100)
       },
       displayDateTime(timestamp) {
         const monthNames = [

@@ -31,7 +31,11 @@ class RoomChannel < ApplicationCable::Channel
   def create_message(data)
     set_room
     set_current_user
-    Message.create(user_id: @current_user.id, chat_id: @room.chat.id, content: data["message"])
+    if data["announcement"]
+      @room.chat.create_announcement(data["message"])
+    else
+      Message.create(user_id: @current_user.id, chat_id: @room.chat.id, content: data["message"])
+    end
   end
 
   # =============
@@ -88,7 +92,7 @@ class RoomChannel < ApplicationCable::Channel
     user = User.find(data["user_id"])
 
     # Don't Fetch challenges if already completed or fetched within last 5 seconds
-    return if user.survived?(battle) || user.last_fetched_at > (DateTime.now - 5.seconds)
+    return if user.survived?(battle) || (user.last_fetched_at || DateTime.now) > (DateTime.now - 5.seconds)
 
     FetchCompletedChallengesJob.perform_later(
       user_id: data["user_id"],

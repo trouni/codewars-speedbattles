@@ -18,7 +18,7 @@
           <table v-else class="console-table h-100">
             <thead>
               <tr>
-                <th scope="col" style="width: 50%;"><span class="data">WARRIOR {{ battle.stage > 0 && battle.players ? `[${confirmedUsers().length}/${invitedUsers().length}]` : ""}}</span></th>
+                <th scope="col" style="width: 50%;"><span class="data">WARRIORS {{ battle.stage > 0 && battle.players ? `[${confirmedUsers().length}/${invitedUsers().length + confirmedUsers().length}]` : ""}}</span></th>
                 <th scope="col" style="width: 10%;"><span class="data">RANK</span></th>
                 <th scope="col" style="width: 20%;"><span class="data">STATUS</span></th>
                 <th scope="col" style="width: 20%;"><span class="data">TIME</span></th>
