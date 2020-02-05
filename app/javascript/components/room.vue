@@ -440,6 +440,10 @@
         this.ambianceMusic.currentTime = 0;
       },
       startCountdown(countdown) {
+        this.announce({
+              content: `<i class="fas fa-beer"></i> Battle starting in ${countdown}s... Time for a drink! 🍻`,
+              chat: true
+            });
         this.countdown = countdown
         const timer = setInterval(() => {
           if (this.countdown > 1) {
@@ -448,7 +452,7 @@
             this.countdown = 0
             clearInterval(timer);
             this.announce({
-              content: `⚔️ The battle for <span class="highlight">${this.battle.challenge.name}</span> has begun!`,
+              content: `<i class="fas fa-rocket mr-1"></i> The battle for <span class="highlight">${this.battle.challenge.name}</span> has begun!`,
               chat: true
             });
             if (this.currentUser.invite_status === 'confirmed' && !this.viewMode) this.openCodewars();
@@ -476,7 +480,7 @@
           } else {
             clearInterval(clock);
             this.announce({
-              content: `⚔️ The battle for <span class='highlight'>${this.battle.challenge.name}</span> is over.`,
+              content: `<i class="fas fa-peace"></i> The battle for <span class='highlight'>${this.battle.challenge.name}</span> is over.`,
               chat: true
             });
           }
@@ -547,7 +551,7 @@
         return (new Date(user.completed_at) - new Date(battle.start_time)) / 1000 // duration in seconds
       },
       removeFromArray(array, element) {
-        const elementIndex = array.findIndex((e) => e.id === element.id);
+        if (array) const elementIndex = array.findIndex((e) => e.id === element.id);
         if (elementIndex !== -1) {
             array.splice(elementIndex, 1)
             if (this.currentUserIsModerator) console.info('Removed element:', element)
