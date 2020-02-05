@@ -478,10 +478,10 @@
           if (this.battle.stage === 4) {
             let clockTime;
             if (this.battle.time_limit > 0) {
-              if (this.timeRemainingInSeconds() > 122 && this.timeRemainingInSeconds() <= 123) {
-                this.announce({ speak: "WARNING: 2min remaining" })
+              if (this.timeRemainingInSeconds() > 121 && this.timeRemainingInSeconds() <= 122) {
+                this.announce({ speak: "WARNING: 2min left" })
               } else if (this.timeRemainingInSeconds() > 61 && this.timeRemainingInSeconds() <= 62) {
-                this.announce({ speak: "WARNING: 1min remaining" })
+                this.announce({ speak: "WARNING: 1min left" })
               } else if (this.timeRemainingInSeconds() > 10 && this.timeRemainingInSeconds() <= 11) {
                 this.ambianceMusic.volume = Math.min(this.sounds.volumeAmbiance, this.sounds.volumeBackgroundAmbiance);
                 if (this.soundActive) this.sounds.fx.countdown.play();
