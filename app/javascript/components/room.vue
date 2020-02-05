@@ -533,7 +533,7 @@
               this.announce({
                 content: `✅ Challenge completed by @{${user.username}}`,
                 chat: true,
-                speak: `Challenge completed by ${user.name} in ${this.formatDurationForSpeech(this.completedIn(this.battle, user))}`
+                speak: `Challenge completed by ${user.name || user.username} in ${this.formatDurationForSpeech(this.completedIn(this.battle, user))}`
               });
             }
           }

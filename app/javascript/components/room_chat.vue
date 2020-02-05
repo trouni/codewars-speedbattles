@@ -49,7 +49,7 @@
         handles.forEach((handle) => {
           const username = handle.match(/@\{(?<name>.+?)\}/).groups.name
           const userIndex = this.authors.findIndex((author) => author.username === username);
-          const author = userIndex >= 0 ? `<span class="highlight" title="${username}">${this.authors[userIndex].name}</span>` : `@${username}`
+          const author = userIndex >= 0 ? `<span class="highlight" title="${username}">${this.authors[userIndex].name}</span>` : username`
           str = str.replace(handle, author)
         })
         return str
