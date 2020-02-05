@@ -63,7 +63,7 @@
       messageClass(message) {
         return [
           'message',
-          { 'bot-announcement': this.isAnnouncement(message) }
+          { 'bot-announcement notification': this.isAnnouncement(message) }
         ]
       },
       sendMessage() {
