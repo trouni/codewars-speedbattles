@@ -350,10 +350,15 @@
           status: message.status || 'normal',
           content: message.content
         }
-        if (message.chat && this.currentUserIsModerator) this.sendChatMessage(message.content, true)
+        if (message.chat && this.currentUserIsModerator) {
+          const chatMessage = message.chat === true ? message.content : message.chat
+          this.sendChatMessage(chatMessage, true)
+        }
         
-        const strippedContent = this.stripHTML(message.content)
-        if (message.speak && this.soundActive) this.speak(strippedContent)
+        if (message.speak && this.soundActive) {
+          const speakMessage = message.speak === true ? this.stripHTML(message.content) : message.speak
+          this.speak(speakMessage)
+        }
       },
       sendChatMessage(message, announcement = false) {
         this.sendCable('create_message', { message: message, announcement: announcement })
@@ -439,9 +444,8 @@
             this.countdown = 0
             clearInterval(timer);
             this.announce({
-              content: `The battle for <span class="highlight">${this.battle.challenge.name}</span> has begun!`,
-              chat: true,
-              speak: true
+              content: `⚔️ The battle for <span class="highlight">${this.battle.challenge.name}</span> has begun!`,
+              chat: true
             });
             if (this.currentUser.invite_status === 'confirmed' && !this.viewMode) this.openCodewars();
             this.startClock();
@@ -468,7 +472,7 @@
           } else {
             clearInterval(clock);
             this.announce({
-              content: `The battle for <span class='highlight'>${this.battle.challenge.name}</span> is over.`,
+              content: `⚔️ The battle for <span class='highlight'>${this.battle.challenge.name}</span> is over.`,
               chat: true
             });
           }
@@ -486,6 +490,13 @@
         const minutes = Math.floor(durationInSeconds / 60) % 60
         const seconds = Math.floor(durationInSeconds - hours * 60 * 60 - minutes * 60)
         return `${hours > 0 ? `${String(hours).padStart(2, '0')}:` : ''}${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+      },
+      formatDurationForSpeech(durationInSeconds) {
+        if (durationInSeconds < 0) durationInSeconds = 0
+        const hours = Math.floor(durationInSeconds / 60 / 60)
+        const minutes = Math.floor(durationInSeconds / 60) % 60
+        const seconds = Math.floor(durationInSeconds - hours * 60 * 60 - minutes * 60)
+        return `${hours > 0 ? `${hours}hr ` : ''}${minutes}min${seconds > 0 ? ` ${seconds}sec` : ''}`
       },
       // =============
       //     USERS
@@ -520,13 +531,16 @@
           if (result.oldElement && result.oldElement.invite_status === 'confirmed' && result.newElement.invite_status === 'survived') {
             if (this.currentUserIsModerator) {
               this.announce({
-                content: `Challenge completed by @{${user.username}}`,
+                content: `✅ Challenge completed by @{${user.username}}`,
                 chat: true,
-                speak: true
+                speak: `Challenge completed by ${user.name} in ${formatDurationForSpeech(completedIn(this.battle, user))}`
               });
             }
           }
         }
+      },
+      completedIn(battle, user) {
+        return (new Date(user.completed_at) - new Date(battle.start_time)) / 1000 // duration in seconds
       },
       removeFromArray(array, element) {
         const elementIndex = array.findIndex((e) => e.id === element.id);

@@ -36,7 +36,7 @@
                   <span class="data">Completed</span>
                 </td>
                 <td>
-                  <span class="data">{{ formatDuration(completedIn(battle, result.completed_at)) }}</span>
+                  <span class="data">{{ formatDuration(completedIn(battle, result)) }}</span>
                 </td>
               </tr>
 
@@ -66,7 +66,7 @@
                   <span class="data">{{ battle.stage === 0 ? 'Defeated' : '-' }}</span>
                 </td>
                 <td>
-                  <span class="data">{{ result.completed_at ? formatDuration(completedIn(battle, result.completed_at)) : '-' }}</span>
+                  <span class="data">{{ result.completed_at ? formatDuration(completedIn(battle, result)) : '-' }}</span>
                 </td>
               </tr>
             </tbody>
@@ -186,8 +186,8 @@
         const index = this.previousBattles.findIndex((e) => e.id === battleId);
         return this.previousBattles[index]
       },
-      completedIn(battle, completed_at) {
-        return (new Date(completed_at) - new Date(battle.start_time)) / 1000 // duration in seconds
+      completedIn(battle, user) {
+        return (new Date(user.completed_at) - new Date(battle.start_time)) / 1000 // duration in seconds
       },
 
       formatDuration(durationInSeconds) {
