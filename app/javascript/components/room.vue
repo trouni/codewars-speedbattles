@@ -380,6 +380,7 @@
           this.ambianceMusic.volume = this.sounds.volumeAmbiance;
         }
         this.ambianceMusic.volume = Math.min(this.sounds.volumeAmbiance, this.sounds.volumeBackgroundAmbiance);
+        console.log("inside this.speak")
         speechSynthesis.speak(msg)
       },
       // =============
