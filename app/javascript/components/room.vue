@@ -361,6 +361,8 @@
         
         if (message.speak && this.soundActive) {
           const speakMessage = message.speak === true ? this.stripHTML(message.content) : message.speak
+          console.log("Speaking message", message.content)
+          console.log("soundActive", this.soundActive)
           this.speak(speakMessage)
         }
       },
@@ -428,7 +430,6 @@
         window.open(this.challengeUrl)
       },
       startAmbiance() {
-        console.log("starting ambiance")
         if (!this.ambianceMusic.paused) return;
 
         this.ambianceMusic = this.sounds.ambiance[Math.floor(Math.random() * this.sounds.ambiance.length)]
