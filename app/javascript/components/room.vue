@@ -380,7 +380,6 @@
           this.ambianceMusic.volume = this.sounds.volumeAmbiance;
         }
         this.ambianceMusic.volume = Math.min(this.sounds.volumeAmbiance, this.sounds.volumeBackgroundAmbiance);
-        console.log("inside this.speak")
         speechSynthesis.speak(msg)
       },
       // =============
@@ -480,9 +479,9 @@
             let clockTime;
             if (this.battle.time_limit > 0) {
               if (this.timeRemainingInSeconds() > 122 && this.timeRemainingInSeconds() <= 123) {
-                this.speak("WARNING: 2min remaining")
+                this.announce({ speak: "WARNING: 2min remaining" })
               } else if (this.timeRemainingInSeconds() > 61 && this.timeRemainingInSeconds() <= 62) {
-                this.speak("WARNING: 1min remaining")
+                this.announce({ speak: "WARNING: 1min remaining" })
               } else if (this.timeRemainingInSeconds() > 10 && this.timeRemainingInSeconds() <= 11) {
                 this.ambianceMusic.volume = Math.min(this.sounds.volumeAmbiance, this.sounds.volumeBackgroundAmbiance);
                 if (this.soundActive) this.sounds.fx.countdown.play();
