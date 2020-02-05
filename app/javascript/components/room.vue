@@ -162,9 +162,8 @@
       },
       soundFx: {
         handler: function() {
-          console.log("updating volume")
           this.ambianceMusic.volume = this.soundFx.volumeAmbiance;
-          console.log(this.soundFx.ambiance.volume)
+          // this.ambianceMusic.volume === 0 ? this.pauseAmbiance() : this.resumeAmbiance()
         },
         deep: true
       },
@@ -430,8 +429,13 @@
         };
         if (this.soundActive) this.ambianceMusic.play();
       },
+      pauseAmbiance() {
+        this.ambianceMusic.pause();
+      },
+      resumeAmbiance() {
+        this.ambianceMusic.play();
+      },
       stopAmbiance() {
-        console.log("stopping ambiance")
         this.ambianceMusic.pause();
         this.ambianceMusic.currentTime = 0;
       },
