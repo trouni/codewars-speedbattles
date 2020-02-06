@@ -550,15 +550,15 @@
           // if (this.currentUserIsModerator) console.info('Pushing to Players', user)
           if (this.battle.players) {
             const result = this.pushToArray(this.battle.players, user)
-          }
-          if (result.oldElement && result.oldElement.invite_status === 'confirmed' && result.newElement.invite_status === 'survived') {
-            if (this.currentUserIsModerator) {
-              if (this.soundActive) this.sounds.fx.sword.play();
-              this.announce({
-                content: `<i class="fas fa-shield-alt"></i> Challenge completed by @{${user.username}}`,
-                chat: true,
-                speak: `Challenge completed by ${user.name || user.username} in ${this.formatDurationForSpeech(this.completedIn(this.battle, user))}`
-              });
+            if (result.oldElement && result.oldElement.invite_status === 'confirmed' && result.newElement.invite_status === 'survived') {
+              if (this.currentUserIsModerator) {
+                if (this.soundActive) this.sounds.fx.sword.play();
+                this.announce({
+                  content: `<i class="fas fa-shield-alt"></i> Challenge completed by @{${user.username}}`,
+                  chat: true,
+                  speak: `Challenge completed by ${user.name || user.username} in ${this.formatDurationForSpeech(this.completedIn(this.battle, user))}`
+                });
+              }
             }
           }
         }
