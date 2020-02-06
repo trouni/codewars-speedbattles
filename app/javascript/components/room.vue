@@ -541,17 +541,19 @@
       },
       pushToUsers(user) {
         if (this.currentUserIsModerator) console.info('Pushing to Users', user)
-        this.pushToArray(this.users, user)
+        if (this.users) this.pushToArray(this.users, user)
 
         if(this.battle.players) this.pushToPlayers(user);
       },
       pushToPlayers(user) {
         if (user.invite_status === 'eligible' || user.invite_status === 'ineligible') {
           if (this.currentUserIsModerator) console.info('Removing from Players', user)
-          this.removeFromArray(this.battle.players, user);
+          if (this.battle.players) this.removeFromArray(this.battle.players, user);
         } else {
           if (this.currentUserIsModerator) console.info('Pushing to Players', user)
-          const result = this.pushToArray(this.battle.players, user)
+          if (this.battle.players) {
+            const result = this.pushToArray(this.battle.players, user)
+          }
           if (result.oldElement && result.oldElement.invite_status === 'confirmed' && result.newElement.invite_status === 'survived') {
             if (this.currentUserIsModerator) {
               if (this.soundActive) this.sounds.fx.sword.play();
@@ -568,16 +570,14 @@
         return (new Date(user.completed_at) - new Date(battle.start_time)) / 1000 // duration in seconds
       },
       removeFromArray(array, element) {
-        if (array) {
-          const elementIndex = array.findIndex((e) => e.id === element.id);
-          if (elementIndex !== -1) {
-            array.splice(elementIndex, 1)
-              if (this.currentUserIsModerator) console.info('Removed element:', element)
-          }
+        const elementIndex = array.findIndex((e) => e.id === element.id);
+        if (elementIndex !== -1) {
+          array.splice(elementIndex, 1)
+            if (this.currentUserIsModerator) console.info('Removed element:', element)
         }
       },
       removeFromUsers(user) {
-        this.removeFromArray(this.users, user);
+        if (this.users) this.removeFromArray(this.users, user);
       },
       invitation(inviteAction, userId = null) {
         this.sendCable('invitation', { battle_id: this.battle.id, invite_action: inviteAction, user_id: userId })
