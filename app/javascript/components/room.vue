@@ -16,24 +16,32 @@
         <div id="room-announcer" :class="['widget-bg', seekAttention]">
           <div class="widget">
             <h3 class="header highlight">PWD://War_Room/{{ room.name }}</h3>
-            <div class="widget-body align-content-center justify-content-center pt-0">
+            <div class="widget-body align-content-center justify-content-center">
               <span :class="['announcer mt-3', 'text-center', announcerWindow.status]" v-html="announcerWindow.content">
               </span>
             </div>
           </div>
         </div>
       </div>
-      <div :class="['grid-item grid-chat', { 'loading': !messagesInitialized }]">
+      <div :class="['grid-item grid-controls', { 'loading': (!usersInitialized || !battleInitialized) }]">
         <div v-if="someDataLoaded" id="spinner" class="centered">
           <div class="lds-ring small"><div></div><div></div><div></div><div></div></div>
           <!-- <h3 class="animated fadeInDown faster">LOADING</h3> -->
         </div>
-        <room-chat
-          :messages="chat.messages"
-          :authors="chat.authors"
-          :current-user-name="currentUser.username"
+        <room-controls
+          :room="room"
+          :battle="battle"
+          :users="users"
           :current-user="currentUser"
-        ></room-chat>
+          :input="challengeInput"
+          :current-user-is-moderator="currentUserIsModerator"
+          :countdown="countdown"
+          :time-limit="timeLimit"
+          :battle-status="battleStatus"
+          :challenge-url="challengeUrl"
+          :volume-ambiance="sounds.volumeAmbiance"
+        ></room-controls>
+        <!-- <input type="submit" @click="test" value="test"> -->
       </div>
       <div :class="['grid-item grid-battle', { 'loading': (!usersInitialized || !battleInitialized) }]">
         <div v-if="someDataLoaded" id="spinner" class="centered">
@@ -66,25 +74,17 @@
           :current-user-is-moderator="currentUserIsModerator"
         ></room-leaderboard>
       </div>
-      <div :class="['grid-item grid-controls', { 'loading': (!usersInitialized || !battleInitialized) }]">
+      <div :class="['grid-item grid-chat', { 'loading': !messagesInitialized }]">
         <div v-if="someDataLoaded" id="spinner" class="centered">
           <div class="lds-ring small"><div></div><div></div><div></div><div></div></div>
           <!-- <h3 class="animated fadeInDown faster">LOADING</h3> -->
         </div>
-        <room-controls
-          :room="room"
-          :battle="battle"
-          :users="users"
+        <room-chat
+          :messages="chat.messages"
+          :authors="chat.authors"
+          :current-user-name="currentUser.username"
           :current-user="currentUser"
-          :input="challengeInput"
-          :current-user-is-moderator="currentUserIsModerator"
-          :countdown="countdown"
-          :time-limit="timeLimit"
-          :battle-status="battleStatus"
-          :challenge-url="challengeUrl"
-          :volume-ambiance="sounds.volumeAmbiance"
-        ></room-controls>
-        <!-- <input type="submit" @click="test" value="test"> -->
+        ></room-chat>
       </div>
     </div>
   </div>
@@ -554,7 +554,7 @@
               if (this.currentUserIsModerator) {
                 if (this.soundActive) this.sounds.fx.sword.play();
                 this.announce({
-                  content: `<i class="fas fa-shield-alt"></i> Challenge completed by @{${user.username}}`,
+                  content: `<i class="fas fa-shield-alt"></i> Challenge completed by <span class="chat-username">@{${user.username}}</span>`,
                   chat: true,
                   speak: `Challenge completed by ${user.name || user.username} in ${this.formatDurationForSpeech(this.completedIn(this.battle, user))}`
                 });

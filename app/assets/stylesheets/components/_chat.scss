@@ -8,6 +8,8 @@
 
   .widget-body {
     clip-path: polygon(0 $bezel, calc(#{$chat-header-width} - #{$bezel}) $bezel, $chat-header-width 0, 100% 0, 100% 100%, 0 100%);
+    max-height: 90vh;
+    padding-bottom: 0.5em;
   }
 
   .messages {
@@ -27,6 +29,12 @@
 
   .messages .content {
     opacity: 0.8;
+  }
+  
+  .messages .chat-username {
+    font-weight: 300;
+    color: white;
+    text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
   }
 
   #msg-input {

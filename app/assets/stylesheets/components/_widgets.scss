@@ -52,9 +52,15 @@
   .widget-body {
     padding-left: $bezel;
     padding-right: $bezel;
-    padding-top: 2em;
+    padding-top: 0em;
     display: flex;
     flex-direction: column;
     height: 100%;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .widget-body {
+    padding-bottom: 2em;
   }
 }

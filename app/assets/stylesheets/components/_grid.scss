@@ -1,3 +1,11 @@
+@media screen and (max-width: 767px) {
+  #room {
+    .grid-item {
+      margin: 0.5em 0;
+    }
+  }
+}
+
 @media screen and (min-width: 768px) {
   #room {
     display: grid;
@@ -36,3 +44,4 @@
     grid-area: controls;
   }
 }
+
