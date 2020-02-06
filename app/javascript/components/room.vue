@@ -527,12 +527,12 @@
         const elementIndex = array.findIndex((e) => e.id === element.id);
         if (elementIndex === -1) {
           array.push(element);
-          if (this.currentUserIsModerator) console.info('Added element:', element)
+          // if (this.currentUserIsModerator) console.info('Added element:', element)
         } else {
           // array[index] = user; // Vue cannot detect change in the array with this method
           result.oldElement = array[elementIndex]
           array.splice(elementIndex, 1, element)
-          if (this.currentUserIsModerator) console.info('Updated element:', element)
+          // if (this.currentUserIsModerator) console.info('Updated element:', element)
         }
         return result
       },
@@ -544,7 +544,7 @@
       },
       pushToPlayers(user) {
         if (user.invite_status === 'eligible' || user.invite_status === 'ineligible') {
-          if (this.currentUserIsModerator) console.info('Removing from Players', user)
+          // if (this.currentUserIsModerator) console.info('Removing from Players', user)
           if (this.battle.players) this.removeFromArray(this.battle.players, user);
         } else {
           // if (this.currentUserIsModerator) console.info('Pushing to Players', user)
@@ -570,7 +570,7 @@
         const elementIndex = array.findIndex((e) => e.id === element.id);
         if (elementIndex !== -1) {
           array.splice(elementIndex, 1)
-            if (this.currentUserIsModerator) console.info('Removed element:', element)
+            // if (this.currentUserIsModerator) console.info('Removed element:', element)
         }
       },
       removeFromUsers(user) {
@@ -639,7 +639,7 @@
               case "remove":
               this.users = this.users.filter(e => e.id !== data.payload.user.id);
               // this.removeFromUsers(data.payload.user);
-              if (this.currentUserIsModerator) console.info(`Removed user ${data.payload.user.username}`)
+              // if (this.currentUserIsModerator) console.info(`Removed user ${data.payload.user.username}`)
               break;
 
               case "all":
