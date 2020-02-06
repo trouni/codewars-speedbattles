@@ -461,7 +461,7 @@
             this.countdown = 0
             clearInterval(timer);
             this.announce({
-              content: `<i class="fas fa-rocket mr-1"></i> The battle for <span class="highlight">${this.battle.challenge.name}</span> has begun!`,
+              content: `<i class="fas fa-rocket mr-1"></i> The battle for <span class="chat-highlight">${this.battle.challenge.name}</span> has begun!`,
               chat: true
             });
             if (this.currentUser.invite_status === 'confirmed' && !this.viewMode) this.openCodewars();
@@ -493,7 +493,7 @@
           } else {
             clearInterval(clock);
             this.announce({
-              content: `<i class="fas fa-peace"></i> The battle for <span class='highlight'>${this.battle.challenge.name}</span> is over.`,
+              content: `<i class="fas fa-peace"></i> The battle for <span class='chat-highlight'>${this.battle.challenge.name}</span> is over.`,
               chat: true
             });
           }
@@ -554,7 +554,7 @@
               if (this.currentUserIsModerator) {
                 if (this.soundActive) this.sounds.fx.sword.play();
                 this.announce({
-                  content: `<i class="fas fa-shield-alt"></i> Challenge completed by <span class="chat-username">@{${user.username}}</span>`,
+                  content: `<i class="fas fa-shield-alt"></i> Challenge completed by <span class="chat-highlight">@{${user.username}}</span>`,
                   chat: true,
                   speak: `Challenge completed by ${user.name || user.username} in ${this.formatDurationForSpeech(this.completedIn(this.battle, user))}`
                 });

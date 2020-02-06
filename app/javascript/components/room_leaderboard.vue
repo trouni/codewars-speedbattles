@@ -12,11 +12,11 @@
         <table :class="['console-table', { 'no-stats': !room.show_stats }]">
           <thead>
             <tr>
-              <th scope="col" :style="room.show_stats ? 'width: 50%;' : 'width: 100%;'"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
+              <th scope="col" :style="room.show_stats ? 'width: 40%;' : 'width: 100%;'"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
               <!-- <th v-if="room.show_stats" scope="col" style="width: 10%;"><span class="data">RANK</span></th> -->
-              <th v-if="room.show_stats" scope="col" style="width: 10%;"><span class="data">SCORE</span></th>
-              <th v-if="room.show_stats" scope="col" style="width: 10%;"><span class="data">BATTLES</span></th>
-              <th v-if="room.show_stats" scope="col" style="width: 30%;"><span class="data">COMPLETED : LOST</span></th>
+              <th v-if="room.show_stats" scope="col" style="width: 15%;"><span class="data">SCORE</span></th>
+              <th v-if="room.show_stats" scope="col" style="width: 15%;"><span class="data">BATTLES</span></th>
+              <th v-if="room.show_stats" scope="col" style="width: 30%;"><span class="data">WON : LOST</span></th>
               <!-- <th v-if="room.show_stats" scope="col" style="width: 10%;"><span class="data">TOTAL</span></th> -->
             </tr>
           </thead>

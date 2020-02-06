@@ -31,10 +31,10 @@
     opacity: 0.8;
   }
   
-  .messages .chat-username {
+  .messages .chat-highlight {
     font-weight: 300;
-    color: white;
-    text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+    // color: $highlight;
+    text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.6);
   }
 
   #msg-input {
@@ -60,7 +60,7 @@
     font-family: $headers-font;
     font-weight: light;
     // font-style: italic;
-    opacity: 0.7;
+    // opacity: 0.7;
     margin: 2px 0;
     padding: 5px 0;
     text-align: center;
