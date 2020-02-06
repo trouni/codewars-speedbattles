@@ -361,8 +361,6 @@
         
         if (message.speak && this.soundActive) {
           const speakMessage = message.speak === true ? this.stripHTML(message.content) : message.speak
-          console.log("Speaking message", message.content)
-          console.log("soundActive", this.soundActive)
           this.speak(speakMessage)
         }
       },
@@ -436,7 +434,6 @@
         // this.ambianceMusic.loop = true
         this.ambianceMusic.volume = this.sounds.volumeAmbiance;
         this.ambianceMusic.onended = () => {
-          console.log("restarting ambiance")
           this.startAmbiance();
         };
         if (this.soundActive) this.ambianceMusic.play();
@@ -540,7 +537,7 @@
         return result
       },
       pushToUsers(user) {
-        if (this.currentUserIsModerator) console.info('Pushing to Users', user)
+        // if (this.currentUserIsModerator) console.info('Pushing to Users', user)
         if (this.users) this.pushToArray(this.users, user)
 
         if(this.battle.players) this.pushToPlayers(user);
@@ -550,7 +547,7 @@
           if (this.currentUserIsModerator) console.info('Removing from Players', user)
           if (this.battle.players) this.removeFromArray(this.battle.players, user);
         } else {
-          if (this.currentUserIsModerator) console.info('Pushing to Players', user)
+          // if (this.currentUserIsModerator) console.info('Pushing to Players', user)
           if (this.battle.players) {
             const result = this.pushToArray(this.battle.players, user)
           }
@@ -619,7 +616,7 @@
               case "all":
               this.chat.messages = data.payload.messages
               this.chat.authors = data.payload.authors
-              if (this.currentUserIsModerator) console.info(`Refreshed all messages`)
+              // if (this.currentUserIsModerator) console.info(`Refreshed all messages`)
               this.messagesInitialized = true;
               break;
 
@@ -630,7 +627,7 @@
             break;
 
             case "logs":
-            if (this.currentUserIsModerator) console.info(data.payload)
+            if (this.currentUserIsModerator) console.info("LOGS",data.payload)
             break;
 
             case "users":
