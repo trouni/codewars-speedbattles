@@ -15,7 +15,7 @@
       <div :class="['grid-item grid-header', { 'loading': !someDataLoaded }]">
         <div id="room-announcer" :class="['widget-bg', seekAttention]">
           <div class="widget">
-            <h3 class="header highlight">PWD://War_Room/{{ room.name }}</h3>
+            <h3 class="header highlight" @click="turnSoundOn">PWD://War_Room/{{ room.name }}</h3>
             <div class="widget-body align-content-center justify-content-center">
               <span :class="['announcer mt-3', 'text-center', announcerWindow.status]" v-html="announcerWindow.content">
               </span>
@@ -145,6 +145,7 @@
             
           ]
         },
+        soundActive: false,
         ambianceMusic: new Audio,
         announcement: {
           status: 'normal',
@@ -198,9 +199,6 @@
         } else {
           return null
         }
-      },
-      soundActive() {
-        return this.currentUserIsModerator || this.viewMode
       },
       announcerWindow() {
         let status = this.announcement.status || 'normal'
@@ -341,6 +339,10 @@
       }, 1000),
       test() {
       },
+      turnSoundOn() {
+        if (this.viewMode) this.soundActive = !this.soundActive
+        this.soundActive ? alert("sound ON") : alert("sound OFF")
+      },
       // =============
       //     ROOM
       // =============
@@ -362,7 +364,7 @@
             content: message.content
           }
         }
-        if (message.chat && this.currentUserIsModerator) {
+        if (message.chat && this.currentUserIsModerator && !this.viewMode) {
           const chatMessage = message.chat === true ? message.content : message.chat
           this.sendChatMessage(chatMessage, true)
         }
@@ -494,10 +496,12 @@
                 this.endBattle();
               }
               clockTime = this.timeRemainingInSeconds() > 0 ? this.timeRemainingInSeconds() : 0;
+              this.announce({ content: `<span class='timer highlight'>${this.formatDuration(clockTime)}</span>` });
             } else {
               clockTime = this.timeSpentInSeconds();
+              this.announce({ content: `<h1 class='highlight'><small>TIME ELAPSED:</small> ${this.formatDuration(clockTime)}</h1><p>(no time limit)</p>` });
             }
-            this.announce({ content: `<span class='timer highlight'>${this.formatDuration(clockTime)}</span>` });
+            // this.announce({ content: `<span class='timer highlight'>${this.formatDuration(clockTime)}</span>` });
           } else {
             clearInterval(clock);
             this.announce({
