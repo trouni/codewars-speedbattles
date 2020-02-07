@@ -1,5 +1,4 @@
 .observer {
-  font-size: 1.5rem;
   #leave-button {
     display: none;
   }
@@ -12,11 +11,18 @@
     .grid-leaderboard {
       grid-area: battle;
     }
+    .grid-header {
+      font-size: 1.5rem !important;
+    }
     .grid-controls {
       display: none;
     }
     .grid-battle {
-      font-size: 1.2rem !important;
+      table.console-table {
+        display: block;
+        font-size: 1rem;
+      }
+      // font-size: 1.2rem !important;
     }
     .grid-leaderboard {
       display: none;
