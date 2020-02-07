@@ -103,6 +103,13 @@ class RoomChannel < ApplicationCable::Channel
     @room.broadcast_to_moderator(subchannel: "logs", payload: "Fetching challenges for #{user.username}...")
   end
 
+  def resubscribe
+    set_room
+    set_current_user
+    RoomUser.find_or_create_by(room: @room, user: @current_user)
+    @room.broadcast_to_moderator(subchannel: "logs", payload: "Re-subscribed #{user.username}...")
+  end
+
   def get_room_players
     set_room
     @room.broadcast_room_players

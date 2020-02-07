@@ -158,6 +158,7 @@
       // this.pushToUsers(this.currentUser);
       // setTimeout(() => { this.someDataLoaded = true }, 500);
       this.$set(this.battle, "stage", this.battleStage);
+      setTimeout(_ => this.checkCurrentUserConnection(), 5000);
     },
     watch: {
       battleInitialized: function () {
@@ -343,6 +344,13 @@
       // =============
       //     ROOM
       // =============
+      checkCurrentUserConnection() {
+        setInterval(_ => {
+          const currentUserIndex = this.users.findIndex((e) => e.id === this.currentUser.id);
+
+          if (currentUserIndex === -1) this.sendCable('resubscribe')
+        }, 60000)
+      },
       stripHTML(html) {
         var doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || "";
@@ -450,7 +458,7 @@
       },
       startCountdown(countdown) {
         this.announce({
-              content: `<h2>🍻</h2><p>Battle starting in ${countdown}s... Time for a drink!</p>`,
+              content: `<h1>🍻</h1><p class="highlight">Battle starting in ${countdown}s... Time for a drink!</p>`,
               chat: true
             });
         this.countdown = countdown
