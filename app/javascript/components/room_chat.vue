@@ -6,7 +6,9 @@
         <div class="flex-grow-1"></div>
         <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true}">
           <li v-for="message in sortedMessages" v-bind:class="messageClass(message)">
-            <span class="author" v-if="!isAnnouncement(message)" :title="message.author.username">{{ message.author.name || message.author.username }}></span> <span class="content" v-html="displayMsg(message.content)"></span>
+            <span class="author" v-if="!isAnnouncement(message)" :title="message.author.username">{{ message.author.name || message.author.username }}></span>
+            <span class="content" v-if="!isAnnouncement(message)">{{displayMsg(message.content)}}></span>
+            <span class="content" v-else v-html="displayMsg(message.content)" :title="message.created_at"></span>
           </li>
         </ul>
         <div id="msg-input" class="d-flex">
@@ -63,7 +65,7 @@
       messageClass(message) {
         return [
           'message',
-          { 'bot-announcement notification': this.isAnnouncement(message) }
+          { 'bot-announcement notification animated fadeIn': this.isAnnouncement(message) }
         ]
       },
       sendMessage() {
