@@ -126,11 +126,11 @@ export default {
         const inviteStatus = user.invite_status
         return [
           this.showInviteButton(userId) ? inviteStatus : '',
-          this.isOnline(userId) ? 'animated flipInY online' : 'offline'
+          // this.isOnline(userId) ? 'animated flipInY online' : 'offline'
         ]
       } else {
         return [
-          this.isOnline(userId) ? 'animated flipInY online' : 'offline'
+          // this.isOnline(userId) ? 'animated flipInY online' : 'offline'
         ]
       }
     },
