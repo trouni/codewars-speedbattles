@@ -18,16 +18,16 @@
           <table v-else class="console-table h-100">
             <thead>
               <tr>
-                <th scope="col" style="width: 50%;"><span class="data">WARRIOR {{ battle.stage > 0 && battle.players ? `[${confirmedUsers().length}/${invitedUsers().length}]` : ""}}</span></th>
+                <th scope="col" style="width: 50%;"><span class="data">WARRIORS {{ battle.stage > 0 && battle.players ? `[${confirmedUsers().length}/${invitedUsers().length + confirmedUsers().length}]` : ""}}</span></th>
                 <th scope="col" style="width: 10%;"><span class="data">RANK</span></th>
                 <th scope="col" style="width: 20%;"><span class="data">STATUS</span></th>
                 <th scope="col" style="width: 20%;"><span class="data">TIME</span></th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(result, index) in survivors" class="highlight bg-highlight" :title="result.username">
+              <tr v-for="(result, index) in survivors" class="highlight bg-highlight animated fadeInUp" :title="result.username">
                 <th scope="row">
-                  <span class="data username animated flipInY ">{{ result.name || result.username }}</span>
+                  <span class="data username">{{ result.name || result.username }}</span>
                 </th>
                 <td>
                   <span class="data rank">{{ index + 1 }}</span>
@@ -36,7 +36,7 @@
                   <span class="data">Completed</span>
                 </td>
                 <td>
-                  <span class="data">{{ formatDuration(completedIn(battle, result.completed_at)) }}</span>
+                  <span class="data">{{ formatDuration(completedIn(battle, result)) }}</span>
                 </td>
               </tr>
 
@@ -55,9 +55,9 @@
                 </td>
               </tr>
 
-              <tr v-for="result in defeated" :title="result.username">
+              <tr v-for="result in defeated" :title="result.username" class="animated fadeInUp">
                 <th scope="row" :class="['username', { pending: !userIsConfirmed(result.id) && battle.stage > 0 && battle.stage < 3 }]">
-                  <span class="data username animated flipInY">{{ result.name || result.username }}</span>
+                  <span class="data username">{{ result.name || result.username }}</span>
                 </th>
                 <td>
                   <span class="data rank">{{ battle.stage === 0 ? '' : '-' }}<i v-if="battle.stage === 0" class="fas fa-skull-crossbones"></i></span>
@@ -66,7 +66,7 @@
                   <span class="data">{{ battle.stage === 0 ? 'Defeated' : '-' }}</span>
                 </td>
                 <td>
-                  <span class="data">{{ result.completed_at ? formatDuration(completedIn(battle, result.completed_at)) : '-' }}</span>
+                  <span class="data">{{ result.completed_at ? formatDuration(completedIn(battle, result)) : '-' }}</span>
                 </td>
               </tr>
             </tbody>
@@ -186,8 +186,8 @@
         const index = this.previousBattles.findIndex((e) => e.id === battleId);
         return this.previousBattles[index]
       },
-      completedIn(battle, completed_at) {
-        return (new Date(completed_at) - new Date(battle.start_time)) / 1000 // duration in seconds
+      completedIn(battle, user) {
+        return (new Date(user.completed_at) - new Date(battle.start_time)) / 1000 // duration in seconds
       },
 
       formatDuration(durationInSeconds) {

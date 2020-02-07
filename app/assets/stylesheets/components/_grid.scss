@@ -1,7 +1,15 @@
+@media screen and (max-width: 767px) {
+  #room {
+    .grid-item {
+      margin: 0.5em 0;
+    }
+  }
+}
+
 @media screen and (min-width: 768px) {
   #room {
     display: grid;
-    grid-template-columns: 40% 60%;
+    grid-template-columns: 45% 55%;
     grid-template-rows: 150px calc(50% - 150px) 15% 35%;
     grid-template-areas:
       "header battle"
@@ -36,3 +44,4 @@
     grid-area: controls;
   }
 }
+

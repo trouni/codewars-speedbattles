@@ -1,4 +1,9 @@
+.grid-battle table.console-table {
+  display: block;
+}
+
 table.console-table {
+  font-size: 0.9em;
   // height: inherit;
   // table-layout: fixed ;
   width: 100% ;
@@ -105,5 +110,11 @@ table.console-table {
     overflow:auto;
     height:100%;
     width:100%;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  table {
+    font-size: 0.7em;
   }
 }

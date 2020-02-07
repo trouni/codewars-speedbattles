@@ -11,6 +11,7 @@ import VueShowdown from 'vue-showdown'
 Vue.component('room', Room)
 Vue.component('navbar', NavBar)
 Vue.component('sign-up-form-inputs', SignUpFormInputs)
+Vue.prototype.speechSynthesis = window.speechSynthesis;
 
 Vue.use(VueChatScroll)
 Vue.use(VueShowdown, {
@@ -23,10 +24,10 @@ Vue.use(VueShowdown, {
 })
 
 Vue.use(ActionCableVue, {
-    debug: process.env.NODE_ENV === "development",
-    debugLevel: 'error',
-    connectionUrl: `${process.env.NODE_ENV === "production" ? "wss://speedbattles.herokuapp.com" : "ws://localhost:3000"}/cable`
-    // connectionUrl: 'wss://localhost:3000/cable/'
+  debug: process.env.NODE_ENV === "development",
+  debugLevel: 'error',
+  connectionUrl: `${process.env.NODE_ENV === "production" ? "wss://speedbattles.herokuapp.com" : "ws://localhost:3000"}/cable`
+  // connectionUrl: 'wss://localhost:3000/cable/'
 });
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -34,3 +35,4 @@ document.addEventListener('DOMContentLoaded', () => {
     el: '[data-behavior="vue"]'
   })
 })
+

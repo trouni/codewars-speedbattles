@@ -6,7 +6,9 @@
         <div class="flex-grow-1"></div>
         <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true}">
           <li v-for="message in sortedMessages" v-bind:class="messageClass(message)">
-            <span class="author" v-if="!isAnnouncement(message)" :title="message.author.username">{{ message.author.name || message.author.username }}></span> <span class="content">{{ message.content }}</span>
+            <span class="author" v-if="!isAnnouncement(message)" :title="message.author.username">{{ message.author.name || message.author.username }}></span>
+            <span class="content" v-if="!isAnnouncement(message)">{{displayMsg(message.content)}}</span>
+            <span class="content" v-else v-html="displayMsg(message.content)" :title="message.created_at"></span>
           </li>
         </ul>
         <div id="msg-input" class="d-flex">
@@ -21,6 +23,7 @@
   export default {
     props: {
       messages: Array,
+      authors: Array,
       currentUserName: String,
       currentUser: Object,
     },
@@ -40,13 +43,29 @@
       }
     },
     methods: {
+      replaceUsername(str) {
+        let handles = str.match(/@\{(?<username>.+?)\}/g)
+        if (!handles) return str
+
+        handles = handles.filter((a, b) => handles.indexOf(a) === b)
+        handles.forEach((handle) => {
+          const username = handle.match(/@\{(?<name>.+?)\}/).groups.name
+          const userIndex = this.authors.findIndex((author) => author.username === username);
+          const author = userIndex >= 0 ? `<span class="highlight" title="${username}">${this.authors[userIndex].name}</span>` : username
+          str = str.replace(handle, author)
+        })
+        return str
+      },
+      displayMsg(msg) {
+        return this.replaceUsername(msg)
+      },
       isAnnouncement(message) {
         return !message.author.username || message.author.username === "bot"
       },
       messageClass(message) {
         return [
           'message',
-          { 'bot-announcement': this.isAnnouncement(message) }
+          { 'bot-announcement notification animated fadeIn': this.isAnnouncement(message) }
         ]
       },
       sendMessage() {
