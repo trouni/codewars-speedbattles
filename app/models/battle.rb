@@ -52,7 +52,6 @@ class Battle < ApplicationRecord
       id: challenge_id,
       url: challenge_url,
       name: challenge_name,
-      url: challenge_url,
       language: challenge_language,
       rank: challenge_rank,
       description: challenge_description
