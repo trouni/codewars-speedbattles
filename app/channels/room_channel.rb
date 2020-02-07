@@ -31,8 +31,8 @@ class RoomChannel < ApplicationCable::Channel
   def create_message(data)
     set_room
     set_current_user
-    if data["announcement"] && @current_user == @room.moderator
-      @room.chat.create_announcement(data["message"])
+    if data["announcement"]
+      @room.chat.create_announcement(data["message"]) if @current_user == @room.moderator
     else
       Message.create(user_id: @current_user.id, chat_id: @room.chat.id, content: data["message"])
     end
