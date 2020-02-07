@@ -7,7 +7,7 @@
         <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true}">
           <li v-for="message in sortedMessages" v-bind:class="messageClass(message)">
             <span class="author" v-if="!isAnnouncement(message)" :title="message.author.username">{{ message.author.name || message.author.username }}></span>
-            <span class="content" v-if="!isAnnouncement(message)">{{displayMsg(message.content)}}></span>
+            <span class="content" v-if="!isAnnouncement(message)">{{displayMsg(message.content)}}</span>
             <span class="content" v-else v-html="displayMsg(message.content)" :title="message.created_at"></span>
           </li>
         </ul>
