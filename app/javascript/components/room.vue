@@ -200,7 +200,7 @@
         }
       },
       soundActive() {
-        return this.currentUserIsModerator
+        return this.currentUserIsModerator || this.viewMode
       },
       announcerWindow() {
         let status = this.announcement.status || 'normal'
