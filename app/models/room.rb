@@ -184,6 +184,24 @@ class Room < ApplicationRecord
     end.flatten
   end
 
+  def announce(channel, message, sound_fx = nil)
+    case channel
+    when :chat then chat.create_announcement(message)
+    when :voice then broadcast_voice(message, sound_fx)
+    end
+  end
+
+  def broadcast_voice(message, sound_fx)
+    broadcast(
+      subchannel: "action",
+      payload: {
+        action: "voice-announce",
+        message: message,
+        fx: sound_fx
+      }
+    )
+  end
+
   def broadcast_messages
     broadcast(
       subchannel: "chat",
@@ -235,10 +253,12 @@ class Room < ApplicationRecord
   end
 
   def broadcast_active_battle
+    active_battle.refresh_status
     broadcast(subchannel: "battles", payload: { action: "active", battle: active_battle&.api_expose })
   end
 
   def broadcast_player(action: "player", user:)
+    broadcast_user(user: user)
     broadcast(subchannel: "battles", payload: { action: action, user: user.api_expose(self, active_battle) })
   end
 
