@@ -168,7 +168,7 @@ class User < ApplicationRecord
   end
 
   def survived?(battle)
-    end_time = battle.end_time || DateTime.now
+    end_time = battle.end_time || Time.now
 
     completed_challenges.includes(user: :battles)
                         .joins(user: :battles)

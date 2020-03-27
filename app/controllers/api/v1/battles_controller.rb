@@ -37,13 +37,13 @@ class Api::V1::BattlesController < Api::V1::BaseController
   #   @battle = Battle.find(params[:id] || params[:battle_id])
   #   authorize @battle
   #   if params[:perform] == 'end'
-  #     final_end_time = @battle.time_limit ? [@battle.start_time + @battle.time_limit.minutes, DateTime.now].min : DateTime.now
+  #     final_end_time = @battle.time_limit ? [@battle.start_time + @battle.time_limit.minutes, Time.now].min : Time.now
   #     @battle.update(end_time: final_end_time) unless @battle.end_time
   #     @battle.broadcast_action('end-battle')
   #     @battle.defeated_players.each(&:async_fetch_codewars_info)
   #   else
   #     countdown = params[:countdown].to_i.seconds
-  #     @battle.update(start_time: DateTime.now + countdown) unless @battle.start_time
+  #     @battle.update(start_time: Time.now + countdown) unless @battle.start_time
   #     @battle.broadcast_action('start-countdown', countdown: params[:countdown].to_i)
   #     @battle.battle_invites.where(confirmed: false).destroy_all
   #   end
