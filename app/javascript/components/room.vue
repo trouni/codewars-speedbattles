@@ -145,7 +145,6 @@
             
           ]
         },
-        soundActive: false,
         ambianceMusic: new Audio,
         announcement: {
           status: 'normal',
@@ -184,6 +183,9 @@
       //     return ''
       //   }
       // },
+      soundActive() {
+        return this.roomInit.sound === 'everyone' || (this.roomInit.sound === 'moderator' && this.currentUserIsModerator)
+      },
       someDataLoaded() {
         return this.usersInitialized || this.battleInitialized || this.messagesInitialized;
       },

@@ -22,6 +22,7 @@ class Room < ApplicationRecord
   has_one :chat, dependent: :destroy
   has_many :messages, through: :chat
   validates :name, presence: true
+  validates :sound, inclusion: { in: %w[everyone moderator off] }
   after_create :create_chat
 
   def players
