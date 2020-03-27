@@ -49,10 +49,40 @@ class Battle < ApplicationRecord
     room.broadcast_action(action: "launch-codewars") if countdown <= 0
   end
 
+  def start(countdown: 0)
+    return if started?
+
+    uninvite_unconfirmed
+    room.announce(:chat, "<h1>🍻</h1><p class='highlight'>Battle starting in #{countdown}s... Time for a drink!</p>")
+    room.announce(:chat, "<i class='fas fa-rocket mr-1'></i> The battle for <span class='chat-highlight'>#{challenge_name}</span> is about to begin...")
+    room.broadcast_action(action: 'start-countdown', data: { countdown: countdown })
+    update(start_time: Time.now + countdown.seconds)
+  end
+
+  def terminate(end_at: nil)
+    return if over?
+
+    end_at ||= Time.now
+    update(end_time: end_at)
+    defeated_players.each(&:async_fetch_codewars_info)
+    room.announce(
+      :chat,
+      "<i class='fas fa-peace'></i> The battle for <span class='chat-highlight'>#{challenge_name}</span> is over."
+    )
+    room.broadcast_players
+  end
+
   def broadcast_all
     room.broadcast_active_battle
     room.broadcast_users
-    # room.broadcast_players
+    room.broadcast_players
+  end
+
+  def refresh_status
+    return unless ongoing? && time_limit
+
+    expected_end_time = start_time + time_limit.seconds
+    terminate(end_at: expected_end_time) if expected_end_time < Time.now
   end
 
   def challenge
@@ -116,7 +146,7 @@ class Battle < ApplicationRecord
   # def survived?(player)
   #   return nil unless players.where(id: player.id).exists?
 
-  #   query_end_time = end_time || DateTime.now
+  #   query_end_time = end_time || Time.now
 
   #   CompletedChallenge.includes(:user).joins(:user).where(
   #     "completed_at > ? AND completed_at < ? AND completed_challenges.challenge_id = ? AND user_id = ?",
@@ -136,7 +166,7 @@ class Battle < ApplicationRecord
   end
 
   def completed_challenges
-    query_end_time = end_time || DateTime.now
+    query_end_time = end_time || Time.now
 
     CompletedChallenge
       .includes(:user)
@@ -193,6 +223,10 @@ class Battle < ApplicationRecord
 
   def started?
     !start_time.nil?
+  end
+
+  def ongoing?
+    started? && !over?
   end
 
   def over?

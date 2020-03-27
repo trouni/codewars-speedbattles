@@ -11,7 +11,7 @@
             <div class="d-flex">
               <p><small>Language:</small> <span class="highlight">{{battle.challenge.language || "Ruby"}} </span></p>
               <p><span class="mx-2">|</span><small>Difficulty:</small> <span class="highlight">{{-battle.challenge.rank}} kyu</span></p>
-              <p v-if="battle.time_limit > 0"><span class="mx-2">|</span><small>Time limit:</small> <span class="highlight">{{("0" + battle.time_limit).slice(-2)}} min</span></p>
+              <p v-if="timeLimit > 0"><span class="mx-2">|</span><small>Time limit:</small> <span class="highlight">{{("0" + timeLimit).slice(-2)}} min</span></p>
             </div>
           </div>
           <p v-if="battle.stage === 1 && defeated.length < 1" class="m-auto highlight">> Waiting for players to join the battle...</p>

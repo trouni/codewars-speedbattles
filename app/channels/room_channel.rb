@@ -24,6 +24,15 @@ class RoomChannel < ApplicationCable::Channel
     # broadcast_users @room
   end
 
+  def trigger_event(data)
+    set_room
+    case data['event']
+    when 'battle-has-begun'
+      announcement = "<i class='fas fa-rocket mr-1'></i> The battle for <span class='chat-highlight'>#{@room.active_battle.challenge.name}</span> has begun!"
+      @room.announce(:chat, announcement)
+    end
+  end
+
   # =============
   #     CHAT
   # =============
@@ -54,22 +63,12 @@ class RoomChannel < ApplicationCable::Channel
     set_room
     battle = Battle.find(data["battle_id"])
     case data["battle_action"]
-    when "start"
-      return if battle.start_time
-
-      countdown = data["countdown"].to_i
-      battle.uninvite_unconfirmed
-      @room.broadcast_action(action: 'start-countdown', data: { countdown: countdown })
-      battle.update(start_time: DateTime.now + countdown.seconds)
+    when "start" then battle.start(countdown: data["countdown"].to_i)
     when "end"
-      return if battle.end_time
-
-      end_time = battle.time_limit ? [battle.start_time + battle.time_limit.minutes, DateTime.now].min : DateTime.now
-      battle.update(end_time: end_time)
-      battle.defeated_players.each(&:async_fetch_codewars_info)
-      @room.broadcast_players
-    when "update"
-      battle.update(data["battle"])
+      end_at = battle.time_limit ? [battle.start_time + battle.time_limit.seconds, Time.now].min : Time.now
+      battle.terminate(end_at: end_at)
+    when "ended-by-user" then battle.update(time_limit: (Time.now - battle.start_time + 15.seconds).round)
+    when "update" then battle.update(data["battle"])
     end
   end
 
@@ -92,12 +91,12 @@ class RoomChannel < ApplicationCable::Channel
     battle = Battle.find(data["battle_id"])
     user = User.find(data["user_id"])
 
-    # Don't Fetch challenges if already completed or fetched within last 5 seconds
-    return if user.survived?(battle) || (user.last_fetched_at || DateTime.now) > (DateTime.now - 5.seconds)
+    # # Don't Fetch challenges if already completed or fetched within last 5 seconds
+    # return if user.survived?(battle) || (user.last_fetched_at || Time.now) > (Time.now - 5.seconds)
 
     FetchCompletedChallengesJob.perform_later(
-      user_id: data["user_id"],
-      battle_id: data["battle_id"],
+      user_id: user.id,
+      battle_id: battle.id,
       all_pages: false
     )
     @room.broadcast_to_moderator(subchannel: "logs", payload: "Fetching challenges for #{user.username}...")
