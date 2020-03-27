@@ -24,34 +24,6 @@
 require 'json'
 require 'open-uri'
 
-# Attempt at making one request for all scores:
-# <<-SQL
-# SELECT COUNT(*)
-# FROM users
-# WHERE users.id IN (
-#   SELECT player_id
-#   FROM battle_invites
-#   WHERE battle_invites.battle_id = 1
-#   AND battle_invites.player_id = 1
-#   AND battle_invites.confirmed = true
-# );
-
-# SELECT battles.id as battle_id, users.id as user_id, users.username as username,
-#   SUM(CASE WHEN EXISTS (SELECT 1 FROM battle_invites WHERE battle_invites.player_id = users.id AND battle_invites.battle_id = battles.id) THEN 1 ELSE 0 END) Invited,
-#   SUM(CASE WHEN battle_invites.confirmed = true THEN 1 ELSE 0 END) as Confirmed,
-#   SUM(CASE WHEN battle_invites.confirmed = true THEN 1 ELSE 0 END) as Eligible,
-#   SUM(CASE WHEN battle_invites.confirmed = true THEN 1 ELSE 0 END) as Ineligible,
-#   completed_at = (SELECT completed_challenges.completed_at FROM completed_challenges WHERE completed_challenges.user_id = users.id AND battles.challenge_id = completed_challenges.challenge_id AND completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time LIMIT 1) AS completed_at,
-#   SUM(CASE WHEN (battles.challenge_id = completed_challenges.challenge_id AND completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time) THEN 1 ELSE 0 END) as Survived,
-#   SUM(CASE WHEN (battle_invites.player_id = users.id) THEN 1 ELSE 0 END) as Fought
-
-# FROM users
-# LEFT JOIN battle_invites ON battle_invites.player_id = users.id
-# LEFT JOIN battles ON battle_invites.battle_id = battles.id
-# LEFT JOIN completed_challenges ON completed_challenges.user_id = users.id
-# GROUP BY battles.id, users.id
-# SQL
-
 class User < ApplicationRecord
   acts_as_token_authenticatable
   has_one :room_user, required: false
@@ -63,18 +35,54 @@ class User < ApplicationRecord
       where(room_id: room.id, battle_invites: { confirmed: true }).where.not(end_time: nil)
     end
   end
-  # has_many :battles_as_winner, class_name: 'Battle', foreign_key: 'winner_id'
   has_many :completed_challenges, dependent: :destroy
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  before_validation :create_email, on: :create
-  after_create :async_fetch_codewars_info, :create_email2
+  after_create :async_fetch_codewars_info
 
-  def email_required?
-    false
+  scope :invited, ->(battle) { battle ? self.in(battle.room).select('battle_invites.created_at AS invited_at').joins(:battle_invites).where(battle_invites: { battle: battle }) : [] }
+  scope :pending, ->(battle) { battle ? invited(battle).where(battle_invites: { confirmed: false }) : [] }
+  scope :confirmed, ->(battle) { battle ? invited(battle).where(battle_invites: { confirmed: true }) : [] }
+
+  def self.in(room)
+    joins(:room_user).where(room_users: { room: room })
+                     .select('users.id, users.username, users.name, users.last_fetched_at, room_users.created_at AS joined_at')
+  end
+
+  def self.ineligible(room)
+    return self.in(room) unless room.active_battle
+
+    self.in(room).select('completed_challenges.completed_at')
+        .joins(:completed_challenges)
+        .where(completed_challenges: { challenge_id: room.active_battle.challenge_id })
+  end
+
+  def self.eligible(room)
+    return [] unless room.active_battle
+
+    self.in(room)
+        .where('users.id NOT IN (?)', ineligible(room).pluck(:id))
+  end
+
+  def self.survived(battle)
+    return [] unless battle
+
+    confirmed(battle).select('completed_challenges.completed_at')
+                     .joins(:battles, :completed_challenges)
+                     .where(<<-SQL, battle.challenge_id)
+                     completed_challenges.challenge_id = ?
+                     AND completed_challenges.completed_at > battles.start_time
+                     AND completed_challenges.completed_at < battles.end_time
+                     SQL
+  end
+
+  def self.defeated(battle)
+    return [] unless battle
+
+    confirmed(battle).where('users.id NOT IN (?)', survived(battle).pluck(:id))
   end
 
   def api_expose(for_room = room, battle = active_battle)
@@ -108,7 +116,7 @@ class User < ApplicationRecord
     puts "Fetching data from #{url}"
     json = JSON.parse(open(url).read)
     return json["username"] == username
-  rescue
+  rescue StandardError
     return false
   end
 
@@ -126,10 +134,6 @@ class User < ApplicationRecord
     bot.save
     return bot
   end
-
-  # def active_room
-  #   RoomUser.includes(:room).joins(:room).find_by(user: self)&.room
-  # end
 
   def active_battle
     room&.active_battle
@@ -176,26 +180,13 @@ class User < ApplicationRecord
   def survived(room = nil)
     result = battles.includes(:players, players: :completed_challenges)
                     .joins(:players, players: :completed_challenges)
-                    .where("battles.challenge_id = completed_challenges.challenge_id AND completed_challenges.user_id = ?", self.id)
+                    .where("battles.challenge_id = completed_challenges.challenge_id AND completed_challenges.user_id = ?", id)
                     .where("completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time")
 
     return result unless room
 
     return result.includes(:room).joins(:room).where(rooms: { id: room.id })
-    # CompletedChallenge.includes(:user)
-    #                   .joins(:user)
-    #                   .where(challenge_id: challenge_id, user: self)
-    #                   .where("completed_at > ? AND completed_at < ?", start_time, end_time)
-    #                   .order(completed_at: :asc).first
   end
-
-  # def won(room = room)
-  #   result =
-  #   battles.includes(:players, players: :completed_challenges)
-  #         .joins(:players, players: :completed_challenges)
-  #         .where("battles.challenge_id = completed_challenges.challenge_id AND completed_challenges.user_id = ?", self.id)
-  #         .where("completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time")
-  # end
 
   def invite_status(battle = active_battle)
     return nil if !room || room.at_peace?
@@ -216,13 +207,5 @@ class User < ApplicationRecord
   def async_fetch_codewars_info
     FetchUserInfoJob.perform_later(id)
     FetchCompletedChallengesJob.perform_later(user_id: id, all_pages: true)
-  end
-
-  def create_email
-    self.email = "#{username}@me.com" if email.empty?
-  end
-
-  def create_email2
-    update(email: "#{username}@me.com") if email.empty?
   end
 end

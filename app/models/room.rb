@@ -38,13 +38,6 @@ class Room < ApplicationRecord
     active_battle.present?
   end
 
-  # def battles_index
-  #   {
-  #     active: active_battle&.api_expose,
-  #     finished: finished_battles.map(&:api_expose)
-  #   }
-  # end
-
   def finished_battles
     Battle.includes(:room).joins(:room).where(room_id: id).where.not(end_time: nil).order(end_time: :desc)
     # battles.where.not(end_time: nil)
@@ -78,13 +71,6 @@ class Room < ApplicationRecord
       "at_war"
     end
   end
-
-  # def challenge_winner(challenge_id)
-  #   battles.for_challenge(challenge_id)
-  #          .includes(:players, players: :completed_challenges)
-  #          .joins(:players, players: :completed_challenges)
-  #          .select("users.id, DATEDIFF(completed_challenges.completed_at, battles.start_time)")
-  # end
 
   def leaderboard
     query_fought = <<-SQL
@@ -121,6 +107,7 @@ class Room < ApplicationRecord
     leaderboard = {}
     ActiveRecord::Base.connection.exec_query(query).as_json.each { |e| leaderboard[e["id"].to_s] = e }
     return leaderboard
+    # return ActiveRecord::Base.connection.exec_query(query).as_json
   end
 
   def battles_fought(player)
@@ -129,8 +116,6 @@ class Room < ApplicationRecord
       battles: { room_id: id },
       users: { id: player }
     )
-    # Battle.joins(battle_invites: :player).where(battle_invites: { confirmed: true }, battles: { room_id: id }, users: { id: player.id })
-    # player.battle_invites.where(confirmed: true)
   end
 
   def battles_survived(player)
@@ -142,37 +127,9 @@ class Room < ApplicationRecord
     )
   end
 
-  # def victories(player)
-  #   finished_battles.includes(:players, players: :completed_challenges)
-  #                   .joins(players: :completed_challenges)
-  #                   .map(&:winner)
-  #                   .select { |winner| winner == player }
-  # end
-
-  def defeats(player)
-    # Battle.joins(battle_invites: { player: :completed_challenges }).where('battle_invites.confirmed = true AND battles.room_id = ? AND users.id = ?', id, player.id).where.not(
-    #   "completed_challenges.completed_at > battles.start_time OR completed_challenges.completed_at < battles.end_time OR completed_challenges.challenge_id = battles.challenge_id OR completed_challenges.user_id = ?",
-    #   player.id
-    # )
-  end
-
   def total_score(player)
     finished_battles.map { |battle| battle.score(player) }.reduce(:+)
   end
-
-  # def leaderboard
-  #   (players + users).uniq.map do |user|
-  #     {
-  #       id: user.id,
-  #       name: user.name,
-  #       username: user.username,
-  #       battles_fought: battles_fought(user).count,
-  #       battles_survived: battles_survived(user).count,
-  #       # victories: victories(user).count,
-  #       total_score: total_score(user)
-  #     }
-  #   end
-  # end
 
   def broadcast(subchannel: "logs", payload: nil)
     ActionCable.server.broadcast(
@@ -201,6 +158,31 @@ class Room < ApplicationRecord
     )
   end
 
+  def new_broadcast_users
+    broadcast(
+      subchannel: "users",
+      payload: {
+        action: "users",
+        users: export_users
+      }
+    )
+  end
+
+  def export_users
+    {
+      eligible: User.eligible(self),
+      ineligible: User.ineligible(self)
+    }
+  end
+
+  def self.retrofit(hash)
+    return hash.map do |status, users|
+      return [] unless users
+
+      users.map { |user| user.attributes.merge("invite_status" => status.to_s).symbolize_keys }
+    end.flatten
+  end
+
   def broadcast_messages
     broadcast(
       subchannel: "chat",
@@ -212,13 +194,23 @@ class Room < ApplicationRecord
     )
   end
 
-  def broadcast_room_players
+  def broadcast_players
     broadcast(
       subchannel: "users",
       payload: {
         action: "room-players",
         players: players.includes(:battles, :room, :completed_challenges, :battle_invites)
                     .map { |user| user.api_expose(self, active_battle) }
+      }
+    )
+  end
+
+  def new_broadcast_players
+    broadcast(
+      subchannel: "users",
+      payload: {
+        action: "players",
+        players: export_players
       }
     )
   end
@@ -248,10 +240,6 @@ class Room < ApplicationRecord
   def broadcast_player(action: "player", user:)
     broadcast(subchannel: "battles", payload: { action: action, user: user.api_expose(self, active_battle) })
   end
-
-  # def broadcast_battles
-  #   broadcast(subchannel: "battles", payload: { action: "replace", battles: battles_index })
-  # end
 
   private
 
