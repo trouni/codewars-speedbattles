@@ -27,7 +27,17 @@ class Battle < ApplicationRecord
   has_many :players, through: :battle_invites, class_name: "User"
   has_many :completed_challenges, through: :players
   scope :active, -> { where(end_time: nil) }
-  after_commit :broadcast_active_battle, :broadcast_users
+  after_commit :broadcast_all
+
+  def export_players
+    {
+      # Using 'invited' instead of pending for retro-compatibility
+      invited: User.pending(self),
+      confirmed: User.confirmed(self),
+      survived: User.survived(self),
+      defeated: User.defeated(self)
+    }
+  end
 
   def launch(countdown)
     while countdown.positive?
@@ -39,12 +49,10 @@ class Battle < ApplicationRecord
     room.broadcast_action(action: "launch-codewars") if countdown <= 0
   end
 
-  def broadcast_active_battle
+  def broadcast_all
     room.broadcast_active_battle
-  end
-
-  def broadcast_users
     room.broadcast_users
+    # room.broadcast_players
   end
 
   def challenge
@@ -68,6 +76,7 @@ class Battle < ApplicationRecord
       end_time: end_time,
       challenge: challenge,
       players: players.includes(:room, :battles, :completed_challenges).map { |user| user.api_expose(room, self) }
+      # players: export_players
     }
   end
 

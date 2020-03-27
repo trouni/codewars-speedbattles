@@ -67,7 +67,7 @@ class RoomChannel < ApplicationCable::Channel
       end_time = battle.time_limit ? [battle.start_time + battle.time_limit.minutes, DateTime.now].min : DateTime.now
       battle.update(end_time: end_time)
       battle.defeated_players.each(&:async_fetch_codewars_info)
-      @room.broadcast_room_players
+      @room.broadcast_players
     when "update"
       battle.update(data["battle"])
     end
@@ -112,7 +112,7 @@ class RoomChannel < ApplicationCable::Channel
 
   def get_room_players
     set_room
-    @room.broadcast_room_players
+    @room.broadcast_players
   end
 
   def get_leaderboard
