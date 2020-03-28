@@ -12,6 +12,7 @@
               <p><small>Language:</small> <span class="highlight">{{battle.challenge.language || "Ruby"}} </span></p>
               <p><span class="mx-2">|</span><small>Difficulty:</small> <span class="highlight">{{-battle.challenge.rank}} kyu</span></p>
               <p v-if="timeLimit > 0"><span class="mx-2">|</span><small>Time limit:</small> <span class="highlight">{{("0" + timeLimit).slice(-2)}} min</span></p>
+              <p v-else><span class="mx-2">|</span><small>No time limit</small></p>
             </div>
           </div>
           <p v-if="battle.stage === 1 && defeated.length < 1" class="m-auto highlight">> Waiting for players to join the battle...</p>
@@ -25,9 +26,9 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(result, index) in survivors" class="highlight bg-highlight animated fadeInUp" :title="result.username">
+              <tr v-for="(survivor, index) in survivors" class="highlight bg-highlight animated fadeInUp" :title="survivor.username" :key="survivor.id">
                 <th scope="row">
-                  <span class="data username">{{ result.name || result.username }}</span>
+                  <span class="data username">{{ survivor.name || survivor.username }}</span>
                 </th>
                 <td>
                   <span class="data rank">{{ index + 1 }}</span>
@@ -36,7 +37,7 @@
                   <span class="data">Completed</span>
                 </td>
                 <td>
-                  <span class="data">{{ formatDuration(completedIn(battle, result)) }}</span>
+                  <span class="data">{{ formatDuration(completedIn(battle, survivor)) }}</span>
                 </td>
               </tr>
 
@@ -55,7 +56,7 @@
                 </td>
               </tr>
 
-              <tr v-for="defeatedUser in defeated" :title="defeatedUser.username" :class="['animated fadeInUp', { 'highlight-red': battle.stage === 0 }]" :key="defeatedUser.id"">
+              <tr v-for="defeatedUser in defeated" :title="defeatedUser.username" :class="['animated fadeInUp', { 'highlight-red': battle.stage === 0 }]" :key="defeatedUser.id">
                 <th scope="row" :class="['username', { pending: !userIsConfirmed(defeatedUser.id) && battle.stage > 0 && battle.stage < 3 }]">
                   <span class="data username">{{ defeatedUser.name || defeatedUser.username }}</span>
                 </th>
@@ -190,9 +191,9 @@
         return (new Date(user.completed_at) - new Date(battle.start_time)) / 1000 // duration in seconds
       },
       displayCompletionTime(battle, user) {
-        const completedIn = completedIn(battle, user)
+        const completedIn = this.completedIn(battle, user)
         const completedAt = new Date(user.completed_at)
-        time >= 0 ? formatDuration(completedIn) : completedAt.toDateString()
+        completedIn >= 0 ? formatDuration(completedIn) : completedAt.toDateString()
       },
       formatDuration(durationInSeconds) {
         const hours = Math.floor(durationInSeconds / 60 / 60)
