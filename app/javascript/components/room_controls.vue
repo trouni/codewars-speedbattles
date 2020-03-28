@@ -7,7 +7,7 @@
 
           <div class="new-battle d-flex flex-column h-100">
             <input class="input-field w-100" type="text" v-model="challengeInput" @keyup.enter="createBattle" placeholder="ID, slug or url of Codewars Kata" :disabled="battle.stage > 0">
-            <button @click="createBattle" class="line-height-1 mt-4 mx-auto large" v-if="battle.stage < 1"><i class="fas fa-cloud-upload-alt"></i>Load</button>
+            <std-button large @click.native="createBattle" class="line-height-1 mt-4 mx-auto" v-if="battle.stage < 1" fa-icon="fas fa-cloud-upload-alt" title="Load" />
 
             <div class="battle-settings d-flex flex-column flex-grow-1 pb-3" v-if="battle.stage > 0 && battle.stage < 3">
 
@@ -23,10 +23,10 @@
                   <span v-if="timeLimit > 0">min</span>
                 </div>
                 <div class="d-flex flex-column justify-content-around align-items-end">
-                  <button @click="cancelBattle"><i class="far fa-times-circle"></i>Cancel</button>
-                  <button @click="$root.$emit('invite-all')" :disabled="allInvited"><i class="fas fa-user-plus"></i>Invite All</button>
-                  <button @click="$root.$emit('invite-survivors')"><i class="fas fa-user-plus"></i>Invite Survivors</button>
-                  <button :disabled="confirmedUsers.length === 0" @click="initializeBattle" class="large"><i class="fas fa-radiation"></i>Start Battle</button>
+                  <std-button @click.native="cancelBattle" fa-icon="far fa-times-circle" title="Cancel" />
+                  <std-button @click.native="$root.$emit('invite-all')" :disabled="allInvited" fa-icon="fas fa-user-plus" title="Invite All" />
+                  <std-button @click.native="$root.$emit('invite-survivors')" fa-icon="fas fa-user-plus" title="Invite Survivors" />
+                  <std-button @click.native="initializeBattle" large :disabled="confirmedUsers.length === 0" fa-icon="fas fa-radiation" title="Start Battle" />
                 </div>
               </div>
 
@@ -48,30 +48,35 @@
             </div>
           </div>
 
-          <div class="slidecontainer">
+          <!-- <div class="slidecontainer">
             <input type="range" min="0" max="100" v-model="volumeAmbianceInput" class="slider" id="ambiance-volume" @input="changeVolumeAmbiance">
-          </div>
+          </div> -->
 
         </div>
 
         <div v-else class="flex-centering pt-0 pb-4">
           <div v-if="battle.stage >= 3 && currentUser.invite_status != 'survived'">
             <span class="d-flex justify-content-center">
-              <a v-if="battle.stage === 4" :href="challengeUrl" target="_blank" class="button large mx-auto"><i class="fas fa-rocket mr-1"></i>Launch Codewars</a>
-              <p v-else class="button large mx-auto disabled"><i class="fas fa-rocket mr-1"></i>Launch Codewars</p>
+              <a v-if="battle.stage === 4" :href="challengeUrl" target="_blank" class="mx-auto">
+                <std-button large fa-icon="fas fa-rocket mr-1" title="Launch Codewars" />
+              </a>
+              <p v-else class="mx-auto">
+                <std-button large fa-icon="fas fa-rocket mr-1" title="Launch Codewars" disabled />
+              </p>
             </span>
             <div v-if="currentUser.invite_status == 'confirmed'">
               <!-- <p class="text-center">Click the button below once you have completed the kata on Codewars.</p> -->
-              <button class="mx-auto large" @click="completedChallenge" :disabled="completedButtonClicked || battle.stage < 4">
+              <span class="mx-auto">
                 <div id="spinner" v-if="completedButtonClicked" class="centered display-initial">
                   <div class="lds-ring small"><div></div><div></div><div></div><div></div></div>
                 </div>
-                <i class="fas fa-check-double mr-1"></i>Challenge Completed</button>
+                <std-button @click.native="completedChallenge" large fa-icon="fas fa-check-double mr-1" title="Challenge Completed" :disabled="completedButtonClicked || battle.stage < 4" />
+              </span>
             </div>
           </div>
           <div v-else-if="currentUser.invite_status == 'invited'">
             <p class="text-center">You have been requested to join this battle.</p>
-            <button class="mx-auto large" @click="$root.$emit('confirm-invite', currentUser.id)">Join battle</button>
+            <std-button large class="mx-auto" @click.native="$root.$emit('confirm-invite', currentUser.id)" title="Join battle" />
           </div>
           <div v-else-if="currentUser.invite_status == 'confirmed' && battle.stage > 0 && battle.stage < 3">
             <p class="text-center">You are confirmed for the next battle. Get ready!</p>
@@ -113,6 +118,9 @@
         volumeAmbianceInput: this.volumeAmbiance * 100
       }
     },
+    components: {
+      StdButton: () => import('./shared/button.vue'),
+    },
     computed: {
       seekAttention() {
         if ((!this.isConfirmed(this.currentUser) && this.isInvited(this.currentUser)) || (this.isConfirmed(this.currentUser) && this.battle.stage >= 3)) {
@@ -151,11 +159,23 @@
       battleStage() {
         return this.battle.stage;
       },
+      currentUserIsInvited() {
+        return this.currentUser.invite_status === 'invited'
+      },
+      currentUserIsConfirmed() {
+        return this.currentUser.invite_status === 'confirmed'
+      },
     },
     watch: {
       battleStage: function() {
         this.completedButtonClicked = false;
-      }
+      },
+      currentUserIsInvited: function() {
+        if (this.currentUserIsInvited) this.$root.$emit('play-fx', 'interface');
+      },
+      currentUserIsConfirmed: function() {
+        // if (this.currentUserIsConfirmed) this.$root.$emit('play-fx', 'drums');
+      },
     },
     methods: {
       completedChallenge() {

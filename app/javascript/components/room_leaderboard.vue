@@ -4,10 +4,7 @@
       <h3 class="header">{{ title }}</h3>
       <div class="widget-body">
         <small class="ml-auto" v-if="room.show_stats">
-          <a class="button" @click="showOfflineClicked">
-            <i :class="['far', showOffline ? 'fa-eye-slash' : 'fa-eye']"></i>
-            {{ showOffline ? 'Hide' : 'Show' }} offline players
-          </a>
+          <std-button @click.native="showOfflineClicked" :fa-icon="`far ${showOffline ? 'fa-eye-slash' : 'fa-eye'}`" :title="`${showOffline ? 'Hide' : 'Show' } offline players`" />
         </small>
         <table :class="['console-table', { 'no-stats': !room.show_stats }]">
           <thead>
@@ -21,7 +18,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(player, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(player.id) }" :title="player.username">
+            <tr v-for="(player, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(player.id) }" :title="player.username" :key="player.id">
               <th scope="row">
                 <span class="data username">
                   <span v-if="isOnline(player.id)" :class="['mr-1', { 'current-user highlight': isOnline(player.id), offline: !isOnline(player.id) }]">●</span>
@@ -56,6 +53,9 @@ export default {
     currentUserIsModerator: Boolean,
     leaderboard: Object
   },
+  components: {
+    StdButton: () => import('./shared/button.vue'),
+  },
   data() {
     return {
       showOffline: false,
@@ -69,7 +69,7 @@ export default {
       return this.room.show_stats ? "NETWORK://Leaderboard" : "NETWORK://Users"
     },
     leaderboardUsers() {
-      const allUsers = this.showOffline ? this.roomPlayers.concat(this.users) : this.users;
+      const allUsers = this.showOffline && this.roomPlayers ? this.roomPlayers.concat(this.users) : this.users;
       return allUsers.reduce((uniqueUsers, user) => {
         return uniqueUsers.map(user => user.username).includes(user.username) ? uniqueUsers : [...uniqueUsers, user]
       }, [])
