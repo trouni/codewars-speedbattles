@@ -1,5 +1,5 @@
 <template>
-  <div id="super-container" :class="[viewMode, roomStatus]">
+  <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}]">
     <div id="spinner" v-if="!someDataLoaded" class="absolute-center display-initial">
       <div class="lds-ring">
         <div></div>
@@ -161,8 +161,8 @@ export default {
       countdown: 0,
       sounds: {
         volumeFx: 1,
-        volumeAmbiance: 0.4,
-        volumeBackgroundAmbiance: 0.2,
+        volumeAmbiance: 0.3,
+        volumeBackgroundAmbiance: 0.1,
         fx: {
           countdown: new Audio("../audio/countdown.mp3"),
           sword: new Audio("../audio/sword.mp3")
@@ -274,10 +274,11 @@ export default {
     currentUserIsModerator() {
       return this.currentUserId === this.room.moderator_id;
     },
-    // invitedUsers() {
-    //   if (!this.battle) { return [] }
-    //   return this.battle.players
-    // },
+    invitedUsers() {
+      if (this.battleStage === 0) { return [] }
+      // return this.battle.players
+      return this.users.filter(user => user.invite_status === 'invited')
+    },
     confirmedUsers() {
       if (!this.battle.players) {
         return [];
@@ -286,6 +287,9 @@ export default {
           user => user.invite_status == "confirmed"
         );
       }
+    },
+    allConfirmed() {
+      return this.battleStage === 2 && this.invitedUsers.length === 0;
     },
     // STATUSES
     roomStatus() {
@@ -341,6 +345,13 @@ export default {
         !this.battle.end_time &&
         this.confirmedUsers.length > 0
       );
+    },
+    readyForBattle() {
+      if (this.currentUserIsModerator) {
+        return this.allConfirmed
+      } else {
+        return this.currentUser.invite_status === "confirmed"
+      }
     },
     battleCountdown() {
       if (!this.battle.id) return false;
@@ -446,14 +457,15 @@ export default {
       });
       this.input = "";
     },
-    speak(message) {
+    speak(message, cancelPrevious = false) {
       if (this.soundActive) {
+        if (cancelPrevious) speechSynthesis.cancel();
         var msg = new SpeechSynthesisUtterance(message);
         var voices = speechSynthesis.getVoices();
         msg.voice =
           voices[voices.findIndex(e => e.voiceURI === "Google US English")];
-        msg.rate = 0.9;
-        msg.pitch = 0.9;
+        msg.rate = 1.1;
+        msg.pitch = 0.85;
         msg.onend = () => {
           this.ambianceMusic.volume = this.sounds.volumeAmbiance;
         };
@@ -505,14 +517,24 @@ export default {
         time_limit: this.timeLimit * 60
       });
     },
-    endBattle(endedByUser = false) {
-      this.stopAmbiance();
+    endBattle() {
       if (this.currentUserIsModerator)
         this.sendCable("update_battle", {
-          battle_action: endedByUser ? 'ended-by-user' : 'end',
+          battle_action: 'end',
           battle_id: this.battle.id,
         });
+      this.stopAmbiance();
       this.challengeInput = "";
+      this.announce({
+        content: `<i class="fas fa-peace"></i> The battle for <span class='chat-highlight'>${this.battle.challenge.name}</span> is over.`,
+      });
+    },
+    userEndsBattle() {
+      if (this.currentUserIsModerator)
+        this.sendCable("update_battle", {
+          battle_action: 'ended-by-user',
+          battle_id: this.battle.id,
+        });
     },
     fetchChallenges(userId) {
       this.sendCable("fetch_user_challenges", {
@@ -573,20 +595,24 @@ export default {
       clearInterval(this.clockInterval);
       this.clockInterval = setInterval(() => {
         if (this.battle.stage === 4) {
-          let clockTime;
           if (this.battle.time_limit > 0) {
+            const clockTime = this.timeRemainingInSeconds() > 0 ? this.timeRemainingInSeconds() : 0;
+            this.announce({ content: `<span class='timer highlight'>${this.formatDuration(clockTime)}</span>` });
             if (
+              this.timeRemainingInSeconds() > 301 &&
+              this.timeRemainingInSeconds() <= 302
+            ) {
+              this.speak("WARNING! 5min remaining!", true);
+            } else if (
               this.timeRemainingInSeconds() > 121 &&
               this.timeRemainingInSeconds() <= 122
             ) {
-              console.log('2min left! time remaining in seconds: ', this.timeRemainingInSeconds())
-              this.speak("WARNING! 2min left");
+              this.speak("WARNING! 2min remaining!", true);
             } else if (
               this.timeRemainingInSeconds() > 61 &&
               this.timeRemainingInSeconds() <= 62
             ) {
-              console.log('1min left! time remaining in seconds: ', this.timeRemainingInSeconds())
-              this.speak("WARNING! 1min left");
+              this.speak("WARNING! 1min remaining!", true);
             } else if (
               this.timeRemainingInSeconds() > 10 &&
               this.timeRemainingInSeconds() <= 11
@@ -595,33 +621,22 @@ export default {
                 this.sounds.volumeAmbiance,
                 this.sounds.volumeBackgroundAmbiance
               );
+              // this.speak(Math.round(this.timeRemainingInSeconds()), true)
               this.playSoundFx("countdown");
             } else if (this.timeRemainingInSeconds() <= 0) {
               this.endBattle();
+              clearInterval(this.clockInterval);
             }
-            clockTime =
-              this.timeRemainingInSeconds() > 0
-                ? this.timeRemainingInSeconds()
-                : 0;
-            this.announce({
-              content: `<span class='timer highlight'>${this.formatDuration(
-                clockTime
-              )}</span>`
-            });
           } else {
-            clockTime = this.timeSpentInSeconds();
+            const clockTime = this.timeSpentInSeconds();
             this.announce({
               content: `<h1 class='highlight'><small>TIME ELAPSED:</small> ${this.formatDuration(
                 clockTime
               )}</h1><p>(no time limit)</p>`
             });
           }
-          // this.announce({ content: `<span class='timer highlight'>${this.formatDuration(clockTime)}</span>` });
         } else {
           clearInterval(this.clockInterval);
-          this.announce({
-            content: `<i class="fas fa-peace"></i> The battle for <span class='chat-highlight'>${this.battle.challenge.name}</span> is over.`,
-          });
         }
       }, 1000);
     },
@@ -877,7 +892,7 @@ export default {
     // this.$root.$on('update-battle', (battle) => this.updateBattle(battle))
     this.$root.$on("initialize-battle", () => this.initializeBattle());
     this.$root.$on("start-countdown", () => this.startCountdown());
-    this.$root.$on("end-battle", () => this.endBattle(true));
+    this.$root.$on("end-battle", () => this.userEndsBattle());
     this.$root.$on("edit-time-limit", step => this.editTimeLimit(step));
     this.$root.$on("speak", message => this.speak(message));
   }
