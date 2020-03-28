@@ -1,5 +1,6 @@
 <template>
   <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}]">
+    <navbar :room-id="room.id" :sounds="sounds" :show-sound-controls="soundActive" />
     <div id="spinner" v-if="!someDataLoaded" class="absolute-center display-initial">
       <div class="lds-ring">
         <div></div>
@@ -18,7 +19,7 @@
       <div :class="['grid-item grid-header', { 'loading': !someDataLoaded }]">
         <div id="room-announcer" :class="['widget-bg', seekAttention]">
           <div class="widget">
-            <h3 class="header highlight" @click="turnSoundOn">PWD://War_Room/{{ room.name }}</h3>
+            <h3 class="header highlight">PWD://War_Room/{{ room.name }}</h3>
             <div class="widget-body align-content-center justify-content-center">
               <span
                 :class="['announcer mt-3', 'text-center', announcerWindow.status]"
@@ -52,6 +53,7 @@
           :battle-status="battleStatus"
           :challenge-url="challengeUrl"
           :volume-ambiance="sounds.volumeAmbiance"
+          :sounds="sounds"
         ></room-controls>
         <!-- <input type="submit" @click="test" value="test"> -->
       </div>
@@ -160,18 +162,27 @@ export default {
       countdownDuration: 10,
       countdown: 0,
       sounds: {
-        volumeFx: 1,
-        volumeAmbiance: 0.3,
-        volumeBackgroundAmbiance: 0.1,
+        musicOn: true,
+        soundFxOn: true,
+        volumeAmbiance: 0.5,
+        volumeBackgroundAmbiance: 0.2,
         fx: {
           countdown: new Audio("../audio/countdown.mp3"),
-          sword: new Audio("../audio/sword.mp3")
+          sword: new Audio("../audio/sword.mp3"),
+          hover: new Audio("../audio/hover.mp3"),
+          interface: new Audio("../audio/interface.mp3"),
+          beep: new Audio("../audio/beep.mp3"),
+          select: new Audio("../audio/select.mp3"),
+          drums: new Audio("../audio/drums.mp3"),
         },
-        ambiance: [
-          new Audio("../audio/bensound-epic.mp3"),
-          new Audio("../audio/overpowered.mp3")
-          // new Audio('../audio/infinity-star.mp3'),
-        ]
+        ambiance: {
+          battles: [
+            new Audio("../audio/bensound-epic-med.mp3"),
+            new Audio("../audio/overpowered-med.mp3"),
+            new Audio('../audio/infinity-star-med.mp3'),
+          ],
+          drums: new Audio('../audio/bg-drums.mp3'),
+        },
       },
       ambianceMusic: new Audio(),
       announcement: {
@@ -179,7 +190,7 @@ export default {
         content: `Welcome to ${this.roomInit.name}`
       },
       viewMode: new URL(window.location.href).searchParams.get("view"),
-      timeLimit: 8,
+      timeLimit: this.battle ? Math.round(this.battle.time_limit / 60) : 8,
       clockInterval: null,
     };
   },
@@ -188,15 +199,17 @@ export default {
     // setTimeout(() => { this.someDataLoaded = true }, 500);
     this.$set(this.battle, "stage", this.battleStage);
     setTimeout(_ => this.checkCurrentUserConnection(), 5000);
+
+    this.sounds.musicOn = this.soundActive
+    this.sounds.soundFxOn = this.soundActive
   },
   watch: {
     battle: function() {
-      this.timeLimit = Math.round(this.battle.time_limit / 60) || this.timeLimit;
+      this.timeLimit = this.battle ? Math.round(this.battle.time_limit / 60) : this.timeLimit;
     },
     sounds: {
       handler: function() {
-        this.ambianceMusic.volume = this.sounds.volumeAmbiance;
-        // this.ambianceMusic.volume === 0 ? this.pauseAmbiance() : this.resumeAmbiance()
+        this.ambianceMusic.volume = this.sounds.musicOn ? this.sounds.volumeAmbiance : 0;
       },
       deep: true
     },
@@ -212,12 +225,6 @@ export default {
     //     return ''
     //   }
     // },
-    soundActive() {
-      return (
-        this.roomInit.sound === "everyone" ||
-        (this.roomInit.sound === "moderator" && this.currentUserIsModerator)
-      );
-    },
     someDataLoaded() {
       return (
         this.usersInitialized ||
@@ -231,6 +238,9 @@ export default {
     //     return uniqueUsers.map(user => user.username).includes(user.username) ? uniqueUsers : [...uniqueUsers, user]
     //   }, [])
     // },
+    soundActive() {
+      return this.roomInit.sound === "everyone" || (this.roomInit.sound === "moderator" && this.currentUserIsModerator)
+    },
     seekAttention() {
       if (this.battleStatus.battleOngoing) {
         return ["animated pulse seek-attention"];
@@ -404,10 +414,10 @@ export default {
       });
     }, 1000),
     test() {},
-    turnSoundOn() {
-      if (this.viewMode) this.soundActive = !this.soundActive;
-      this.soundActive ? alert("sound ON") : alert("sound OFF");
-    },
+    // turnSoundOn() {
+    //   if (this.viewMode) this.soundActive = !this.soundActive;
+    //   this.soundActive ? alert("sound ON") : alert("sound OFF");
+    // },
     // =============
     //     ROOM
     // =============
@@ -436,14 +446,6 @@ export default {
           message.chat === true ? message.content : message.chat;
         this.sendChatMessage(chatMessage, true);
       }
-
-      if (message.speak && this.soundActive) {
-        const speakMessage =
-          message.speak === true
-            ? this.stripHTML(message.content)
-            : message.speak;
-        this.speak(speakMessage);
-      }
     },
     notifyEvent(event) {
       if (this.currentUserIsModerator && !this.viewMode) {
@@ -457,9 +459,9 @@ export default {
       });
       this.input = "";
     },
-    speak(message, cancelPrevious = false) {
-      if (this.soundActive) {
-        if (cancelPrevious) speechSynthesis.cancel();
+    speak(message, options = {}) {
+      if (this.sounds.soundFxOn) {
+        if (options.cancelPrevious) speechSynthesis.cancel();
         var msg = new SpeechSynthesisUtterance(message);
         var voices = speechSynthesis.getVoices();
         msg.voice =
@@ -467,12 +469,9 @@ export default {
         msg.rate = 1.1;
         msg.pitch = 0.85;
         msg.onend = () => {
-          this.ambianceMusic.volume = this.sounds.volumeAmbiance;
+          this.resetAmbianceVolume()
         };
-        this.ambianceMusic.volume = Math.min(
-          this.sounds.volumeAmbiance,
-          this.sounds.volumeBackgroundAmbiance
-        );
+        this.setBackgroundVolume()
         speechSynthesis.speak(msg);
       }
     },
@@ -550,18 +549,29 @@ export default {
         this.battle.challenge.language = "ruby";
       window.open(this.challengeUrl);
     },
-    startAmbiance() {
-      if (!this.ambianceMusic.paused) return;
-
-      this.ambianceMusic = this.sounds.ambiance[
-        Math.floor(Math.random() * this.sounds.ambiance.length)
-      ];
+    setBackgroundVolume() {
+      this.ambianceMusic.volume = Math.min(
+        this.ambianceMusic.volume,
+        this.sounds.volumeBackgroundAmbiance
+      );
+    },
+    resetAmbianceVolume() {
+      this.ambianceMusic.volume = this.sounds.musicOn ? this.sounds.volumeAmbiance : 0;
+    },
+    startAmbiance(track = null) {
+      if (track) {
+        this.ambianceMusic = this.sounds.ambiance[track]
+      } else {
+        this.ambianceMusic = this.sounds.ambiance.battles[
+          Math.floor(Math.random() * this.sounds.ambiance.battles.length)
+        ];
+      }
       // this.ambianceMusic.loop = true
-      this.ambianceMusic.volume = this.sounds.volumeAmbiance;
+      this.ambianceMusic.volume = this.sounds.musicOn ? this.sounds.volumeAmbiance : 0;
       this.ambianceMusic.onended = () => {
-        this.startAmbiance();
+        this.startAmbiance(track);
       };
-      if (this.soundActive) this.ambianceMusic.play();
+      if (this.ambianceMusic.paused) this.ambianceMusic.play();
     },
     pauseAmbiance() {
       this.ambianceMusic.pause();
@@ -574,7 +584,9 @@ export default {
       this.ambianceMusic.currentTime = 0;
     },
     playSoundFx(fxName) {
-      if (this.soundActive) this.sounds.fx[fxName].play();
+      this.sounds.fx[fxName].pause();
+      this.sounds.fx[fxName].currentTime = 0;
+      if (this.sounds.soundFxOn) this.sounds.fx[fxName].play();
     },
     startCountdown(countdown) {
       this.countdown = countdown;
@@ -602,25 +614,22 @@ export default {
               this.timeRemainingInSeconds() > 301 &&
               this.timeRemainingInSeconds() <= 302
             ) {
-              this.speak("WARNING! 5min remaining!", true);
+              this.speak("WARNING! 5min remaining!", { cancelPrevious: true });
             } else if (
               this.timeRemainingInSeconds() > 121 &&
               this.timeRemainingInSeconds() <= 122
             ) {
-              this.speak("WARNING! 2min remaining!", true);
+              this.speak("WARNING! 2min remaining!", { cancelPrevious: true });
             } else if (
               this.timeRemainingInSeconds() > 61 &&
               this.timeRemainingInSeconds() <= 62
             ) {
-              this.speak("WARNING! 1min remaining!", true);
+              this.speak("WARNING! 1min remaining!", { cancelPrevious: true });
             } else if (
               this.timeRemainingInSeconds() > 10 &&
               this.timeRemainingInSeconds() <= 11
             ) {
-              this.ambianceMusic.volume = Math.min(
-                this.sounds.volumeAmbiance,
-                this.sounds.volumeBackgroundAmbiance
-              );
+              this.setBackgroundVolume()
               // this.speak(Math.round(this.timeRemainingInSeconds()), true)
               this.playSoundFx("countdown");
             } else if (this.timeRemainingInSeconds() <= 0) {
@@ -805,14 +814,14 @@ export default {
                 this.users.forEach(user => this.pushToUsers(user));
                 this.usersInitialized = true;
                 if (this.currentUserIsModerator)
-                  console.info(`Refreshed all users`);
+                  // console.info(`Refreshed all users`);
                 break;
 
               case "room-players":
                 this.roomPlayers = data.payload.players;
                 this.roomPlayersInitialized = true;
                 if (this.currentUserIsModerator)
-                  console.info(`Refreshed all room players`);
+                  // console.info(`Refreshed all room players`);
                 break;
             }
             break;
@@ -861,6 +870,8 @@ export default {
     }
   },
   mounted() {
+    speechSynthesis.cancel();
+
     this.$cable.subscribe({
       channel: "RoomChannel",
       room_id: this.room.id,
@@ -895,6 +906,10 @@ export default {
     this.$root.$on("end-battle", () => this.userEndsBattle());
     this.$root.$on("edit-time-limit", step => this.editTimeLimit(step));
     this.$root.$on("speak", message => this.speak(message));
+    this.$root.$on("play-fx", sound => this.playSoundFx(sound));
+    this.$root.$on("play-ambiance", track => this.startAmbiance(track));
+    this.$root.$on("toggle-music", () => this.sounds.musicOn = !this.sounds.musicOn);
+    this.$root.$on("toggle-sound-fx", () => this.sounds.soundFxOn = !this.sounds.soundFxOn);
   }
 };
 </script>
