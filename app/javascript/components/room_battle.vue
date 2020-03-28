@@ -55,9 +55,9 @@
                 </td>
               </tr>
 
-              <tr v-for="result in defeated" :title="result.username" class="animated fadeInUp">
-                <th scope="row" :class="['username', { pending: !userIsConfirmed(result.id) && battle.stage > 0 && battle.stage < 3 }]">
-                  <span class="data username">{{ result.name || result.username }}</span>
+              <tr v-for="defeatedUser in defeated" :title="defeatedUser.username" :class="['animated fadeInUp', { 'highlight-red': battle.stage === 0 }]" :key="defeatedUser.id"">
+                <th scope="row" :class="['username', { pending: !userIsConfirmed(defeatedUser.id) && battle.stage > 0 && battle.stage < 3 }]">
+                  <span class="data username">{{ defeatedUser.name || defeatedUser.username }}</span>
                 </th>
                 <td>
                   <span class="data rank">{{ battle.stage === 0 ? '' : '-' }}<i v-if="battle.stage === 0" class="fas fa-skull-crossbones"></i></span>
@@ -66,7 +66,7 @@
                   <span class="data">{{ battle.stage === 0 ? 'Defeated' : '-' }}</span>
                 </td>
                 <td>
-                  <span class="data">{{ result.completed_at ? formatDuration(completedIn(battle, result)) : '-' }}</span>
+                  <span class="data">{{ defeatedUser.completed_at ? displayCompletionTime(battle, defeatedUser) : '-' }}</span>
                 </td>
               </tr>
             </tbody>
@@ -189,7 +189,11 @@
       completedIn(battle, user) {
         return (new Date(user.completed_at) - new Date(battle.start_time)) / 1000 // duration in seconds
       },
-
+      displayCompletionTime(battle, user) {
+        const completedIn = completedIn(battle, user)
+        const completedAt = new Date(user.completed_at)
+        time >= 0 ? formatDuration(completedIn) : completedAt.toDateString()
+      },
       formatDuration(durationInSeconds) {
         const hours = Math.floor(durationInSeconds / 60 / 60)
         const minutes = Math.floor(durationInSeconds / 60) % 60
