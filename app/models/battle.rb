@@ -79,7 +79,7 @@ class Battle < ApplicationRecord
   end
 
   def refresh_status
-    return unless ongoing? && time_limit
+    return unless ongoing? && time_limit.positive?
 
     expected_end_time = start_time + time_limit.seconds
     terminate(end_at: expected_end_time) if expected_end_time < Time.now
