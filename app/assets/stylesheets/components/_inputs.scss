@@ -4,9 +4,6 @@ input[type=text], input[type=email], input[type=password] {
   padding: 0 0.5em;
   color: $input-color;
   border: none;
-  &::placeholder {
-    color: rgba($input-color, 0.4);
-  }
   &:disabled {
     background: none;
     outline: 1px auto rgba( $maincolor, .3 );

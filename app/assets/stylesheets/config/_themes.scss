@@ -97,8 +97,8 @@
 
   input {
     color: $input-color !important;
-    &:placeholder {
-      color: rgba($input-color, 0.5);
+    &::placeholder {
+      color: rgba($input-color, 0.4);
     }
     &:disabled {
       outline: 1px auto rgba( $maincolor, .3 );
