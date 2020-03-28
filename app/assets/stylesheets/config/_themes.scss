@@ -152,7 +152,7 @@ body {
 //   @include theme-transitions(3s)
 // }
 
-.battle-confirmed {
+.ready-for-battle {
   @include theme-color($maincolor-brink-of-war, $bg-image-brink-of-war)
   @include theme-transitions(3s)
 }

@@ -78,6 +78,9 @@ table.console-table {
     &:hover {
       background-color: rgba($red, 0.2) !important;
     }
+    span {
+      color: rgba(white, 0.7);
+    }
   }
 
   td {
