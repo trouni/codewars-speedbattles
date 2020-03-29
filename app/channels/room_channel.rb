@@ -106,7 +106,7 @@ class RoomChannel < ApplicationCable::Channel
     set_room
     set_current_user
     RoomUser.find_or_create_by(room: @room, user: @current_user)
-    @room.broadcast_to_moderator(subchannel: "logs", payload: "Re-subscribed #{user.username}...")
+    @room.broadcast_to_moderator(subchannel: "logs", payload: "Re-subscribed #{@current_user.username}...")
   end
 
   def get_room_players
