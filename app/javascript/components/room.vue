@@ -459,19 +459,23 @@ export default {
       });
       this.input = "";
     },
-    speak(message, options = {}) {
+    speak(message, options = null) {
+      options = options || {}
       if (this.sounds.soundFxOn) {
-        if (options.cancelPrevious) speechSynthesis.cancel();
-        var msg = new SpeechSynthesisUtterance(message);
-        var voices = speechSynthesis.getVoices();
+        if (options.interrupt) speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(message);
+        const voices = speechSynthesis.getVoices();
+        const voiceURI = options.voiceURI || "Google US English";
+        const soundFX = options.fx
         msg.voice =
-          voices[voices.findIndex(e => e.voiceURI === "Google US English")];
+          voices[voices.findIndex(e => e.voiceURI === voiceURI)];
         msg.rate = 1.1;
         msg.pitch = 0.85;
         msg.onend = () => {
           this.resetAmbianceVolume()
         };
         this.setBackgroundVolume()
+        this.playSoundFx(soundFX);
         speechSynthesis.speak(msg);
       }
     },
@@ -583,10 +587,17 @@ export default {
       this.ambianceMusic.pause();
       this.ambianceMusic.currentTime = 0;
     },
+    toggleMusic() {
+      this.sounds.musicOn = !this.sounds.musicOn;
+      this.sounds.musicOn ? this.resumeAmbiance() : this.pauseAmbiance();
+    },
     playSoundFx(fxName) {
-      this.sounds.fx[fxName].pause();
-      this.sounds.fx[fxName].currentTime = 0;
-      if (this.sounds.soundFxOn) this.sounds.fx[fxName].play();
+      const soundFX = this.sounds.fx[fxName]
+      if (!soundFX) return
+
+      soundFX.pause();
+      soundFX.currentTime = 0;
+      if (this.sounds.soundFxOn) soundFX.play();
     },
     startCountdown(countdown) {
       this.countdown = countdown;
@@ -744,8 +755,8 @@ export default {
   channels: {
     RoomChannel: {
       connected() {
-        if (this.currentUserIsModerator)
-          console.log("WebSockets connected to RoomChannel.");
+        // if (this.currentUserIsModerator)
+          // console.log("WebSockets connected to RoomChannel.");
       },
       rejected() {},
       received(data) {
@@ -763,8 +774,7 @@ export default {
                 break;
 
               case "voice-announce":
-                if (data.payload.message) this.speak(data.payload.message);
-                if (data.payload.fx) this.playSoundFx(data.payload.fx);
+                if (data.payload.message) this.speak(data.payload.message, data.payload.options);
                 break;
 
               default:
@@ -849,7 +859,7 @@ export default {
                 if (this.battleOngoing) this.startClock();
                 this.battleInitialized = true;
                 if (this.currentUserIsModerator)
-                  console.info(`Refreshed active battle`);
+                  // console.info(`Refreshed active battle`);
                 break;
 
               case "player":
@@ -908,7 +918,7 @@ export default {
     this.$root.$on("speak", message => this.speak(message));
     this.$root.$on("play-fx", sound => this.playSoundFx(sound));
     this.$root.$on("play-ambiance", track => this.startAmbiance(track));
-    this.$root.$on("toggle-music", () => this.sounds.musicOn = !this.sounds.musicOn);
+    this.$root.$on("toggle-music", () => this.toggleMusic());
     this.$root.$on("toggle-sound-fx", () => this.sounds.soundFxOn = !this.sounds.soundFxOn);
   }
 };

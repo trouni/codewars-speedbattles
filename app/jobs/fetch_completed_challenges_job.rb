@@ -27,7 +27,8 @@ class FetchCompletedChallengesJob < ApplicationJob
     @battle.room.announce(
       :voice,
       "Challenge completed by #{@user.name || @user.username} in #{completed_in}",
-      'sword'
+      fx: 'sword',
+      interrupt: false
     )
   end
 

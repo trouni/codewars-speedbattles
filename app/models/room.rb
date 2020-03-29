@@ -184,20 +184,20 @@ class Room < ApplicationRecord
     end.flatten
   end
 
-  def announce(channel, message, sound_fx = nil)
+  def announce(channel, message, **options)
     case channel
     when :chat then chat.create_announcement(message)
-    when :voice then broadcast_voice(message, sound_fx)
+    when :voice then broadcast_voice(message, options)
     end
   end
 
-  def broadcast_voice(message, sound_fx)
+  def broadcast_voice(message, options)
     broadcast(
       subchannel: "action",
       payload: {
         action: "voice-announce",
         message: message,
-        fx: sound_fx
+        options: options,
       }
     )
   end
