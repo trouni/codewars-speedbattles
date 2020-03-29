@@ -145,7 +145,7 @@ export default {
   data() {
     return {
       usersInitialized: false,
-      battleInitialized: false,
+      battleInitialized: true,
       messagesInitialized: false,
       roomPlayersInitialized: false,
       room: this.roomInit,
