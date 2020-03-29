@@ -467,6 +467,7 @@ export default {
         const voices = speechSynthesis.getVoices();
         const voiceURI = options.voiceURI || "Google US English";
         const soundFX = options.fx
+        const fxVolume = options.fxVolume
         msg.voice =
           voices[voices.findIndex(e => e.voiceURI === voiceURI)];
         msg.rate = 1.1;
@@ -475,8 +476,8 @@ export default {
           this.resetAmbianceVolume()
         };
         this.setBackgroundVolume()
-        this.playSoundFx(soundFX);
-        speechSynthesis.speak(msg);
+        this.playSoundFx(soundFX, fxVolume);
+        if (message) speechSynthesis.speak(msg);
       }
     },
     // =============
@@ -591,12 +592,14 @@ export default {
       this.sounds.musicOn = !this.sounds.musicOn;
       this.sounds.musicOn ? this.resumeAmbiance() : this.pauseAmbiance();
     },
-    playSoundFx(fxName) {
+    playSoundFx(fxName, volume = 1) {
+      // volume = volume || 1
       const soundFX = this.sounds.fx[fxName]
       if (!soundFX) return
 
       soundFX.pause();
       soundFX.currentTime = 0;
+      soundFX.volume = volume;
       if (this.sounds.soundFxOn) soundFX.play();
     },
     startCountdown(countdown) {
@@ -774,7 +777,7 @@ export default {
                 break;
 
               case "voice-announce":
-                if (data.payload.message) this.speak(data.payload.message, data.payload.options);
+                this.speak(data.payload.message, data.payload.options);
                 break;
 
               default:
