@@ -172,8 +172,8 @@ class User < ApplicationRecord
 
     completed_challenges.includes(user: :battles)
                         .joins(user: :battles)
-                        .where(challenge_id: battle.challenge_id)
-                        .where("completed_at > ? AND completed_at < ?", battle.start_time, end_time)
+                        .where(challenge_id: battle&.challenge_id)
+                        .where("completed_at > ? AND completed_at < ?", battle&.start_time, end_time)
                         .exists?
   end
 
