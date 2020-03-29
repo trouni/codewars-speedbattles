@@ -28,6 +28,8 @@ class FetchCompletedChallengesJob < ApplicationJob
       :voice,
       "Challenge completed by #{@user.name || @user.username} in #{completed_in}",
       fx: 'sword',
+      fxPlayAt: 'start',
+      fxVolume: 0.8,
       interrupt: false
     )
   end

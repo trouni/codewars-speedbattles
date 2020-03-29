@@ -468,15 +468,20 @@ export default {
         const voiceURI = options.voiceURI || "Google US English";
         const soundFX = options.fx
         const fxVolume = options.fxVolume
+        const fxPlayAt = options.fxPlayAt || 'asap'
         msg.voice =
           voices[voices.findIndex(e => e.voiceURI === voiceURI)];
         msg.rate = 1.1;
         msg.pitch = 0.85;
+        msg.onstart = () => {
+          this.setBackgroundVolume()
+          if (fxPlayAt === 'start') this.playSoundFx(soundFX, fxVolume);
+        };
         msg.onend = () => {
           this.resetAmbianceVolume()
+          if (fxPlayAt === 'end') this.playSoundFx(soundFX, fxVolume);
         };
-        this.setBackgroundVolume()
-        this.playSoundFx(soundFX, fxVolume);
+        if (fxPlayAt === 'asap') this.playSoundFx(soundFX, fxVolume);
         if (message) speechSynthesis.speak(msg);
       }
     },
