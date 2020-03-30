@@ -28,6 +28,9 @@
   }
 
   .messages .content {
+    tab-size : 4;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
     opacity: 0.8;
   }
   
@@ -37,11 +40,48 @@
     text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.6);
   }
 
+  
   #msg-input {
     // background: rgba(255, 255, 255, 0.1);
+    position: relative;
     display: flex;
-    margin-left: -1.5em;
-    padding-left: 1.5em;
+    margin: 0 -1.5em -0.5em -1.5em;
+    padding: 0 1.5em 0 1.5em;
+    &:after {
+      opacity: 0;
+      content: "[⌘]+[Enter]";
+      position: absolute;
+      right: 0;
+      top: -1.5em;
+      font-size: 0.8em;
+      background: linear-gradient(150deg, rgba(0,0,0,0.5), rgba(0,0,0,0.8));
+      line-height: 1.5em;
+      border-radius: 3px 3px 0 0;
+      padding: 0 5px;
+    }
+    &.multiline {
+      padding-top: 0.3em;
+      border-top-width: 0.5px;
+      border-top-style: solid;
+      background: linear-gradient(30deg, rgba(0,0,0,0.2), rgba(0,0,0,0.4));;
+    }
+    &.multiline:after {
+      opacity: 1;
+    }
+    &:before {
+      content: ">";
+      position: absolute;
+      left: 0;
+      width: 1.5em;
+      text-align: right;
+      padding-right: 5px;
+    }
+    #msg-textarea {
+      white-space: pre-wrap;
+      tab-size : 4;
+      border: none;
+      resize: none;
+    };
   }
 
   #msg-input .input-field {

@@ -69,6 +69,11 @@
     box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
   }
 
+  // _chat.scss
+  .multiline {
+    border-color: rgba($highlight, 0.5);
+  }
+
   // _navbar.scss
 
 

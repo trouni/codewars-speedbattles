@@ -9,13 +9,13 @@
 @media screen and (min-width: 768px) {
   #room {
     display: grid;
-    grid-template-columns: 45% 55%;
+    grid-template-columns: 15% 50% 35%;
     grid-template-rows: 150px calc(50% - 150px) 15% 35%;
     grid-template-areas:
-      "header battle"
-      "chat battle"
-      "chat leaderboard"
-      "controls leaderboard";
+      "controls header battle"
+      "controls chat battle"
+      "controls chat leaderboard"
+      "controls chat leaderboard";
   }
 
   .grid-item {
