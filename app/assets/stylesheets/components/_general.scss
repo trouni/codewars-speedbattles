@@ -152,3 +152,11 @@ a:hover {
 .scale-on-hover:hover {
   transform: scale(1.1);
 }
+
+.shrink-unless-hover {
+  transform: scale(0.95);
+}
+
+.shrink-unless-hover:hover {
+  transform: scale(1);
+}

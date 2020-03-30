@@ -2,6 +2,15 @@ require 'open-uri'
 require 'json'
 
 module CodewarsHelper
+  def fetch_user(username: nil, id: nil)
+    url = "https://www.codewars.com/api/v1/users/#{id || username}"
+    json = JSON.parse(open(url).read)
+    username ||= json["username"]
+    user = User.find_by(username: username)
+    FetchUserInfoJob.perform_later(user.id) if user
+    return user
+  end
+
   def fetch_page(user, page = 0)
     json = fetch_url("https://www.codewars.com/api/v1/users/#{user.username}/code-challenges/completed?page=#{page}")
     return 0 unless json

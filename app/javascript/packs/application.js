@@ -1,3 +1,4 @@
+import "controllers"
 import "bootstrap";
 import Vue from 'vue/dist/vue.esm'
 import ActionCableVue from 'actioncable-vue';

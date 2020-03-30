@@ -47,6 +47,10 @@ class User < ApplicationRecord
   scope :pending, ->(battle) { battle ? invited(battle).where(battle_invites: { confirmed: false }) : [] }
   scope :confirmed, ->(battle) { battle ? invited(battle).where(battle_invites: { confirmed: true }) : [] }
 
+  def webhook_secret
+    Base64.encode64({ id: id, t: authentication_token }.to_json).strip
+  end
+
   def self.in(room)
     joins(:room_user).where(room_users: { room: room })
                      .select('users.id, users.username, users.name, users.last_fetched_at, room_users.created_at AS joined_at')
