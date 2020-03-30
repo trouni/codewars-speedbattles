@@ -13,31 +13,55 @@
   }
 
   .messages {
-    margin-top: -1.8em;
-    margin-bottom: 0.5em;
+    margin: -1.8em -1.5em 0.5em -1.5em;
+    padding: 0 1.5em;
+    font-weight: 200;
   }
-
+  
   .messages li {
-    line-height: 1.2em;
+    // line-height: 1.2em;
     list-style: none;
   }
-
+  
   .messages .author {
+    margin-top: 8px;
+    display: block;
     font-weight: bold;
     opacity: 1;
   }
-
+  
   .messages .content {
+    font-family: $headers-font;
     tab-size : 4;
     white-space: pre-wrap;
     overflow-wrap: break-word;
     opacity: 0.8;
+    code {
+      border: solid 0.5px rgba(255,255,255,0.2);
+      border-radius: 4px;
+      background: linear-gradient(-10deg, rgba(0, 0, 0, 0.4) 10%, rgba(0, 0, 0, 0.8));
+      padding: 5px;
+      letter-spacing: 0;
+    }
+    p code {
+      font-size: 0.85em;
+    }
+    pre {
+      font-size: 0.85em;
+      overflow: initial;
+      margin: 5px 1em;
+    }
+    pre code {
+      padding: 1em;
+      overflow: initial;
+      white-space: pre-wrap;
+    }
   }
   
-  .messages .chat-highlight {
+  .messages .content p strong, .messages .chat-highlight {
     font-weight: 300;
     // color: $highlight;
-    text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.6);
+    text-shadow: 0 0 7px #cbe4ee, 0 0 1px rgba(255, 255, 255, 0.6)
   }
 
   

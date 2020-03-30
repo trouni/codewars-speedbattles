@@ -5,9 +5,11 @@
       <div class="widget-body">
         <div class="flex-grow-1"></div>
         <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true}">
-          <li v-for="message in sortedMessages" v-bind:class="messageClass(message)">
-            <span class="author" v-if="!isAnnouncement(message)" :title="message.author.username">{{ message.author.name || message.author.username }}></span>
-            <span class="content" v-if="!isAnnouncement(message)">{{displayMsg(message.content)}}</span>
+          <li v-for="message in sortedMessages" v-bind:class="messageClass(message)" :key="message.id">
+            <div v-if="!isAnnouncement(message)">
+              <span class="author" :title="message.author.username">{{ message.author.name || message.author.username }}</span>
+              <chat-message :content="message.content" class="content" />
+            </div>
             <span class="content" v-else v-html="displayMsg(message.content)" :title="message.created_at"></span>
           </li>
         </ul>
@@ -20,9 +22,9 @@
             @input="updateTextAreaRows"
             @keydown.enter="sendMessage"
             @keydown.tab="addTabCharacter"
+            @keyup.`="prefillBlockLang"
             v-model="input"
           ></textarea>
-          <!-- <span class="d-flex">{{ currentUser.name || currentUser.username }}></span><input class="input-field flex-grow-1" type="text" @keyup.enter="sendMessage" v-model="input" placeholder="Type your message here..."> -->
         </div>
       </div>
     </div>
@@ -37,6 +39,9 @@
       currentUserName: String,
       currentUser: Object,
     },
+    components: {
+      ChatMessage: () => import('./chat/message'),
+    },
     data() {
       return {
         title: "Comms://Chatlogs",
@@ -44,6 +49,7 @@
         inputRowHeight: 0,
         inputMinRows: 2,
         inputMaxRows: 17,
+        defaultBlockLang: null,
       }
     },
     computed: {
@@ -59,7 +65,7 @@
         return newLines ? newLines.length + 1 : 1
       },
       multilineInput() {
-        const codeFenceExists = this.input.match(/^```$/m) !== null
+        const codeFenceExists = this.input.match(/^```\w*$/m) !== null
         return this.inputLines > 1 || codeFenceExists
       },
       baseScrollHeight() {
@@ -74,6 +80,7 @@
     },
     mounted() {
       this.getInputRowHeight()
+      setTimeout(_ => this.autoScrollToLastMessage(), 2000)
     },
     methods: {
       updateTextAreaRows() {
@@ -150,6 +157,13 @@
 
         // put caret at right position again
         e.target.selectionStart = e.target.selectionEnd = start + tabCharacter.length;
+      },
+      prefillBlockLang(e) {
+        if (this.input === '```') {
+          e.target.value += this.defaultBlockLang || 'lang'
+          if (!this.defaultBlockLang) e.target.selectionStart = 3
+          e.target.selectionEnd =  e.target.selectionStart + 4
+        }
       },
     }
   }
