@@ -18,12 +18,13 @@
             id="msg-textarea"
             class='autoExpand input-field flex-grow-1 text-white'
             :rows="inputMinRows"
-            placeholder='Message everyone...'
+            placeholder='Send a message...'
             @input="updateTextAreaRows"
             @keydown.enter="sendMessage"
             @keydown.tab="addTabCharacter"
             @keyup.`="prefillBlockLang"
             v-model="input"
+            v-focus
           ></textarea>
         </div>
       </div>
@@ -48,8 +49,9 @@
         input: "",
         inputRowHeight: 0,
         inputMinRows: 2,
-        inputMaxRows: 17,
+        inputMaxRows: 12,
         defaultBlockLang: null,
+        submitHint: null,
       }
     },
     computed: {
@@ -66,6 +68,7 @@
       },
       multilineInput() {
         const codeFenceExists = this.input.match(/^```\w*$/m) !== null
+        const textarea = document.getElementById('msg-textarea')
         return this.inputLines > 1 || codeFenceExists
       },
       baseScrollHeight() {
@@ -80,9 +83,17 @@
     },
     mounted() {
       this.getInputRowHeight()
+      this.getUserOS()
+      document.getElementById('msg-input').setAttribute('data-submit-hint', `Send: ${this.submitHint}`)
       setTimeout(_ => this.autoScrollToLastMessage(), 2000)
     },
     methods: {
+      getUserOS() {
+        if (navigator.appVersion.indexOf("Win") != -1) this.submitHint = "[Ctrl]+[Enter]"; 
+        if (navigator.appVersion.indexOf("Mac") != -1) this.submitHint = "[⌘]+[Enter]";
+        if (navigator.appVersion.indexOf("X11") != -1) this.submitHint = "[Ctrl]+[Enter]"; 
+        if (navigator.appVersion.indexOf("Linux") != -1) this.submitHint = "[Ctrl]+[Enter]";
+      },
       updateTextAreaRows() {
         const textarea = document.getElementById('msg-textarea')
         const previousRows = textarea.rows

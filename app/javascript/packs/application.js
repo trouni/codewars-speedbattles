@@ -31,6 +31,12 @@ Vue.use(VueShowdown, {
   },
 })
 
+Vue.directive('focus', {
+  inserted: function (el) {
+      el.focus()
+  }
+})
+
 Vue.directive('click-outside', {
   bind: function (el, binding, vnode) {
     el.clickOutsideEvent = function (event) {
