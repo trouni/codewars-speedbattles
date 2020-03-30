@@ -18,6 +18,14 @@ input[type=text], input[type=email], input[type=password] {
   }
 }
 
+input:read-only {
+  background-color: transparent !important;
+}
+
+input:read-only:focus {
+  box-shadow: none;
+}
+
 .timer-input {
   width: 3rem;
   p {
@@ -35,4 +43,18 @@ input[type=text], input[type=email], input[type=password] {
       visibility: hidden;
     }
   }
+}
+
+.copyable {
+  outline: 1px auto rgba(58, 145, 179, 0.3);
+  input {
+    cursor: pointer;
+    opacity: 0.8 !important;
+    transition: transform 0.1s;
+    outline: none !important;
+  }
+}
+
+.copyable:hover input {
+  opacity: 1 !important;
 }

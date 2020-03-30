@@ -3,9 +3,10 @@ class FetchCompletedChallengesJob < ApplicationJob
   queue_as :default
 
   # user_id, battle_id, all_pages
-  def perform(user_id:, battle_id: nil, all_pages: true)
+  def perform(user_id:, all_pages: true)
     @user = User.find(user_id)
-    @battle = Battle.find(battle_id) if battle_id
+    # @battle = Battle.find(battle_id) if battle_id
+    @battle = @user.active_battle
     # Fetching first page and retrieving number of pages
     unless @user.completed_challenge?(@battle&.challenge_id)
       total_pages = fetch_page(@user)
@@ -36,7 +37,7 @@ class FetchCompletedChallengesJob < ApplicationJob
 
   def time_for_speech(duration_in_seconds)
     minutes = (duration_in_seconds / 60).floor
-    seconds = (duration_in_seconds % 60).round
+    seconds = (duration_in_seconds % 60).floor
     if minutes.positive?
       sentence = ActionController::Base.helpers.pluralize(minutes, 'minute')
       sentence += " and #{ActionController::Base.helpers.pluralize(seconds, 'second')}" if seconds.positive?

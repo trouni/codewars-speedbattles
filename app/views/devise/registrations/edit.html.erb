@@ -1,4 +1,5 @@
-<div class="container vh-100 pt-5">
+<div class="container vh-100 pt-5" data-controller="settings">
+  <%= image_tag 'webhook_setup.jpg', class: 'webhook-setup',  data: { action: "mouseout->settings#hideHint" } %>
   <div class="row justify-content-center">
     <div class="col-md-9 col-lg-6">
       <%= render 'shared/widget', title: "Edit settings" do %>
@@ -12,27 +13,34 @@
         <%#= f.input :email, required: true, autofocus: true %>
         <%#= f.input :username, label: "Codewars username", required: true %>
         <%= f.input :name, label: "Display name", required: false, maxlength: 24, hint: 'Your Codewars username will be shown unless you specify a name.' %>
-
-        <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-        <p>Currently waiting confirmation for: <%= resource.unconfirmed_email %></p>
-        <% end %>
-
-        <%#= f.input :password,
-                        hint: "Leave blank if you don't want to change it",
-                        required: false,
-                        input_html: { autocomplete: "new-password" } %>
-        <%#= f.input :password_confirmation,
-                        required: false,
-                        input_html: { autocomplete: "new-password" } %>
-        <%#= f.input :current_password,
-                        hint: "Your current password is required to confirm your changes",
-                        required: true,
-                        input_html: { autocomplete: "current-password" } %>
       </div>
 
-      <!-- <div class="form-actions">
-            <button type="submit" class="button mx-auto large"><i class="fas fa-sync-alt"></i>Update</button>
-          </div> -->
+      <div class="webhook-settings">
+        <label class="form-control-label">Codewars Webhook <span class="badge badge-<%= current_user.connected_webhook ? 'success' : 'danger' %>"><%= current_user.connected_webhook ? 'Connected' : 'Not connected' %></span></label>
+        <div class="d-flex flex-column align-items-center justify-content-center my-3">
+          <a href="https://www.codewars.com/users/edit#forgot_password" target="_blank" class="button small" data-action="mouseover->settings#showHint mouseout->settings#hideHint">Update your Codewars settings</a>
+        </div>
+        <div class="form-group">
+          <small>
+            <label for="webhook_url" class="form-control-label w-100 text-center">Payload url</label>
+            <div class="custom-tooltip clickable copyable" data-action="click->settings#copy mouseout->settings#reset">
+              <input
+                type="text"
+                name="webhook_url"
+                class="form-control text-center shrink-unless-hover"
+                readonly
+                value="https://speedbattles.herokuapp.com/webhook"
+              />
+              <span class="tooltiptext">Copy to clipboard</span>
+            </div>
+            <label for="webhook_url" class="form-control-label w-100 text-center mt-3">Secret</label>
+            <div class="custom-tooltip clickable copyable" data-action="click->settings#copy mouseout->settings#reset">
+              <input type="text" name="webhook_secret" class="form-control text-center shrink-unless-hover" readonly value="<%= current_user.webhook_secret %>" />
+              <span class="tooltiptext">Copy to clipboard</span>
+            </div>
+          </small>
+        </div>
+      </div>
 
       <div class="d-flex justify-content-between">
         <%= link_to :back, class: 'button' do %>
