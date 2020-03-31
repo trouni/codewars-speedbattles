@@ -81,6 +81,7 @@ class Room < ApplicationRecord
     JOIN users u ON bi.player_id = u.id
     WHERE bi.confirmed = true
     AND b.room_id = #{id}
+    AND b.end_time IS NOT NULL
     GROUP BY u.id
     SQL
 
@@ -207,7 +208,7 @@ class Room < ApplicationRecord
       subchannel: "chat",
       payload: {
         action: "all",
-        messages: messages.includes(:user).map(&:api_expose),
+        messages: messages.includes(:user).order(created_at: :desc).limit(50).map(&:api_expose),
         authors: chat.users.select(:id, :username, :name)
       }
     )

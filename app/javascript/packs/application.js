@@ -7,7 +7,7 @@ import Room from '../components/room.vue'
 import NavBar from '../components/navbar.vue'
 import SignUpFormInputs from '../components/sign_up/form_inputs.vue'
 import VueShowdown from 'vue-showdown'
-
+import VueHighlightJS from 'vue-highlightjs'
 
 Vue.component('room', Room)
 Vue.component('navbar', NavBar)
@@ -15,13 +15,26 @@ Vue.component('sign-up-form-inputs', SignUpFormInputs)
 Vue.prototype.speechSynthesis = window.speechSynthesis;
 
 Vue.use(VueChatScroll)
+Vue.use(VueHighlightJS)
 Vue.use(VueShowdown, {
   // set default flavor of showdown
-  flavor: 'github',
+  flavor: 'vanilla',
   // set default options of showdown (will override the flavor options)
   options: {
     emoji: true,
+    omitExtraWLInCodeBlocks: true,
+    strikethrough: true,
+    ghMentions: true,
+    ghMentionsLink: "https://github.com/{u}",
+    simplifiedAutoLink: true,
+    openLinksInNewWindow: true,
   },
+})
+
+Vue.directive('focus', {
+  inserted: function (el) {
+      el.focus()
+  }
 })
 
 Vue.directive('click-outside', {

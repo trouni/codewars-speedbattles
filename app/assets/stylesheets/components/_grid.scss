@@ -9,39 +9,40 @@
 @media screen and (min-width: 768px) {
   #room {
     display: grid;
-    grid-template-columns: 45% 55%;
-    grid-template-rows: 150px calc(50% - 150px) 15% 35%;
-    grid-template-areas:
-      "header battle"
-      "chat battle"
-      "chat leaderboard"
-      "controls leaderboard";
-  }
+  // grid-template-columns: 12% 48% 40%;
+  grid-template-columns: 55% 45%;
+  grid-template-rows: 150px calc(50% - 150px) 25% 25%;
+  grid-template-areas:
+    "header battle"
+    "chat battle"
+    "chat leaderboard"
+    "controls leaderboard";
+}
 
-  .grid-item {
-    position: relative;
-    align-items: middle;
-    margin: 0.5em;
-    align-items: center;
-    display: flex;
-  }
-  .grid-header {
-    grid-area: header;
-  }
-  .grid-warriors {
-    grid-area: warriors;
-  }
-  .grid-chat {
-    grid-area: chat;
-  }
-  .grid-battle {
-    grid-area: battle;
-  }
-  .grid-leaderboard {
-    grid-area: leaderboard;
-  }
-  .grid-controls {
-    grid-area: controls;
-  }
+.grid-item {
+  position: relative;
+  align-items: middle;
+  margin: 0.5em;
+  align-items: center;
+  display: flex;
+}
+.grid-header {
+  grid-area: header;
+}
+.grid-warriors {
+  grid-area: warriors;
+}
+.grid-chat {
+  grid-area: chat;
+}
+.grid-battle {
+  grid-area: battle;
+}
+.grid-leaderboard {
+  grid-area: leaderboard;
+}
+.grid-controls {
+  grid-area: controls;
+}
 }
 

@@ -43,7 +43,7 @@ class RoomChannel < ApplicationCable::Channel
     if data["announcement"]
       @room.chat.create_announcement(data["message"]) if @current_user == @room.moderator
     else
-      Message.create(user_id: @current_user.id, chat_id: @room.chat.id, content: data["message"])
+      Message.create(user_id: @current_user.id, chat_id: @room.chat.id, content: data["message"].strip)
     end
   end
 
