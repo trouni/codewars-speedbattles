@@ -81,6 +81,7 @@ class Room < ApplicationRecord
     JOIN users u ON bi.player_id = u.id
     WHERE bi.confirmed = true
     AND b.room_id = #{id}
+    AND b.end_time IS NOT NULL
     GROUP BY u.id
     SQL
 
