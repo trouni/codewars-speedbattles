@@ -245,6 +245,7 @@
         this.createNewBattle = false
         this.$root.$emit('create-battle', this.challengeInput)
         this.challengeInput = ''
+        this.$root.$emit('play-fx', 'select')
       },
       userIsPlayer(userId) {
         return !!this.findPlayer(userId)
