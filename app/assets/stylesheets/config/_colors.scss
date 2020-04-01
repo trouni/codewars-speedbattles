@@ -2,44 +2,30 @@
 $darkblue: #1B4353;
 $yellow: #F6DD27;
 $orange: #FE864E;
-$red: #FC0307;
+$red: rgb(252, 20, 3);
 $blue: #167FFB;
 $green: #1EDD88;
-$peace: #02B997;
-$brink-of-war: #6C6640;
+$peace: #0E4055;
+$brink-of-war: #e39069;
+$teal: #00C1AB;
 // $prussianblue: #086788;
 // $skyblue: #DBE9EE;
-// $teal: #00D7C0;
 // $magenta: #DB1271;
 // $purple: #8A4BFF;
 // $gray: #0E0000;
 // $light-gray: #F4F4F4;
 
+$maincolor-peace: #1B4353;
+$fullopacity-peace: #0E4055;
 
-$maincolor-normal: lighten($darkblue, 25%);
-$maincolor-brink-of-war: lighten($orange, 5%);
-// $maincolor-brink-of-war: $brink-of-war;
-$maincolor-at-war: lighten($red, 15%);
-$maincolor-peace: desaturate(lighten($green, 20%), 50%);
+$maincolor-brink-of-war: lighten(#e39069, 15%);
+$fullopacity-brink-of-war: #62544E;
 
-$maincolor: $maincolor-normal;
-
-$textcolor: lighten( $maincolor, 40% );
-$link-color: lighten( $maincolor, 10% );
-$body-color: $textcolor;
-$highlight: lighten($maincolor, 40%);
-$headers-color: $highlight;
-$widget-color: $maincolor;
-$bezel-color: saturate( $widget-color, 50% );
-$input-color: $maincolor;
-$bgcolor1: rgba( desaturate(lighten($maincolor, 15%), 10%), .5 );
-$bgcolor2: rgba( lighten($maincolor, 10%), .25 );
-$username-invited: $yellow;
-$username-ineligible: rgba($textcolor, 0.5);
-$username-confirmed: $highlight;
+$maincolor-war: lighten(#b00e02, 20%);
+$fullopacity-war: #5E2422;
 
 $primary:    $blue;
-$success:    $green;
+$success:    $teal;
 $info:       $yellow;
-$danger:     $red;
-$warning:    $orange;
+$danger:     rgba($maincolor-war, 0.4);
+$warning:    $maincolor-brink-of-war;

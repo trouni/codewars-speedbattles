@@ -1,35 +1,36 @@
 button, .button, input[type="submit"] {
   cursor: pointer;
   background: none;
+  margin: 0.1em;
   border: none;
   font-family: $headers-font;
   text-transform: uppercase;
   align-items: center;
   display: flex;
   font-weight: 300;
-  color: $headers-color;
-  text-shadow: 0 0 1px $headers-color, 0 0 15px rgba( $headers-color, 0.3);
+  // color: $headers-color;
+  // text-shadow: 0 0 1px $headers-color, 0 0 15px rgba( $headers-color, 0.3);
   transition-duration: 0.2s !important;
   &:focus {
     outline: none;
   }
   &:before {
-    color: $headers-color;
-    font-size: 2em;
+    // color: $headers-color;
+    font-size: 1.7em;
     content: "[";
   }
   &:after {
-    color: $headers-color;
-    font-size: 2em;
+    // color: $headers-color;
+    font-size: 1.7em;
     content: "]";
   }
   &.disabled, &:disabled, &:hover:disabled {
-    color: rgba($headers-color, 0.2) !important;
+    // color: rgba($headers-color, 0.2) !important;
     text-shadow: none !important;
   }
   &:hover {
-    color: $highlight;
-    text-shadow: 0 0 5px $headers-color, 0 0 15px rgba( $headers-color, 0.8);
+    // color: $highlight;
+    // text-shadow: 0 0 5px $headers-color, 0 0 15px rgba( $headers-color, 0.8);
   }
   &.large {
     font-size: 1.5em;

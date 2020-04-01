@@ -1,27 +1,36 @@
-#spinner {
+<template>
+    <div class="spinner absolute-center display-initial">
+        <div class="lds-ring small"><div></div><div></div><div></div><div></div></div>
+        <h3 class="animated fadeInDown faster" v-if="title" v-html="title" />
+    </div>
+</template>
+
+<script>
+export default {
+  props: {
+    title: {
+      type: String,
+      default: null,
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.spinner {
   text-align: center;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  display: none;
   z-index: 1000;
 }
 
-#spinner.absolute-center {
+.spinner.absolute-center {
   position: absolute;
   top: calc(50% - 32px);
   right: calc(50% - 32px);
-}
-
-#spinner.centered {
-  position: absolute;
-  left: calc(50% - 32px);
-}
-
-.loading #spinner {
-  display: initial;
 }
 
 .lds-ring {
@@ -40,10 +49,10 @@
   width: 51px;
   height: 51px;
   margin: 6px;
-  border: 8px solid $white;
+  border: 8px solid white;
   border-radius: 50%;
   animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-  border-color: $white transparent transparent transparent;
+  border-color: white transparent transparent transparent;
 }
 .lds-ring div:nth-child(1) {
   animation-delay: -0.45s;
@@ -62,3 +71,5 @@
     transform: rotate(360deg);
   }
 }
+
+</style>

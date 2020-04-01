@@ -7,15 +7,33 @@
 
 body {
   height: 100vh;
-  color: $body-color;
-  // background: radial-gradient(ellipse farthest-corner at top left, $bgcolor1 10%, $bgcolor2), linear-gradient(#00000088, #00000033), asset-url($bg-image);
+  // color: $body-color;
+  // background: radial-gradient(ellipse farthest-corner at top left, $bg-color1 10%, $bg-color2), linear-gradient(#00000088, #00000033), asset-url($bg-image-warriors);
+  // background: linear-gradient(#000000aa, #00000066), asset-url($bg-image);
   // background-size: cover;
   cursor: default;
   user-select: none;
+  // &:before {
+  //   content: " ";
+  //   position: fixed;
+  //   background-color: rgba($bg-color1, 0.3);
+  //   width: 100vw; 
+  //   height: 100vh;
+  // }
 }
 
-h1, h2, h3, h4, h5, h6 {
-  color: $headers-color;
+// h1, h2, h3, h4, h5, h6 {
+//   color: $headers-color;
+// }
+
+.no-wrap {
+  white-space: nowrap;
+}
+
+.text-ellipsis {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 p {
@@ -39,7 +57,7 @@ a:hover {
   background-size: cover;
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: $mobile-breakpoint) {
   .fixed-screen {
     height: 100vh;
   }
@@ -113,12 +131,12 @@ a:hover {
 .highlight-white {
   font-weight: 300;
   color: white;
-  text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+  // text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
 }
 .highlight {
   font-weight: 300;
-  color: $highlight;
-  text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+  // color: $highlight;
+  // text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
 }
 .highlight-red {
   font-weight: 300;
@@ -131,22 +149,22 @@ a:hover {
 }
 
 .highlight-on-hover:hover {
-  text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+  // text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
 }
 
 .box-highlight {
-  border-color: $highlight;
-  box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+  // border-color: $highlight;
+  // box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
 }
 
 .box-highlight-white {
   border-color: $white;
-  box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+  // box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
 }
 
 .box-highlight-white-hover:hover {
   border-color: $white;
-  box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+  // box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
 }
 
 .scale-on-hover:hover {

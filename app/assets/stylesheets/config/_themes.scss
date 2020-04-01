@@ -1,77 +1,109 @@
-@mixin theme-transitions($transition-speed) {
-  p, a, h1, h2, h3, h4, h5, h6, span, input, small, ol, ul, li, button, #room, .highlight, .highlight-white, .highlight-on-hover, .box-highlight, .box-highlight-white, .box-highlight-white:hover, .button, .widget-bg, .widget {
-    transition: background $transition-speed ease-in, color $transition-speed ease-in, border-color $transition-speed ease-in, text-shadow $transition-speed ease-in, box-shadow $transition-speed ease-in, outline $transition-speed ease-in, background-color $transition-speed ease-in, height 0.2s ease-in, font-size 0s;
-  }
-}
-
-@mixin theme-color($maincolor, $bg-image) {
-  $textcolor: lighten( $maincolor, 30% );
+@mixin theme($basecolor, $fullopacity, $bg-image, $transition-speed) {
+  $maincolor: lighten($basecolor, 15%);
+  $textcolor: lighten( $maincolor, 35% );
   $link-color: lighten( $maincolor, 10% );
   $body-color: $textcolor;
-  $highlight: lighten($maincolor, 40%);
+  $highlight: lighten($maincolor, 50%);
   $headers-color: $highlight;
   $widget-color: $maincolor;
   $bezel-color: saturate( $widget-color, 50% );
   $input-color: $textcolor;
-  $bgcolor1: rgba( desaturate(lighten($maincolor, 15%), 10%), .5 );
-  $bgcolor2: rgba( lighten($maincolor, 10%), .25 );
-  $username-invited: $yellow;
-  $username-ineligible: rgba($textcolor, 0.5);
-  $username-confirmed: $highlight;
+  $bg-color1: rgba( darken(saturate($maincolor, 40%), 25%), .8 );
+  // $bg-color2: rgba( lighten($maincolor, 10%), .25 );
 
-  // _general.scss
-  ul, ol, li, small, span {
-    color: $body-color;
+  color: $body-color;
+  transition: color $transition-speed ease-out;
+
+  .app-bg {
+    background: linear-gradient(30deg, #000000aa, #00000066), asset-url($bg-image);
+    background-size: cover;
+    transition: transform $transition-speed ease-out;
+
+    &:before {
+      background-color: rgba($bg-color1, 0.3);
+      transition: background-color $transition-speed ease-out;
+    }
   }
-
-  background: linear-gradient(#000000aa, #00000066), asset-url($bg-image);
-  background-size: cover;
+  
 
   .dropdown-toggle {
     color: $highlight;
+    transition: color $transition-speed ease-out;
   }
-
-  #room, div[data-behavior=vue] {
-    background-color: rgba($bgcolor1, 0.3);
-    color: $body-color;
-  }
-
+  
   a {
     color: $link-color;
+    transition: color $transition-speed ease-out;
   }
 
   h1, h2, h3, h4, h5, h6 {
     color: $headers-color;
+    transition: color $transition-speed ease-out;
+  }
+
+  .main-title .speed {
+    color: $highlight;
+    text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
   }
 
   .highlight-white {
     text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+    transition: text-shadow $transition-speed ease-out;
   }
   .highlight {
     color: $highlight;
     text-shadow: 0 0 5px $maincolor, 0 0 15px rgba(255,255,255,0.5);
+    transition: color $transition-speed ease-out, text-shadow $transition-speed ease-out;
   }
 
   .highlight-on-hover:hover {
     text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+    transition: text-shadow $transition-speed ease-out;
   }
 
   .box-highlight {
     border-color: $highlight;
     box-shadow: 0 0 5px $maincolor, 0 0 15px rgba(255,255,255,0.5);
+    transition: border-color $transition-speed ease-out, text-shadow $transition-speed ease-out;
   }
 
   .box-highlight-white {
     box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+    transition: box-shadow $transition-speed ease-out;
   }
 
   .box-highlight-white-hover:hover {
     box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
+    transition: box-shadow $transition-speed ease-out;
   }
 
   // _chat.scss
   .multiline {
     border-color: rgba($highlight, 0.5);
+    transition: border-color $transition-speed ease-out;
+  }
+
+  .messages .author {
+    color: $headers-color;
+    transition: color $transition-speed ease-out;
+  }
+
+  .messages .content code {
+    border-color: rgba($body-color, 0.2);
+  }
+  .messages .content p code {
+    background-color: rgba($bezel-color, 0.3);
+    color: $highlight;
+    transition: color $transition-speed ease-out;
+  }
+
+  .bot-announcement .content {
+    color: $headers-color;
+    transition: color $transition-speed ease-out;
+  }
+
+  .hljs span {
+    transition: color $transition-speed ease-out;
   }
 
   // _navbar.scss
@@ -79,96 +111,112 @@
 
   // _buttons.scss
 
-  button, a.button {
+  button, .button, input[type="submit"] {
     color: $headers-color;
     text-shadow: 0 0 1px $headers-color, 0 0 15px rgba( $headers-color, 0.3);
+    transition: color $transition-speed ease-out, text-shadow $transition-speed ease-out;
     &:before {
       color: $headers-color;
+      transition: color $transition-speed ease-out;
     }
     &:after {
       color: $headers-color;
+      transition: color $transition-speed ease-out;
 
     }
-    &:disabled, &:hover:disabled {
-      color: rgba($headers-color, 0.4);
+    &.disabled, &:disabled, &:hover:disabled {
+      color: rgba($headers-color, 0.2) !important;
+      transition: color $transition-speed ease-out;
     }
     &:hover {
       color: $highlight;
       text-shadow: 0 0 5px $headers-color, 0 0 15px rgba( $headers-color, 0.8);
+      transition: color $transition-speed ease-out, text-shadow $transition-speed ease-out;
     }
   }
 
   // _inputs.scss
-
-  textarea {
-    &::placeholder {
-      color: rgba($highlight, 0.6);
-    }
-  }
-
-  input {
+  
+  input, textarea {
     color: $input-color !important;
+    transition: color $transition-speed ease-out;
     &::placeholder {
-      color: rgba($maincolor, 0.4);
+      color: rgba($body-color, 0.5);
+      transition: color $transition-speed ease-out;
     }
     &:disabled {
       outline: 1px auto rgba( $maincolor, .3 );
       color: rgba($input-color, 0.5);
+      transition: color $transition-speed ease-out, outline $transition-speed ease-out;
     }
-  }
-
-  input:focus {
-    outline: 1px auto rgba( $maincolor, .5 );
   }
 
   .widget-bg {
     background-color: rgba( $bezel-color, .1 );
+    transition: opacity $transition-speed ease-out, background-color $transition-speed ease-out;
 
     &.seek-attention {
       background-color: rgba( lighten($bezel-color, 10%), .7 );
     }
   }
-
-  .widget {
-    .header {
-      background-color: rgba( $bezel-color, .25 );
-    }
+  
+  .battle-loaded #room-battle.widget-bg {
+    background-color: rgba( $bezel-color, .4 );
   }
 
+  
+  .widget .header {
+    background-color: rgba( $bezel-color, .25 );
+    transition: background-color $transition-speed ease-out;
+  }
+  
   // _tables.scss
+  .console-table thead th {
+    background-color: $fullopacity;
+    transition: background-color $transition-speed ease-out;
+  }
 
   tr:hover {
     background-color: rgba(lighten($maincolor, 10%), 0.1);
+    transition: background-color $transition-speed ease-out;
   }
+
+  tr.current-user {
+    background-color: rgba($highlight, 0.1);
+    &:hover {
+      background-color: rgba($highlight, 0.2);
+    }
+  }
+
+  // #room-announcer .widget-body {
+  //   background-color: $basecolor;
+  // }
 }
 
-$bg-image-normal: 'bg_codewars_4.jpg';
-$bg-image-brink-of-war: 'bg_codewars_4.jpg';
+$bg-image: 'bg_codewars_4_bw.jpg';
+$bg-image-normal: $bg-image;
+$bg-image-brink-of-war: $bg-image-normal;
 $bg-image-at-war: 'bg_codewars_3.jpg';
-$bg-image: $bg-image-normal;
-// $bg-image: 'bg_warriors_2.jpg';
+// $bg-image-warriors: 'bg_warriors_2.jpg';
 
+// background: radial-gradient(ellipse farthest-corner at top left, $bg-color1 10%, $bg-color2), linear-gradient(#00000088, #00000033), asset-url($bg-image);
 
-
-// background: radial-gradient(ellipse farthest-corner at top left, $bgcolor1 10%, $bgcolor2), linear-gradient(#00000088, #00000033), asset-url($bg-image);
-
-// STANDARD THEME
-body {
-  @include theme-color($maincolor-normal, $bg-image-normal)
-  @include theme-transitions(1s)
+// PEACE (standard)
+#super-container.peace, #super-container.battle-loaded, #super-container.battle-confirmed {
+  @include theme($maincolor-peace, $fullopacity-peace, $bg-image-normal, 1s);
 }
 
-// .peace, .preparation, .battle-over, .battle-loaded {
-//   @include theme-color($maincolor-normal, $bg-image-normal)
-//   @include theme-transitions(3s)
-// }
-
-.ready-for-battle {
-  @include theme-color($maincolor-brink-of-war, $bg-image-brink-of-war)
-  @include theme-transitions(3s)
+// BRINK OF WAR (ready for battle)
+#super-container.ready-for-battle {
+  @include theme($maincolor-brink-of-war, $fullopacity-brink-of-war, $bg-image-normal, 1s);
 }
 
-.countdown, .war {
-  @include theme-color($maincolor-at-war, $bg-image-at-war)
-  @include theme-transitions(3s)
+// COUNTDOWN (slower transitions)
+#super-container.countdown {
+  @include theme($maincolor-war, $fullopacity-war, $bg-image-normal, 5s);
+}
+
+// WAR
+#super-container.war {
+  @include theme($maincolor-war, $fullopacity-war, $bg-image-normal, 1s);
 }

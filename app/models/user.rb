@@ -94,8 +94,16 @@ class User < ApplicationRecord
       id: id,
       username: username,
       name: name,
+      codewars: {
+        clan: codewars_clan,
+        honor: codewars_honor,
+        leaderboard_position: codewars_leaderboard_position,
+        overall_rank: codewars_overall_rank,
+        overall_score: codewars_overall_score
+      },
       last_fetched_at: last_fetched_at,
       invite_status: invite_status(battle),
+      status: invite_status(battle),
       invited_at: active_invite(battle)&.created_at,
       joined_at: room_user&.created_at,
       completed_at: battle&.completed_challenge_at(self)
@@ -162,7 +170,8 @@ class User < ApplicationRecord
   def eligible?(battle = active_battle)
     return nil unless battle
 
-    !completed_challenge?(battle.challenge_id) && !moderator?
+    # !completed_challenge?(battle.challenge_id) && !moderator?
+    !completed_challenge?(battle.challenge_id)
   end
 
   def completed_challenge?(challenge_id)
@@ -181,6 +190,10 @@ class User < ApplicationRecord
                         .exists?
   end
 
+  def defeated?(battle)
+    return battle.over? && !survived?(battle)
+  end
+
   def survived(room = nil)
     result = battles.includes(:players, players: :completed_challenges)
                     .joins(:players, players: :completed_challenges)
@@ -192,11 +205,13 @@ class User < ApplicationRecord
     return result.includes(:room).joins(:room).where(rooms: { id: room.id })
   end
 
-  def invite_status(battle = active_battle)
-    return nil if !room || room.at_peace?
-
+  def status(battle = active_battle)
+    return nil unless battle
+    
     if survived?(battle)
       "survived"
+    elsif defeated?(battle)
+      "defeated"
     elsif confirmed?(battle)
       "confirmed"
     elsif invited?(battle)
@@ -207,6 +222,7 @@ class User < ApplicationRecord
       "ineligible"
     end
   end
+  alias invite_status status
 
   def async_fetch_codewars_info
     FetchUserInfoJob.perform_later(id)

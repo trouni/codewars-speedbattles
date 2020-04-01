@@ -15,6 +15,9 @@ export default {
   props: {
     content: String,
   },
+  mounted() {
+    this.$root.$emit('play-fx', 'hover');
+  },
   computed: {
     blocksLang() {
       const fenceRegex = /^```(?<lang>\w*)$/gm;

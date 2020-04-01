@@ -1,4 +1,4 @@
-@media screen and (max-width: 767px) {
+@media screen and (max-width: $mobile-breakpoint - 1) {
   #room {
     .grid-item {
       margin: 0.5em 0;
@@ -6,17 +6,16 @@
   }
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: $mobile-breakpoint) {
   #room {
     display: grid;
   // grid-template-columns: 12% 48% 40%;
-  grid-template-columns: 55% 45%;
-  grid-template-rows: 150px calc(50% - 150px) 25% 25%;
+  grid-template-columns: 45% 55%;
+  grid-template-rows: 150px calc(55% - 150px) 45%;
   grid-template-areas:
-    "header battle"
-    "chat battle"
-    "chat leaderboard"
-    "controls leaderboard";
+    "battle header"
+    "battle chat"
+    "leaderboard chat";
 }
 
 .grid-item {

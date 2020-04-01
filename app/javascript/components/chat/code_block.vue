@@ -5,8 +5,6 @@
 </template>
 
 <script>
-import 'highlight.js/styles/sunburst.css'
-
 export default {
   props: {
     lang: String,
@@ -15,6 +13,14 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang='scss'>
+  .peace, .battle-loaded, .battle-confirmed {
+    @import "highlight.js/scss/nord"
+  }
+  .brink-of-war, .ready-for-battle {
+    @import 'highlight.js/scss/obsidian';
+  }
+  .war, .countdown {
+    @import 'highlight.js/scss/ocean';
+  }
 </style>

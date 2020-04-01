@@ -1,31 +1,34 @@
 <template>
-  <div id="room-chat" class="widget-bg w-100">
-    <div class="widget">
-      <h3 class="header">{{ title }}</h3>
-      <div class="widget-body">
-        <div class="flex-grow-1"></div>
-        <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true}">
-          <li v-for="message in sortedMessages" v-bind:class="messageClass(message)" :key="message.id">
-            <div v-if="!isAnnouncement(message)">
-              <span class="author" :title="message.author.username">{{ message.author.name || message.author.username }}</span>
-              <chat-message :content="message.content" class="content" />
-            </div>
-            <span class="content" v-else v-html="displayMsg(message.content)" :title="message.created_at"></span>
-          </li>
-        </ul>
-        <div id="msg-input" :class="['d-flex', { multiline: multilineInput}]">
-          <textarea
-            id="msg-textarea"
-            class='autoExpand input-field flex-grow-1 text-white'
-            :rows="inputMinRows"
-            placeholder='Send a message...'
-            @input="updateTextAreaRows"
-            @keydown.enter="sendMessage"
-            @keydown.tab="addTabCharacter"
-            @keyup.`="prefillBlockLang"
-            v-model="input"
-            v-focus
-          ></textarea>
+  <div :class="['grid-item grid-chat']">
+    <div id="room-chat" class="widget-bg w-100">
+      <div class="widget">
+        <h3 class="header">{{ title }}</h3>
+        <spinner v-if="loading" />
+        <div class="widget-body">
+          <div class="flex-grow-1"></div>
+          <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true, scrollonremoved:true}">
+            <li v-for="message in sortedMessages" v-bind:class="messageClass(message)" :key="message.id">
+              <div v-if="!isAnnouncement(message)">
+                <span class="author" :title="message.author.username">{{ message.author.name || message.author.username }}</span>
+                <chat-message :content="message.content" class="content" />
+              </div>
+              <span class="content" v-else v-html="displayMsg(message.content)" :title="message.created_at"></span>
+            </li>
+          </ul>
+          <div id="msg-input" :class="{ multiline: multilineInput, code: codeInput}">
+            <textarea
+              id="msg-textarea"
+              class='autoExpand input-field flex-grow-1 text-white'
+              :rows="inputMinRows"
+              placeholder='Send a message...'
+              @input="updateTextAreaRows"
+              @keydown.enter="sendMessage"
+              @keydown.tab="addTabCharacter"
+              @keyup.`="prefillBlockLang"
+              v-model="input"
+              v-focus
+            ></textarea>
+          </div>
         </div>
       </div>
     </div>
@@ -39,6 +42,8 @@
       authors: Array,
       currentUserName: String,
       currentUser: Object,
+      loading: Boolean,
+      initializing: Boolean,
     },
     components: {
       ChatMessage: () => import('./chat/message'),
@@ -49,7 +54,7 @@
         input: "",
         inputRowHeight: 0,
         inputMinRows: 2,
-        inputMaxRows: 12,
+        inputMaxRows: 17,
         defaultBlockLang: null,
         submitHint: null,
       }
@@ -67,9 +72,11 @@
         return newLines ? newLines.length + 1 : 1
       },
       multilineInput() {
-        const codeFenceExists = this.input.match(/^```\w*$/m) !== null
         const textarea = document.getElementById('msg-textarea')
-        return this.inputLines > 1 || codeFenceExists
+        return this.inputLines > 1 || this.codeInput
+      },
+      codeInput() {
+        return this.input.match(/^```\w*$/m) !== null
       },
       baseScrollHeight() {
         return this.inputMinRows * this.inputRowHeight
@@ -85,7 +92,7 @@
       this.getInputRowHeight()
       this.getUserOS()
       document.getElementById('msg-input').setAttribute('data-submit-hint', `Send: ${this.submitHint}`)
-      setTimeout(_ => this.autoScrollToLastMessage(), 2000)
+      setTimeout(_ => this.autoScrollToLastMessage(), 500)
     },
     methods: {
       getUserOS() {
@@ -133,7 +140,7 @@
       messageClass(message) {
         return [
           'message',
-          { 'bot-announcement notification animated fadeIn': this.isAnnouncement(message) }
+          { 'bot-announcement animated fadeIn': this.isAnnouncement(message) }
         ]
       },
       messagesScrolledToBottom() {

@@ -75,7 +75,7 @@ class Room < ApplicationRecord
 
   def leaderboard
     query_fought = <<-SQL
-    SELECT COUNT(*) AS battles_fought, u.id AS id, u.username AS username, u.name AS name
+    SELECT COUNT(*) AS battles_fought, u.id AS id, u.username AS username, u.name AS name, u.codewars_honor, u.codewars_clan, u.codewars_leaderboard_position, u.codewars_overall_rank, u.codewars_overall_score
     FROM battles b
     JOIN battle_invites bi ON b.id = bi.battle_id
     JOIN users u ON bi.player_id = u.id
@@ -100,7 +100,7 @@ class Room < ApplicationRecord
     SQL
 
     query = <<-SQL
-    SELECT FirstQuery.id, FirstQuery.username, FirstQuery.name, FirstQuery.battles_fought AS battles_fought, COALESCE(SecondQuery.battles_survived, 0) AS battles_survived, (COALESCE(FirstQuery.battles_fought, 0) - COALESCE(SecondQuery.battles_survived, 0)) AS battles_lost, (COALESCE(SecondQuery.battles_survived, 0) * 5) - (COALESCE(FirstQuery.battles_fought, 0) - COALESCE(SecondQuery.battles_survived, 0)) AS total_score
+    SELECT FirstQuery.id, FirstQuery.username, FirstQuery.name, FirstQuery.codewars_honor, FirstQuery.battles_fought AS battles_fought, COALESCE(SecondQuery.battles_survived, 0) AS battles_survived, (COALESCE(FirstQuery.battles_fought, 0) - COALESCE(SecondQuery.battles_survived, 0)) AS battles_lost, (COALESCE(SecondQuery.battles_survived, 0) * 5) - (COALESCE(FirstQuery.battles_fought, 0) - COALESCE(SecondQuery.battles_survived, 0)) AS total_score
     FROM (#{query_fought}) AS FirstQuery
     LEFT JOIN (#{query_survived}) AS SecondQuery ON FirstQuery.id = SecondQuery.id
     ORDER BY total_score DESC
@@ -254,7 +254,7 @@ class Room < ApplicationRecord
   end
 
   def broadcast_active_battle
-    active_battle.refresh_status
+    active_battle&.refresh_status
     broadcast(subchannel: "battles", payload: { action: "active", battle: active_battle&.api_expose })
   end
 

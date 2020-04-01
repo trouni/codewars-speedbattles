@@ -1,14 +1,8 @@
-.grid-battle table.console-table {
-  display: block;
-}
-
 table.console-table {
   font-size: 0.9em;
-  // height: inherit;
-  // table-layout: fixed ;
   width: 100% ;
   overflow: scroll;
-  display: block;
+  display: table;
 
   &.no-stats thead, &.no-stats tbody {
     display:table;
@@ -16,8 +10,10 @@ table.console-table {
   }
 
   thead th {
-    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 0.9em;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
   tbody th {
@@ -60,7 +56,7 @@ table.console-table {
     &:before, &:after {
       font-weight: normal;
       content: "|";
-      margin: 0 1em;
+      // margin: 0 1em;
     }
   }
 
@@ -69,7 +65,7 @@ table.console-table {
   }
 
   tr:hover {
-    background-color: rgba(lighten($maincolor, 10%), 0.1);
+    // background-color: rgba(lighten($maincolor, 10%), 0.1);
     transition: background-color 0.1s !important;
   }
 
@@ -98,25 +94,21 @@ table.console-table {
     background-color: rgba(white, 0.1);
   }
 
-  thead {
-    background-color: rgba(white, 0.3);
-    color: rgba(darken($maincolor, 40%), 0.8);
-  }
+  // thead {
+  //   background-color: rgba(white, 0.3);
+  //   color: rgba(darken($maincolor, 40%), 0.8);
+  // }
 }
 
 .fixed-header {
-  thead {
-    display: block;
-  }
-  tbody {
-    display:block;
-    overflow:auto;
-    height:100%;
-    width:100%;
+  overflow-y: auto;
+  table thead th {
+    position: sticky;
+    top: 0;
   }
 }
 
-@media screen and (max-width: 767px) {
+@media screen and (max-width: $mobile-breakpoint) {
   table {
     font-size: 0.7em;
   }

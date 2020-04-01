@@ -1,10 +1,11 @@
 <template>
   <button
     @click="click"
-    :disabled="disabled"
-    :class="[{ large: large }]"
+    :disabled="disabled || loading"
+    :class="[{ large: large }, { small: small }]"
     >
     <span @mouseover="mouseOver" class="hover-mask"></span>
+    <spinner v-if="loading" />
     <i v-if="faIcon" :class="faIcon"></i>
     {{ title }}
   </button>
@@ -20,6 +21,11 @@ export default {
     title: String,
     disabled: Boolean,
     large: Boolean,
+    small: Boolean,
+    loading: {
+      type: Boolean,
+      default: false,
+    }
   },
   methods: {
     mouseOver() {

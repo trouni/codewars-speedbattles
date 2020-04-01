@@ -1,17 +1,10 @@
-tr.current-user {
-  background-color: rgba($highlight, 0.1);
-  &:hover {
-    background-color: rgba($highlight, 0.2);
-  }
-}
-
 .username {
   line-height: 1.5em;
   font-size: 1em;
   font-weight: 300;
   align-items: center;
   display: inline-flex;
-  .offline {
+  &.offline {
     opacity: 0.5;
     font-style: italic;
   }
@@ -23,27 +16,27 @@ tr.current-user {
 
 .moderator {
   .username {
-    cursor: default;
+    // cursor: default;
 
-    &:after {
-      content: "[ ]";
-      visibility: hidden;
-    }
+    // &:after {
+    //   content: "[ ]";
+    //   visibility: hidden;
+    // }
 
-    .eligible, .invited, .confirmed {
-      cursor: pointer;
-      &:after {
-        margin-left: 0.3em;
-        visibility: visible;
-      }
-    }
+    // .eligible, .invited, .confirmed {
+    //   cursor: pointer;
+    //   &:after {
+    //     margin-left: 0.3em;
+    //     visibility: visible;
+    //   }
+    // }
 
-    .invited:after, .confirmed:after {
-      content: "[-]";
-    }
+    // .invited:after, .confirmed:after {
+    //   content: "[-]";
+    // }
 
-    .eligible:after {
-      content: "[+]";
-    }
+    // .eligible:after {
+    //   content: "[+]";
+    // }
   }
 }

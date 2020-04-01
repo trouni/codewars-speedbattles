@@ -53,7 +53,7 @@ class Battle < ApplicationRecord
     return if started?
 
     uninvite_unconfirmed
-    room.announce(:chat, "<h1>🍻</h1><p class='highlight'>Battle starting in #{countdown}s... Time for a drink!</p>")
+    # room.announce(:chat, "<h1>🍻</h1><p class='highlight'>Battle starting in #{countdown}s... Time for a drink!</p>")
     room.announce(:chat, "<i class='fas fa-rocket mr-1'></i> The battle for <span class='chat-highlight'>#{challenge_name}</span> is about to begin...")
     room.broadcast_action(action: 'start-countdown', data: { countdown: countdown })
     update(start_time: Time.now + countdown.seconds)
@@ -75,11 +75,11 @@ class Battle < ApplicationRecord
   def broadcast_all
     room.broadcast_active_battle
     room.broadcast_users
-    room.broadcast_players
+    # room.broadcast_players
   end
 
   def refresh_status
-    return unless ongoing? && time_limit.positive?
+    return unless ongoing? && time_limit&.positive?
 
     expected_end_time = start_time + time_limit.seconds
     terminate(end_at: expected_end_time) if expected_end_time < Time.now
@@ -251,7 +251,8 @@ class Battle < ApplicationRecord
         WHERE challenge_id = ?
       )
     SQL
-    users.includes(:completed_challenges).where(sql_query, challenge_id).where.not(users: { id: room.moderator_id })
+    # users.includes(:completed_challenges).where(sql_query, challenge_id).where.not(users: { id: room.moderator_id })
+    users.includes(:completed_challenges).where(sql_query, challenge_id)
   end
 
   def non_invited_users

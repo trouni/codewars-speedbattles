@@ -1,7 +1,25 @@
-// #room {
-//   // background: radial-gradient(ellipse farthest-corner at top left, $bgcolor1 10%, $bgcolor2), linear-gradient(#00000088, #00000033), asset-url('bg_codewars_3.jpg');
-//   // background-size: cover;
-//   padding: 1em;
-//   height: 100vh;
-//   z-index: 1;
-// }
+.app-bg {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  margin: 0;
+  transform: scale(1.2);
+  filter: blur(1px);
+
+  &:before {
+    content: " ";
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    margin: 0;
+  }
+
+  &.static {
+    transform: unset;
+    filter: unset;
+  }
+}
+
+.initializing .app-bg {
+  transform: initial;
+}
