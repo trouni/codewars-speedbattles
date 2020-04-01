@@ -1,9 +1,9 @@
 <template>
-  <div :class="['grid-item grid-chat', { loading: loading }]">
-    <spinner v-if="loading" />
+  <div :class="['grid-item grid-chat']">
     <div id="room-chat" class="widget-bg w-100">
       <div class="widget">
         <h3 class="header">{{ title }}</h3>
+        <spinner v-if="loading" />
         <div class="widget-body">
           <div class="flex-grow-1"></div>
           <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true, scrollonremoved:true}">
@@ -15,7 +15,7 @@
               <span class="content" v-else v-html="displayMsg(message.content)" :title="message.created_at"></span>
             </li>
           </ul>
-          <div id="msg-input" :class="{ multiline: multilineInput}">
+          <div id="msg-input" :class="{ multiline: multilineInput, code: codeInput}">
             <textarea
               id="msg-textarea"
               class='autoExpand input-field flex-grow-1 text-white'
@@ -43,6 +43,7 @@
       currentUserName: String,
       currentUser: Object,
       loading: Boolean,
+      initializing: Boolean,
     },
     components: {
       ChatMessage: () => import('./chat/message'),
@@ -71,9 +72,11 @@
         return newLines ? newLines.length + 1 : 1
       },
       multilineInput() {
-        const codeFenceExists = this.input.match(/^```\w*$/m) !== null
         const textarea = document.getElementById('msg-textarea')
-        return this.inputLines > 1 || codeFenceExists
+        return this.inputLines > 1 || this.codeInput
+      },
+      codeInput() {
+        return this.input.match(/^```\w*$/m) !== null
       },
       baseScrollHeight() {
         return this.inputMinRows * this.inputRowHeight
@@ -137,7 +140,7 @@
       messageClass(message) {
         return [
           'message',
-          { 'bot-announcement notification animated fadeIn': this.isAnnouncement(message) }
+          { 'bot-announcement animated fadeIn': this.isAnnouncement(message) }
         ]
       },
       messagesScrolledToBottom() {

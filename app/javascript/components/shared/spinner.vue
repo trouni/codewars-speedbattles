@@ -1,8 +1,20 @@
 <template>
-    <div class="spinner absolute-center centered display-initial">
+    <div class="spinner absolute-center display-initial">
         <div class="lds-ring small"><div></div><div></div><div></div><div></div></div>
+        <h3 class="animated fadeInDown faster" v-if="title" v-html="title" />
     </div>
 </template>
+
+<script>
+export default {
+  props: {
+    title: {
+      type: String,
+      default: null,
+    }
+  }
+}
+</script>
 
 <style lang="scss" scoped>
 .spinner {
@@ -19,11 +31,6 @@
   position: absolute;
   top: calc(50% - 32px);
   right: calc(50% - 32px);
-}
-
-.spinner.centered {
-  position: absolute;
-  left: calc(50% - 32px);
 }
 
 .lds-ring {

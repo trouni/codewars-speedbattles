@@ -1,17 +1,10 @@
 <template>
-  <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}, { 'loading': !someDataLoaded }]">
+  <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}, { 'initializing': !allDataLoaded }]">
+    <span class="app-bg"/>
     <navbar :room-id="room.id" :sounds="sounds" :show-sound-controls="soundActive" />
-    <div v-if="!someDataLoaded" class="spinner absolute-center display-initial">
-      <div class="lds-ring">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-      </div>
-      <h3 class="animated fadeInDown faster">LOADING</h3>
-    </div>
+    <spinner v-if="!allDataLoaded" title="LOADING" />
 
-    <div id="room" :class="['fixed-screen', { moderator: currentUserIsModerator }, {loading: !allDataLoaded}]">
+    <div id="room" :class="['fixed-screen', { moderator: currentUserIsModerator }]">
       <div :class="['grid-item grid-header']">
         <div id="room-announcer" class="widget-bg">
           <div class="widget">
@@ -87,6 +80,7 @@ export default {
       battleInitialized: true,
       messagesInitialized: false,
       roomPlayersInitialized: false,
+      battleLoading: true,
       room: this.roomInit,
       users: [],
       roomPlayers: [],
@@ -200,7 +194,7 @@ export default {
 
       if (this.countdown > 0) {
         status = "warning";
-        content = `<p class='m-0'>Battle starting in...</p><span class="timer highlight">${this.countdown}</span>`;
+        content = `<p><small class='m-0'>Battle starting in...</small></p><span class="timer highlight">${this.countdown}</span>`;
       }
 
       return {
@@ -437,6 +431,7 @@ export default {
     //     BATTLE
     // =============
     createBattle(challenge) {
+      this.battleLoading = true
       const challengeIdSlug = this.parseChallengeInput(challenge)
         .challengeIdSlug;
       this.sendCable("create_battle", {
@@ -609,9 +604,7 @@ export default {
           } else {
             const clockTime = this.timeSpentInSeconds();
             this.announce({
-              content: `<h1 class='highlight'><small>TIME ELAPSED:</small> ${this.formatDuration(
-                clockTime
-              )}</h1><p>(no time limit)</p>`
+              content: `<p class='highlight'><small>TIME ELAPSED</small></p><span class="timer highlight no-limit">${this.formatDuration(clockTime)}</span>`
             });
           }
         } else {
@@ -810,12 +803,8 @@ export default {
             switch (data.payload.action) {
               case "active":
                 if (data.payload.battle) {
+                  this.battleLoading = false
                   this.battle = data.payload.battle
-                  if (this.battle.stage > 0 && this.battle.challenge) {
-                    this.challengeInput = this.battle.challenge.name;
-                  } else {
-                    this.challengeInput = "";
-                  }
                   if (this.battleOngoing) this.startClock();
                   this.battleInitialized = true;
                 } else {

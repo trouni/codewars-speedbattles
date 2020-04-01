@@ -1,17 +1,19 @@
 <template>
-  <div :class="['grid-item grid-battle', roomStatus, { loading: loading }]">
-    <spinner v-if="loading" />
+  <div :class="['grid-item grid-battle', roomStatus]">
     <div id="room-battle" :class="['widget-bg', attentionWaitingToJoin]" @mouseover="attentionHover = true" @mouseleave="attentionHover = false">
       <div class="widget">
         <h3 class="header">{{ headerTitle }}</h3>
-        <div class="widget-body">
+        <spinner v-if="loading" />
+        <div :class="['widget-body', {loading: loading}]">
           <div v-if="battle.id" class="d-flex flex-column h-100">
-            <div v-if="battle.challenge" class="w-100 mb-3">
+            <div v-if="battle.challenge" class="challenge-info w-100 mb-3">
               <p class="m-0"><small>{{ battlePrefix }} </small>
                 <strong class="highlight"> {{ displayChallengeName ? battle.challenge.name : 'TOP SECRET' }}</strong>
-                <span v-if="userDefeated(currentUser.id)" class="badge badge-danger">Defeated</span>
-                <span v-else-if="userSurvived(currentUser.id)" class="badge badge-success">Completed</span>
-                <span v-else-if="findUser(currentUser.id).invite_status == 'ineligible'" class="badge badge-warning">Already completed</span>
+                <sup>
+                  <span v-if="userDefeated(currentUser.id)" class="badge badge-danger">Defeat</span>
+                  <span v-else-if="userSurvived(currentUser.id)" class="badge badge-success">Victory</span>
+                  <span v-else-if="findUser(currentUser.id).invite_status == 'ineligible'" class="badge badge-warning">Already completed</span>
+                </sup>
               </p>
               <div class="d-flex">
                 <p class=""><small>Language:</small> <span class="highlight">{{battle.challenge.language || "Ruby"}} </span></p>
@@ -109,7 +111,7 @@
               <a :href="battle.stage < 4 ? '#' : challengeUrl" :target="battle.stage < 4 ? '' : '_blank'">
                 <std-button fa-icon="fas fa-rocket mr-1" title="Launch Codewars" :disabled="battle.stage < 4" />
               </a>
-              <std-button v-if="userIsConfirmed(currentUser.id)" @click.native="completedChallenge" fa-icon="fas fa-check-double mr-1" title="Challenge Completed" :loading="completedButtonClicked || battle.stage < 4" />
+              <std-button v-if="userIsConfirmed(currentUser.id)" @click.native="completedChallenge" fa-icon="fas fa-check-double mr-1" title="Challenge Completed" :disabled= "battle.stage < 4" :loading="completedButtonClicked" />
               <std-button v-if="currentUserIsModerator" @click.native="$root.$emit('end-battle')" :disabled="battle.stage < 4" fa-icon="fas fa-peace" title="End Battle" />
             </div>
           </div>
@@ -137,6 +139,7 @@
 <script>
   export default {
     props: {
+      initializing: Boolean,
       roomStatus: String,
       room: Object,
       users: Array,
@@ -314,4 +317,8 @@
 </script>
 
 <style scoped>
+  .challenge-info {
+    font-size: 1.1rem;
+    padding: 1em 0.5em;
+  }
 </style>

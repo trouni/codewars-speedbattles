@@ -29,7 +29,7 @@ Vue.use(VueShowdown, {
     omitExtraWLInCodeBlocks: true,
     strikethrough: true,
     ghMentions: true,
-    ghMentionsLink: "https://github.com/{u}",
+    ghMentionsLink: "https://www.codewars.com/users/{u}",
     simplifiedAutoLink: true,
     openLinksInNewWindow: true,
   },

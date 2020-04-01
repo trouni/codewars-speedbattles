@@ -1,16 +1,16 @@
 <template>
-  <div :class="['grid-item grid-leaderboard', { loading: loading }]">
-    <spinner v-if="loading" />
+  <div :class="['grid-item grid-leaderboard']">
     <div id="room-leaderboard" class="widget-bg">
       <div class="widget">
         <h3 class="header">{{ title }}</h3>
+        <spinner v-if="loading" />
         <div class="widget-body justify-content-between">
           <div class="flex-grow-1 fixed-header">
             <table :class="['console-table d-table flex-grow-1', { 'no-stats': !room.show_stats }]">
               <thead>
                 <tr>
-                  <th scope="col" :style="room.show_stats ? 'width: 56%;' : 'width: 100%;'"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
-                  <!-- <th v-if="room.show_stats" scope="col" style="width: 10%;"><span class="data">RANK</span></th> -->
+                  <th scope="col" :style="room.show_stats ? 'width: 50%;' : 'width: 100%;'"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
+                  <th v-if="room.show_stats" scope="col" style="width: 6%;"><span class="data">#</span></th>
                   <th v-if="room.show_stats" scope="col" style="width: 12%;"><span class="data">SCORE</span></th>
                   <th v-if="room.show_stats" scope="col" style="width: 12%;"><span class="data">BATTLES</span></th>
                   <th v-if="room.show_stats" scope="col" style="width: 20%;"><span class="data">WON : LOST</span></th>
@@ -31,7 +31,7 @@
                       <std-button v-if="showInviteButton(user.id)" @click.native="toggleInvite(user.id)" :title="showInviteButton(user.id)" small class="mr-2" />
                     </span>
                   </th>
-                  <!-- <td v-if="room.show_stats"><span class="data rank">{{ leaderboard[user.id] ? index + 1 : "-" }}</span></td> -->
+                  <td v-if="room.show_stats"><span class="data rank">{{ userRank(index) }}</span></td>
                   <td v-if="room.show_stats"><span class="data">{{ leaderboard[user.id] ? displayScore(leaderboard[user.id].total_score) : "-" }}</span></td>
                   <td v-if="room.show_stats"><span class="data">{{ leaderboard[user.id] ? leaderboard[user.id].battles_fought : "-" }}</span></td>
                   <td v-if="room.show_stats"><span class="data">{{ leaderboard[user.id] ? `${leaderboard[user.id].battles_survived} : ${leaderboard[user.id].battles_lost}` : "-" }}</span></td>
@@ -60,6 +60,7 @@ export default {
     currentUserIsModerator: Boolean,
     leaderboard: Object,
     loading: Boolean,
+    initializing: Boolean,
   },
   components: {
     StdButton: () => import('./shared/button.vue'),
@@ -102,15 +103,25 @@ export default {
           return (new Date(a.joined_at) - new Date(b.joined_at))
         }
       })
-    }
+    },
   },
   methods: {
     findUser(userId) {
       const index = this.users.findIndex((e) => e.id === userId);
       return this.users[index]
     },
+    userRank(index) {
+      if (index === 0) return 1
+
+      if (this.displayScore(this.sortedLeaderboard[index].total_score) === this.displayScore(this.sortedLeaderboard[index - 1].total_score)) return '↑'
+
+      return index + 1
+    },
     displayScore(score) {
-      return Math.max(0, score);
+      if (score === 0) return 0
+
+      return score > 0 ? `＋${score}` : score
+      // return Math.max(0, score);
     },
     defeats(player) {
       return player.battles_fought - player.battles_survived
