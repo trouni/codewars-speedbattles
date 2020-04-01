@@ -28,12 +28,27 @@
     font-size: 0.85em;
     opacity: 0.6;
     font-weight: 200;
+    display: flex;
+    align-items: flex-end;
+  }
+  
+  .message .sent-at .date {
+    max-width: 0;
+    opacity: 0;
+    transition: max-width 0.5s ease-in 1.5s, opacity 0.5s ease-in 1.5s;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  
+  .message:hover .sent-at .date {
+    opacity: 1;
+    max-width: 100%;
   }
 
   .messages .user-message .author {
     font-family: $headers-font;
     margin-top: 1em;
-    display: block;
+    margin-right: 0.7em;
     opacity: 1;
     font-weight: 600;
     .sent-at {
@@ -87,11 +102,12 @@
     padding: 0.5em 1.5em 0.5em 1.5em;
     background: linear-gradient(30deg, rgba(0,0,0,0.5), rgba(0,0,0,0.3));
     &:after {
+      font-family: $body-font;
       opacity: 0;
       content: attr(data-submit-hint);
       position: absolute;
       right: 0;
-      top: -1.5em;
+      top: -1.6em;
       font-size: 0.8em;
       background: linear-gradient(150deg, rgba(0,0,0,0.5), rgba(0,0,0,0.8));
       line-height: 1.5em;
@@ -144,12 +160,14 @@
     }
 
     .sent-at {
+      font-size: 0.7em;
       position: absolute;
       width: 200px;
       left: calc(50% - 100px);
-      bottom: -1.5em;
+      bottom: -2em;
       opacity: 0;
-      transition: opacity 0.5s ease-out 1s;
+      transition: opacity 0.5s ease-out 0.5s;
+      justify-content: center;
     }
 
     &:hover .sent-at {

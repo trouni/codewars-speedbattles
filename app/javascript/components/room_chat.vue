@@ -9,7 +9,10 @@
           <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true, scrollonremoved:true}">
             <li v-for="message in sortedMessages" v-bind:class="messageClass(message)" :key="message.id">
               <div v-if="!isAnnouncement(message)">
-                <span class="author" :title="message.author.username">{{ message.author.name || message.author.username }}<span class="sent-at">{{ formatMessageDate(message.created_at) }}</span></span>
+                <span class="message-header d-flex">
+                  <span class="author" :title="message.author.username">{{ message.author.name || message.author.username }}</span>
+                  <div class="sent-at" v-html="formatMessageDate(message.created_at)" />
+                </span>
                 <chat-message :content="message.content" class="content" />
               </div>
               <div v-else>
@@ -30,6 +33,7 @@
               v-model="input"
               v-focus
             ></textarea>
+            <std-button small fa-icon="fas fa-microphone" title="Join voice chat" :class="['join-call', { 'animated flipOutX': input }]" />
           </div>
         </div>
       </div>
@@ -59,6 +63,7 @@
         inputMaxRows: 17,
         defaultBlockLang: null,
         submitHint: null,
+        focusOnInput: false,
       }
     },
     computed: {
@@ -134,7 +139,7 @@
         return str
       },
       displayMsg(msg) {
-        return `${this.replaceUsername(msg.content)}<span class="sent-at">${this.formatMessageDate(msg.created_at)}</span>`
+        return `${this.replaceUsername(msg.content)}<div class="sent-at">${this.formatMessageDate(msg.created_at)}</div>`
       },
       isAnnouncement(message) {
         return !message.author.username || message.author.username === "bot"
@@ -189,7 +194,8 @@
       formatMessageDate(sentDate) {
         const date = new Date(sentDate)
         const time = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
-        return this.isSameDay(new Date, date) ? time : `${date.toDateString()} ${time}`
+        // return this.isSameDay(new Date, date) ? time : `<span class="date">${date.toDateString()} at&nbsp;</span><span>${time}</span>`
+        return `<span class="date">${date.toDateString()} at&nbsp;</span><span>${time}</span>`
       },
       isSameDay(a, b) {
         return a.getFullYear() === b.getFullYear() &&
@@ -201,4 +207,10 @@
 </script>
 
 <style scoped>
+.join-call {
+  position: absolute;
+  bottom: 0.5em;
+  right: 1em;
+  z-index: 10;
+}
 </style>
