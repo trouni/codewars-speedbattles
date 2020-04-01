@@ -1,19 +1,19 @@
 #room-chat {
-  user-select: text;
   .header {
     clip-path: polygon(0 0, $chat-header-width 0, calc(#{$chat-header-width} - #{$bezel}) 100%, 0 100%);
     width: 50%;
     padding-right: 0;
   }
-
+  
   .widget-body {
     clip-path: polygon(0 $bezel, calc(#{$chat-header-width} - #{$bezel}) $bezel, $chat-header-width 0, 100% 0, 100% 100%, 0 100%);
     max-height: 90vh;
     padding-bottom: 0.5em;
   }
-
+  
   .messages {
-    margin: -1.8em -1.5em 0.5em -1.5em;
+    user-select: text;
+    margin: -1.8em -1.5em 0 -1.5em;
     padding: 0 1.5em;
     font-weight: 200;
   }
@@ -66,12 +66,11 @@
 
   
   #msg-input {
-    // background: rgba(255, 255, 255, 0.1);
     position: relative;
     display: flex;
     margin: 0 -1.5em -0.5em -1.5em;
-    padding: 0.3em 1.5em 0 1.5em;
-    background: linear-gradient(30deg, rgba(0,0,0,0.2), rgba(0,0,0,0.4));;
+    padding: 0.5em 1.5em 0.5em 1.5em;
+    background: linear-gradient(30deg, rgba(0,0,0,0.5), rgba(0,0,0,0.3));
     &:after {
       opacity: 0;
       content: attr(data-submit-hint);
@@ -95,28 +94,22 @@
     &:before {
       content: ">";
       position: absolute;
-      left: 0;
-      width: 1.5em;
-      text-align: right;
+      left: 1.8em;
+      text-align: left;
     }
     #msg-textarea {
+      text-indent: 1em;
+      padding: 0 0.3em;
+      background: none;
       white-space: pre-wrap;
       tab-size : 4;
       border: none;
       resize: none;
     };
-  }
 
-  #msg-input .input-field {
-    background: none;
-    padding-left: 0.5em;
-    // color: white;
-    // border: none;
-    width: auto;
-  }
-
-  #msg-input .input-field:focus {
-    outline: none;
+    #msg-textarea:focus {
+      outline: none;
+    }
   }
 
   .bot-announcement {

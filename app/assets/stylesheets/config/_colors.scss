@@ -2,7 +2,7 @@
 $darkblue: #1B4353;
 $yellow: #F6DD27;
 $orange: #FE864E;
-$red: #FC0307;
+$red: rgb(252, 20, 3);
 $blue: #167FFB;
 $green: #1EDD88;
 $peace: #02B997;
@@ -17,9 +17,9 @@ $brink-of-war: #6C6640;
 
 
 $maincolor-normal: lighten($darkblue, 25%);
-$maincolor-brink-of-war: lighten($orange, 5%);
+$maincolor-brink-of-war: desaturate(lighten($orange, 25%), 30%);
 // $maincolor-brink-of-war: $brink-of-war;
-$maincolor-at-war: lighten($red, 15%);
+$maincolor-at-war: lighten($red, 10%);
 $maincolor-peace: desaturate(lighten($green, 20%), 50%);
 
 $maincolor: $maincolor-normal;
@@ -32,8 +32,8 @@ $headers-color: $highlight;
 $widget-color: $maincolor;
 $bezel-color: saturate( $widget-color, 50% );
 $input-color: $maincolor;
-$bgcolor1: rgba( desaturate(lighten($maincolor, 15%), 10%), .5 );
-$bgcolor2: rgba( lighten($maincolor, 10%), .25 );
+$bg-color1: rgba( desaturate(lighten($maincolor, 15%), 10%), .5 );
+$bg-color2: rgba( lighten($maincolor, 10%), .25 );
 $username-invited: $yellow;
 $username-ineligible: rgba($textcolor, 0.5);
 $username-confirmed: $highlight;

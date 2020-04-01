@@ -1,6 +1,7 @@
 button, .button, input[type="submit"] {
   cursor: pointer;
   background: none;
+  margin: 0.1em;
   border: none;
   font-family: $headers-font;
   text-transform: uppercase;
@@ -15,12 +16,12 @@ button, .button, input[type="submit"] {
   }
   &:before {
     color: $headers-color;
-    font-size: 2em;
+    font-size: 1.7em;
     content: "[";
   }
   &:after {
     color: $headers-color;
-    font-size: 2em;
+    font-size: 1.7em;
     content: "]";
   }
   &.disabled, &:disabled, &:hover:disabled {
