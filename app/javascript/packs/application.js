@@ -6,11 +6,15 @@ import VueChatScroll from 'vue-chat-scroll'
 import Room from '../components/room.vue'
 import NavBar from '../components/navbar.vue'
 import SignUpFormInputs from '../components/sign_up/form_inputs.vue'
+import StdButton from '../components/shared/button.vue'
+import Spinner from '../components/shared/spinner.vue'
 import VueShowdown from 'vue-showdown'
 import VueHighlightJS from 'vue-highlightjs'
 
 Vue.component('room', Room)
 Vue.component('navbar', NavBar)
+Vue.component('std-button', StdButton)
+Vue.component('spinner', Spinner)
 Vue.component('sign-up-form-inputs', SignUpFormInputs)
 Vue.prototype.speechSynthesis = window.speechSynthesis;
 
