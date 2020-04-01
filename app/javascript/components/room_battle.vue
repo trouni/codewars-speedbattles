@@ -1,7 +1,7 @@
 <template>
   <div :class="['grid-item grid-battle', roomStatus, { loading: loading }]">
     <spinner v-if="loading" />
-    <div id="room-battle" :class="['widget-bg', seekAttention]" @mouseover="attentionHover = true" @mouseleave="attentionHover = false">
+    <div id="room-battle" :class="['widget-bg', attentionWaitingToJoin]" @mouseover="attentionHover = true" @mouseleave="attentionHover = false">
       <div class="widget">
         <h3 class="header">{{ headerTitle }}</h3>
         <div class="widget-body">
@@ -14,9 +14,9 @@
                 <span v-else-if="findUser(currentUser.id).invite_status == 'ineligible'" class="badge badge-warning">Already completed</span>
               </p>
               <div class="d-flex">
-                <p><small>Language:</small> <span class="highlight">{{battle.challenge.language || "Ruby"}} </span></p>
-                <p><span class="mx-2">|</span><small>Difficulty:</small> <span class="highlight">{{-battle.challenge.rank}} kyu</span></p>
-                <p><span class="mx-2">|</span><small>Time Limit:</small>
+                <p class=""><small>Language:</small> <span class="highlight">{{battle.challenge.language || "Ruby"}} </span></p>
+                <p class=""><span class="mx-2">|</span><small>Difficulty:</small> <span class="highlight">{{-battle.challenge.rank}} kyu</span></p>
+                <p class=""><span class="mx-2">|</span><small>Time Limit:</small>
                   <timer-selector
                     class="highlight"
                     :time-limit="timeLimit"
@@ -32,62 +32,64 @@
               <p>You have been requested to join this battle.</p>
               <std-button large @click.native="$root.$emit('confirm-invite', currentUser.id)" title="Join battle" />
             </div>
-            <table v-else class="console-table h-100">
-              <thead>
-                <tr>
-                  <th scope="col" style="width: 50%;"><span class="data">WARRIORS {{ battle.stage > 0 && battle.players ? `[${confirmedUsers.length}/${invitedUsers.length + confirmedUsers.length}]` : ""}}</span></th>
-                  <th scope="col" style="width: 10%;"><span class="data">RANK</span></th>
-                  <th scope="col" style="width: 20%;"><span class="data">STATUS</span></th>
-                  <th scope="col" style="width: 20%;"><span class="data">TIME</span></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(survivor, index) in survivors" class="highlight bg-highlight animated fadeInUp" :title="survivor.username" :key="survivor.id">
-                  <th scope="row">
-                    <span class="data username">{{ survivor.name || survivor.username }}</span>
-                  </th>
-                  <td>
-                    <span class="data rank">{{ index + 1 }}</span>
-                  </td>
-                  <td>
-                    <span class="data">Completed</span>
-                  </td>
-                  <td>
-                    <span class="data">{{ formatDuration(completedIn(battle, survivor)) }}</span>
-                  </td>
-                </tr>
+            <div v-else class="fixed-header">
+              <table class="console-table h-100">
+                <thead>
+                  <tr>
+                    <th scope="col" style="width: 50%;"><span class="data">WARRIORS {{ battle.stage > 0 && battle.players ? `[${confirmedUsers.length}/${invitedUsers.length + confirmedUsers.length}]` : ""}}</span></th>
+                    <th scope="col" style="width: 10%;"><span class="data">RANK</span></th>
+                    <th scope="col" style="width: 20%;"><span class="data">STATUS</span></th>
+                    <th scope="col" style="width: 20%;"><span class="data">TIME</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(survivor, index) in survivors" class="highlight bg-highlight animated fadeInUp" :title="survivor.username" :key="survivor.id">
+                    <th scope="row">
+                      <span class="data username">{{ survivor.name || survivor.username }}</span>
+                    </th>
+                    <td>
+                      <span class="data rank">{{ index + 1 }}</span>
+                    </td>
+                    <td>
+                      <span class="data">Completed</span>
+                    </td>
+                    <td>
+                      <span class="data">{{ formatDuration(completedIn(battle, survivor)) }}</span>
+                    </td>
+                  </tr>
 
-                <tr v-if="battle.stage === 0" class="battle-over">
-                  <th scope="row" :class="[]">
-                    <span class="data">Battle over</span>
-                  </th>
-                  <td>
-                    <span class="data rank"></span>
-                  </td>
-                  <td>
-                    <span class="data">End time</span>
-                  </td>
-                  <td>
-                    <span class="data">{{ formatDuration((Date.parse(battle.end_time) - Date.parse(battle.start_time)) / 1000) }}</span>
-                  </td>
-                </tr>
+                  <tr v-if="battle.stage === 0" class="battle-over">
+                    <th scope="row" :class="[]">
+                      <span class="data">Battle over</span>
+                    </th>
+                    <td>
+                      <span class="data rank"></span>
+                    </td>
+                    <td>
+                      <span class="data">End time</span>
+                    </td>
+                    <td>
+                      <span class="data">{{ formatDuration((Date.parse(battle.end_time) - Date.parse(battle.start_time)) / 1000) }}</span>
+                    </td>
+                  </tr>
 
-                <tr v-for="defeatedUser in defeated" :title="defeatedUser.username" :class="['animated fadeInUp', { 'highlight-red': battle.stage === 0 }]" :key="defeatedUser.id">
-                  <th scope="row" :class="['username', { pending: !userIsConfirmed(defeatedUser.id) && battle.stage > 0 && battle.stage < 3 }]">
-                    <span class="data username">{{ defeatedUser.name || defeatedUser.username }}</span>
-                  </th>
-                  <td>
-                    <span class="data rank">{{ battle.stage === 0 ? '' : '-' }}<i v-if="battle.stage === 0" class="fas fa-skull-crossbones"></i></span>
-                  </td>
-                  <td>
-                    <span class="data">{{ battle.stage === 0 ? 'Defeated' : '-' }}</span>
-                  </td>
-                  <td>
-                    <span class="data">{{ defeatedUser.completed_at ? displayCompletionTime(battle, defeatedUser) : '-' }}</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  <tr v-for="defeatedUser in defeated" :title="defeatedUser.username" :class="['animated fadeInUp', { 'highlight-red': battle.stage === 0 }]" :key="defeatedUser.id">
+                    <th scope="row" :class="['username', { pending: !userIsConfirmed(defeatedUser.id) && battle.stage > 0 && battle.stage < 3 }]">
+                      <span class="data username">{{ defeatedUser.name || defeatedUser.username }}</span>
+                    </th>
+                    <td>
+                      <span class="data rank">{{ battle.stage === 0 ? '' : '-' }}<i v-if="battle.stage === 0" class="fas fa-skull-crossbones"></i></span>
+                    </td>
+                    <td>
+                      <span class="data">{{ battle.stage === 0 ? 'Defeated' : '-' }}</span>
+                    </td>
+                    <td>
+                      <span class="data">{{ defeatedUser.completed_at ? displayCompletionTime(battle, defeatedUser) : '-' }}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
           <div v-else class="d-flex flex-column h-100">
             <p class="highlight">> No previous battle records...</p>
@@ -101,14 +103,14 @@
               <std-button @click.native="$root.$emit('delete-battle')" small fa-icon="far fa-times-circle" title="Cancel" />
               <std-button @click.native="$root.$emit('invite-survivors')" small fa-icon="fas fa-user-plus" title="Invite Survivors" />
               <std-button @click.native="$root.$emit('invite-all')" small fa-icon="fas fa-user-plus" title="Invite All" />
-              <std-button v-if="battle.stage < 4" @click.native="$root.$emit('initialize-battle')" :disabled="!readyToStart" fa-icon="fas fa-radiation" title="Start Battle" />
+              <std-button v-if="battle.stage < 4" @click.native="$root.$emit('initialize-battle')" :disabled="!readyToStart" fa-icon="fas fa-radiation" title="Start Battle" :class="attentionWaitingToStart" />
             </div>
             <div v-else-if="battle.stage >= 3" class="ui-controls-bottom">
               <a :href="battle.stage < 4 ? '#' : challengeUrl" :target="battle.stage < 4 ? '' : '_blank'">
                 <std-button fa-icon="fas fa-rocket mr-1" title="Launch Codewars" :disabled="battle.stage < 4" />
               </a>
+              <std-button v-if="userIsConfirmed(currentUser.id)" @click.native="completedChallenge" fa-icon="fas fa-check-double mr-1" title="Challenge Completed" :loading="completedButtonClicked || battle.stage < 4" />
               <std-button v-if="currentUserIsModerator" @click.native="$root.$emit('end-battle')" :disabled="battle.stage < 4" fa-icon="fas fa-peace" title="End Battle" />
-              <std-button v-else-if="!userSurvived(currentUser.id)" @click.native="completedChallenge" fa-icon="fas fa-check-double mr-1" title="Challenge Completed" :loading="completedButtonClicked || battle.stage < 4" />
             </div>
           </div>
           <div v-else class="ui-controls-bottom">
@@ -157,14 +159,20 @@
         createNewBattle: false,
         challengeInput: '',
         attentionHover: false,
+        seekAttentionClass: 'animated infinite pulse seek-attention',
       }
     },
     computed: {
-      seekAttention() {
+      attentionWaitingToJoin() {
         if (this.currentUser.invite_status === 'invited') {
-          this.$root.$emit('play-fx', 'interface');
-          // return [`${ this.attentionHover ? 'paused ' : ''}animated infinite pulse seek-attention`]
-          return 'animated infinite pulse seek-attention'
+          this.$root.$emit('play-fx', 'interface')
+          return this.seekAttentionClass
+        }
+      },
+      attentionWaitingToStart() {
+        if (this.currentUserIsModerator && this.invitedUsers.length === 0 && this.confirmedUsers.length > 0) {
+          this.$root.$emit('play-fx', 'interface')
+          return this.seekAttentionClass
         }
       },
       challengeUrl() {

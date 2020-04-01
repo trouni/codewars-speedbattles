@@ -7,7 +7,7 @@
   flex-grow: 1;
 
   &.seek-attention {
-    background-color: rgba( lighten($bezel-color, 10%), .9 );
+    // background-color: rgba( lighten($bezel-color, 10%), .9 );
     &.paused {
       animation-play-state: paused !important;
     }
@@ -36,7 +36,7 @@
     width: fit-content;
     padding: 0 5em 0.1em 0.5em;
     line-height: 1.4em;
-    background: rgba( $bezel-color, .25 );
+    // background: rgba( $bezel-color, .25 );
     opacity: 1;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -44,6 +44,9 @@
     margin: 0;
     z-index: 10;
     position: absolute;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .widget-body {
     padding-left: $bezel;
@@ -76,7 +79,7 @@
   }
 }
 
-@media screen and (max-width: 767px) {
+@media screen and (max-width: $mobile-breakpoint) {
   .widget-body {
     padding-bottom: 2em;
   }

@@ -14,7 +14,7 @@
   .messages {
     user-select: text;
     margin: -1.8em -1.5em 0 -1.5em;
-    padding: 0 1.5em;
+    padding: 0 1.5em 1em 1.5em;
     font-weight: 200;
   }
   
@@ -24,9 +24,8 @@
   }
   
   .messages .author {
-    margin-top: 8px;
+    margin-top: 1em;
     display: block;
-    font-weight: bold;
     opacity: 1;
   }
   
@@ -37,9 +36,10 @@
     overflow-wrap: break-word;
     opacity: 0.8;
     code {
-      border: solid 0.5px rgba(255,255,255,0.2);
+      border-style: solid;
+      border-width: 0.5px;
       border-radius: 4px;
-      background: linear-gradient(-10deg, rgba(0, 0, 0, 0.4) 10%, rgba(0, 0, 0, 0.8));
+      background: linear-gradient(-10deg, rgba(0, 0, 0, 0.2) 10%, rgba(0, 0, 0, 0.4));
       padding: 5px;
       letter-spacing: 0;
     }
@@ -124,14 +124,14 @@
 
   .notification {
     // background: rgba(255,255,255,0.1);
-    background: rgba(black, 0.2);
+    // background: rgba(black, 0.2);
     font-size: 0.9em;
     border-radius: 5px;
     padding: 0.8em;
     max-width: 85%;
-    margin: 1em auto;
+    margin: 2em auto;
     border: none;
-    box-shadow: 0 0 5px rgba(255,255,255,0.1), 0 0 10px rgba(255,255,255,0.1);
+    // box-shadow: 0 0 5px rgba(255,255,255,0.1), 0 0 10px rgba(255,255,255,0.1);
     // clip-path: polygon(0 0, calc(100% - #{$bezel}) 0, 100% $bezel, 100% 100%, $bezel 100%, 0 calc(100% - #{$bezel}));
   }
 }

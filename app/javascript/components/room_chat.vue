@@ -6,7 +6,7 @@
         <h3 class="header">{{ title }}</h3>
         <div class="widget-body">
           <div class="flex-grow-1"></div>
-          <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true}">
+          <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true, scrollonremoved:true}">
             <li v-for="message in sortedMessages" v-bind:class="messageClass(message)" :key="message.id">
               <div v-if="!isAnnouncement(message)">
                 <span class="author" :title="message.author.username">{{ message.author.name || message.author.username }}</span>

@@ -163,7 +163,8 @@ class User < ApplicationRecord
   def eligible?(battle = active_battle)
     return nil unless battle
 
-    !completed_challenge?(battle.challenge_id) && !moderator?
+    # !completed_challenge?(battle.challenge_id) && !moderator?
+    !completed_challenge?(battle.challenge_id)
   end
 
   def completed_challenge?(challenge_id)

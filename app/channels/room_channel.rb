@@ -54,7 +54,7 @@ class RoomChannel < ApplicationCable::Channel
   def create_battle(data)
     set_room
     battle = Battle.find_or_initialize_by(room: @room, end_time: nil)
-    battle.time_limit = [data["time_limit"], 90 * 60].min
+    battle.time_limit = [data["time_limit"] || 0, 90 * 60].min
     challenge = fetch_kata_info(data["challenge_id"])
     battle.update(challenge)
   end
