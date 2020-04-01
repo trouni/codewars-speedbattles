@@ -1,16 +1,25 @@
-#super-container {
-  // #room {
+.app-bg {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  margin: 0;
+  transform: scale(1.2);
+  filter: blur(1px);
+
   &:before {
     content: " ";
     width: 100vw;
     height: 100vh;
     position: fixed;
-    margin: -1em;
-    transform: scale(1.2);
-    filter: blur(1px);
+    margin: 0;
   }
 
-  &.loading:before {
-    transform: initial;
+  &.static {
+    transform: unset;
+    filter: unset;
   }
+}
+
+.initializing .app-bg {
+  transform: initial;
 }

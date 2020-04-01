@@ -24,21 +24,22 @@
   }
   
   .messages .author {
+    font-family: $headers-font;
     margin-top: 1em;
     display: block;
     opacity: 1;
   }
   
   .messages .content {
-    font-family: $headers-font;
+    font-family: $body-font;
     tab-size : 4;
     white-space: pre-wrap;
     overflow-wrap: break-word;
-    opacity: 0.8;
+    // opacity: 0.8;
     code {
       border-style: solid;
       border-width: 0.5px;
-      border-radius: 4px;
+      border-radius: 3px;
       background: linear-gradient(-10deg, rgba(0, 0, 0, 0.2) 10%, rgba(0, 0, 0, 0.4));
       padding: 5px;
       letter-spacing: 0;
@@ -55,6 +56,9 @@
       padding: 1em;
       overflow: initial;
       white-space: pre-wrap;
+      span {
+        font-weight: initial;
+      }
     }
   }
   
@@ -110,28 +114,29 @@
     #msg-textarea:focus {
       outline: none;
     }
+    &.code {
+      font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-weight: 200;
+    }
   }
 
   .bot-announcement {
-    font-family: $headers-font;
-    font-weight: light;
-    // font-style: italic;
-    // opacity: 0.7;
-    margin: 2px 0;
-    padding: 5px 0;
     text-align: center;
-  }
-
-  .notification {
-    // background: rgba(255,255,255,0.1);
-    // background: rgba(black, 0.2);
-    font-size: 0.9em;
-    border-radius: 5px;
-    padding: 0.8em;
-    max-width: 85%;
     margin: 2em auto;
-    border: none;
+    padding: 1em;
+    
+    .content {
+      font-family: $headers-font;
+      font-weight: light;
+      font-size: 1.1em;
+    }
+  }
+  
+  // .notification {
+    // max-width: 85%;
+    // border-radius: 5px;
+    // border: none;
     // box-shadow: 0 0 5px rgba(255,255,255,0.1), 0 0 10px rgba(255,255,255,0.1);
     // clip-path: polygon(0 0, calc(100% - #{$bezel}) 0, 100% $bezel, 100% 100%, $bezel 100%, 0 calc(100% - #{$bezel}));
-  }
+  // }
 }

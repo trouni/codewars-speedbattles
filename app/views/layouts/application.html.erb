@@ -7,17 +7,23 @@
     <%= csrf_meta_tags %>
     <%= action_cable_meta_tag %>
     <%= stylesheet_link_tag 'application', media: 'all' %>
-    <!-- <link rel="stylesheet" href="animate.min.css"> -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Dosis:400|Inconsolata:400,700&display=swap" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
-    <%#= stylesheet_pack_tag 'application', media: 'all' %> <!-- Uncomment if you import CSS in app/javascript/packs/application.js -->
+    <%= stylesheet_pack_tag 'application', media: 'all' %> <!-- Uncomment if you import CSS in app/javascript/packs/application.js -->
     <%= favicon_link_tag asset_path('speedbattles_icon.png') %>
   </head>
-  <body <%= 'id=super-container class=peace' unless params[:controller] == 'rooms' && params[:action] == 'show' %>>
-    <div data-behavior='vue'>
-      <%= render 'shared/flashes' %>
-      <%= yield %>
-    </div>
+  <% vue_app = params[:controller] == 'rooms' && params[:action] == 'show' %>
+  <body>
+    <%= render 'shared/flashes' %>
+    <% if vue_app %>
+      <div data-behavior='vue'>
+        <%= yield %>
+      </div>
+    <% else %>
+      <div id="super-container" class="peace">
+        <span class="app-bg"></span>
+        <%= yield %>
+      </div>
+    <% end %>
     <%= javascript_include_tag 'application' %>
     <%= javascript_pack_tag 'application' %>
   </body>

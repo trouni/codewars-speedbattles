@@ -13,13 +13,18 @@
 
   color: $body-color;
   transition: color $transition-speed ease-out;
-  background: linear-gradient(30deg, #000000aa, #00000066), asset-url($bg-image);
-  background-size: cover;
-  
-  &:before {
-    background-color: rgba($bg-color1, 0.3);
-    transition: background-color $transition-speed ease-out;
+
+  .app-bg {
+    background: linear-gradient(30deg, #000000aa, #00000066), asset-url($bg-image);
+    background-size: cover;
+    transition: transform $transition-speed ease-out;
+
+    &:before {
+      background-color: rgba($bg-color1, 0.3);
+      transition: background-color $transition-speed ease-out;
+    }
   }
+  
 
   .dropdown-toggle {
     color: $highlight;
@@ -85,6 +90,20 @@
 
   .messages .content code {
     border-color: rgba($body-color, 0.2);
+  }
+  .messages .content p code {
+    background-color: rgba($bezel-color, 0.3);
+    color: $highlight;
+    transition: color $transition-speed ease-out;
+  }
+
+  .bot-announcement .content {
+    color: $headers-color;
+    transition: color $transition-speed ease-out;
+  }
+
+  .hljs span {
+    transition: color $transition-speed ease-out;
   }
 
   // _navbar.scss

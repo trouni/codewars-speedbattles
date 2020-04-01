@@ -1,7 +1,15 @@
 #room-announcer {
-  .timer {
+  font-family: $headers-font;
+  font-size: 1.1em;
+
+  .announcer .timer {
+    font-family: $monospace-font;
     font-size: 4em;
     line-height: 1em;
+
+    &.no-limit {
+      font-size: 3em;
+    }
   }
 
   @media screen and (min-width: $mobile-breakpoint) {
