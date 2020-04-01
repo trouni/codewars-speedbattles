@@ -254,7 +254,7 @@ class Room < ApplicationRecord
   end
 
   def broadcast_active_battle
-    active_battle.refresh_status
+    active_battle&.refresh_status
     broadcast(subchannel: "battles", payload: { action: "active", battle: active_battle&.api_expose })
   end
 
