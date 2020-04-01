@@ -1,31 +1,34 @@
 <template>
-  <div id="room-chat" class="widget-bg w-100">
-    <div class="widget">
-      <h3 class="header">{{ title }}</h3>
-      <div class="widget-body">
-        <div class="flex-grow-1"></div>
-        <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true}">
-          <li v-for="message in sortedMessages" v-bind:class="messageClass(message)" :key="message.id">
-            <div v-if="!isAnnouncement(message)">
-              <span class="author" :title="message.author.username">{{ message.author.name || message.author.username }}</span>
-              <chat-message :content="message.content" class="content" />
-            </div>
-            <span class="content" v-else v-html="displayMsg(message.content)" :title="message.created_at"></span>
-          </li>
-        </ul>
-        <div id="msg-input" :class="['d-flex', { multiline: multilineInput}]">
-          <textarea
-            id="msg-textarea"
-            class='autoExpand input-field flex-grow-1 text-white'
-            :rows="inputMinRows"
-            placeholder='Send a message...'
-            @input="updateTextAreaRows"
-            @keydown.enter="sendMessage"
-            @keydown.tab="addTabCharacter"
-            @keyup.`="prefillBlockLang"
-            v-model="input"
-            v-focus
-          ></textarea>
+  <div :class="['grid-item grid-chat', { loading: loading }]">
+    <spinner v-if="loading" />
+    <div id="room-chat" class="widget-bg w-100">
+      <div class="widget">
+        <h3 class="header">{{ title }}</h3>
+        <div class="widget-body">
+          <div class="flex-grow-1"></div>
+          <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true}">
+            <li v-for="message in sortedMessages" v-bind:class="messageClass(message)" :key="message.id">
+              <div v-if="!isAnnouncement(message)">
+                <span class="author" :title="message.author.username">{{ message.author.name || message.author.username }}</span>
+                <chat-message :content="message.content" class="content" />
+              </div>
+              <span class="content" v-else v-html="displayMsg(message.content)" :title="message.created_at"></span>
+            </li>
+          </ul>
+          <div id="msg-input" :class="{ multiline: multilineInput}">
+            <textarea
+              id="msg-textarea"
+              class='autoExpand input-field flex-grow-1 text-white'
+              :rows="inputMinRows"
+              placeholder='Send a message...'
+              @input="updateTextAreaRows"
+              @keydown.enter="sendMessage"
+              @keydown.tab="addTabCharacter"
+              @keyup.`="prefillBlockLang"
+              v-model="input"
+              v-focus
+            ></textarea>
+          </div>
         </div>
       </div>
     </div>
@@ -39,6 +42,7 @@
       authors: Array,
       currentUserName: String,
       currentUser: Object,
+      loading: Boolean,
     },
     components: {
       ChatMessage: () => import('./chat/message'),
@@ -49,7 +53,7 @@
         input: "",
         inputRowHeight: 0,
         inputMinRows: 2,
-        inputMaxRows: 12,
+        inputMaxRows: 17,
         defaultBlockLang: null,
         submitHint: null,
       }
@@ -85,7 +89,7 @@
       this.getInputRowHeight()
       this.getUserOS()
       document.getElementById('msg-input').setAttribute('data-submit-hint', `Send: ${this.submitHint}`)
-      setTimeout(_ => this.autoScrollToLastMessage(), 2000)
+      setTimeout(_ => this.autoScrollToLastMessage(), 500)
     },
     methods: {
       getUserOS() {

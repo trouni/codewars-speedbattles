@@ -1,7 +1,7 @@
 <template>
   <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}]">
     <navbar :room-id="room.id" :sounds="sounds" :show-sound-controls="soundActive" />
-    <div id="spinner" v-if="!someDataLoaded" class="absolute-center display-initial">
+    <div v-if="!someDataLoaded" class="spinner absolute-center display-initial">
       <div class="lds-ring">
         <div></div>
         <div></div>
@@ -11,13 +11,9 @@
       <h3 class="animated fadeInDown faster">LOADING</h3>
     </div>
 
-    <!-- <div id='leave-button' class="absolute-top-right-corner sign-out">
-      <a href="/rooms" class="button">Leave room</a>
-    </div>-->
-
-    <div id="room" :class="['fixed-screen', { moderator: currentUserIsModerator }]">
+    <div id="room" :class="['fixed-screen', { moderator: currentUserIsModerator }, {loading: !allDataLoaded}]">
       <div :class="['grid-item grid-header', { 'loading': !someDataLoaded }]">
-        <div id="room-announcer" :class="['widget-bg', seekAttention]">
+        <div id="room-announcer" class="widget-bg">
           <div class="widget">
             <h3 class="header highlight">PWD://War_Room/{{ room.name }}</h3>
             <div class="widget-body align-content-center justify-content-center">
@@ -29,94 +25,37 @@
           </div>
         </div>
       </div>
-      <div
-        :class="['grid-item grid-controls', { 'loading': (!usersInitialized || !battleInitialized) }]"
-      >
-        <div v-if="someDataLoaded" id="spinner" class="centered">
-          <div class="lds-ring small">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-          <!-- <h3 class="animated fadeInDown faster">LOADING</h3> -->
-        </div>
-        <room-controls
-          :room="room"
-          :battle="battle"
-          :users="users"
-          :current-user="currentUser"
-          :input="challengeInput"
-          :current-user-is-moderator="currentUserIsModerator"
-          :countdown="countdown"
-          :time-limit="timeLimit"
-          :battle-status="battleStatus"
-          :challenge-url="challengeUrl"
-          :volume-ambiance="sounds.volumeAmbiance"
-          :sounds="sounds"
-        ></room-controls>
-        <!-- <input type="submit" @click="test" value="test"> -->
-      </div>
-      <div
-        :class="['grid-item grid-battle', { 'loading': (!usersInitialized || !battleInitialized) }]"
-      >
-        <div v-if="someDataLoaded" id="spinner" class="centered">
-          <div class="lds-ring small">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-          <!-- <h3 class="animated fadeInDown faster">LOADING</h3> -->
-        </div>
-        <room-battle
-          :battle="battle"
-          :users="users"
-          :room="room"
-          :countdown="countdown"
-          :battle-status="battleStatus"
-          :current-user-is-moderator="currentUserIsModerator"
-          :view-mode="viewMode"
-          :time-limit="timeLimit"
-        ></room-battle>
-      </div>
-      <div :class="['grid-item grid-leaderboard', { 'loading': (!usersInitialized) }]">
-        <div v-if="someDataLoaded" id="spinner" class="centered">
-          <div class="lds-ring small">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-          <!-- <h3 class="animated fadeInDown faster">LOADING</h3> -->
-        </div>
-        <room-leaderboard
-          :users="users"
-          :room="room"
-          :battle="battle"
-          :leaderboard="leaderboard"
-          :room-players="roomPlayers"
-          :current-user="currentUser"
-          :current-user-is-moderator="currentUserIsModerator"
-        ></room-leaderboard>
-      </div>
-      <div :class="['grid-item grid-chat', { 'loading': !messagesInitialized }]">
-        <div v-if="someDataLoaded" id="spinner" class="centered">
-          <div class="lds-ring small">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-          <!-- <h3 class="animated fadeInDown faster">LOADING</h3> -->
-        </div>
-        <room-chat
-          :messages="chat.messages"
-          :authors="chat.authors"
-          :current-user-name="currentUser.username"
-          :current-user="currentUser"
-        ></room-chat>
-      </div>
+      <room-battle
+        :roomStatus="roomStatus"
+        :battle="battle"
+        :users="users"
+        :room="room"
+        :countdown="countdown"
+        :battle-status="battleStatus"
+        :current-user="currentUser"
+        :current-user-is-moderator="currentUserIsModerator"
+        :view-mode="viewMode"
+        :time-limit="timeLimit"
+        :ready-to-start="readyToStart"
+        :loading="someDataLoaded && (!usersInitialized || !battleInitialized)"
+      />
+      <room-leaderboard
+        :users="users"
+        :room="room"
+        :battle="battle"
+        :leaderboard="leaderboard"
+        :room-players="roomPlayers"
+        :current-user="currentUser"
+        :current-user-is-moderator="currentUserIsModerator"
+        :loading="someDataLoaded && !usersInitialized"
+      />
+      <room-chat
+        :messages="chat.messages"
+        :authors="chat.authors"
+        :current-user-name="currentUser.username"
+        :current-user="currentUser"
+        :loading="someDataLoaded && !messagesInitialized"
+      />
     </div>
   </div>
 </template>
@@ -229,6 +168,13 @@ export default {
       return (
         this.usersInitialized ||
         this.battleInitialized ||
+        this.messagesInitialized
+      );
+    },
+    allDataLoaded() {
+      return (
+        this.usersInitialized &&
+        this.battleInitialized &&
         this.messagesInitialized
       );
     },
@@ -357,10 +303,12 @@ export default {
       );
     },
     readyForBattle() {
+      if (!this.battle.id) return false;
+
       if (this.currentUserIsModerator) {
         return this.allConfirmed
       } else {
-        return this.currentUser.invite_status === "confirmed"
+        return this.battleStage < 3 && this.currentUser.invite_status === "confirmed"
       }
     },
     battleCountdown() {
@@ -489,7 +437,6 @@ export default {
     //     BATTLE
     // =============
     createBattle(challenge) {
-      // this.timeLimit = 0;
       const challengeIdSlug = this.parseChallengeInput(challenge)
         .challengeIdSlug;
       this.sendCable("create_battle", {
@@ -498,7 +445,7 @@ export default {
       });
     },
     deleteBattle() {
-      this.sendCable("delete_battle", { battle_id: this.battle.id });
+      if (this.battleLoaded) this.sendCable("delete_battle", { battle_id: this.battle.id });
     },
     // updateBattle(battle) {
     //   battle.deleted ? this.battle = null : this.battle = battle
@@ -519,15 +466,17 @@ export default {
       }
     },
     initializeBattle() {
-      this.sendCable("update_battle", {
-        battle_action: "start",
-        battle_id: this.battle.id,
-        countdown: this.countdownDuration,
-        time_limit: this.timeLimit * 60
-      });
+      if (this.battleStage < 3) {
+        this.sendCable("update_battle", {
+          battle_action: "start",
+          battle_id: this.battle.id,
+          countdown: this.countdownDuration,
+          time_limit: this.timeLimit * 60
+        });
+      }
     },
     endBattle() {
-      if (this.currentUserIsModerator)
+      if (this.currentUserIsModerator && this.battleStage > 3)
         this.sendCable("update_battle", {
           battle_action: 'end',
           battle_id: this.battle.id,
@@ -539,15 +488,17 @@ export default {
       });
     },
     userEndsBattle() {
-      if (this.currentUserIsModerator)
+      if (this.currentUserIsModerator && this.battleStage > 3)
         this.sendCable("update_battle", {
           battle_action: 'ended-by-user',
           battle_id: this.battle.id,
         });
     },
     fetchChallenges(userId) {
+      console.log('userId: ', userId)
+      console.log(userId ? userId : this.currentUser.id);
       this.sendCable("fetch_user_challenges", {
-        user_id: userId,
+        user_id: userId ? userId : this.currentUser.id,
         battle_id: this.battle.id
       });
     },
@@ -748,7 +699,7 @@ export default {
       });
     },
     editTimeLimit(step) {
-      const max = 60;
+      const max = 90;
       const min = 0;
       if (this.timeLimit + step >= min && this.timeLimit + step <= max)
         this.timeLimit += step;
@@ -858,16 +809,19 @@ export default {
           case "battles":
             switch (data.payload.action) {
               case "active":
-                if (data.payload.battle) this.battle = data.payload.battle;
-                if (this.battle.stage > 0 && this.battle.challenge) {
-                  this.challengeInput = this.battle.challenge.name;
+                if (data.payload.battle) {
+                  this.battle = data.payload.battle
+                  if (this.battle.stage > 0 && this.battle.challenge) {
+                    this.challengeInput = this.battle.challenge.name;
+                  } else {
+                    this.challengeInput = "";
+                  }
+                  if (this.battleOngoing) this.startClock();
+                  this.battleInitialized = true;
                 } else {
-                  this.challengeInput = "";
+                  this.battle = {}
                 }
-                if (this.battleOngoing) this.startClock();
-                this.battleInitialized = true;
-                if (this.currentUserIsModerator)
-                  // console.info(`Refreshed active battle`);
+
                 break;
 
               case "player":
@@ -905,7 +859,7 @@ export default {
     );
     this.$root.$on("create-battle", challenge => this.createBattle(challenge));
     this.$root.$on("delete-battle", () => this.deleteBattle());
-    this.$root.$on("fetch-challenges", userId => this.fetchChallenges(userId));
+    this.$root.$on("fetch-challenges", (userId = null) => this.fetchChallenges(userId));
     this.$root.$on("get-room-players", () => this.getRoomPlayers());
     this.$root.$on("push-user", user => this.pushToUsers(user));
     this.$root.$on("remove-user", user => this.removeFromUsers(user));

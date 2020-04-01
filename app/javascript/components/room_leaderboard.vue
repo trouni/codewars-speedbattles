@@ -1,42 +1,45 @@
 <template>
-  <div id="room-leaderboard" class="widget-bg">
-    <div class="widget">
-      <h3 class="header">{{ title }}</h3>
-      <div class="widget-body">
-        <small class="ml-auto" v-if="room.show_stats">
-          <std-button @click.native="showOfflineClicked" :fa-icon="`far ${showOffline ? 'fa-eye-slash' : 'fa-eye'}`" :title="`${showOffline ? 'Hide' : 'Show' } offline players`" />
-        </small>
-        <table :class="['console-table', { 'no-stats': !room.show_stats }]">
-          <thead>
-            <tr>
-              <th scope="col" :style="room.show_stats ? 'width: 40%;' : 'width: 100%;'"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
-              <!-- <th v-if="room.show_stats" scope="col" style="width: 10%;"><span class="data">RANK</span></th> -->
-              <th v-if="room.show_stats" scope="col" style="width: 15%;"><span class="data">SCORE</span></th>
-              <th v-if="room.show_stats" scope="col" style="width: 15%;"><span class="data">BATTLES</span></th>
-              <th v-if="room.show_stats" scope="col" style="width: 30%;"><span class="data">WON : LOST</span></th>
-              <!-- <th v-if="room.show_stats" scope="col" style="width: 10%;"><span class="data">TOTAL</span></th> -->
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(player, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(player.id) }" :title="player.username" :key="player.id">
-              <th scope="row">
-                <span class="data username">
-                  <span v-if="isOnline(player.id)" :class="['mr-1', { 'current-user highlight': isOnline(player.id), offline: !isOnline(player.id) }]">●</span>
-                  <!-- <span :class="userClass(player.id)" v-if="showInviteButton(player.id, 'eligible')" @click="$root.$emit('invite-user', player.id)">{{ player.username }}</span>
-                  <span :class="userClass(player.id)" v-else-if="showInviteButton(player.id, 'invited')" @click="$root.$emit('uninvite-user', player.id)">{{ player.username }}</span> -->
-                  <span :class="userClass(player.id)" @click="toggleInvite(player.id)" :disabled="!currentUserIsModerator">{{ player.name || player.username }}
-                    <!--  <i v-if="showInviteButton(player.id, 'confirmed')" class="fas fa-fist-raised highlight ml-1"></i> -->
+  <div :class="['grid-item grid-leaderboard', { loading: loading }]">
+    <spinner v-if="loading" />
+    <div id="room-leaderboard" class="widget-bg">
+      <div class="widget">
+        <h3 class="header">{{ title }}</h3>
+        <div class="widget-body">
+          <table :class="['console-table flex-grow-1', { 'no-stats': !room.show_stats }]">
+            <thead>
+              <tr>
+                <th scope="col" :style="room.show_stats ? 'width: 40%;' : 'width: 100%;'"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
+                <!-- <th v-if="room.show_stats" scope="col" style="width: 10%;"><span class="data">RANK</span></th> -->
+                <th v-if="room.show_stats" scope="col" style="width: 15%;"><span class="data">SCORE</span></th>
+                <th v-if="room.show_stats" scope="col" style="width: 15%;"><span class="data">BATTLES</span></th>
+                <th v-if="room.show_stats" scope="col" style="width: 30%;"><span class="data">WON : LOST</span></th>
+                <!-- <th v-if="room.show_stats" scope="col" style="width: 10%;"><span class="data">TOTAL</span></th> -->
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(player, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(player.id) }" :title="player.username" :key="player.id">
+                <th scope="row">
+                  <span class="data username">
+                    <span v-if="isOnline(player.id)" :class="['mr-1', { 'current-user highlight': isOnline(player.id), offline: !isOnline(player.id) }]">●</span>
+                    <!-- <span :class="userClass(player.id)" v-if="showInviteButton(player.id, 'eligible')" @click="$root.$emit('invite-user', player.id)">{{ player.username }}</span>
+                    <span :class="userClass(player.id)" v-else-if="showInviteButton(player.id, 'invited')" @click="$root.$emit('uninvite-user', player.id)">{{ player.username }}</span> -->
+                    <span :class="userClass(player.id)" @click="toggleInvite(player.id)" :disabled="!currentUserIsModerator">{{ player.name || player.username }}
+                      <!--  <i v-if="showInviteButton(player.id, 'confirmed')" class="fas fa-fist-raised highlight ml-1"></i> -->
+                    </span>
                   </span>
-                </span>
-              </th>
-              <!-- <td v-if="room.show_stats"><span class="data rank">{{ leaderboard[player.id] ? index + 1 : "-" }}</span></td> -->
-              <td v-if="room.show_stats"><span class="data">{{ leaderboard[player.id] ? displayScore(leaderboard[player.id].total_score) : "-" }}</span></td>
-              <td v-if="room.show_stats"><span class="data">{{ leaderboard[player.id] ? leaderboard[player.id].battles_fought : "-" }}</span></td>
-              <td v-if="room.show_stats"><span class="data">{{ leaderboard[player.id] ? `${leaderboard[player.id].battles_survived} : ${leaderboard[player.id].battles_lost}` : "-" }}</span></td>
-              <!-- <td v-if="room.show_stats"><span class="data">{{ leaderboard[player.id] ? player.battles_fought : "-" }}</span></td> -->
-            </tr>
-          </tbody>
-        </table>
+                </th>
+                <!-- <td v-if="room.show_stats"><span class="data rank">{{ leaderboard[player.id] ? index + 1 : "-" }}</span></td> -->
+                <td v-if="room.show_stats"><span class="data">{{ leaderboard[player.id] ? displayScore(leaderboard[player.id].total_score) : "-" }}</span></td>
+                <td v-if="room.show_stats"><span class="data">{{ leaderboard[player.id] ? leaderboard[player.id].battles_fought : "-" }}</span></td>
+                <td v-if="room.show_stats"><span class="data">{{ leaderboard[player.id] ? `${leaderboard[player.id].battles_survived} : ${leaderboard[player.id].battles_lost}` : "-" }}</span></td>
+                <!-- <td v-if="room.show_stats"><span class="data">{{ leaderboard[player.id] ? player.battles_fought : "-" }}</span></td> -->
+              </tr>
+            </tbody>
+          </table>
+          <div class="d-flex justify-content-between ui-controls-bottom">
+            <std-button v-if="room.show_stats" @click.native="showOfflineClicked" small :fa-icon="`far ${showOffline ? 'fa-eye-slash' : 'fa-eye'}`" :title="`${showOffline ? 'Hide' : 'Show' } offline players`" />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -51,7 +54,8 @@ export default {
     room: Object,
     currentUser: Object,
     currentUserIsModerator: Boolean,
-    leaderboard: Object
+    leaderboard: Object,
+    loading: Boolean,
   },
   components: {
     StdButton: () => import('./shared/button.vue'),
