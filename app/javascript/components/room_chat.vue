@@ -9,10 +9,12 @@
           <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true, scrollonremoved:true}">
             <li v-for="message in sortedMessages" v-bind:class="messageClass(message)" :key="message.id">
               <div v-if="!isAnnouncement(message)">
-                <span class="author" :title="message.author.username">{{ message.author.name || message.author.username }}</span>
+                <span class="author" :title="message.author.username">{{ message.author.name || message.author.username }}<span class="sent-at">{{ formatMessageDate(message.created_at) }}</span></span>
                 <chat-message :content="message.content" class="content" />
               </div>
-              <span class="content" v-else v-html="displayMsg(message.content)" :title="message.created_at"></span>
+              <div v-else>
+                <span class="content" v-html="displayMsg(message)" />
+              </div>
             </li>
           </ul>
           <div id="msg-input" :class="{ multiline: multilineInput, code: codeInput}">
@@ -132,7 +134,7 @@
         return str
       },
       displayMsg(msg) {
-        return this.replaceUsername(msg)
+        return `${this.replaceUsername(msg.content)}<span class="sent-at">${this.formatMessageDate(msg.created_at)}</span>`
       },
       isAnnouncement(message) {
         return !message.author.username || message.author.username === "bot"
@@ -140,7 +142,8 @@
       messageClass(message) {
         return [
           'message',
-          { 'bot-announcement animated fadeIn': this.isAnnouncement(message) }
+          { 'bot-announcement animated fadeIn': this.isAnnouncement(message) },
+          { 'user-message': !this.isAnnouncement(message) }
         ]
       },
       messagesScrolledToBottom() {
@@ -182,6 +185,16 @@
           if (!this.defaultBlockLang) e.target.selectionStart = 3
           e.target.selectionEnd =  e.target.selectionStart + 4
         }
+      },
+      formatMessageDate(sentDate) {
+        const date = new Date(sentDate)
+        const time = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+        return this.isSameDay(new Date, date) ? time : `${date.toLocaleDateString()} ${time}`
+      },
+      isSameDay(a, b) {
+        return a.getFullYear() === b.getFullYear() &&
+          a.getMonth() === b.getMonth() &&
+          a.getDate()=== b.getDate()
       },
     }
   }

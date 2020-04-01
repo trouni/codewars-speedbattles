@@ -297,7 +297,7 @@
       displayCompletionTime(battle, user) {
         const completedIn = this.completedIn(battle, user)
         const completedAt = new Date(user.completed_at)
-        completedIn >= 0 ? this.formatDuration(completedIn) : completedAt.toDateString()
+        return completedIn >= 0 ? this.formatDuration(completedIn) : completedAt.toLocaleDateString()
       },
       formatDuration(durationInSeconds) {
         const hours = Math.floor(durationInSeconds / 60 / 60)

@@ -23,14 +23,25 @@
     list-style: none;
   }
   
-  .messages .author {
+  .messages .sent-at {
+    font-family: $body-font;
+    font-size: 0.85em;
+    opacity: 0.8;
+    font-weight: 200;
+  }
+
+  .messages .user-message .author {
     font-family: $headers-font;
     margin-top: 1em;
     display: block;
     opacity: 1;
+    font-weight: 600;
+    .sent-at {
+      margin-left: 0.6em;
+    }
   }
   
-  .messages .content {
+  .messages .user-message .content {
     font-family: $body-font;
     tab-size : 4;
     white-space: pre-wrap;
@@ -126,9 +137,23 @@
     padding: 1em;
     
     .content {
+      position: relative;
       font-family: $headers-font;
       font-weight: light;
       font-size: 1.1em;
+    }
+
+    .sent-at {
+      position: absolute;
+      width: 200px;
+      left: calc(50% - 100px);
+      bottom: -1.5em;
+      opacity: 0;
+      transition: opacity 0.5s ease-out 1s;
+    }
+
+    &:hover .sent-at {
+      opacity: 1;
     }
   }
   
