@@ -13,25 +13,18 @@
   $username-ineligible: rgba($textcolor, 0.5);
   $username-confirmed: $highlight;
 
-  // _general.scss
-  // ul, ol, li, small, span {
   color: $body-color;
   transition: color $transition-speed ease-out;
-  
+  background: linear-gradient(30deg, #000000aa, #00000066), asset-url($bg-image);
+  background-size: cover;
+  &:before {
+    background-color: rgba($bg-color1, 0.3);
+    transition: background-color $transition-speed ease-out;
+  }
+
   .dropdown-toggle {
     color: $highlight;
     transition: color $transition-speed ease-out;
-  }
-  
-  #room {
-    color: $body-color;
-    transition: color $transition-speed ease-out;
-    background: linear-gradient(30deg, #000000aa, #00000066), asset-url($bg-image);
-    background-size: cover;
-    &:before {
-      background-color: rgba($bg-color1, 0.3);
-      transition: background-color $transition-speed ease-out;
-    }
   }
   
   a {

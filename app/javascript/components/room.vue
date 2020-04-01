@@ -1,5 +1,5 @@
 <template>
-  <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}]">
+  <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}, { 'loading': !someDataLoaded }]">
     <navbar :room-id="room.id" :sounds="sounds" :show-sound-controls="soundActive" />
     <div v-if="!someDataLoaded" class="spinner absolute-center display-initial">
       <div class="lds-ring">
@@ -12,7 +12,7 @@
     </div>
 
     <div id="room" :class="['fixed-screen', { moderator: currentUserIsModerator }, {loading: !allDataLoaded}]">
-      <div :class="['grid-item grid-header', { 'loading': !someDataLoaded }]">
+      <div :class="['grid-item grid-header']">
         <div id="room-announcer" class="widget-bg">
           <div class="widget">
             <h3 class="header highlight">PWD://War_Room/{{ room.name }}</h3>

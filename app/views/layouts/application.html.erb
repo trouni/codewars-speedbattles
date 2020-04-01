@@ -13,7 +13,7 @@
     <%#= stylesheet_pack_tag 'application', media: 'all' %> <!-- Uncomment if you import CSS in app/javascript/packs/application.js -->
     <%= favicon_link_tag asset_path('speedbattles_icon.png') %>
   </head>
-  <body>
+  <body <%= 'id=super-container class=peace' unless params[:controller] == 'rooms' && params[:action] == 'show' %>>
     <div data-behavior='vue'>
       <%= render 'shared/flashes' %>
       <%= yield %>
