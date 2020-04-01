@@ -94,6 +94,13 @@ class User < ApplicationRecord
       id: id,
       username: username,
       name: name,
+      codewars: {
+        clan: codewars_clan,
+        honor: codewars_honor,
+        leaderboard_position: codewars_leaderboard_position,
+        overall_rank: codewars_overall_rank,
+        overall_score: codewars_overall_score
+      },
       last_fetched_at: last_fetched_at,
       invite_status: invite_status(battle),
       status: invite_status(battle),

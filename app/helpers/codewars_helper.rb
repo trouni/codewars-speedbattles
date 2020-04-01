@@ -46,6 +46,8 @@ module CodewarsHelper
       challenge_rank: json["rank"]["id"],
       challenge_description: json["description"]
     }
+  rescue OpenURI::HTTPError => e
+    return nil
   end
 
   private
