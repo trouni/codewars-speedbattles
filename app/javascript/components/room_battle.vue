@@ -1,6 +1,6 @@
 <template>
   <div :class="['grid-item grid-battle', roomStatus]">
-    <div id="room-battle" :class="['widget-bg', attentionWaitingToJoin]" @mouseover="attentionHover = true" @mouseleave="attentionHover = false">
+    <div id="room-battle" class="widget-bg" @mouseover="attentionHover = true" @mouseleave="attentionHover = false">
       <div class="widget">
         <h3 class="header">{{ headerTitle }}</h3>
         <spinner v-if="loading" />
@@ -30,9 +30,10 @@
               </div>
             </div>
             <p v-if="battle.stage === 1 && defeated.length < 1" class="m-auto highlight">> Waiting for players to join the battle...</p>
-            <div v-else-if="currentUser.invite_status == 'invited'" class="d-flex flex-column justify-content-center align-items-center flex-grow-1">
+            <div v-else-if="currentUser.invite_status == 'invited'" class="d-flex flex-column justify-content-center align-items-center flex-grow-1 mb-5">
               <p>You have been requested to join this battle.</p>
-              <std-button large @click.native="$root.$emit('confirm-invite', currentUser.id)" title="Join battle" />
+              <std-button large @click.native="$root.$emit('confirm-invite', currentUser.id)" title="Join battle" :class="['my-3', attentionWaitingToJoin]"/>
+              <std-button small @click.native="$root.$emit('uninvite-user', currentUser.id)" title="Skip" />
             </div>
             <div v-else class="fixed-header">
               <table class="console-table h-100">
@@ -127,7 +128,7 @@
                 v-focus
               >
             </span>
-            <std-button @click.native="createBattle" :disabled="!challengeInput" fa-icon="fas fa-cloud-upload-alt" title="Load" />
+            <!-- <std-button @click.native="createBattle" :disabled="!challengeInput" fa-icon="fas fa-cloud-upload-alt" title="Load" /> -->
           </div>
 
         </div>
@@ -320,5 +321,9 @@
   .challenge-info {
     font-size: 1.1rem;
     padding: 1em 0.5em;
+  }
+
+  .rank > i {
+    line-height: inherit;
   }
 </style>

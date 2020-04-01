@@ -153,7 +153,7 @@
 
   .widget-bg {
     background-color: rgba( $bezel-color, .1 );
-    transition: opacity $transition-speed ease-out, background-color $transition-speed ease-out;
+    transition: opacity $transition-speed ease-out, background-color $transition-speed ease-out, filter $transition-speed ease-out, transform $transition-speed ease-out;
 
     &.seek-attention {
       background-color: rgba( lighten($bezel-color, 10%), .7 );

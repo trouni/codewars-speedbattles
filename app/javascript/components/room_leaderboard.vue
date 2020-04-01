@@ -120,7 +120,7 @@ export default {
     displayScore(score) {
       if (score === 0) return 0
 
-      return score > 0 ? `＋${score}` : score
+      return score > 0 ? `+${score}` : score
       // return Math.max(0, score);
     },
     defeats(player) {

@@ -189,7 +189,7 @@
       formatMessageDate(sentDate) {
         const date = new Date(sentDate)
         const time = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
-        return this.isSameDay(new Date, date) ? time : `${date.toLocaleDateString()} ${time}`
+        return this.isSameDay(new Date, date) ? time : `${date.toDateString()} ${time}`
       },
       isSameDay(a, b) {
         return a.getFullYear() === b.getFullYear() &&
