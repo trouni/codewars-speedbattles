@@ -54,7 +54,7 @@ class RoomChannel < ApplicationCable::Channel
   def create_battle(data)
     set_room
     battle = Battle.find_or_initialize_by(room: @room, end_time: nil)
-    battle.time_limit = data["time_limit"]
+    battle.time_limit = [data["time_limit"], 90 * 60].min
     challenge = fetch_kata_info(data["challenge_id"])
     battle.update(challenge)
   end
@@ -96,7 +96,6 @@ class RoomChannel < ApplicationCable::Channel
 
     FetchCompletedChallengesJob.perform_later(
       user_id: user.id,
-      battle_id: battle.id,
       all_pages: false
     )
     @room.broadcast_to_moderator(subchannel: "logs", payload: "Fetching challenges for #{user.username}...")
