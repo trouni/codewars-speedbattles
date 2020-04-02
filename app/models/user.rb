@@ -47,6 +47,10 @@ class User < ApplicationRecord
   scope :pending, ->(battle) { battle ? invited(battle).where(battle_invites: { confirmed: false }) : [] }
   scope :confirmed, ->(battle) { battle ? invited(battle).where(battle_invites: { confirmed: true }) : [] }
 
+  has_settings do |s|
+    s.key :base, defaults: { sfx: true, music: true, connected_webhook: false }
+  end
+
   def webhook_secret
     Base64.encode64({ id: id, t: authentication_token }.to_json).strip
   end

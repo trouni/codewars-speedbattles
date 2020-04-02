@@ -25,6 +25,17 @@ class Room < ApplicationRecord
   validates :sound, inclusion: { in: %w[everyone moderator off] }
   after_create :create_chat
 
+  has_settings do |s|
+    s.key :base, defaults: {
+      sound: "everyone",
+      min_kyu: -8,
+      max_kyu: -1,
+      auto_invite: false,
+      auto_start: false,
+      moderators: []
+    }
+  end
+
   def players
     super.distinct
     # User.joins(battle_invites: :battle).where(battle_invites: { confirmed: true }, battles: { room_id: id }).uniq
@@ -142,8 +153,10 @@ class Room < ApplicationRecord
   end
 
   def broadcast_to_moderator(subchannel: "logs", payload: nil)
+    return unless moderator
+
     ActionCable.server.broadcast(
-      "room_#{id}_moderator",
+      "user_#{moderator.id}",
       subchannel: subchannel,
       payload: payload
     )
