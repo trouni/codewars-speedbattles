@@ -18,18 +18,20 @@ export default class extends Controller {
   copy(event) {
     const copyText = event.currentTarget.querySelector('input')
     copyText.classList.add('animated', 'flash', 'fast')
-    event.currentTarget.dataset.originalTitle = "Copied"
+    // event.currentTarget.dataset.originalTitle = "Copied"
     copyText.select();
     copyText.setSelectionRange(0, 99999);
     document.execCommand("copy");
     copyText.setSelectionRange(0, 0);
     
-    event.currentTarget.querySelector('.tooltiptext').innerHTML = "Copied";
+    event.currentTarget.dataset.tooltip = "Copied"
+    // event.currentTarget.querySelector('.tooltiptext').innerHTML = "Copied";
   }
-
+  
   reset(event) {
     event.currentTarget.querySelector('input').classList.remove('animated', 'flash', 'fast')
-    event.currentTarget.querySelector('.tooltiptext').innerHTML = "Copy to clipboard"
+    event.currentTarget.dataset.tooltip = "Copy to Clipboard"
+    // event.currentTarget.querySelector('.tooltiptext').innerHTML = "Copy to clipboard"
   }
 
   showHint() {

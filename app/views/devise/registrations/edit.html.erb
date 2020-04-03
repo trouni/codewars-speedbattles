@@ -23,7 +23,7 @@
         <div class="form-group">
           <small>
             <label for="webhook_url" class="form-control-label w-100 text-center">Payload url</label>
-            <div class="custom-tooltip clickable copyable" data-action="click->settings#copy mouseout->settings#reset">
+            <div class="custom-tooltip clickable copyable" data-tooltip="Copy to Clipboard" data-action="click->settings#copy mouseout->settings#reset">
               <input
                 type="text"
                 name="webhook_url"
@@ -31,12 +31,10 @@
                 readonly
                 value="https://speedbattles.herokuapp.com/webhook"
               />
-              <span class="tooltiptext">Copy to clipboard</span>
             </div>
             <label for="webhook_url" class="form-control-label w-100 text-center mt-3">Secret</label>
-            <div class="custom-tooltip clickable copyable" data-action="click->settings#copy mouseout->settings#reset">
+            <div class="custom-tooltip clickable copyable" data-tooltip="Copy to Clipboard" data-action="click->settings#copy mouseout->settings#reset">
               <input type="text" name="webhook_secret" class="form-control text-center shrink-unless-hover" readonly value="<%= current_user.webhook_secret %>" />
-              <span class="tooltiptext">Copy to clipboard</span>
             </div>
           </small>
         </div>

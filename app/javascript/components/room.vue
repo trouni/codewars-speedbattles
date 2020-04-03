@@ -1,7 +1,7 @@
 <template>
   <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}, {'isolate-focus': isolateFocus}, { 'initializing': !allDataLoaded }]">
     <span class="app-bg"/>
-    <navbar :room-id="room.id" :sounds="sounds" />
+    <navbar :room-id="room.id" />
     <spinner v-if="!allDataLoaded" title="LOADING" />
 
     <div id="room" :class="{ moderator: currentUserIsModerator }">

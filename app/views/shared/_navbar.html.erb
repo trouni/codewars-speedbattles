@@ -1,5 +1,9 @@
 <% if user_signed_in? %>
-
-  <navbar :room-id="<%= @room&.id || -1 %>"></navbar>
-
+  <div id="menu-button">
+    <a href="/users/edit" style="color: white;">
+      <div class="corner-button highlight-on-hover">
+        <i class="fas fa-cog"></i>
+      </div>
+    </a>
+  </div>
 <% end %>
