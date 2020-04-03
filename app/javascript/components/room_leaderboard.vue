@@ -148,7 +148,7 @@ export default {
       return this.users.map(e => e.id).includes(userId)
     },
     isCurrentUser(userId) {
-      return this.currentUser && this.currentUser.id === userId
+      return this.currentUser.id === userId
     },
     userClass(userId) {
       const user = this.findUser(userId)

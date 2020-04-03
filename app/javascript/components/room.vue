@@ -179,7 +179,8 @@ export default {
         this.settingsInitialized &&
         this.usersInitialized &&
         this.battleInitialized &&
-        this.messagesInitialized
+        this.messagesInitialized &&
+        this.currentUser
       );
     },
     // leaderboard() {
