@@ -31,35 +31,40 @@
             <span v-else class="badge badge-danger">Not connected</span>
           </sup>
         </h5>
-        <small>Add these settings to your Codewars account in order to automatically detect when you have completed a challenge.</small>
-        <div class="d-flex flex-column align-items-center justify-content-center my-3">
-          <a href="https://www.codewars.com/users/edit#forgot_password" target="_blank" class="button small">Update your Codewars settings</a>
+        <div v-if="settings.user.connected_webhook" class="d-flex justify-content-center">
+          <std-button @click.native="$root.$emit('update-settings', { user: { connected_webhook: false } })" small>Reconnect the webhook</std-button>
         </div>
-        <div class="form-group">
-          <small>
-            <label for="webhook_url" class="form-control-label w-100 text-center">Payload url</label>
-            <div class="custom-tooltip clickable copyable" :data-tooltip="tooltipText" @mouseleave="resetTooltip">
-              <input
-                @click="copyToClipboard($event)"
-                type="text"
-                name="webhook_url"
-                class="form-control text-center"
-                readonly
-                value="https://speedbattles.herokuapp.com/webhook"
-              />
-            </div>
-            <label for="webhook_url" class="form-control-label w-100 text-center mt-3">Secret</label>
-            <div class="custom-tooltip clickable copyable" :data-tooltip="tooltipText" @mouseleave="resetTooltip">
-              <input
-                @click="copyToClipboard($event)"
-                type="text"
-                name="webhook_secret"
-                class="form-control text-center"
-                readonly
-                :value="settings.user.webhook_secret"
-              />
-            </div>
-          </small>
+        <div v-else>
+          <small>Add these settings to your Codewars account in order to automatically detect when you have completed a challenge.</small>
+          <div class="d-flex flex-column align-items-center justify-content-center my-3">
+            <a href="https://www.codewars.com/users/edit#forgot_password" target="_blank" class="button small">Update your Codewars settings</a>
+          </div>
+          <div class="form-group">
+            <small>
+              <label for="webhook_url" class="form-control-label w-100 text-center">Payload url</label>
+              <div class="custom-tooltip clickable copyable" :data-tooltip="tooltipText" @mouseleave="resetTooltip">
+                <input
+                  @click="copyToClipboard($event)"
+                  type="text"
+                  name="webhook_url"
+                  class="form-control text-center"
+                  readonly
+                  value="https://speedbattles.herokuapp.com/webhook"
+                />
+              </div>
+              <label for="webhook_url" class="form-control-label w-100 text-center mt-3">Secret</label>
+              <div class="custom-tooltip clickable copyable" :data-tooltip="tooltipText" @mouseleave="resetTooltip">
+                <input
+                  @click="copyToClipboard($event)"
+                  type="text"
+                  name="webhook_secret"
+                  class="form-control text-center"
+                  readonly
+                  :value="settings.user.webhook_secret"
+                />
+              </div>
+            </small>
+          </div>
         </div>
       </div>
       <span class="d-flex justify-content-center mb-3">
