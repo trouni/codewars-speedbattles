@@ -2,12 +2,12 @@
   <button
     @click="click"
     :disabled="disabled || loading"
-    :class="[{ large: large }, { small: small }]"
+    :class="[{ large: large, small: small }]"
     >
-    <span @mouseover="mouseOver" class="hover-mask"></span>
+    <span @mouseenter="mouseEnter" class="hover-mask"></span>
     <spinner v-if="loading" />
     <i v-if="faIcon" :class="faIcon"></i>
-    {{ title }}
+    <slot>{{ title }}</slot>
   </button>
 </template>
 
@@ -18,6 +18,7 @@ export default {
         type: String,
         default: null
     },
+    naked: Boolean,
     title: String,
     disabled: Boolean,
     large: Boolean,
@@ -28,11 +29,11 @@ export default {
     }
   },
   methods: {
-    mouseOver() {
-      if (!this.disabled) this.$root.$emit('play-fx', 'beep');
+    mouseEnter() {
+      if (!this.disabled) this.$root.$emit('play-fx', 'mouseenter');
     },
     click() {
-      if (!this.disabled) this.$root.$emit('play-fx', 'select');
+      if (!this.disabled) this.$root.$emit('play-fx', 'click');
     }
   }
 };
@@ -43,11 +44,11 @@ export default {
     position: relative;
 
     &:hover {
-      transform: scale(1.005);
+      // transform: scale(1.005);
     }
 
     &:active {
-      transform: scale(0.995);
+      transform: scale(0.99);
     }
   }
 
