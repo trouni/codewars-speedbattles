@@ -41,7 +41,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(survivor, index) in survivors" class="highlight bg-highlight animated fadeInUp" :title="survivor.username" :key="survivor.id">
+            <tr v-for="(survivor, index) in survivors" :class="['highlight animated fadeInUp', {'bg-highlight': isCurrentUser(survivor.id) }]" :title="survivor.username" :key="survivor.id">
               <th scope="row">
                 <span class="data username">{{ survivor.name || survivor.username }}</span>
               </th>
@@ -71,7 +71,7 @@
               </td>
             </tr>
 
-            <tr v-for="defeatedUser in defeated" :title="defeatedUser.username" :class="['animated fadeInUp', { 'highlight-red': battle.stage === 0 }]" :key="defeatedUser.id">
+            <tr v-for="defeatedUser in defeated" :title="defeatedUser.username" :class="['animated fadeInUp', { 'highlight-red': battle.stage === 0, 'bg-highlight': isCurrentUser(defeatedUser.id) }]" :key="defeatedUser.id">
               <th scope="row" :class="['username', { pending: !userIsConfirmed(defeatedUser.id) && battle.stage > 0 && battle.stage < 3 }]">
                 <span class="data username">{{ defeatedUser.name || defeatedUser.username }}</span>
               </th>
@@ -249,6 +249,9 @@
         this.$root.$emit('create-battle', this.challengeInput)
         this.challengeInput = ''
         this.$root.$emit('play-fx', 'click')
+      },
+      isCurrentUser(userId) {
+        return this.currentUser.id === userId
       },
       userIsPlayer(userId) {
         return !!this.findPlayer(userId)
