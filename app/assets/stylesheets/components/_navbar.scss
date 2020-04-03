@@ -1,19 +1,21 @@
 #menu-button {
-  .dropdown-toggle {
+  .corner-button {
     position: absolute;
     top: 0;
     right: 0;
     z-index: 1000;
     padding: 0.3em 0.3em 0 0;
     clip-path: polygon(0 0, 100% 0, 100% 100%);
-    background: rgba(0,0,0,0.5);
     height: 4.5rem;
     width: 4.5rem;
     text-align: right;
-    opacity: 0.5;
-    transition: opacity 0.3s !important;
+    filter: brightness(0.8);
+    i {
+      font-size: 1.5em;
+      margin: 0.1em;
+    }
     &:hover {
-      opacity: 1;
+      filter: brightness(1);
     }
     &:after {
       display: none;

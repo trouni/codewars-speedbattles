@@ -42,10 +42,15 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   after_create :async_fetch_codewars_info
+  after_commit :broadcast
 
   scope :invited, ->(battle) { battle ? self.in(battle.room).select('battle_invites.created_at AS invited_at').joins(:battle_invites).where(battle_invites: { battle: battle }) : [] }
   scope :pending, ->(battle) { battle ? invited(battle).where(battle_invites: { confirmed: false }) : [] }
   scope :confirmed, ->(battle) { battle ? invited(battle).where(battle_invites: { confirmed: true }) : [] }
+
+  has_settings do |s|
+    s.key :base, defaults: { sfx: true, music: true, connected_webhook: false }
+  end
 
   def webhook_secret
     Base64.encode64({ id: id, t: authentication_token }.to_json).strip
@@ -87,6 +92,16 @@ class User < ApplicationRecord
     return [] unless battle
 
     confirmed(battle).where('users.id NOT IN (?)', survived(battle).pluck(:id))
+  end
+
+  def get_settings
+    return {
+      name: name,
+      sfx: settings(:base).sfx,
+      music: settings(:base).music,
+      connected_webhook: settings(:base).connected_webhook,
+      webhook_secret: webhook_secret
+    }
   end
 
   def api_expose(for_room = room, battle = active_battle)
@@ -227,5 +242,17 @@ class User < ApplicationRecord
   def async_fetch_codewars_info
     FetchUserInfoJob.perform_later(id)
     FetchCompletedChallengesJob.perform_later(user_id: id, all_pages: true)
+  end
+
+  def broadcast
+    room&.broadcast_user(user: self)
+  end
+
+  def broadcast_settings
+    ActionCable.server.broadcast(
+      "user_#{id}",
+      subchannel: "settings",
+      payload: { action: 'user', settings: get_settings }
+    )
   end
 end

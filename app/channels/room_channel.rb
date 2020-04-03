@@ -6,8 +6,9 @@ class RoomChannel < ApplicationCable::Channel
     set_current_user
     room_user = RoomUser.find_or_create_by(room: @room, user: @current_user)
     stream_from "room_#{@room.id}"
-    stream_from "room_#{@room.id}_moderator" if @current_user == @room.moderator
+    stream_from "user_#{@current_user.id}"
     # BroadcastInitialInfoJob.process(params[:room_id])
+    @current_user.broadcast_settings
     @room.broadcast_users
     @room.broadcast_messages
     @room.broadcast_active_battle
@@ -85,6 +86,12 @@ class RoomChannel < ApplicationCable::Channel
   # =============
   #     USERS
   # =============
+
+  def update_user_settings(data)
+    @current_user.update(name: data['user']['name'])
+    @current_user.settings(:base).update(data['user'].except('name'))
+    @current_user.broadcast_settings
+  end
 
   def fetch_user_challenges(data)
     set_room

@@ -8,23 +8,24 @@
     grid-template-areas:
       "header header"
       "chat battle";
-    .grid-leaderboard {
-      grid-area: battle;
-    }
-    .grid-header {
+
+    // .grid-leaderboard {
+    //   grid-area: battle;
+    // }
+    #room-header {
       font-size: 1.5rem !important;
     }
-    .grid-controls {
+    #room-controls {
       display: none;
     }
-    .grid-battle {
+    #room-battle {
       table.console-table {
         display: block;
         font-size: 1rem;
       }
       // font-size: 1.2rem !important;
     }
-    .grid-leaderboard {
+    #room-leaderboard {
       display: none;
     }
     #msg-input {

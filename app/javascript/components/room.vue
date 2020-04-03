@@ -1,24 +1,21 @@
 <template>
-  <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}, { 'initializing': !allDataLoaded }]">
+  <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}, {'isolate-focus': isolateFocus}, { 'initializing': !allDataLoaded }]">
     <span class="app-bg"/>
-    <navbar :room-id="room.id" :sounds="sounds" :show-sound-controls="soundActive" />
+    <navbar :room-id="room.id" :sounds="sounds" />
     <spinner v-if="!allDataLoaded" title="LOADING" />
 
-    <div id="room" :class="['fixed-screen', { moderator: currentUserIsModerator }]">
-      <div :class="['grid-item grid-header']">
-        <div id="room-announcer" class="widget-bg">
-          <div class="widget">
-            <h3 class="header highlight">PWD://War_Room/{{ room.name }}</h3>
-            <div class="widget-body align-content-center justify-content-center">
-              <span
-                :class="['announcer mt-3', 'text-center', announcerWindow.status]"
-                v-html="announcerWindow.content"
-              ></span>
-            </div>
-          </div>
+    <div id="room" :class="{ moderator: currentUserIsModerator }">
+      <widget id="room-announcer" class="grid-item" :header-title="`PWD://War_Room/${room.name}`" :focus="focus === 'announcer'">
+        <div class="d-flex align-items-center justify-content-center h-100">
+          <span
+            :class="['announcer mt-3', 'text-center', announcerWindow.status]"
+            v-html="announcerWindow.content"
+          ></span>
         </div>
-      </div>
+      </widget>
       <room-battle
+        id="room-battle"
+        class="grid-item"
         :roomStatus="roomStatus"
         :battle="battle"
         :users="users"
@@ -30,9 +27,11 @@
         :view-mode="viewMode"
         :time-limit="timeLimit"
         :ready-to-start="readyToStart"
-        :loading="someDataLoaded && (!usersInitialized || !battleInitialized)"
+        :loading="!usersInitialized && !battleInitialized"
+        :focus="focus === 'battle'"
       />
       <room-leaderboard
+        class="grid-item"
         :users="users"
         :room="room"
         :battle="battle"
@@ -40,16 +39,21 @@
         :room-players="roomPlayers"
         :current-user="currentUser"
         :current-user-is-moderator="currentUserIsModerator"
-        :loading="someDataLoaded && !usersInitialized"
+        :loading="!usersInitialized"
+        :focus="focus === 'leaderboard'"
       />
       <room-chat
+        class="grid-item"
         :messages="chat.messages"
         :authors="chat.authors"
-        :current-user-name="currentUser.username"
         :current-user="currentUser"
-        :loading="someDataLoaded && !messagesInitialized"
+        :loading="!messagesInitialized"
+        :focus="focus === 'chat'"
       />
     </div>
+    <modal v-if="focus === 'modal'" id="room-modal" :title="`SYS://Settings`" :show="focus === 'modal'">
+      <settings :settings="settings" :moderator="currentUserIsModerator"/>
+    </modal>
   </div>
 </template>
 
@@ -59,23 +63,23 @@ import RoomControls from "../components/room_controls.vue";
 import RoomChat from "../components/room_chat.vue";
 import RoomLeaderboard from "../components/room_leaderboard.vue";
 import RoomBattle from "../components/room_battle.vue";
+import Settings from "../components/settings.vue";
 
 export default {
   components: {
     RoomControls,
     RoomChat,
     RoomLeaderboard,
-    RoomBattle
+    RoomBattle,
+    Settings,
   },
   props: {
     roomInit: Object,
     currentUserId: Number,
-    currentUserInit: Object
-    // battleInit: Object,
-    // messagesInit: Array
   },
   data() {
     return {
+      settingsInitialized: false,
       usersInitialized: false,
       battleInitialized: true,
       messagesInitialized: false,
@@ -94,6 +98,10 @@ export default {
       controlsType: "",
       countdownDuration: 10,
       countdown: 0,
+      settings: {
+        user: {},
+        room: { sound: this.roomInit.sound }
+      },
       sounds: {
         musicOn: true,
         soundFxOn: true,
@@ -104,8 +112,9 @@ export default {
           sword: new Audio("../audio/sword.mp3"),
           hover: new Audio("../audio/hover.mp3"),
           interface: new Audio("../audio/interface.mp3"),
-          beep: new Audio("../audio/beep.mp3"),
-          select: new Audio("../audio/select.mp3"),
+          mouseover: new Audio("../audio/beep.mp3"),
+          mouseenter: new Audio("../audio/beep.mp3"),
+          click: new Audio("../audio/select.mp3"),
           drums: new Audio("../audio/drums.mp3"),
         },
         ambiance: {
@@ -125,6 +134,9 @@ export default {
       viewMode: new URL(window.location.href).searchParams.get("view"),
       timeLimit: this.battle ? Math.round(this.battle.time_limit / 60) : 8,
       clockInterval: null,
+      isolateFocus: false,
+      focus: null,
+      modalContent: 'user',
     };
   },
   created() {
@@ -132,9 +144,6 @@ export default {
     // setTimeout(() => { this.someDataLoaded = true }, 500);
     this.$set(this.battle, "stage", this.battleStage);
     setTimeout(_ => this.checkCurrentUserConnection(), 5000);
-
-    this.sounds.musicOn = this.soundActive
-    this.sounds.soundFxOn = this.soundActive
   },
   watch: {
     battle: function() {
@@ -142,7 +151,7 @@ export default {
     },
     sounds: {
       handler: function() {
-        this.ambianceMusic.volume = this.sounds.musicOn ? this.sounds.volumeAmbiance : 0;
+        this.ambianceMusic.volume = this.musicON ? this.sounds.volumeAmbiance : 0;
       },
       deep: true
     },
@@ -167,6 +176,7 @@ export default {
     },
     allDataLoaded() {
       return (
+        this.settingsInitialized &&
         this.usersInitialized &&
         this.battleInitialized &&
         this.messagesInitialized
@@ -178,9 +188,6 @@ export default {
     //     return uniqueUsers.map(user => user.username).includes(user.username) ? uniqueUsers : [...uniqueUsers, user]
     //   }, [])
     // },
-    soundActive() {
-      return this.roomInit.sound === "everyone" || (this.roomInit.sound === "moderator" && this.currentUserIsModerator)
-    },
     seekAttention() {
       if (this.battleStatus.battleOngoing) {
         return ["animated pulse seek-attention"];
@@ -209,6 +216,8 @@ export default {
       }
     },
     currentUser() {
+      if (!this.usersInitialized) return
+
       const currentUserIndex = this.users.findIndex(
         e => e.id === this.currentUserId
       );
@@ -216,7 +225,7 @@ export default {
       if (currentUserIndex === -1) {
         if (this.currentUserIsModerator)
           console.log("Current user not found in list of room users!");
-        return this.currentUserInit;
+        return null
       } else {
         return this.users[currentUserIndex];
       }
@@ -327,18 +336,16 @@ export default {
       if (!this.battle.id) return true;
 
       return !!this.battle.end_time;
-    }
-    // previousBattles() {
-    //   if (!this.pastBattles) return []
-
-    //   return this.pastBattles.sort((a, b) => {
-    //     return new Date(b.end_time) - new Date(a.end_time)
-    //   })
-    // },
-    // lastBattle() {
-    //   return this.battle
-    //   // return this.battle || this.previousBattles[0]
-    // },
+    },
+    roomSoundON() {
+      return this.room.sound || this.currentUserIsModerator
+    },
+    sfxON() {
+      return this.roomSoundON && this.settings.user.sfx
+    },
+    musicON() {
+      return this.roomSoundON && this.settings.user.music
+    },
   },
   methods: {
     sendCable(action, data) {
@@ -355,14 +362,29 @@ export default {
         data: data
       });
     }, 1000),
-    test() {},
-    // turnSoundOn() {
-    //   if (this.viewMode) this.soundActive = !this.soundActive;
-    //   this.soundActive ? alert("sound ON") : alert("sound OFF");
-    // },
     // =============
     //     ROOM
     // =============
+    openModal() {
+      this.focus = 'modal'
+      this.isolateFocus = true
+    },
+    closeModal() {
+      if (this.isolateFocus && this.focus === 'modal') {
+        this.isolateFocus = false
+        this.focus = null
+      }
+    },
+    openSettings() {
+      this.openModal()
+    },
+    toggleSettings() {
+      this.focus === 'modal' ? this.closeModal() : this.openModal()
+    },
+    updateSettings(updatedSettings) {
+      console.log(updatedSettings)
+      this.sendCable("update_user_settings", { user: updatedSettings.user });
+    },
     checkCurrentUserConnection() {
       setInterval(_ => {
         const currentUserIndex = this.users.findIndex(
@@ -403,7 +425,7 @@ export default {
     },
     speak(message, options = null) {
       options = options || {}
-      if (this.sounds.soundFxOn) {
+      if (this.sfxON) {
         if (options.interrupt) speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(message);
         const voices = speechSynthesis.getVoices();
@@ -512,7 +534,7 @@ export default {
       );
     },
     resetAmbianceVolume() {
-      this.ambianceMusic.volume = this.sounds.musicOn ? this.sounds.volumeAmbiance : 0;
+      this.ambianceMusic.volume = this.musicON ? this.sounds.volumeAmbiance : 0;
     },
     startAmbiance(track = null) {
       if (track) {
@@ -523,7 +545,7 @@ export default {
         ];
       }
       // this.ambianceMusic.loop = true
-      this.ambianceMusic.volume = this.sounds.musicOn ? this.sounds.volumeAmbiance : 0;
+      this.ambianceMusic.volume = this.musicON ? this.sounds.volumeAmbiance : 0;
       this.ambianceMusic.onended = () => {
         this.startAmbiance(track);
       };
@@ -540,8 +562,8 @@ export default {
       this.ambianceMusic.currentTime = 0;
     },
     toggleMusic() {
-      this.sounds.musicOn = !this.sounds.musicOn;
-      this.sounds.musicOn ? this.resumeAmbiance() : this.pauseAmbiance();
+      this.settings.user.music = !this.settings.user.music;
+      this.settings.user.music ? this.resumeAmbiance() : this.pauseAmbiance();
     },
     playSoundFx(fxName, volume = 1) {
       // volume = volume || 1
@@ -551,7 +573,7 @@ export default {
       soundFX.pause();
       soundFX.currentTime = 0;
       soundFX.volume = volume;
-      if (this.sounds.soundFxOn) soundFX.play();
+      if (this.sfxON) soundFX.play();
     },
     startCountdown(countdown) {
       this.countdown = countdown;
@@ -757,6 +779,18 @@ export default {
             if (this.currentUserIsModerator) console.info("LOGS", data.payload);
             break;
 
+          case "settings":
+            switch (data.payload.action) {
+              case "user":
+                this.settings.user = data.payload.settings;
+                this.settingsInitialized = true;
+                break;
+
+              case "room":
+                break;
+            }
+            break;  
+
           case "users":
             switch (data.payload.action) {
               case "add":
@@ -846,6 +880,10 @@ export default {
       "change-volume-ambiance",
       volume => (this.sounds.volumeAmbiance = volume)
     );
+    this.$root.$on("open-user-settings", _ => this.openSettings());
+    this.$root.$on("toggle-settings", _ => this.toggleSettings());
+    this.$root.$on("update-settings", settings => this.updateSettings(settings));
+    this.$root.$on("close-modal", _ => this.closeModal());
     this.$root.$on("create-battle", challenge => this.createBattle(challenge));
     this.$root.$on("delete-battle", () => this.deleteBattle());
     this.$root.$on("fetch-challenges", (userId = null) => this.fetchChallenges(userId));
@@ -870,7 +908,7 @@ export default {
     this.$root.$on("play-fx", sound => this.playSoundFx(sound));
     this.$root.$on("play-ambiance", track => this.startAmbiance(track));
     this.$root.$on("toggle-music", () => this.toggleMusic());
-    this.$root.$on("toggle-sound-fx", () => this.sounds.soundFxOn = !this.sounds.soundFxOn);
+    this.$root.$on("toggle-sound-fx", () => this.settings.user.sfx = !this.settings.user.sfx);
   }
 };
 </script>

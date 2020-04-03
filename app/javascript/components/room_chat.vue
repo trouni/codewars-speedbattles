@@ -1,44 +1,36 @@
 <template>
-  <div :class="['grid-item grid-chat']">
-    <div id="room-chat" class="widget-bg w-100">
-      <div class="widget">
-        <h3 class="header">{{ title }}</h3>
-        <spinner v-if="loading" />
-        <div class="widget-body">
-          <div class="flex-grow-1"></div>
-          <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true, scrollonremoved:true}">
-            <li v-for="message in sortedMessages" v-bind:class="messageClass(message)" :key="message.id">
-              <div v-if="!isAnnouncement(message)">
-                <span class="message-header d-flex">
-                  <span class="author" :title="message.author.username">{{ message.author.name || message.author.username }}</span>
-                  <div class="sent-at" v-html="formatMessageDate(message.created_at)" />
-                </span>
-                <chat-message :content="message.content" class="content" />
-              </div>
-              <div v-else>
-                <span class="content" v-html="displayMsg(message)" />
-              </div>
-            </li>
-          </ul>
-          <div id="msg-input" :class="{ multiline: multilineInput, code: codeInput}">
-            <textarea
-              id="msg-textarea"
-              class='autoExpand input-field flex-grow-1 text-white'
-              :rows="inputMinRows"
-              placeholder='Send a message...'
-              @input="updateTextAreaRows"
-              @keydown.enter="sendMessage"
-              @keydown.tab="addTabCharacter"
-              @keyup.`="prefillBlockLang"
-              v-model="input"
-              v-focus
-            ></textarea>
-            <std-button small fa-icon="fas fa-microphone" title="Join voice chat" :class="['join-call', { 'animated flipOutX': input }]" />
-          </div>
+  <widget id="room-chat" :header-title="title" :loading="loading" :focus="focus">
+    <div class="flex-grow-1"></div>
+    <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true, scrollonremoved:true}">
+      <li v-for="message in sortedMessages" v-bind:class="messageClass(message)" :key="message.id">
+        <div v-if="!isAnnouncement(message)">
+          <span class="message-header d-flex">
+            <span class="author" :title="message.author.username">{{ message.author.name || message.author.username }}</span>
+            <div class="sent-at" v-html="formatMessageDate(message.created_at)" />
+          </span>
+          <chat-message :content="message.content" class="content" />
         </div>
-      </div>
+        <div v-else>
+          <span class="content" v-html="displayMsg(message)" />
+        </div>
+      </li>
+    </ul>
+    <div id="msg-input" :class="{ multiline: multilineInput, code: codeInput}">
+      <textarea
+        id="msg-textarea"
+        class='autoExpand input-field flex-grow-1 text-white'
+        :rows="inputMinRows"
+        placeholder='Send a message...'
+        @input="updateTextAreaRows"
+        @keydown.enter="sendMessage"
+        @keydown.tab="addTabCharacter"
+        @keyup.`="prefillBlockLang"
+        v-model="input"
+        v-focus
+      ></textarea>
+      <std-button small fa-icon="fas fa-microphone" title="Join voice chat" :class="['join-call', { 'animated flipOutX': input }]" />
     </div>
-  </div>
+  </widget>
 </template>
 
 <script>
@@ -46,10 +38,10 @@
     props: {
       messages: Array,
       authors: Array,
-      currentUserName: String,
       currentUser: Object,
       loading: Boolean,
       initializing: Boolean,
+      focus: Boolean,
     },
     components: {
       ChatMessage: () => import('./chat/message'),

@@ -1,47 +1,41 @@
-@media screen and (max-width: $mobile-breakpoint - 1) {
-  #room {
-    .grid-item {
-      margin: 0.5em 0;
-    }
-  }
-}
 
 @media screen and (min-width: $mobile-breakpoint) {
   #room {
     display: grid;
-  // grid-template-columns: 12% 48% 40%;
-  grid-template-columns: 45% 55%;
-  grid-template-rows: 150px calc(55% - 150px) 45%;
-  grid-template-areas:
-    "battle header"
-    "battle chat"
-    "leaderboard chat";
-}
+    grid-template-columns: 4fr 5fr;
+    grid-template-rows: 150px 1fr 1fr;
+    grid-template-areas:
+      "battle header"
+      "battle chat"
+      "leaderboard chat";
+    column-gap: 1em;
+    row-gap: 1em;
+    // justify-content: stretch; // default
+    // align-content: stretch; // default
+    padding: 1em;
+    height: 100vh;
 
-.grid-item {
-  position: relative;
-  align-items: middle;
-  margin: 0.5em;
-  align-items: center;
-  display: flex;
-}
-.grid-header {
-  grid-area: header;
-}
-.grid-warriors {
-  grid-area: warriors;
-}
-.grid-chat {
-  grid-area: chat;
-}
-.grid-battle {
-  grid-area: battle;
-}
-.grid-leaderboard {
-  grid-area: leaderboard;
-}
-.grid-controls {
-  grid-area: controls;
-}
-}
+    // .grid-item {
+    //   position: relative;
+    //   margin: 0;
+    //   display: flex;
+    // }
+  }
 
+
+  #room-announcer {
+    grid-area: header;
+  }
+
+  #room-chat {
+    grid-area: chat;
+  }
+
+  #room-battle {
+    grid-area: battle;
+  }
+
+  #room-leaderboard {
+    grid-area: leaderboard;
+  }
+}
