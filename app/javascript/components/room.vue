@@ -49,6 +49,7 @@
         :current-user="currentUser"
         :loading="!messagesInitialized"
         :focus="focus === 'chat'"
+        :settings="settings"
       />
     </div>
     <modal v-if="focus === 'modal'" id="room-modal" :title="`SYS://Settings`" :show="focus === 'modal'">
@@ -79,7 +80,8 @@ export default {
   },
   data() {
     return {
-      settingsInitialized: false,
+      userSettingsInitialized: false,
+      roomSettingsInitialized: false,
       usersInitialized: false,
       battleInitialized: true,
       messagesInitialized: false,
@@ -100,7 +102,7 @@ export default {
       countdown: 0,
       settings: {
         user: {},
-        room: { sound: this.roomInit.sound }
+        room: {},
       },
       sounds: {
         musicOn: true,
@@ -176,7 +178,8 @@ export default {
     },
     allDataLoaded() {
       return (
-        this.settingsInitialized &&
+        this.userSettingsInitialized &&
+        this.roomSettingsInitialized &&
         this.usersInitialized &&
         this.battleInitialized &&
         this.messagesInitialized &&
@@ -778,10 +781,12 @@ export default {
             switch (data.payload.action) {
               case "user":
                 this.settings.user = data.payload.settings;
-                this.settingsInitialized = true;
+                this.userSettingsInitialized = true;
                 break;
 
               case "room":
+                this.settings.room = data.payload.settings;
+                this.roomSettingsInitialized = true;
                 break;
             }
             break;  

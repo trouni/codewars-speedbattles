@@ -28,7 +28,9 @@
         v-model="input"
         v-focus
       ></textarea>
-      <std-button small fa-icon="fas fa-microphone" title="Join voice chat" :class="['join-call', { 'animated flipOutX': input }]" />
+      <a v-if="settings.room.voice_chat_url" :href="settings.room.voice_chat_url" target="_blank">
+        <std-button small fa-icon="fas fa-microphone" title="Join voice chat" :class="['join-call', { 'animated flipOutX': input }]" />
+      </a>
     </div>
   </widget>
 </template>
@@ -42,6 +44,7 @@
       loading: Boolean,
       initializing: Boolean,
       focus: Boolean,
+      settings: Object,
     },
     components: {
       ChatMessage: () => import('./chat/message'),

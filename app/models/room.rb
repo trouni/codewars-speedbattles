@@ -31,7 +31,15 @@ class Room < ApplicationRecord
       max_kyu: -1,
       auto_invite: false,
       auto_start: false,
+      voice_chat_url: nil,
       moderators: []
+    }
+  end
+
+  def settings_hash
+    return {
+      sound: settings(:base).sound,
+      voice_chat_url: settings(:base).voice_chat_url
     }
   end
 
@@ -149,6 +157,16 @@ class Room < ApplicationRecord
       subchannel: subchannel,
       payload: payload
     )
+  end
+
+  def broadcast_settings
+    broadcast({
+      subchannel: "settings",
+      payload: {
+        action: "room",
+        settings: settings_hash
+      }
+    })
   end
 
   def broadcast_to_moderator(subchannel: "logs", payload: nil)

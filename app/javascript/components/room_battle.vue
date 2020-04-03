@@ -95,7 +95,7 @@
 
     <div v-if="!createNewBattle">
       <div v-if="battle.stage === 0 && currentUserIsModerator" class="ui-controls-bottom">
-        <std-button small v-if="!createNewBattle" @click.native="createNewBattle = true" fa-icon="fas fa-plus" title="New Battle" class="ml-auto" />
+        <std-button small v-if="!createNewBattle" @click.native="createNewBattle = true" fa-icon="fas fa-cloud-upload-alt" title="Load Kata" class="ml-auto" />
       </div>
       <div v-else-if="battle.stage > 0 && battle.stage < 3 && currentUserIsModerator" class="ui-controls-bottom">
         <std-button @click.native="$root.$emit('delete-battle')" small fa-icon="fas fa-times-circle" title="Cancel" />

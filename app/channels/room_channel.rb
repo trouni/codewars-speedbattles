@@ -9,6 +9,7 @@ class RoomChannel < ApplicationCable::Channel
     stream_from "user_#{@current_user.id}"
     # BroadcastInitialInfoJob.process(params[:room_id])
     @current_user.broadcast_settings
+    @room.broadcast_settings
     @room.broadcast_users
     @room.broadcast_messages
     @room.broadcast_active_battle
