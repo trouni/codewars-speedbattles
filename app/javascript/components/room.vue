@@ -382,7 +382,6 @@ export default {
       this.focus === 'modal' ? this.closeModal() : this.openModal()
     },
     updateSettings(updatedSettings) {
-      console.log(updatedSettings)
       this.sendCable("update_user_settings", { user: updatedSettings.user });
     },
     checkCurrentUserConnection() {

@@ -76,7 +76,7 @@
     </div>
     <div class="ui-controls-bottom">
       <std-button @click.native="$root.$emit('close-modal')" fa-icon="fas fa-times-circle" >Cancel</std-button>
-      <std-button @click.native="updateSettings" fa-icon="fas fa-save" large >Update</std-button>
+      <std-button @click.native="updateSettings" fa-icon="fas fa-save" large >Save</std-button>
     </div>
   </div>
 </template>
