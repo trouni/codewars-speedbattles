@@ -1,7 +1,7 @@
 <template>
   <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}, {'isolate-focus': isolateFocus}, { 'initializing': !allDataLoaded }]">
     <span class="app-bg"/>
-    <navbar :room-id="room.id" :sounds="sounds" :show-sound-settings="soundActive" />
+    <navbar :room-id="room.id" :sounds="sounds" />
     <spinner v-if="!allDataLoaded" title="LOADING" />
 
     <div id="room" :class="{ moderator: currentUserIsModerator }">
@@ -52,7 +52,7 @@
       />
     </div>
     <modal v-if="focus === 'modal'" id="room-modal" :title="`SYS://Settings`" :show="focus === 'modal'">
-      <settings :settings="settings"/>
+      <settings :settings="settings" :moderator="currentUserIsModerator"/>
     </modal>
   </div>
 </template>
@@ -100,9 +100,7 @@ export default {
       countdown: 0,
       settings: {
         user: {},
-        room: {
-          soundActive: this.roomInit.sound,
-        }
+        room: { sound: this.roomInit.sound }
       },
       sounds: {
         musicOn: true,
@@ -153,7 +151,7 @@ export default {
     },
     sounds: {
       handler: function() {
-        this.ambianceMusic.volume = this.settings.user.music ? this.sounds.volumeAmbiance : 0;
+        this.ambianceMusic.volume = this.musicON ? this.sounds.volumeAmbiance : 0;
       },
       deep: true
     },
@@ -190,9 +188,6 @@ export default {
     //     return uniqueUsers.map(user => user.username).includes(user.username) ? uniqueUsers : [...uniqueUsers, user]
     //   }, [])
     // },
-    soundActive() {
-      return this.roomInit.sound === "everyone" || (this.roomInit.sound === "moderator" && this.currentUserIsModerator)
-    },
     seekAttention() {
       if (this.battleStatus.battleOngoing) {
         return ["animated pulse seek-attention"];
@@ -341,18 +336,16 @@ export default {
       if (!this.battle.id) return true;
 
       return !!this.battle.end_time;
-    }
-    // previousBattles() {
-    //   if (!this.pastBattles) return []
-
-    //   return this.pastBattles.sort((a, b) => {
-    //     return new Date(b.end_time) - new Date(a.end_time)
-    //   })
-    // },
-    // lastBattle() {
-    //   return this.battle
-    //   // return this.battle || this.previousBattles[0]
-    // },
+    },
+    roomSoundON() {
+      return this.room.sound || this.currentUserIsModerator
+    },
+    sfxON() {
+      return this.roomSoundON && this.settings.user.sfx
+    },
+    musicON() {
+      return this.roomSoundON && this.settings.user.music
+    },
   },
   methods: {
     sendCable(action, data) {
@@ -432,7 +425,7 @@ export default {
     },
     speak(message, options = null) {
       options = options || {}
-      if (this.settings.user.sfx) {
+      if (this.sfxON) {
         if (options.interrupt) speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(message);
         const voices = speechSynthesis.getVoices();
@@ -541,7 +534,7 @@ export default {
       );
     },
     resetAmbianceVolume() {
-      this.ambianceMusic.volume = this.settings.user.music ? this.sounds.volumeAmbiance : 0;
+      this.ambianceMusic.volume = this.musicON ? this.sounds.volumeAmbiance : 0;
     },
     startAmbiance(track = null) {
       if (track) {
@@ -552,7 +545,7 @@ export default {
         ];
       }
       // this.ambianceMusic.loop = true
-      this.ambianceMusic.volume = this.settings.user.music ? this.sounds.volumeAmbiance : 0;
+      this.ambianceMusic.volume = this.musicON ? this.sounds.volumeAmbiance : 0;
       this.ambianceMusic.onended = () => {
         this.startAmbiance(track);
       };
@@ -580,7 +573,7 @@ export default {
       soundFX.pause();
       soundFX.currentTime = 0;
       soundFX.volume = volume;
-      if (this.settings.user.sfx) soundFX.play();
+      if (this.sfxON) soundFX.play();
     },
     startCountdown(countdown) {
       this.countdown = countdown;

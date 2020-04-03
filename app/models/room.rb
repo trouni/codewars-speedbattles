@@ -22,12 +22,11 @@ class Room < ApplicationRecord
   has_one :chat, dependent: :destroy
   has_many :messages, through: :chat
   validates :name, presence: true
-  validates :sound, inclusion: { in: %w[everyone moderator off] }
   after_create :create_chat
 
   has_settings do |s|
     s.key :base, defaults: {
-      sound: "everyone",
+      sound: true,
       min_kyu: -8,
       max_kyu: -1,
       auto_invite: false,

@@ -12,7 +12,7 @@
           maxlength="50"
         />
       </div>
-      <div v-if="settings.room.soundActive" class="form-group mb-3">
+      <div v-if="settings.room.sound || moderator" class="form-group mb-3">
       <h5>Audio</h5>
         <small>Activate/deactivate music and sound effects/announcements.</small>
         <span class="d-flex justify-content-around">
@@ -27,7 +27,7 @@
       <div class="webhook-settings mb-3">
         <h5>Codewars Webhook
           <sup>
-            <span v-if="settings.user.connectedWebhook" class="badge badge-success">Connected</span>
+            <span v-if="settings.user.connected_webhook" class="badge badge-success">Connected</span>
             <span v-else class="badge badge-danger">Not connected</span>
           </sup>
         </h5>
@@ -56,7 +56,7 @@
                 name="webhook_secret"
                 class="form-control text-center"
                 readonly
-                :value="settings.user.webhookSecret"
+                :value="settings.user.webhook_secret"
               />
             </div>
           </small>
@@ -80,7 +80,7 @@
 export default {
   props: {
     settings: Object,
-    currentUser: Object,
+    moderator: Boolean,
   },
   data() {
     return {
