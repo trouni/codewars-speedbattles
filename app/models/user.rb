@@ -49,7 +49,7 @@ class User < ApplicationRecord
   scope :confirmed, ->(battle) { battle ? invited(battle).where(battle_invites: { confirmed: true }) : [] }
 
   has_settings do |s|
-    s.key :base, defaults: { sfx: true, music: true, connected_webhook: false }
+    s.key :base, defaults: { sfx: true, music: true, connected_webhook: false, hljs_lang: nil }
   end
 
   def webhook_secret
@@ -99,6 +99,7 @@ class User < ApplicationRecord
       name: name,
       sfx: settings(:base).sfx,
       music: settings(:base).music,
+      hljs_lang: settings(:base).hljs_lang,
       connected_webhook: settings(:base).connected_webhook,
       webhook_secret: webhook_secret
     }

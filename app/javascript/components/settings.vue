@@ -91,6 +91,29 @@ export default {
     return {
       tooltipText: "Copy to clipboard",
       displayName: this.settings.user.name,
+      codewarsLangs: {
+        'C': 'c',
+        'C#': 'c#',
+        'C++': 'c++',
+        'Clojure': 'clj',
+        'CoffeeScript': 'coffee',
+        'Crystal': 'cr',
+        'Dart': 'dart',
+        'Elixir': 'elixir',
+        'F#': 'fs',
+        'Go': 'go',
+        'Haskell': 'hs',
+        'Java': 'java',
+        'JavaScript': 'js',
+        'PHP': 'php',
+        'Python': 'py',
+        'Ruby': 'rb',
+        'Rust': 'rs',
+        'Shell': 'shell',
+        'SQL': 'sql',
+        'Swift': 'swift',
+        'TypeScript': 'ts',
+      }
     }
   },
   computed: {

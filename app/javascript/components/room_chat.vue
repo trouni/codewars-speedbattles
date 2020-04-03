@@ -56,7 +56,6 @@
         inputRowHeight: 0,
         inputMinRows: 2,
         inputMaxRows: 17,
-        defaultBlockLang: null,
         submitHint: null,
         focusOnInput: false,
       }
@@ -181,8 +180,8 @@
       },
       prefillBlockLang(e) {
         if (this.input === '```') {
-          e.target.value += this.defaultBlockLang || 'lang'
-          if (!this.defaultBlockLang) e.target.selectionStart = 3
+          e.target.value += this.settings.user.hljs_lang || 'lang'
+          if (!this.settings.user.hljs_lang) e.target.selectionStart = 3
           e.target.selectionEnd =  e.target.selectionStart + 4
         }
       },
