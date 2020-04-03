@@ -46,14 +46,23 @@ input:read-only:focus {
 
 .copyable {
   outline: 1px auto rgba(58, 145, 179, 0.3);
+  
   input {
+    font-size: 0.8em;
     cursor: pointer;
     opacity: 0.8 !important;
-    transition: transform 0.1s;
     outline: none !important;
+    transform: scale(0.95);
   }
 }
 
 .copyable:hover input {
   opacity: 1 !important;
+  transform: unset;
+}
+
+.copyable:active input {
+  transition: transform 0s !important;
+  transform: scale(0.98);
+  // opacity: 1 !important;
 }

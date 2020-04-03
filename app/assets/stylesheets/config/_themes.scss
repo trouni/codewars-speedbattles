@@ -26,9 +26,13 @@
   }
   
 
-  .dropdown-toggle {
+  .corner-button {
     color: $highlight;
-    transition: color $transition-speed ease-out;
+    transition: color $transition-speed ease-out, background-color $transition-speed ease-out, opacity 0.3s ease-out;
+    background-color: rgba($fullopacity, 0.6);
+    &:hover {
+      background-color: rgba($fullopacity, 1);
+    }
   }
   
   a {
@@ -139,7 +143,7 @@
   
   input, textarea {
     color: $input-color !important;
-    transition: color $transition-speed ease-out;
+    transition: color $transition-speed ease-out, transform 0.1s;
     &::placeholder {
       color: rgba($body-color, 0.5);
       transition: color $transition-speed ease-out;
@@ -155,14 +159,16 @@
     background-color: rgba( $bezel-color, .1 );
     transition: opacity $transition-speed ease-out, background-color $transition-speed ease-out, filter $transition-speed ease-out, transform $transition-speed ease-out;
 
-    &.seek-attention {
-      background-color: rgba( lighten($bezel-color, 10%), .7 );
-    }
   }
   
-  .battle-loaded #room-battle.widget-bg {
-    background-color: rgba( $bezel-color, .4 );
+  .seek-attention .widget-bg {
+    // background-color: rgba( $bezel-color, .5 );
+    background-color: rgba( lighten($bezel-color, 10%), .5 );
   }
+
+  // &.battle-loaded #room-battle .widget-bg {
+  //   background-color: rgba( $bezel-color, .5 );
+  // }
 
   
   .widget .header {

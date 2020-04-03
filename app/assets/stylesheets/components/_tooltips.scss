@@ -2,7 +2,8 @@
   position: relative;
 }
 
-.custom-tooltip .tooltiptext {
+.custom-tooltip:after {
+  content: attr(data-tooltip);
   visibility: hidden;
   width: 150px;
   background-color: rgba(0,0,0,0.8);
@@ -11,15 +12,13 @@
   border-radius: 6px;
   padding: 5px;
   position: absolute;
-  z-index: 1;
-  bottom: 100%;
-  left: 50%;
-  margin-left: -75px;
+  bottom: -2em;
+  left: calc(50% - 75px);
   opacity: 0;
   transition: opacity 0.3s;
 }
 
-.custom-tooltip .tooltiptext::after {
+.custom-tooltip:after:after {
   content: "";
   position: absolute;
   top: 100%;
@@ -30,7 +29,7 @@
   border-color: rgba(0,0,0,0.8) transparent transparent transparent;
 }
 
-.custom-tooltip:hover .tooltiptext {
+.custom-tooltip:hover:after {
   visibility: visible;
   opacity: 1;
 }

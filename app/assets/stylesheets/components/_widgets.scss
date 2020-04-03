@@ -6,12 +6,6 @@
   height: 100%;
   flex-grow: 1;
 
-  &.seek-attention {
-    // background-color: rgba( lighten($bezel-color, 10%), .9 );
-    &.paused {
-      animation-play-state: paused !important;
-    }
-  }
 }
 
 .initializing .widget-bg, .minified-menu {
@@ -20,7 +14,7 @@
 }
 
 .widget {
-  align-content: flex-center;
+  // align-content: center;
   background: linear-gradient(154.9deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.8) 86.37%);
   // border-radius: 2px;
   height: 100%;

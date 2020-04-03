@@ -52,17 +52,6 @@ a:hover {
   transition: color 0.3s !important;
 }
 
-.fixed-screen {
-  padding: 1em;
-  background-size: cover;
-}
-
-@media screen and (min-width: $mobile-breakpoint) {
-  .fixed-screen {
-    height: 100vh;
-  }
-}
-
 .hidden {
   display: none !important;
 }
@@ -171,10 +160,10 @@ a:hover {
   transform: scale(1.1);
 }
 
-.shrink-unless-hover {
-  transform: scale(0.95);
-}
+// .shrink-unless-hover {
+//   transform: scale(0.95);
+// }
 
-.shrink-unless-hover:hover {
-  transform: scale(1);
-}
+// .shrink-unless-hover:hover {
+//   transform: scale(1);
+// }
