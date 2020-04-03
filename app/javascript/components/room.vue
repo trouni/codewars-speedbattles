@@ -306,7 +306,7 @@ export default {
       );
     },
     readyForBattle() {
-      if (!this.battle.id) return false;
+      if (!this.battle.id && !this.currentUser) return false;
 
       if (this.currentUserIsModerator) {
         return this.allConfirmed
@@ -512,8 +512,6 @@ export default {
         });
     },
     fetchChallenges(userId) {
-      console.log('userId: ', userId)
-      console.log(userId ? userId : this.currentUser.id);
       this.sendCable("fetch_user_challenges", {
         user_id: userId ? userId : this.currentUser.id,
         battle_id: this.battle.id
@@ -670,17 +668,14 @@ export default {
       const elementIndex = array.findIndex(e => e.id === element.id);
       if (elementIndex === -1) {
         array.push(element);
-        // if (this.currentUserIsModerator) console.info('Added element:', element)
       } else {
         // array[index] = user; // Vue cannot detect change in the array with this method
         result.oldElement = array[elementIndex];
         array.splice(elementIndex, 1, element);
-        // if (this.currentUserIsModerator) console.info('Updated element:', element)
       }
       return result;
     },
     pushToUsers(user) {
-      // if (this.currentUserIsModerator) console.info('Pushing to Users', user)
       if (this.users) this.pushToArray(this.users, user);
 
       if (this.battle.players) this.pushToPlayers(user);
