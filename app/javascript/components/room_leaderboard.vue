@@ -35,9 +35,15 @@
         </tbody>
       </table>
     </div>
-    <div class="d-flex justify-content-between ui-controls-bottom">
-      <std-button v-if="room.show_stats" @click.native="showOfflineClicked" small :fa-icon="`far ${showOffline ? 'fa-eye-slash' : 'fa-eye'}`" class="ml-auto">{{ showOffline ? 'Hide' : 'Show' }} offline users</std-button>
-    </div>
+    <template v-slot:controls>
+      <std-button
+        v-if="room.show_stats"
+        @click.native="showOfflineClicked"
+        small
+        :fa-icon="`far ${showOffline ? 'fa-eye-slash' : 'fa-eye'}`"
+      >{{ showOffline ? 'Hide' : 'Show' }} offline users
+      </std-button>
+    </template>
   </widget>
 </template>
 

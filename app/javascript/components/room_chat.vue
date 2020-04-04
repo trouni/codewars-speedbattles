@@ -1,7 +1,7 @@
 <template>
   <widget id="room-chat" :header-title="title" :loading="loading" :focus="focus">
     <div class="flex-grow-1"></div>
-    <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true, scrollonremoved:true}">
+    <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true, scrollonremoved:true}" ref="messages">
       <li v-for="message in sortedMessages" v-bind:class="messageClass(message)" :key="message.id">
         <div v-if="!isAnnouncement(message)">
           <span class="message-header d-flex">
@@ -15,23 +15,25 @@
         </div>
       </li>
     </ul>
-    <div id="msg-input" :class="{ multiline: multilineInput, code: codeInput}">
-      <textarea
-        id="msg-textarea"
-        class='autoExpand input-field flex-grow-1 text-white'
-        :rows="inputMinRows"
-        placeholder='Send a message...'
-        @input="updateTextAreaRows"
-        @keydown.enter="sendMessage"
-        @keydown.tab="addTabCharacter"
-        @keyup.`="prefillBlockLang"
-        v-model="input"
-        v-focus
-      ></textarea>
-      <a v-if="settings.room.voice_chat_url" :href="settings.room.voice_chat_url" target="_blank">
-        <std-button small fa-icon="fas fa-microphone" title="Join voice chat" :class="['join-call', { 'animated flipOutX': input }]" />
-      </a>
-    </div>
+    <template v-slot:controls>
+      <div id="msg-input" :class="['with-prompt', { multiline: multilineInput, code: codeInput}]" ref="input">
+        <textarea
+          id="msg-textarea"
+          :rows="inputMinRows"
+          placeholder='Send a message...'
+          @input="updateTextAreaRows"
+          @keydown.enter="sendMessage"
+          @keydown.tab="addTabCharacter"
+          @keyup.`="prefillBlockLang"
+          v-model="input"
+          ref="textarea"
+          v-focus
+        ></textarea>
+        <a v-if="settings.room.voice_chat_url" :href="settings.room.voice_chat_url" target="_blank">
+          <std-button small fa-icon="fas fa-microphone" title="Join voice chat" :class="['join-call', { 'animated flipOutX': input }]" />
+        </a>
+      </div>
+    </template>
   </widget>
 </template>
 
@@ -73,7 +75,7 @@
         return newLines ? newLines.length + 1 : 1
       },
       multilineInput() {
-        const textarea = document.getElementById('msg-textarea')
+        const textarea = this.$refs.textarea
         return this.inputLines > 1 || this.codeInput
       },
       codeInput() {
@@ -92,7 +94,7 @@
     mounted() {
       this.getInputRowHeight()
       this.getUserOS()
-      document.getElementById('msg-input').setAttribute('data-submit-hint', `Send: ${this.submitHint}`)
+      this.$refs.input.setAttribute('data-submit-hint', `Send: ${this.submitHint}`)
       setTimeout(_ => this.autoScrollToLastMessage(), 500)
     },
     methods: {
@@ -103,7 +105,7 @@
         if (navigator.appVersion.indexOf("Linux") != -1) this.submitHint = "[Ctrl]+[Enter]";
       },
       updateTextAreaRows() {
-        const textarea = document.getElementById('msg-textarea')
+        const textarea = this.$refs.textarea
         const previousRows = textarea.rows
         const atBottom = this.messagesScrolledToBottom()
         var minRows = this.inputMinRows|0
@@ -113,7 +115,7 @@
         if (textarea.rows !== previousRows && atBottom) this.autoScrollToLastMessage()
       },
       getInputRowHeight() {
-        const textarea = document.getElementById('msg-textarea')
+        const textarea = this.$refs.textarea
         const storedInput = textarea.value
         textarea.value = ''
         this.inputRowHeight = textarea.scrollHeight / this.inputMinRows
@@ -146,11 +148,11 @@
         ]
       },
       messagesScrolledToBottom() {
-        const messages = document.querySelector(".messages");
+        const messages = this.$refs.messages;
         return messages.scrollTop >= messages.scrollHeight - messages.clientHeight - 50;
       },
       autoScrollToLastMessage() {
-        const messages = document.querySelector(".messages");
+        const messages = this.$refs.messages;
         messages.scrollTop = messages.scrollHeight;
       },
       sendMessage(e) {
@@ -160,7 +162,7 @@
         e.preventDefault()
         this.$root.$emit('send-chat-message', this.input );
         this.input = ''
-        document.getElementById('msg-textarea').value = this.input
+        this.$refs.textarea.value = this.input
         this.updateTextAreaRows()
       },
       addTabCharacter(e) {

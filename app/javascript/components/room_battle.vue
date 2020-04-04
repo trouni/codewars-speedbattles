@@ -93,38 +93,37 @@
       <p class="highlight">> No previous battle records...</p>
     </div>
 
-    <div v-if="!createNewBattle">
-      <div v-if="battle.stage === 0 && currentUserIsModerator" class="ui-controls-bottom">
-        <std-button small v-if="!createNewBattle" @click.native="createNewBattle = true" fa-icon="fas fa-cloud-upload-alt" title="Load Kata" class="ml-auto" />
+    <template v-slot:controls>
+      <div v-if="currentUserIsModerator && !createNewBattle" class="d-contents">
+        <span v-if="battle.stage === 0" class="d-contents">
+          <std-button small @click.native="createNewBattle = true" fa-icon="fas fa-cloud-upload-alt" title="Load Kata" />
+        </span>
+        <span v-else-if="battle.stage > 0 && battle.stage < 3" class="d-contents">
+          <std-button @click.native="$root.$emit('delete-battle')" small fa-icon="fas fa-times-circle" title="Cancel" />
+          <std-button @click.native="$root.$emit('invite-survivors')" small fa-icon="fas fa-user-plus" title="Invite Survivors" />
+          <std-button @click.native="$root.$emit('invite-all')" small fa-icon="fas fa-user-plus" title="Invite All" />
+          <std-button v-if="battle.stage < 4" @click.native="$root.$emit('initialize-battle')" :disabled="!readyToStart" fa-icon="fas fa-radiation" title="Start Battle" :class="attentionWaitingToStart" />
+        </span>
       </div>
-      <div v-else-if="battle.stage > 0 && battle.stage < 3 && currentUserIsModerator" class="ui-controls-bottom">
-        <std-button @click.native="$root.$emit('delete-battle')" small fa-icon="fas fa-times-circle" title="Cancel" />
-        <std-button @click.native="$root.$emit('invite-survivors')" small fa-icon="fas fa-user-plus" title="Invite Survivors" />
-        <std-button @click.native="$root.$emit('invite-all')" small fa-icon="fas fa-user-plus" title="Invite All" />
-        <std-button v-if="battle.stage < 4" @click.native="$root.$emit('initialize-battle')" :disabled="!readyToStart" fa-icon="fas fa-radiation" title="Start Battle" :class="attentionWaitingToStart" />
+      <div v-else-if="currentUserIsModerator && createNewBattle" class="with-prompt centered-prompt w-100">
+          <input
+            type="text"
+            class="w-100"
+            @keyup.enter="createBattle"
+            @keyup.escape="createNewBattle = false"
+            placeholder="Enter the ID, slug or url of the kata (ESC to cancel)"
+            v-model="challengeInput"
+            v-focus
+          >
       </div>
-      <div v-else-if="battle.stage >= 3" class="ui-controls-bottom">
+      <div v-else-if="battle.stage >= 3" class="d-contents">
         <a :href="battle.stage < 4 ? '#' : challengeUrl" :target="battle.stage < 4 ? '' : '_blank'">
           <std-button fa-icon="fas fa-rocket mr-1" title="Launch Codewars" :disabled="battle.stage < 4" />
         </a>
         <std-button v-if="userIsConfirmed(currentUser.id)" @click.native="completedChallenge" fa-icon="fas fa-check-double mr-1" title="Challenge Completed" :disabled= "battle.stage < 4" :loading="completedButtonClicked" />
         <std-button v-if="currentUserIsModerator" @click.native="$root.$emit('end-battle')" :disabled="battle.stage < 4" fa-icon="fas fa-peace" title="End Battle" />
       </div>
-    </div>
-    <div v-else class="ui-controls-bottom">
-      <span class="input-with-prompt w-100">
-        <input
-          type="text"
-          class="w-100"
-          @keyup.enter="createBattle"
-          @keyup.escape="createNewBattle = false"
-          placeholder="Enter the ID, slug or url of the kata (ESC to cancel)"
-          v-model="challengeInput"
-          v-focus
-        >
-      </span>
-      <!-- <std-button @click.native="createBattle" :disabled="!challengeInput" fa-icon="fas fa-cloud-upload-alt" title="Load" /> -->
-    </div>
+    </template>
   </widget>
 </template>
 
@@ -313,7 +312,7 @@
 
 <style scoped>
   .challenge-info {
-    font-size: 1.1rem;
+    font-size: 1.2em;
     padding: 1em 0.5em;
   }
 
