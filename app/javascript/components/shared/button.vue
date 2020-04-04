@@ -42,14 +42,6 @@ export default {
 <style scoped lang='scss'>
   button {
     position: relative;
-
-    &:hover {
-      // transform: scale(1.005);
-    }
-
-    &:active {
-      transform: scale(0.99);
-    }
   }
 
   .hover-mask {
