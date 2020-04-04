@@ -31,6 +31,7 @@
         :focus="focus === 'battle'"
       />
       <room-leaderboard
+        v-if="currentUser"
         class="grid-item"
         :users="users"
         :room="room"
@@ -53,7 +54,12 @@
       />
     </div>
     <modal v-if="focus === 'modal'" id="room-modal" :title="`SYS://Settings`" :show="focus === 'modal'">
-      <settings :settings="settings" :moderator="currentUserIsModerator"/>
+      <template>
+        <user-settings :settings="settings" :moderator="currentUserIsModerator"/>
+      </template>
+      <template v-slot:secondary v-if="currentUserIsModerator">
+        <room-settings :settings="settings"/>
+      </template>
     </modal>
   </div>
 </template>
@@ -64,7 +70,8 @@ import RoomControls from "../components/room_controls.vue";
 import RoomChat from "../components/room_chat.vue";
 import RoomLeaderboard from "../components/room_leaderboard.vue";
 import RoomBattle from "../components/room_battle.vue";
-import Settings from "../components/settings.vue";
+import UserSettings from "../components/user_settings.vue";
+import RoomSettings from "../components/room_settings.vue";
 
 export default {
   components: {
@@ -72,7 +79,8 @@ export default {
     RoomChat,
     RoomLeaderboard,
     RoomBattle,
-    Settings,
+    UserSettings,
+    RoomSettings,
   },
   props: {
     roomInit: Object,
@@ -342,7 +350,7 @@ export default {
       return !!this.battle.end_time;
     },
     roomSoundON() {
-      return this.room.sound || this.currentUserIsModerator
+      return this.settings.room.sound || this.currentUserIsModerator
     },
     sfxON() {
       return this.roomSoundON && this.settings.user.sfx
