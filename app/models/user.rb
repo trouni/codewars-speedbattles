@@ -97,6 +97,7 @@ class User < ApplicationRecord
   def get_settings
     return {
       name: name,
+      username: username,
       sfx: settings(:base).sfx,
       music: settings(:base).music,
       hljs_lang: settings(:base).hljs_lang,

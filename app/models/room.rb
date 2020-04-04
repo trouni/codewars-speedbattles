@@ -38,6 +38,7 @@ class Room < ApplicationRecord
 
   def settings_hash
     return {
+      name: name,
       sound: settings(:base).sound,
       voice_chat_url: settings(:base).voice_chat_url
     }
