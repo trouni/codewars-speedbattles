@@ -7,19 +7,9 @@
 
 body {
   height: 100vh;
-  // color: $body-color;
-  // background: radial-gradient(ellipse farthest-corner at top left, $bg-color1 10%, $bg-color2), linear-gradient(#00000088, #00000033), asset-url($bg-image-warriors);
-  // background: linear-gradient(#000000aa, #00000066), asset-url($bg-image);
-  // background-size: cover;
   cursor: default;
   user-select: none;
-  // &:before {
-  //   content: " ";
-  //   position: fixed;
-  //   background-color: rgba($bg-color1, 0.3);
-  //   width: 100vw; 
-  //   height: 100vh;
-  // }
+  background-color: black;
 }
 
 // h1, h2, h3, h4, h5, h6 {
@@ -56,8 +46,12 @@ a:hover {
   display: none !important;
 }
 
-.display-initial {
+.d-initial {
   display: initial !important;
+}
+
+.d-contents {
+  display: contents;
 }
 
 .clickable {

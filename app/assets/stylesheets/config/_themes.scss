@@ -82,8 +82,8 @@
   }
 
   // _chat.scss
-  .multiline {
-    border-color: rgba($highlight, 0.5);
+  .widget-controls, .widget-body {
+    border-color: rgba($bezel-color, .2);
     transition: border-color $transition-speed ease-out;
   }
 
@@ -128,7 +128,7 @@
       transition: color $transition-speed ease-out;
 
     }
-    &.disabled, &:disabled, &:hover:disabled {
+    &.toggled-off, &:disabled, &:hover:disabled {
       color: rgba($headers-color, 0.2) !important;
       transition: color $transition-speed ease-out;
     }
@@ -141,9 +141,13 @@
 
   // _inputs.scss
   
-  input, textarea {
+  input, textarea, select {
     color: $input-color !important;
     transition: color $transition-speed ease-out, transform 0.1s;
+    &:focus {
+      box-shadow: 0 0 0 0.1rem rgba($bezel-color, 0.5);
+      transition: color $transition-speed ease-out;
+    }
     &::placeholder {
       color: rgba($body-color, 0.5);
       transition: color $transition-speed ease-out;
@@ -158,7 +162,6 @@
   .widget-bg {
     background-color: rgba( $bezel-color, .1 );
     transition: opacity $transition-speed ease-out, background-color $transition-speed ease-out, filter $transition-speed ease-out, transform $transition-speed ease-out;
-
   }
   
   .seek-attention .widget-bg {

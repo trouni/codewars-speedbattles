@@ -8,29 +8,34 @@ button, .button, input[type="submit"] {
   align-items: center;
   display: flex;
   font-weight: 300;
-  // color: $headers-color;
-  // text-shadow: 0 0 1px $headers-color, 0 0 15px rgba( $headers-color, 0.3);
   transition-duration: 0.2s !important;
+  opacity: 0.8;
   &:focus {
     outline: none;
   }
   &:before {
-    // color: $headers-color;
     font-size: 1.7em;
     content: "[";
   }
   &:after {
-    // color: $headers-color;
     font-size: 1.7em;
     content: "]";
   }
-  &.disabled, &:disabled, &:hover:disabled {
-    // color: rgba($headers-color, 0.2) !important;
+  // The class disabled is for buttons that are OFF but 
+  &.toggled-off {
     text-shadow: none !important;
   }
+  &:disabled, &:hover:disabled, &:active:disabled {
+    cursor: not-allowed;
+    transform: unset;
+    opacity: 0.8;
+    text-shadow: none !important;
+  }
+  &:active {
+    transform: scale(0.99);
+  }
   &:hover {
-    // color: $highlight;
-    // text-shadow: 0 0 5px $headers-color, 0 0 15px rgba( $headers-color, 0.8);
+    opacity: 1;
   }
   &.large {
     font-size: 1.5em;

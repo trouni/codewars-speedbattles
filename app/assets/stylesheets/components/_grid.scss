@@ -1,3 +1,9 @@
+#room {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 1em;
+  padding: 1em;
+}
 
 @media screen and (min-width: $mobile-breakpoint) {
   #room {
@@ -9,19 +15,8 @@
       "battle chat"
       "leaderboard chat";
     column-gap: 1em;
-    row-gap: 1em;
-    // justify-content: stretch; // default
-    // align-content: stretch; // default
-    padding: 1em;
     height: 100vh;
-
-    // .grid-item {
-    //   position: relative;
-    //   margin: 0;
-    //   display: flex;
-    // }
   }
-
 
   #room-announcer {
     grid-area: header;

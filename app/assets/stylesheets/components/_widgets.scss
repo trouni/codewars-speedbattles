@@ -1,37 +1,28 @@
 .widget-bg {
-  padding: 2px;
+  padding: 1px 1px 2px 2px;
   clip-path: polygon(0 0, calc(100% - #{$bezel}) 0, 100% $bezel, 100% 100%, $bezel 100%, 0 calc(100% - #{$bezel}));
-  // background-color: rgba( $bezel-color, .1 );
-  // background: linear-gradient(154.9deg, rgba( $bezel-color, .3 ) 0%, rgba( $bezel-color, .6 ) 86.37%);
   height: 100%;
-  flex-grow: 1;
-
 }
 
-.initializing .widget-bg, .minified-menu {
+.initializing .widget-bg {
   opacity: 0;
-  // filter: blur(3px);
 }
 
 .widget {
-  // align-content: center;
+  position: relative;
+  display: flex;
   background: linear-gradient(154.9deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.8) 86.37%);
-  // border-radius: 2px;
   height: 100%;
   min-height: 100px;
+  max-height: 90vh;
   box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 0.4);
   clip-path: polygon(0 0, calc(100% - #{$bezel}) 0, 100% $bezel, 100% 100%, $bezel 100%, 0 calc(100% - #{$bezel}));
-  // clip-path: polygon(0 0, calc(100% - #{$bezel}) 0, calc(100% - #{$bezel}) 50%, 100% calc(50% + #{$bezel}), 100% $bezel, 100% 100%, $bezel 100%, 0 calc(100% - #{$bezel}));
-  // clip-path: polygon(0 0, calc(100% - #{$bezel}) 0, 100% #{$bezel}, 100% 100%, $bezel 100%, $bezel 33%, 0 calc(33% - #{$bezel}), 0 calc(100% - #{$bezel}));
+  flex-direction: column;
   .header {
-    // clip-path: polygon(0 0, 20em 0, calc(20em - #{$bezel}) 100%, 0 100%);
-    // width: 100%;
-    // padding: 0 0.2em 0.1em 0.2em;
     clip-path: polygon(0 0, 100% 0, calc(100% - #{$bezel}) 100%, 0 100%);
     width: fit-content;
     padding: 0 5em 0.1em 0.5em;
     line-height: 1.4em;
-    // background: rgba( $bezel-color, .25 );
     opacity: 1;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -43,14 +34,27 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  .widget-content {
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-grow: 1;
+  }
   .widget-body {
+    overflow: scroll;
+    flex-grow: 1;
+    flex-basis: 0;
     padding-left: $bezel;
     padding-right: $bezel;
     padding-top: 2em;
     display: flex;
     flex-direction: column;
-    height: 100%;
     transition: filter 0.3s ease-out;
+  }
+
+  .widget-body:nth-child(2) {
+    border-left-style: solid;
+    border-left-width: 0.5px;
   }
 
   .widget-body.loading {
@@ -58,29 +62,25 @@
   }
 }
 
-.ui-controls-bottom {
+.widget-controls {
+  min-height: 4em;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
-  margin: 0 -1.5em 0 -1.5em;
-  padding: 0 1.5em 0 1.5em;
-  background: linear-gradient(30deg, rgba(0,0,0,0.3), rgba(0,0,0,0.5));;
-  min-height: 2.5em;
+  padding: 0.5em 1.5em;
+  background: linear-gradient(30deg, rgba(0,0,0,0.3), rgba(0,0,0,0.5));
+  border-top-style: solid;
+  border-top-width: 0.5px;
 
-  input {
+  input, textarea {
     position: relative;
     background-color: transparent;
     font-weight: 200;
-    line-height: 2em;
+    line-height: 1.7em;
   }
-
-  input:focus {
+  
+  input:focus, textarea:focus {
+    box-shadow: none !important;
     background-color: transparent;
-  }
-}
-
-@media screen and (max-width: $mobile-breakpoint) {
-  .widget-body {
-    // padding-bottom: 2em;
   }
 }

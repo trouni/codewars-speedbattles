@@ -1,16 +1,17 @@
-input[type=text], input[type=email], input[type=password] {
-  // background: rgba(255, 255, 255, 0.1);
+input[type=text], input[type=email], input[type=password], select {
   background-color: rgba( 0, 0, 0, 0.3 );
   padding: 0 0.5em;
   color: $input-color;
   border: none;
+  align-items: center;
+  border-radius: 2px;
+  height: calc(1.5em + 0.75rem + 2px);
   &:disabled {
     background: none;
-    // outline: 1px auto rgba( $maincolor, .3 );
     color: rgba($input-color, 0.5);
   }
   &:focus {
-    // outline: 1px auto rgba( $maincolor, .5 );
+    outline: none;
     background-color: rgba( 0, 0, 0, 0.5 );
   }
   & + small {
@@ -18,17 +19,25 @@ input[type=text], input[type=email], input[type=password] {
   }
 }
 
-.input-with-prompt {
+select option {
+  color: black;
+}
+
+textarea {
+  padding: 0 0.5em;
+}
+
+.with-prompt {
   position: relative;
   display: flex;
-  align-items: center;
   &:before {
     content: ">";
     position: absolute;
+    left: -0.5em;
   }
-  input, textarea {
-    padding-left: 0.5em;
-    text-indent: 0.5em;
+  &.centered-prompt:before {
+    top: 50%;
+    transform: translate(0, -50%);
   }
 }
 
