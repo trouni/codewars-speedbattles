@@ -1,8 +1,8 @@
 <template>
-  <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}, {'isolate-focus': isolateFocus}, { 'initializing': !allDataLoaded }]">
+  <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}, {'isolate-focus': isolateFocus}, { 'initializing': initializing }]">
     <span class="app-bg"/>
-    <navbar :room-id="room.id" />
-    <spinner v-if="!allDataLoaded" title="LOADING" />
+    <navbar :room-id="room.id" v-if="!initializing" />
+    <spinner v-if="initializing">{{ wsConnected ? 'LOADING' : 'CONNECTING' }}</spinner>
 
     <div id="room" :class="{ moderator: currentUserIsModerator }">
       <widget id="room-announcer" class="grid-item" :header-title="`PWD://War_Room/${room.name}`" :focus="focus === 'announcer'">
@@ -88,6 +88,7 @@ export default {
   },
   data() {
     return {
+      wsConnected: false,
       userSettingsInitialized: false,
       roomSettingsInitialized: false,
       usersInitialized: false,
@@ -183,6 +184,17 @@ export default {
         this.battleInitialized ||
         this.messagesInitialized
       );
+    },
+    initializing() {
+      return !(
+        this.wsConnected &&
+        this.userSettingsInitialized &&
+        this.roomSettingsInitialized &&
+        this.usersInitialized &&
+        this.battleInitialized &&
+        this.messagesInitialized &&
+        this.currentUser
+      )
     },
     allDataLoaded() {
       return (
@@ -318,7 +330,7 @@ export default {
       );
     },
     readyForBattle() {
-      if (!this.battle.id && !this.currentUser) return false;
+      if (!this.battle.id || !this.currentUser) return false;
 
       if (this.currentUserIsModerator) {
         return this.allConfirmed
@@ -735,10 +747,11 @@ export default {
   channels: {
     RoomChannel: {
       connected() {
-        // if (this.currentUserIsModerator)
-          // console.log("WebSockets connected to RoomChannel.");
+        this.wsConnected = true
       },
-      rejected() {},
+      rejected() {
+        this.wsConnected = false
+      },
       received(data) {
         switch (data.subchannel) {
           case "action":
@@ -869,7 +882,12 @@ export default {
               console.log("Received data, without matching subchannel:", data);
         }
       },
-      disconnected() {}
+      onerror() {
+        console.log("Error");
+      },
+      disconnected() {
+        this.wsConnected = false
+      }
     }
   },
   mounted() {
