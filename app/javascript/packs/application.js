@@ -29,13 +29,25 @@ Vue.use(VueShowdown, {
   flavor: 'vanilla',
   // set default options of showdown (will override the flavor options)
   options: {
-    emoji: true,
-    omitExtraWLInCodeBlocks: true,
+    omitExtraWLInCodeBlocks: false,
+    noHeaderId: true,
+    ghCompatibleHeaderId: true,
+    prefixHeaderId: null,
+    headerLevelStart: 1,
+    parseImgDimensions: false,
+    simplifiedAutoLink: true,
+    excludeTrailingPunctuationFromURLs: true,
+    literalMidWordUnderscores: false,
     strikethrough: true,
+    tables: false,
+    ghCodeBlocks: true,
     ghMentions: true,
     ghMentionsLink: "https://www.codewars.com/users/{u}",
-    simplifiedAutoLink: true,
+    emoji: true,
     openLinksInNewWindow: true,
+    simpleLineBreaks: false,
+    requireSpaceBeforeHeadingText: true,
+
   },
 })
 
