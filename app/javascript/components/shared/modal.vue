@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <div :class="['modal-overlay', { hidden: !show }]" @click="cancel" />
-    <widget :header-title="title" :seek-attention="true" :focus="show" class="modal-widget animated fadeIn faster" ref="widget">
+  <div class="modal-ctn">
+    <div class="modal-overlay" @click="cancel" />
+    <widget :header-title="title" :seek-attention="true" class="focus modal-widget animated fadeIn faster" ref="widget">
       <template>
         <slot/>
       </template>
@@ -26,7 +26,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    width: {
+    maxWidth: {
       type: String,
       default: '450px',
     },
@@ -37,13 +37,10 @@ export default {
     show: Boolean,
   },
   mounted() {
-    const width = this.$slots.secondary ? `calc(${this.width} * 2)` : this.width
-    this.$el.style.position = 'absolute'
-    this.$el.style.display = 'flex'
-    this.$el.style.width = width
+    const maxWidth = this.$slots.secondary ? `calc(${this.maxWidth} * 2)` : this.maxWidth
+    this.$el.style.maxWidth = maxWidth
     this.$el.style.maxHeight = this.maxHeight;
-    this.$el.style.left = `calc(50% - ${width} / 2)`
-    this.$el.style.top = `calc(50% - ${this.$el.clientHeight}px / 2)`
+  
   },
   methods: {
     cancel() {
@@ -57,6 +54,19 @@ export default {
 </script>
 
 <style lang='scss'>
+  .modal-ctn {
+    position: absolute;
+    display: flex;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    .widget-body {
+      overflow-y: scroll;
+    }
+  }
+
   .modal-overlay {
     position: fixed;
     width: 100vw;

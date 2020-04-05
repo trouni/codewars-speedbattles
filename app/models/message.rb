@@ -11,7 +11,7 @@
 #
 
 class Message < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, required: false
   belongs_to :chat
   has_one :room, through: :chat
   validates :content, presence: true, allow_blank: false

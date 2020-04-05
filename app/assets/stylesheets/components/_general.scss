@@ -42,12 +42,13 @@ a:hover {
   transition: color 0.3s !important;
 }
 
-.hidden {
-  display: none !important;
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.d-initial {
-  display: initial !important;
+.hidden {
+  display: none !important;
 }
 
 .d-contents {

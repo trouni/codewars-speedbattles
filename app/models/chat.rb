@@ -21,7 +21,7 @@ class Chat < ApplicationRecord
 
   def create_announcement(content)
     Message.create(
-      user: User.find_or_create_bot,
+      user: nil,
       content: content,
       chat: self
     )

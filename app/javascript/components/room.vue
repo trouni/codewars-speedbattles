@@ -1,11 +1,19 @@
 <template>
-  <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}, {'isolate-focus': isolateFocus}, { 'initializing': initializing }]">
+  <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}, {'isolate-focus': isolateFocus}]">
     <span class="app-bg"/>
-    <navbar :room-id="room.id" v-if="!initializing" />
+    <navbar :room-id="room.id" :loading="settingsLoading" />
+    <modal v-if="focus === 'modal' && settings" id="room-modal" :title="`SYS://Settings`">
+      <template>
+        <user-settings :settings="settings" :moderator="currentUserIsModerator"/>
+      </template>
+      <template v-slot:secondary v-if="currentUserIsModerator">
+        <room-settings :settings="settings"/>
+      </template>
+    </modal>
     <spinner v-if="initializing">{{ wsConnected ? 'LOADING' : 'CONNECTING' }}</spinner>
 
-    <div id="room" :class="{ moderator: currentUserIsModerator }">
-      <widget id="room-announcer" class="grid-item" :header-title="`PWD://War_Room/${room.name}`" :focus="focus === 'announcer'">
+    <div id="room" :class="{ moderator: currentUserIsModerator, 'initializing': initializing }">
+      <widget id="room-announcer" class="grid-item" :header-title="`PWD://War_Room/${settings.room.name}`" :focus="focus === 'announcer'">
         <div class="d-flex align-items-center justify-content-center h-100">
           <span
             :class="['announcer mt-3', 'text-center', announcerWindow.status]"
@@ -53,14 +61,6 @@
         :settings="settings"
       />
     </div>
-    <modal v-if="focus === 'modal'" id="room-modal" :title="`SYS://Settings`" :show="focus === 'modal'">
-      <template>
-        <user-settings :settings="settings" :moderator="currentUserIsModerator"/>
-      </template>
-      <template v-slot:secondary v-if="currentUserIsModerator">
-        <room-settings :settings="settings"/>
-      </template>
-    </modal>
   </div>
 </template>
 
@@ -88,6 +88,8 @@ export default {
   },
   data() {
     return {
+      userSettingsLoading: true,
+      roomSettingsLoading: true,
       wsConnected: false,
       userSettingsInitialized: false,
       roomSettingsInitialized: false,
@@ -127,6 +129,8 @@ export default {
           mouseenter: new Audio("../audio/beep.mp3"),
           click: new Audio("../audio/select.mp3"),
           drums: new Audio("../audio/drums.mp3"),
+          // https://audiojungle.net/item/counting-countdown-timer/21635290
+          countdownBeep: new Audio('../audio/beep.mp3'),
         },
         ambiance: {
           battles: [
@@ -140,7 +144,8 @@ export default {
       ambianceMusic: new Audio(),
       announcement: {
         status: "normal",
-        content: `Welcome to ${this.roomInit.name}`
+        content: null,
+        defaultContent: null,
       },
       viewMode: new URL(window.location.href).searchParams.get("view"),
       timeLimit: this.battle ? Math.round(this.battle.time_limit / 60) : 8,
@@ -178,6 +183,9 @@ export default {
     //     return ''
     //   }
     // },
+    settingsLoading() {
+      return this.userSettingsLoading || this.roomSettingsLoading
+    },
     someDataLoaded() {
       return (
         this.usersInitialized ||
@@ -221,7 +229,7 @@ export default {
     },
     announcerWindow() {
       let status = this.announcement.status || "normal";
-      let content = this.announcement.content;
+      let content = this.announcement.content || this.announcement.defaultContent;
 
       if (this.countdown > 0) {
         status = "warning";
@@ -246,13 +254,7 @@ export default {
         e => e.id === this.currentUserId
       );
 
-      if (currentUserIndex === -1) {
-        if (this.currentUserIsModerator)
-          console.log("Current user not found in list of room users!");
-        return null
-      } else {
-        return this.users[currentUserIndex];
-      }
+      if (currentUserIndex !== -1) return this.users[currentUserIndex]
     },
     currentUserIsModerator() {
       return this.currentUserId === this.room.moderator_id;
@@ -361,14 +363,17 @@ export default {
 
       return !!this.battle.end_time;
     },
-    roomSoundON() {
-      return this.settings.room.sound || this.currentUserIsModerator
+    eventMode() {
+      return !this.settings.room.sound
+    },
+    voiceON() {
+      return this.settings.user.voice && (!this.eventMode || this.currentUserIsModerator)
     },
     sfxON() {
-      return this.roomSoundON && this.settings.user.sfx
+      return this.settings.user.sfx
     },
     musicON() {
-      return this.roomSoundON && this.settings.user.music
+      return this.settings.user.music && (!this.eventMode || this.currentUserIsModerator)
     },
   },
   methods: {
@@ -394,7 +399,7 @@ export default {
       this.isolateFocus = true
     },
     closeModal() {
-      if (this.isolateFocus && this.focus === 'modal') {
+      if (this.focus === 'modal') {
         this.isolateFocus = false
         this.focus = null
       }
@@ -406,7 +411,10 @@ export default {
       this.focus === 'modal' ? this.closeModal() : this.openModal()
     },
     updateSettings(updatedSettings) {
+      this.userSettingsLoading = true
+      this.roomSettingsLoading = true
       this.sendCable("update_user_settings", { user: updatedSettings.user });
+      this.sendCable("update_room_settings", { room: updatedSettings.room });
     },
     checkCurrentUserConnection() {
       setInterval(_ => {
@@ -448,7 +456,7 @@ export default {
     },
     speak(message, options = null) {
       options = options || {}
-      if (this.sfxON) {
+      if (this.voiceON) {
         if (options.interrupt) speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(message);
         const voices = speechSynthesis.getVoices();
@@ -586,6 +594,10 @@ export default {
       this.settings.user.music = !this.settings.user.music;
       this.settings.user.music ? this.resumeAmbiance() : this.pauseAmbiance();
     },
+    toggleVoice() {
+      this.settings.user.voice = !this.settings.user.voice;
+      if (!this.settings.user.voice) speechSynthesis.cancel();
+    },
     playSoundFx(fxName, volume = 1) {
       // volume = volume || 1
       const soundFX = this.sounds.fx[fxName]
@@ -596,10 +608,21 @@ export default {
       soundFX.volume = volume;
       if (this.sfxON) soundFX.play();
     },
+    playVoiceFx(fxName, volume = 1) {
+      // volume = volume || 1
+      const soundFX = this.sounds.fx[fxName]
+      if (!soundFX) return
+
+      soundFX.pause();
+      soundFX.currentTime = 0;
+      soundFX.volume = volume;
+      if (this.voiceON) soundFX.play();
+    },
     startCountdown(countdown) {
       this.countdown = countdown;
       const timer = setInterval(() => {
         if (this.countdown > 1) {
+          this.playSoundFx('countdownBeep')
           this.countdown -= 1;
         } else {
           this.countdown = 0;
@@ -639,7 +662,7 @@ export default {
             ) {
               this.setBackgroundVolume()
               // this.speak(Math.round(this.timeRemainingInSeconds()), true)
-              this.playSoundFx("countdown");
+              this.playVoiceFx("countdown");
             } else if (this.timeRemainingInSeconds() <= 0) {
               this.endBattle();
               clearInterval(this.clockInterval);
@@ -763,7 +786,7 @@ export default {
               case "start-countdown":
                 // this.sendCable('invitation', { battle_id: this.battle.id, invite_action: 'uninvite-unconfirmed' })
                 this.startCountdown(data.payload.data.countdown);
-                this.playSoundFx("countdown");
+                this.playVoiceFx("countdown");
                 break;
 
               case "voice-announce":
@@ -801,13 +824,16 @@ export default {
           case "settings":
             switch (data.payload.action) {
               case "user":
-                this.settings.user = data.payload.settings;
-                this.userSettingsInitialized = true;
+                this.settings.user = data.payload.settings
+                this.userSettingsInitialized = true
+                this.userSettingsLoading = false
                 break;
 
               case "room":
                 this.settings.room = data.payload.settings;
-                this.roomSettingsInitialized = true;
+                this.announcement.defaultContent = `Welcome to ${this.settings.room.name}`
+                this.roomSettingsInitialized = true
+                this.roomSettingsLoading = false
                 break;
             }
             break;  
@@ -906,14 +932,14 @@ export default {
       "change-volume-ambiance",
       volume => (this.sounds.volumeAmbiance = volume)
     );
-    this.$root.$on("open-user-settings", _ => this.openSettings());
-    this.$root.$on("toggle-settings", _ => this.toggleSettings());
+    this.$root.$on("open-user-settings", this.openSettings);
+    this.$root.$on("toggle-settings", this.toggleSettings);
     this.$root.$on("update-settings", settings => this.updateSettings(settings));
-    this.$root.$on("close-modal", _ => this.closeModal());
+    this.$root.$on("close-modal", this.closeModal);
     this.$root.$on("create-battle", challenge => this.createBattle(challenge));
-    this.$root.$on("delete-battle", () => this.deleteBattle());
+    this.$root.$on("delete-battle", this.deleteBattle);
     this.$root.$on("fetch-challenges", (userId = null) => this.fetchChallenges(userId));
-    this.$root.$on("get-room-players", () => this.getRoomPlayers());
+    this.$root.$on("get-room-players", this.getRoomPlayers);
     this.$root.$on("push-user", user => this.pushToUsers(user));
     this.$root.$on("remove-user", user => this.removeFromUsers(user));
     this.$root.$on("invite-user", userId => this.invitation("invite", userId));
@@ -926,15 +952,17 @@ export default {
       this.invitation("confirm", userId)
     );
     // this.$root.$on('update-battle', (battle) => this.updateBattle(battle))
-    this.$root.$on("initialize-battle", () => this.initializeBattle());
-    this.$root.$on("start-countdown", () => this.startCountdown());
-    this.$root.$on("end-battle", () => this.userEndsBattle());
+    this.$root.$on("initialize-battle", this.initializeBattle);
+    this.$root.$on("start-countdown", this.startCountdown);
+    this.$root.$on("end-battle", this.userEndsBattle);
     this.$root.$on("edit-time-limit", step => this.editTimeLimit(step));
     this.$root.$on("speak", message => this.speak(message));
     this.$root.$on("play-fx", sound => this.playSoundFx(sound));
     this.$root.$on("play-ambiance", track => this.startAmbiance(track));
-    this.$root.$on("toggle-music", () => this.toggleMusic());
+    this.$root.$on("toggle-voice", this.toggleVoice);
+    this.$root.$on("toggle-music", this.toggleMusic);
     this.$root.$on("toggle-sound-fx", () => this.settings.user.sfx = !this.settings.user.sfx);
+    this.$root.$on("toggle-room-sound", () => this.settings.room.sound = !this.settings.room.sound);
   }
 };
 </script>

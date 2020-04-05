@@ -16,8 +16,8 @@
     </div>
     <div class="form-group mb-5">
       <div class="d-flex justify-content-between align-items-center">
-        <h5>Audio</h5>
-        <span class="d-flex justify-content-around">
+        <h5 class="m-0">Audio</h5>
+        <span class="d-flex justify-content-around flex-grow-1 ml-2">
           <std-button
             @click.native="$root.$emit('toggle-music')"
             :class="{'toggled-off': !settings.user.music}"
@@ -26,14 +26,18 @@
           >Music {{settings.user.music ? 'ON' : 'OFF'}}</std-button>
           <std-button
             @click.native="$root.$emit('toggle-sound-fx')"
-            :class="['ml-3', {'toggled-off': !settings.user.sfx}]"
+            :class="[{'toggled-off': !settings.user.sfx}]"
             :fa-icon="`fas ${settings.user.sfx ? 'fa-drum' : 'fa-volume-mute'}`"
-            :disabled="!settings.room.sound && !moderator"
           >Sound FX {{settings.user.sfx ? 'ON' : 'OFF'}}</std-button>
+          <std-button
+            @click.native="$root.$emit('toggle-voice')"
+            :class="{'toggled-off': !settings.user.voice}"
+            :fa-icon="`fas ${settings.user.voice ? 'fa-robot' : 'fa-volume-mute'}`"
+            :disabled="!settings.room.sound && !moderator"
+          >Voice {{settings.user.voice ? 'ON' : 'OFF'}}</std-button>
         </span>
       </div>
-      <small v-if="settings.room.sound || moderator">Activate/deactivate music and sound effects/announcements.</small>
-      <small v-else>Sound settings have been disabled for this war room.</small>
+      <small>Toggle music, sound effects and voice announcements.<span v-if="!settings.room.sound"> Sound settings have been partially disabled for this war room.</span></small>
     </div>
     <div class="mb-5">
       <div class="d-flex justify-content-between align-items-center">
@@ -92,7 +96,7 @@
         <std-button @click.native="cancel" fa-icon="fas fa-sign-out-alt" small>Sign out</std-button>
       </a>
       <a href="/rooms/">
-        <std-button @click.native="cancel" fa-icon="fas fa-times-circle" small>Leave room</std-button>
+        <std-button @click.native="cancel" fa-icon="fas fa-angle-double-left" small>Leave room</std-button>
       </a>
     </span>
   </div>
@@ -144,6 +148,7 @@ export default {
         user: {
           name: this.displayName,
           sfx: this.settings.user.sfx,
+          voice: this.settings.user.voice,
           music: this.settings.user.music,
           hljs_lang: this.hljsLang,
         }

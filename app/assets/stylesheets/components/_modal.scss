@@ -6,11 +6,12 @@
   transition: transform 0.2s ease-out, opacity 0.2s ease-out, filter 0.2s ease-out, visibility 0.2s ease-out 0.2s;
 }
 
+#room-modal {
+  z-index: 100;
+}
+
 .modal-widget {
   transform: scale(0.95);
-  opacity: 0;
-  // z-index: 100;
-  visibility: hidden;
   overflow-y: auto;
   flex-grow: 1;
 }
@@ -27,9 +28,7 @@
 
   .modal-widget.focus {
     transition: transform 0.2s ease-out, opacity 0.2s ease-out, filter 0.2s ease-out;
-    visibility: visible;
     transform: unset;
-    opacity: 1;
   }
 
   .grid-item.focus {

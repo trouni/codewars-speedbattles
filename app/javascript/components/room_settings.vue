@@ -2,7 +2,7 @@
   <div>
     <div class="mt-3 mb-5">
       <h2>Room settings</h2>
-      <small>You are a moderator for this war room.</small>
+      <small>You are moderator for this war room.</small>
     </div>
     <div class="form-group mb-5">
       <h5 class="no-wrap">Room name</h5>
@@ -18,9 +18,24 @@
     </div>
     <div class="form-group mb-5">
       <div class="d-flex justify-content-between align-items-center">
-        <h5>Audio</h5>
+        <h5 class="m-0">Moderator audio only</h5>
+        <std-button
+            @click.native="$root.$emit('toggle-room-sound')"
+            :class="{'toggled-off': settings.room.sound}"
+            :fa-icon="`fas ${settings.room.sound ? 'fa-volume-up' : 'fa-volume-down'}`"
+          >Event mode {{settings.room.sound ? 'OFF' : 'ON'}}</std-button>
       </div>
-      <small>Activate/deactivate music and sound effects/announcements.</small>
+      <small>Disables music and announcements for everyone except the moderator. Useful when all players are in the same room.</small>
+    </div>
+    <div class="form-group mb-5">
+      <h5 class="no-wrap">Voice chat url</h5>
+      <input
+        @keydown.enter="updateSettings"
+        type="text"
+        class="form-control"
+        v-model="voiceChatUrl"
+      />
+      <small>Invitation link to join video/voice call (Zoom/Slack/etc.)</small>
     </div>
   </div>
 </template>
@@ -38,30 +53,6 @@ export default {
       roomName: this.settings.room.name,
       voiceChatUrl: this.settings.room.voice_chat_url,
       roomSound: this.settings.room.sound,
-      codewarsLangs: {
-        '': '',
-        'C': 'c',
-        'C#': 'c#',
-        'C++': 'c++',
-        'Clojure': 'clj',
-        'CoffeeScript': 'coffee',
-        'Crystal': 'cr',
-        'Dart': 'dart',
-        'Elixir': 'elixir',
-        'F#': 'fs',
-        'Go': 'go',
-        'Haskell': 'hs',
-        'Java': 'java',
-        'JavaScript': 'js',
-        'PHP': 'php',
-        'Python': 'py',
-        'Ruby': 'rb',
-        'Rust': 'rs',
-        'Shell': 'shell',
-        'SQL': 'sql',
-        'Swift': 'swift',
-        'TypeScript': 'ts',
-      }
     }
   },
   computed: {
@@ -69,7 +60,7 @@ export default {
       return {
         room: {
           name: this.roomName,
-          voice_chat_url: this.settings.room.voice_chat_url,
+          voice_chat_url: this.voiceChatUrl,
           sound: this.settings.room.sound,
         }
       }

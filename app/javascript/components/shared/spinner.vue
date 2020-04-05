@@ -1,7 +1,7 @@
 <template>
-    <div class="spinner absolute-center display-initial">
+    <div class="spinner absolute-center">
         <div class="lds-ring small"><div></div><div></div><div></div><div></div></div>
-        <h3 class="animated fadeInDown faster"><slot /></h3>
+        <h3 class="animated fadeInDown faster" v-if="$slots.default"><slot /></h3>
     </div>
 </template>
 
@@ -24,13 +24,14 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 10;
 }
 
 .spinner.absolute-center {
   position: absolute;
-  top: calc(50% - 32px);
-  right: calc(50% - 32px);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .lds-ring {

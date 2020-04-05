@@ -89,11 +89,22 @@ class RoomChannel < ApplicationCable::Channel
   # =============
 
   def update_user_settings(data)
-    @current_user.update(name: data['user']['name'])
-    @current_user.settings(:base).update(data['user'].except('name'))
+    if data['user']
+      @current_user.update(name: data['user']['name'])
+      @current_user.settings(:base).update(data['user'].except('name'))
+    end
     @current_user.broadcast_settings
   end
 
+  def update_room_settings(data)
+    if data['room']
+      set_room
+      @room.update(name: data['room']['name'])
+      @room.settings(:base).update(data['room'].except('name'))
+    end
+    @room.broadcast_settings
+  end
+  
   def fetch_user_challenges(data)
     set_room
     battle = Battle.find(data["battle_id"])
