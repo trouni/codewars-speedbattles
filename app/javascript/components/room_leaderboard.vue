@@ -1,40 +1,43 @@
 <template>
   <widget id="room-leaderboard" :header-title="title" :loading="loading" :focus="focus">
-    <div class="flex-grow-1 fixed-header">
-      <table :class="['console-table d-table flex-grow-1', { 'no-stats': !room.show_stats }]">
-        <thead>
-          <tr>
-            <th scope="col" :style="room.show_stats ? 'width: 50%;' : 'width: 100%;'"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
-            <th v-if="room.show_stats" scope="col" style="width: 6%;"><span class="data">#</span></th>
-            <th v-if="room.show_stats" scope="col" style="width: 12%;"><span class="data">SCORE</span></th>
-            <th v-if="room.show_stats" scope="col" style="width: 12%;"><span class="data">BATTLES</span></th>
-            <th v-if="room.show_stats" scope="col" style="width: 20%;"><span class="data">WON : LOST</span></th>
-            <!-- <th v-if="room.show_stats" scope="col" style="width: 10%;"><span class="data">TOTAL</span></th> -->
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(user, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(user.id) }" :title="user.username" :key="user.id">
-            <th scope="row" class="justify-content-between">
-              <span :class="['data user', {offline: !user.online}]">
-                <span :class="['mr-1', { 'online highlight': user.online }]">●</span>
-                <!-- <span :class="userClass(user.id)" v-if="showInviteButton(user.id, 'eligible')" @click="$root.$emit('invite-user', user.id)">{{ user.username }}</span>
-                <span :class="userClass(user.id)" v-else-if="showInviteButton(user.id, 'invited')" @click="$root.$emit('uninvite-user', user.id)">{{ user.username }}</span>
-                <span :class="userClass(user.id)" @click="toggleInvite(user.id)" :disabled="!currentUserIsModerator">{{ user.name || user.username }} -->
-                <span :class="[userClass(user.id), 'username']">{{ user.name || user.username }}</span>
-              </span>
-              <span class="invite-button">
-                <std-button v-if="showInviteButton(user.id)" @click.native="toggleInvite(user.id)" :title="showInviteButton(user.id)" small class="mr-2" />
-              </span>
-            </th>
-            <td v-if="room.show_stats"><span class="data rank">{{ userRank(index) }}</span></td>
-            <td v-if="room.show_stats"><span class="data">{{ leaderboard[user.id] ? displayScore(leaderboard[user.id].total_score) : "-" }}</span></td>
-            <td v-if="room.show_stats"><span class="data">{{ leaderboard[user.id] ? leaderboard[user.id].battles_fought : "-" }}</span></td>
-            <td v-if="room.show_stats"><span class="data">{{ leaderboard[user.id] ? `${leaderboard[user.id].battles_survived} : ${leaderboard[user.id].battles_lost}` : "-" }}</span></td>
-            <!-- <td v-if="room.show_stats"><span class="data">{{ leaderboard[user.id] ? user.battles_fought : "-" }}</span></td> -->
-          </tr>
-        </tbody>
-      </table>
+    <div class="d-flex flex-column h-100">
+      <div class="fixed-header">
+        <table :class="['console-table h-100', { 'no-stats': !room.show_stats }]">
+          <thead>
+            <tr>
+              <th scope="col" :style="room.show_stats ? 'width: 50%;' : 'width: 100%;'"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
+              <th v-if="room.show_stats" scope="col" style="width: 6%;"><span class="data">#</span></th>
+              <th v-if="room.show_stats" scope="col" style="width: 12%;"><span class="data">SCORE</span></th>
+              <th v-if="room.show_stats" scope="col" style="width: 12%;"><span class="data">BATTLES</span></th>
+              <th v-if="room.show_stats" scope="col" style="width: 20%;"><span class="data">WON : LOST</span></th>
+              <!-- <th v-if="room.show_stats" scope="col" style="width: 10%;"><span class="data">TOTAL</span></th> -->
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(user, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(user.id) }" :title="user.username" :key="user.id">
+              <th scope="row" class="justify-content-between">
+                <span :class="['data user', {offline: !user.online}]">
+                  <span :class="['mr-1', { 'online highlight': user.online }]">●</span>
+                  <!-- <span :class="userClass(user.id)" v-if="showInviteButton(user.id, 'eligible')" @click="$root.$emit('invite-user', user.id)">{{ user.username }}</span>
+                  <span :class="userClass(user.id)" v-else-if="showInviteButton(user.id, 'invited')" @click="$root.$emit('uninvite-user', user.id)">{{ user.username }}</span>
+                  <span :class="userClass(user.id)" @click="toggleInvite(user.id)" :disabled="!currentUserIsModerator">{{ user.name || user.username }} -->
+                  <span :class="[userClass(user.id), 'username']">{{ user.name || user.username }}</span>
+                </span>
+                <span class="invite-button">
+                  <std-button v-if="showInviteButton(user.id)" @click.native="toggleInvite(user.id)" :title="showInviteButton(user.id)" small class="mr-2" />
+                </span>
+              </th>
+              <td v-if="room.show_stats"><span class="data rank">{{ userRank(index) }}</span></td>
+              <td v-if="room.show_stats"><span class="data">{{ leaderboard[user.id] ? displayScore(leaderboard[user.id].total_score) : "-" }}</span></td>
+              <td v-if="room.show_stats"><span class="data">{{ leaderboard[user.id] ? leaderboard[user.id].battles_fought : "-" }}</span></td>
+              <td v-if="room.show_stats"><span class="data">{{ leaderboard[user.id] ? `${leaderboard[user.id].battles_survived} : ${leaderboard[user.id].battles_lost}` : "-" }}</span></td>
+              <!-- <td v-if="room.show_stats"><span class="data">{{ leaderboard[user.id] ? user.battles_fought : "-" }}</span></td> -->
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
+
     <template v-slot:controls>
       <std-button
         v-if="room.show_stats"

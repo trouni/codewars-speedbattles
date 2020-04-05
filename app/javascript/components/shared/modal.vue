@@ -1,18 +1,20 @@
 <template>
-  <div class="modal-ctn">
+  <div>
     <div class="modal-overlay" @click="cancel" />
-    <widget :header-title="title" :seek-attention="true" class="focus modal-widget animated fadeIn faster" ref="widget">
-      <template>
-        <slot/>
-      </template>
-      <template v-slot:secondary v-if="$slots.secondary">
-        <slot name="secondary" />
-      </template>
-      <template v-slot:controls>
-        <std-button @click.native="cancel" fa-icon="fas fa-times-circle" >Cancel</std-button>
-        <std-button @click.native="submit" fa-icon="fas fa-save" large >Save</std-button>
-      </template>
-    </widget>
+    <div class="modal-ctn" ref="ctn">
+      <widget :header-title="title" :seek-attention="true" class="focus modal-widget animated fadeIn faster" ref="widget">
+        <template>
+          <slot/>
+        </template>
+        <template v-slot:secondary v-if="$slots.secondary">
+          <slot name="secondary" />
+        </template>
+        <template v-slot:controls>
+          <std-button @click.native="cancel" fa-icon="fas fa-times-circle" >Cancel</std-button>
+          <std-button @click.native="submit" fa-icon="fas fa-save" large >Save</std-button>
+        </template>
+      </widget>
+    </div>
   </div>
 </template>
 
@@ -38,8 +40,8 @@ export default {
   },
   mounted() {
     const maxWidth = this.$slots.secondary ? `calc(${this.maxWidth} * 2)` : this.maxWidth
-    this.$el.style.maxWidth = maxWidth
-    this.$el.style.maxHeight = this.maxHeight;
+    this.$refs.ctn.style.maxWidth = maxWidth
+    this.$refs.ctn.style.maxHeight = this.maxHeight;
   
   },
   methods: {
@@ -61,6 +63,7 @@ export default {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    z-index: 100;
 
     .widget-body {
       overflow-y: scroll;
@@ -75,5 +78,6 @@ export default {
     content: " ";
     top: 0;
     left: 0;
+    z-index: 10;
   }
 </style>

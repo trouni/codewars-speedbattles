@@ -3,7 +3,7 @@
     <div v-if="battle.id" class="d-flex flex-column h-100">
       <div v-if="battle.challenge" class="challenge-info w-100 mb-3">
         <p class="m-0"><small>{{ battlePrefix }} </small>
-          <strong class="highlight"> {{ displayChallengeName ? battle.challenge.name : 'TOP SECRET' }}</strong>
+          <strong class="highlight"> {{ displayChallengeName ? battle.challenge.name : settings.room.classification }}</strong>
           <sup>
             <span v-if="userDefeated(currentUser.id)" class="badge badge-danger">Defeat</span>
             <span v-else-if="userSurvived(currentUser.id)" class="badge badge-success">Victory</span>
@@ -12,7 +12,7 @@
         </p>
         <div class="d-flex">
           <p class=""><small>Language:</small> <span class="highlight">{{battle.challenge.language || "Ruby"}} </span></p>
-          <p class=""><span class="mx-2">|</span><small>Difficulty:</small> <span class="highlight">{{-battle.challenge.rank}} kyu</span></p>
+          <p class=""><span class="mx-2">|</span><small>Difficulty:</small> <span class="highlight">{{-battle.challenge.rank}}&nbsp;kyu</span></p>
           <p class=""><span class="mx-2">|</span><small>Time Limit:</small>
             <timer-selector
               class="highlight"
@@ -144,6 +144,7 @@
       readyToStart: Boolean,
       loading: Boolean,
       focus: Boolean,
+      settings: Object,
     },
     components: {
       TimerSelector: () => import('./battle/timer_selector'),
@@ -230,7 +231,10 @@
         }
       },
       displayChallengeName() {
-        return (this.currentUserIsModerator && this.viewMode !== 'observer') || this.battle.stage === 0 || this.battle.stage > 2
+        return this.settings.room.classification === 'UNCLASSIFIED' ||
+          (this.settings.room.classification === 'CONFIDENTIAL' && this.currentUserIsModerator) ||
+          this.battle.stage === 0 ||
+          this.battle.stage > 2
       },
       invitedUsers() {
         if (this.battle.stage === 0) { return [] }

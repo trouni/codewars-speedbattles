@@ -29,6 +29,7 @@ class Room < ApplicationRecord
   has_settings do |s|
     s.key :base, defaults: {
       sound: true,
+      classification: 'confidential',
       min_kyu: -8,
       max_kyu: -1,
       auto_invite: false,
@@ -42,7 +43,8 @@ class Room < ApplicationRecord
     return {
       name: name,
       sound: settings(:base).sound,
-      voice_chat_url: settings(:base).voice_chat_url
+      voice_chat_url: settings(:base).voice_chat_url,
+      classification: settings(:base).classification,
     }
   end
 

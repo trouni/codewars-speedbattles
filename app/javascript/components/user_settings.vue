@@ -37,7 +37,7 @@
           >Voice {{settings.user.voice ? 'ON' : 'OFF'}}</std-button>
         </span>
       </div>
-      <small>Toggle music, sound effects and voice announcements.<span v-if="!settings.room.sound"> Sound settings have been partially disabled for this war room.</span></small>
+      <small>Toggle music, sound effects and voice announcements.<span v-if="!settings.room.sound"><br><em>Sound settings have been partially disabled for this war room.</em></span></small>
     </div>
     <div class="mb-5">
       <div class="d-flex justify-content-between align-items-center">
@@ -49,7 +49,7 @@
       <small>Select a default language to write code blocks.</small>
     </div>
     <div class="webhook-settings mb-5">
-      <h5>Codewars Webhook
+      <h5>Codewars webhook
         <sup>
           <span v-if="settings.user.connected_webhook" class="badge badge-success">Connected</span>
           <span v-else class="badge badge-danger">Not connected</span>

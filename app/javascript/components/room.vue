@@ -13,6 +13,7 @@
     <spinner v-if="initializing">{{ wsConnected ? 'LOADING' : 'CONNECTING' }}</spinner>
 
     <div id="room" :class="{ moderator: currentUserIsModerator, 'initializing': initializing }">
+
       <widget id="room-announcer" class="grid-item" :header-title="`PWD://War_Room/${settings.room.name}`" :focus="focus === 'announcer'">
         <div class="d-flex align-items-center justify-content-center h-100">
           <span
@@ -21,6 +22,7 @@
           ></span>
         </div>
       </widget>
+
       <room-battle
         id="room-battle"
         class="grid-item"
@@ -37,7 +39,9 @@
         :ready-to-start="readyToStart"
         :loading="(!usersInitialized && !battleInitialized) || battleLoading"
         :focus="focus === 'battle'"
+        :settings="settings"
       />
+
       <room-leaderboard
         v-if="currentUser"
         class="grid-item"
@@ -51,6 +55,7 @@
         :loading="!usersInitialized || roomPlayersLoading"
         :focus="focus === 'leaderboard'"
       />
+      
       <room-chat
         class="grid-item"
         :messages="chat.messages"

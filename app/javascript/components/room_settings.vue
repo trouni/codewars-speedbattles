@@ -1,11 +1,11 @@
 <template>
   <div>
-    <div class="mt-3 mb-5">
+    <div class="mt-3">
       <h2>Room settings</h2>
       <small>You are moderator for this war room.</small>
     </div>
-    <div class="form-group mb-5">
-      <h5 class="no-wrap">Room name</h5>
+    <div class="form-group mt-2 mb-5">
+      <!-- <h5 class="no-wrap">Room name</h5> -->
       <input
         @keydown.enter="updateSettings"
         type="text"
@@ -14,28 +14,35 @@
         v-model="roomName"
         maxlength="50"
       />
-      <!-- <small>By default, your Codewars username will be shown.</small> -->
+    </div>
+    <div class="mb-5">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="m-0">Classification level</h5>
+        <select v-model="classification" class="flex-grow-1 ml-3">
+          <option v-for="(classification, value) in classificationLevels" :value="classification" :key="value">{{ value }}</option>
+        </select>
+      </div>
+      <small>Choose who can see the challenge's name before a battle. The challenge's name is revealed to everyone during the countdown.</small>
     </div>
     <div class="form-group mb-5">
       <div class="d-flex justify-content-between align-items-center">
-        <h5 class="m-0">Moderator audio only</h5>
+        <h5 class="m-0">Voice & music</h5>
         <std-button
             @click.native="$root.$emit('toggle-room-sound')"
-            :class="{'toggled-off': settings.room.sound}"
             :fa-icon="`fas ${settings.room.sound ? 'fa-volume-up' : 'fa-volume-down'}`"
-          >Event mode {{settings.room.sound ? 'OFF' : 'ON'}}</std-button>
+          >{{settings.room.sound ? 'Everyone' : 'Moderator only'}}</std-button>
       </div>
-      <small>Disables music and announcements for everyone except the moderator. Useful when all players are in the same room.</small>
+      <small><em>Moderator only</em> disables music and announcements for all other players. Useful when all players are in the same room.</small>
     </div>
     <div class="form-group mb-5">
       <h5 class="no-wrap">Voice chat url</h5>
+      <small>Invitation link for video/voice call (Zoom/Slack/etc.)</small>
       <input
         @keydown.enter="updateSettings"
         type="text"
-        class="form-control"
+        class="form-control mt-2"
         v-model="voiceChatUrl"
       />
-      <small>Invitation link for video/voice call (Zoom/Slack/etc.)</small>
     </div>
   </div>
 </template>
@@ -53,6 +60,12 @@ export default {
       roomName: this.settings.room.name,
       voiceChatUrl: this.settings.room.voice_chat_url,
       roomSound: this.settings.room.sound,
+      classification: this.settings.room.classification,
+      classificationLevels: {
+        'TOP SECRET (no one)': 'TOP SECRET',
+        'CONFIDENTIAL (moderator)': 'CONFIDENTIAL',
+        'UNCLASSIFIED (everyone)': 'UNCLASSIFIED'
+      }
     }
   },
   computed: {
@@ -62,6 +75,7 @@ export default {
           name: this.roomName,
           voice_chat_url: this.voiceChatUrl,
           sound: this.settings.room.sound,
+          classification: this.classification,
         }
       }
     },
