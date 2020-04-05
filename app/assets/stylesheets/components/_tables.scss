@@ -3,6 +3,7 @@ table.console-table {
   width: 100% ;
   overflow: scroll;
   display: table;
+  table-layout:fixed;
 
   &.no-stats thead, &.no-stats tbody {
     display:table;
@@ -19,6 +20,8 @@ table.console-table {
   tbody th {
     align-items: center;
     display: flex;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
   th:first-child .data {
@@ -105,6 +108,7 @@ table.console-table {
   table thead th {
     position: sticky;
     top: 0;
+    z-index: 1;
   }
 }
 
