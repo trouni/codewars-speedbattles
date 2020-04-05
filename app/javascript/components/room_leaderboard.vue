@@ -15,12 +15,12 @@
         <tbody>
           <tr v-for="(user, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(user.id) }" :title="user.username" :key="user.id">
             <th scope="row" class="justify-content-between">
-              <span :class="['data username', {offline: !isOnline(user.id)}]">
-                <span :class="['mr-1', { 'online highlight': isOnline(user.id), offline: !isOnline(user.id) }]">●</span>
+              <span :class="['data user', {offline: !user.online}]">
+                <span :class="['mr-1', { 'online highlight': user.online }]">●</span>
                 <!-- <span :class="userClass(user.id)" v-if="showInviteButton(user.id, 'eligible')" @click="$root.$emit('invite-user', user.id)">{{ user.username }}</span>
                 <span :class="userClass(user.id)" v-else-if="showInviteButton(user.id, 'invited')" @click="$root.$emit('uninvite-user', user.id)">{{ user.username }}</span>
                 <span :class="userClass(user.id)" @click="toggleInvite(user.id)" :disabled="!currentUserIsModerator">{{ user.name || user.username }} -->
-                <span :class="userClass(user.id)">{{ user.name || user.username }}</span>
+                <span :class="[userClass(user.id), 'username']">{{ user.name || user.username }}</span>
               </span>
               <span class="invite-button">
                 <std-button v-if="showInviteButton(user.id)" @click.native="toggleInvite(user.id)" :title="showInviteButton(user.id)" small class="mr-2" />
@@ -128,7 +128,7 @@ export default {
     showInviteButton(userId) {
       const user = this.findUser(userId)
 
-      if (this.currentUserIsModerator && user && this.isOnline(userId) && this.battle && this.battle.stage > 0 && this.battle.stage < 3) {
+      if (this.currentUserIsModerator && user && user.online && this.battle && this.battle.stage > 0 && this.battle.stage < 3) {
         switch (user.invite_status) {
           case 'eligible':
             return 'invite'
@@ -149,9 +149,6 @@ export default {
 
         // return this.currentUserIsModerator && this.findUser(userId).invite_status == inviteStatus
       }
-    },
-    isOnline(userId) {
-      return this.users.map(e => e.id).includes(userId)
     },
     isCurrentUser(userId) {
       return this.currentUser.id === userId
@@ -177,5 +174,21 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang='scss' scoped>
+  .user {
+    line-height: 1.5em;
+    font-size: 1em;
+    font-weight: 300;
+    align-items: center;
+    display: inline-flex;
+    &.offline {
+      opacity: 0.5;
+    }
+    &.offline .username {
+      font-style: italic;
+    }
+    i.offline {
+      font-style: normal;
+    }
+  }
 </style>

@@ -120,6 +120,7 @@ class User < ApplicationRecord
         overall_score: codewars_overall_score
       },
       last_fetched_at: last_fetched_at,
+      online: !room.nil?,
       invite_status: invite_status(battle),
       status: invite_status(battle),
       invited_at: active_invite(battle)&.created_at,

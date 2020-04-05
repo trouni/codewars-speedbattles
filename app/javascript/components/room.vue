@@ -713,7 +713,9 @@ export default {
       }
     },
     pushPlayersToUsers(players) {
-      players.forEach(player => this.pushToUsers(player))
+      players.forEach(player => {
+        if (player.online) this.pushToUsers(player)
+      })
     },
     completedIn(battle, user) {
       return (new Date(user.completed_at) - new Date(battle.start_time)) / 1000; // duration in seconds
