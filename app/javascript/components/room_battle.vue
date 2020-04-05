@@ -2,8 +2,9 @@
   <widget :header-title="headerTitle" :loading="loading" :seek-attention="battle.stage === 1" :focus="focus">
     <div v-if="battle.id" class="d-flex flex-column h-100">
       <div v-if="battle.challenge" class="challenge-info w-100 mb-3">
-        <p class="m-0"><small>{{ battlePrefix }} </small>
-          <strong class="highlight"> {{ displayChallengeName ? battle.challenge.name : settings.room.classification }}</strong>
+        <p class="mb-3">
+          <rank-hex class="" :rank="battle.challenge.rank"/>
+          <strong class="highlight">{{ displayChallengeName ? battle.challenge.name : settings.room.classification }}</strong>
           <sup>
             <span v-if="userDefeated(currentUser.id)" class="badge badge-danger">Defeat</span>
             <span v-else-if="userSurvived(currentUser.id)" class="badge badge-success">Victory</span>
@@ -11,17 +12,14 @@
           </sup>
         </p>
         <div class="d-flex">
-          <p class=""><small>Language:</small> <span class="highlight">{{battle.challenge.language || "Ruby"}} </span></p>
-          <p class=""><span class="mx-2">|</span><small>Difficulty:</small> <span class="highlight">{{-battle.challenge.rank}}&nbsp;kyu</span></p>
-          <p class=""><span class="mx-2">|</span><small>Time Limit:</small>
+          <p class=""><small>Language:</small> <span class="highlight">{{ challengeLanguage }} </span></p>
+          <p class=""><span class="ml-1 mr-2">|</span><small>Time Limit:</small>
             <timer-selector
               class="highlight"
               :time-limit="timeLimit"
               :editable="currentUserIsModerator && battle.stage > 0 && battle.stage < 3"
             />
           </p>
-          <!-- <p v-if="timeLimit > 0"><span class="mx-2">|</span><small>Time limit:</small> <span class="highlight">{{("0" + timeLimit).slice(-2)}} min</span></p>
-          <p v-else><span class="mx-2">|</span><small>No time limit</small></p> -->
         </div>
       </div>
       <p v-if="battle.stage === 1 && defeated.length < 1" class="m-auto highlight">> Waiting for players to join the battle...</p>
@@ -128,6 +126,8 @@
 </template>
 
 <script>
+  import capitalize from 'lodash/capitalize'
+  
   export default {
     props: {
       initializing: Boolean,
@@ -158,6 +158,9 @@
       }
     },
     computed: {
+      challengeLanguage() {
+        return capitalize(this.battle.language) || 'Ruby'
+      },
       attentionWaitingToJoin() {
         if (this.currentUser.invite_status === 'invited') {
           this.$root.$emit('play-fx', 'interface')
@@ -174,20 +177,30 @@
         if (this.battle.challenge.language === null) { this.battle.challenge.language = 'ruby' }
         return `${this.battle.challenge.url}/train/${this.battle.challenge.language}`
       },
+      // headerTitle() {
+      //   const prefix = 'KATA://'
+      //   if (this.battle.stage === 4) {
+      //     return `${prefix}Battle_Report`
+      //   } else if (this.battle.stage === 5) {
+      //     this.$root.$emit('announce',{content: 'Battle over. Awaiting next mission...'})
+      //     return `${prefix}Last_Battle_Report`
+      //   } else if (this.battle.stage > 0) {
+      //     this.$root.$emit('announce',{content: 'Prepare for battle...'})
+      //     return `${prefix}Mission_Briefing`
+      //   } else if (this.createNewBattle) {
+      //     return `${prefix}New_Mission`
+      //   } else {
+      //     return `${prefix}Awaiting_Mission`
+      //   }
+      // },
       headerTitle() {
         const prefix = 'KATA://'
-        if (this.battle.stage === 4) {
-          return `${prefix}Battle_Report`
-        } else if (this.battle.stage === 5) {
-          this.$root.$emit('announce',{content: 'Battle over. Awaiting next mission...'})
-          return `${prefix}Last_Battle_Report`
-        } else if (this.battle.stage > 0) {
-          this.$root.$emit('announce',{content: 'Prepare for battle...'})
-          return `${prefix}Mission_Briefing`
-        } else if (this.createNewBattle) {
-          return `${prefix}New_Mission`
+        if (this.battle.stage > 0 && this.battle.stage < 4) {
+          return `${prefix}NEXT_MISSION`
+        } else if (this.battle.stage === 4) {
+          return `${prefix}MISSION_IN_PROGRESS`
         } else {
-          return `${prefix}Awaiting_Mission`
+          return `${prefix}LAST_MISSION_REPORT`
         }
       },
       previousBattles() {
@@ -219,15 +232,6 @@
               // return (b.invite_status || [""])[0] < (a.invite_status || [""])[0] ? 1 : -1
             }
           });
-        }
-      },
-      battlePrefix() {
-        if (this.battle.stage > 0 && this.battle.stage < 4) {
-          return 'NEXT BATTLE:'
-        } else if (this.battle.stage === 4) {
-          return 'CHALLENGE:'
-        } else {
-          return 'LAST BATTLE:'
         }
       },
       displayChallengeName() {
@@ -317,7 +321,7 @@
 <style scoped>
   .challenge-info {
     font-size: 1.2em;
-    padding: 1em 0.5em;
+    padding: 0.5em 0.5em 0 0.5em;
   }
 
   .rank > i {

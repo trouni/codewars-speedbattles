@@ -10,6 +10,7 @@ import SignUpFormInputs from '../components/sign_up/form_inputs.vue'
 import StdButton from '../components/shared/button.vue'
 import Modal from '../components/shared/modal.vue'
 import Spinner from '../components/shared/spinner.vue'
+import RankHex from '../components/shared/rank_hex.vue'
 import VueShowdown from 'vue-showdown'
 import VueHighlightJS from 'vue-highlightjs'
 
@@ -19,6 +20,7 @@ Vue.component('navbar', NavBar)
 Vue.component('std-button', StdButton)
 Vue.component('modal', Modal)
 Vue.component('spinner', Spinner)
+Vue.component('rank-hex', RankHex)
 Vue.component('sign-up-form-inputs', SignUpFormInputs)
 Vue.prototype.speechSynthesis = window.speechSynthesis;
 

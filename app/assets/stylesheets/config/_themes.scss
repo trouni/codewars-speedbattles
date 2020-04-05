@@ -54,7 +54,7 @@
     text-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
     transition: text-shadow $transition-speed ease-out;
   }
-  .highlight {
+  .highlight, strong {
     color: $highlight;
     text-shadow: 0 0 5px $maincolor, 0 0 15px rgba(255,255,255,0.5);
     transition: color $transition-speed ease-out, text-shadow $transition-speed ease-out;
@@ -80,7 +80,7 @@
     box-shadow: 0 0 5px $highlight, 0 0 15px rgba(255,255,255,0.5);
     transition: box-shadow $transition-speed ease-out;
   }
-  
+
   // _chat.scss
   .widget-controls, .widget-body {
     border-color: rgba($bezel-color, .2);
