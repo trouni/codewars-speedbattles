@@ -44,6 +44,9 @@
         <%= link_to :back, class: 'button' do %>
         <i class="fas fa-backward"></i>Back
         <% end %>
+        <a href="/users/sign_out" data-method="delete" class="button">
+          <i class="fas fa-sign-out-alt"></i>Sign out
+        </a>
         <button type="submit" class="button large"><i class="far fa-save"></i>Save</button>
         <%#= link_to registration_path(resource_name), data: { confirm: "Are you sure?" }, method: :delete, class: 'button' do %>
         <!-- <i class="far fa-trash-alt"></i>Delete my account -->
