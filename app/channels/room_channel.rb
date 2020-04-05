@@ -7,12 +7,11 @@ class RoomChannel < ApplicationCable::Channel
     room_user = RoomUser.find_or_create_by(room: @room, user: @current_user)
     stream_from "room_#{@room.id}"
     stream_from "user_#{@current_user.id}"
-    # BroadcastInitialInfoJob.process(params[:room_id])
     @current_user.broadcast_settings
-    @room.broadcast_settings
+    @room.broadcast_settings(private_to_user_id: @current_user.id)
     @room.broadcast_users
-    @room.broadcast_messages
-    @room.broadcast_active_battle
+    @room.broadcast_messages(private_to_user_id: @current_user.id)
+    @room.broadcast_active_battle(private_to_user_id: @current_user.id)
     @room.broadcast_leaderboard
   end
 
@@ -66,7 +65,9 @@ class RoomChannel < ApplicationCable::Channel
   end
 
   def delete_battle(data)
+    set_room
     Battle.find(data["battle_id"]).destroy
+    @room.broadcast_active_battle
   end
 
   def invitation(data)
@@ -120,7 +121,8 @@ class RoomChannel < ApplicationCable::Channel
 
   def get_room_players
     set_room
-    @room.broadcast_players
+    set_current_user
+    @room.broadcast_players(private_to_user_id: @current_user.id)
   end
 
   def get_leaderboard

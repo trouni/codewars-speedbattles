@@ -167,7 +167,7 @@ export default {
     },
     showOfflineClicked() {
       this.showOffline = !this.showOffline;
-      this.$root.$emit('get-room-players');
+      if (this.showOffline) this.$root.$emit('show-offline-players');
     },
     toggleInvite(userId) {
       if (this.findUser(userId).invite_status == 'eligible' && this.currentUserIsModerator) this.$root.$emit('invite-user', userId)

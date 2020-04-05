@@ -154,21 +154,22 @@ class Room < ApplicationRecord
     finished_battles.map { |battle| battle.score(player) }.reduce(:+)
   end
 
-  def broadcast(subchannel: "logs", payload: nil)
+  def broadcast(subchannel: "logs", payload: nil, private_to_user_id: nil)
     ActionCable.server.broadcast(
-      "room_#{id}",
+      private_to_user_id ? "user_#{private_to_user_id}" : "room_#{id}",
       subchannel: subchannel,
       payload: payload
     )
   end
 
-  def broadcast_settings
+  def broadcast_settings(private_to_user_id: nil)
     broadcast({
       subchannel: "settings",
       payload: {
         action: "room",
         settings: settings_hash
-      }
+      },
+      private_to_user_id: private_to_user_id
     })
   end
 
@@ -182,14 +183,15 @@ class Room < ApplicationRecord
     )
   end
 
-  def broadcast_users
+  def broadcast_users(private_to_user_id: nil)
     broadcast(
       subchannel: "users",
       payload: {
         action: "all",
         users: users.includes(:battles, :room, :completed_challenges, :battle_invites)
                     .map { |user| user.api_expose(self, active_battle) }
-      }
+      },
+      private_to_user_id: private_to_user_id
     )
   end
 
@@ -236,45 +238,49 @@ class Room < ApplicationRecord
     )
   end
 
-  def broadcast_messages
+  def broadcast_messages(private_to_user_id: nil)
     broadcast(
       subchannel: "chat",
       payload: {
         action: "all",
         messages: messages.includes(:user).order(created_at: :desc).limit(50).map(&:api_expose),
         authors: chat.users.select(:id, :username, :name)
-      }
+      },
+      private_to_user_id: private_to_user_id
     )
   end
 
-  def broadcast_players
+  def broadcast_players(private_to_user_id: nil)
     broadcast(
       subchannel: "users",
       payload: {
         action: "room-players",
         players: players.includes(:battles, :room, :completed_challenges, :battle_invites)
                     .map { |user| user.api_expose(self, active_battle) }
-      }
+      },
+      private_to_user_id: private_to_user_id
     )
   end
 
-  def new_broadcast_players
+  def new_broadcast_players(private_to_user_id: nil)
     broadcast(
       subchannel: "users",
       payload: {
         action: "players",
         players: export_players
-      }
+      },
+      private_to_user_id: private_to_user_id
     )
   end
 
-  def broadcast_leaderboard
+  def broadcast_leaderboard(private_to_user_id: nil)
     broadcast(
       subchannel: "leaderboard",
       payload: {
         action: "update",
         leaderboard: leaderboard
-      }
+      },
+      private_to_user_id: private_to_user_id
     )
   end
 
@@ -286,9 +292,9 @@ class Room < ApplicationRecord
     broadcast(subchannel: "users", payload: { action: action, user: user.api_expose(self, active_battle) })
   end
 
-  def broadcast_active_battle
+  def broadcast_active_battle(private_to_user_id: nil)
     active_battle&.refresh_status
-    broadcast(subchannel: "battles", payload: { action: "active", battle: active_battle&.api_expose })
+    broadcast(subchannel: "battles", payload: { action: "active", battle: active_battle&.api_expose }, private_to_user_id: private_to_user_id)
   end
 
   def broadcast_player(action: "player", user:)
@@ -303,6 +309,6 @@ class Room < ApplicationRecord
   end
 
   def refresh_room
-    announce(:chat, "The war room has been renamed to #{name}.")
+    announce(:chat, "War room renamed to #{name}.")
   end
 end

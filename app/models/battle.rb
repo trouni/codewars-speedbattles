@@ -69,13 +69,14 @@ class Battle < ApplicationRecord
       :chat,
       "<i class='fas fa-peace'></i> The battle for <span class='chat-highlight'>#{challenge_name}</span> is over."
     )
-    room.broadcast_players
+    broadcast_players
   end
 
   def broadcast_all
     room.broadcast_active_battle
+    # Broadcasting users to refresh invite status
     room.broadcast_users
-    # room.broadcast_players
+    broadcast_players
   end
 
   def refresh_status
@@ -282,13 +283,23 @@ class Battle < ApplicationRecord
     room.broadcast_users
   end
 
+  def broadcast_players
+    room.broadcast(
+      subchannel: "battles",
+      payload: {
+        action: "players",
+        players: players.map { |user| user.api_expose(room, self) }
+      }
+    )
+  end
+
   private
 
   def invite_user(user)
     return unless non_invited_users.where(id: user.id).exists?
 
     battle_invite = BattleInvite.includes(:battle, :player).joins(:battle, :player).create(battle: self, player: user)
-    battle_invite.broadcast_user
+    battle_invite.broadcast_player
   end
 
   def uninvite_user(user)
@@ -296,19 +307,19 @@ class Battle < ApplicationRecord
 
     battle_invite = BattleInvite.find_by(battle: self, player: user)
     battle_invite&.destroy
-    battle_invite.broadcast_user
+    battle_invite.broadcast_player
   end
 
   def confirm_user(user)
     battle_invite = BattleInvite.find_by(battle: self, player: user)
     battle_invite.update(confirmed: true)
-    room.broadcast_user(user: user)
-    # room.broadcast_active_battle
+    # room.broadcast_user(user: user)
+    battle_invite.broadcast_player
   end
 
   def invite_all
     BattleInvite.create(non_invited_users.map { |user| { player: user, battle: self } })
-    room.broadcast_users
+    broadcast_players
     # room.broadcast_active_battle
   end
 

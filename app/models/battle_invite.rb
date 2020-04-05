@@ -22,6 +22,11 @@ class BattleInvite < ApplicationRecord
     room.broadcast_user(user: user)
   end
 
+  def broadcast_player
+    user = User.find(player_id)
+    room.broadcast_player(user: user)
+  end
+
   def broadcast_battles
     room.broadcast_battles
   end

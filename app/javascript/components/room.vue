@@ -35,7 +35,7 @@
         :view-mode="viewMode"
         :time-limit="timeLimit"
         :ready-to-start="readyToStart"
-        :loading="!usersInitialized && !battleInitialized"
+        :loading="(!usersInitialized && !battleInitialized) || battleLoading"
         :focus="focus === 'battle'"
       />
       <room-leaderboard
@@ -48,7 +48,7 @@
         :room-players="roomPlayers"
         :current-user="currentUser"
         :current-user-is-moderator="currentUserIsModerator"
-        :loading="!usersInitialized"
+        :loading="!usersInitialized || roomPlayersLoading"
         :focus="focus === 'leaderboard'"
       />
       <room-chat
@@ -88,82 +88,79 @@ export default {
   },
   data() {
     return {
-      userSettingsLoading: true,
-      roomSettingsLoading: true,
-      wsConnected: false,
-      userSettingsInitialized: false,
-      roomSettingsInitialized: false,
-      usersInitialized: false,
-      battleInitialized: true,
-      messagesInitialized: false,
-      roomPlayersInitialized: false,
-      battleLoading: true,
-      room: this.roomInit,
-      users: [],
-      roomPlayers: [],
-      battle: {},
-      leaderboard: {},
-      chat: {
-        messages: [],
-        authors: []
+      ambianceMusic: new Audio(),
+      announcement: {
+        content: null,
+        defaultContent: null,
+        status: "normal"
       },
+      battle: {},
+      battleInitialized: false,
+      battleLoading: false,
       challengeInput: "",
+      chat: {
+        authors: [],
+        messages: []
+      },
+      clockInterval: null,
       controlsType: "",
-      countdownDuration: 10,
       countdown: 0,
+      countdownDuration: 10,
+      focus: null,
+      isolateFocus: false,
+      leaderboard: {},
+      messagesInitialized: false,
+      modalContent: 'user',
+      room: this.roomInit,
+      roomPlayers: [],
+      roomPlayersLoading: false,
+      roomSettingsInitialized: false,
+      roomSettingsLoading: true,
       settings: {
-        user: {},
         room: {},
+        user: {}
       },
       sounds: {
+        ambiance: {
+          battles: [new Audio("../audio/bensound-epic-med.mp3"), new Audio("../audio/overpowered-med.mp3"), new Audio('../audio/infinity-star-med.mp3')],
+          drums: new Audio('../audio/bg-drums.mp3')
+        },
+        fx: {
+          click: new Audio("../audio/select.mp3"),
+          countdown: new Audio("../audio/countdown.mp3"),
+          // https://audiojungle.net/item/counting-countdown-timer/21635290
+          countdownBeep: new Audio('../audio/beep.mp3'),
+          drums: new Audio("../audio/drums.mp3"),
+          hover: new Audio("../audio/hover.mp3"),
+          interface: new Audio("../audio/interface.mp3"),
+          mouseenter: new Audio("../audio/beep.mp3"),
+          mouseover: new Audio("../audio/beep.mp3"),
+          sword: new Audio("../audio/sword.mp3")
+        },
         musicOn: true,
         soundFxOn: true,
         volumeAmbiance: 0.5,
-        volumeBackgroundAmbiance: 0.2,
-        fx: {
-          countdown: new Audio("../audio/countdown.mp3"),
-          sword: new Audio("../audio/sword.mp3"),
-          hover: new Audio("../audio/hover.mp3"),
-          interface: new Audio("../audio/interface.mp3"),
-          mouseover: new Audio("../audio/beep.mp3"),
-          mouseenter: new Audio("../audio/beep.mp3"),
-          click: new Audio("../audio/select.mp3"),
-          drums: new Audio("../audio/drums.mp3"),
-          // https://audiojungle.net/item/counting-countdown-timer/21635290
-          countdownBeep: new Audio('../audio/beep.mp3'),
-        },
-        ambiance: {
-          battles: [
-            new Audio("../audio/bensound-epic-med.mp3"),
-            new Audio("../audio/overpowered-med.mp3"),
-            new Audio('../audio/infinity-star-med.mp3'),
-          ],
-          drums: new Audio('../audio/bg-drums.mp3'),
-        },
+        volumeBackgroundAmbiance: 0.2
       },
-      ambianceMusic: new Audio(),
-      announcement: {
-        status: "normal",
-        content: null,
-        defaultContent: null,
-      },
-      viewMode: new URL(window.location.href).searchParams.get("view"),
       timeLimit: this.battle ? Math.round(this.battle.time_limit / 60) : 8,
-      clockInterval: null,
-      isolateFocus: false,
-      focus: null,
-      modalContent: 'user',
+      users: [],
+      userSettingsInitialized: false,
+      userSettingsLoading: true,
+      usersInitialized: false,
+      viewMode: new URL(window.location.href).searchParams.get("view"),
+      wsConnected: false
     };
   },
   created() {
-    // this.pushToUsers(this.currentUser);
-    // setTimeout(() => { this.someDataLoaded = true }, 500);
     this.$set(this.battle, "stage", this.battleStage);
     setTimeout(_ => this.checkCurrentUserConnection(), 5000);
   },
   watch: {
     battle: function() {
       this.timeLimit = this.battle ? Math.round(this.battle.time_limit / 60) : this.timeLimit;
+    },
+    battlePlayers: function() {
+      this.pushPlayersToUsers(this.battle.players)
     },
     sounds: {
       handler: function() {
@@ -176,13 +173,6 @@ export default {
     }
   },
   computed: {
-    // challengeInput() {
-    //   if (this.battle.stage > 0 && this.battle.challenge) {
-    //     return this.battle.challenge.name
-    //   } else {
-    //     return ''
-    //   }
-    // },
     settingsLoading() {
       return this.userSettingsLoading || this.roomSettingsLoading
     },
@@ -214,12 +204,6 @@ export default {
         this.currentUser
       );
     },
-    // leaderboard() {
-    //   const allUsers = this.roomPlayers.concat(this.users);
-    //   return allUsers.reduce((uniqueUsers, user) => {
-    //     return uniqueUsers.map(user => user.username).includes(user.username) ? uniqueUsers : [...uniqueUsers, user]
-    //   }, [])
-    // },
     seekAttention() {
       if (this.battleStatus.battleOngoing) {
         return ["animated pulse seek-attention"];
@@ -273,11 +257,14 @@ export default {
         );
       }
     },
+    battlePlayers() {
+      return this.battle.players
+    },
     allConfirmed() {
       return this.battleStage === 2 && this.invitedUsers.length === 0;
     },
-    // STATUSES
     roomStatus() {
+      // STATUSES
       if (this.battleStage === 4) {
         return "war";
       } else if (this.battleStage === 3) {
@@ -290,13 +277,13 @@ export default {
         return "peace";
       }
     },
-    // Battle Status
-    // 1 - Loaded (no start_time, no confirmed players)
-    // 2 - Can Start (no start_time, at least one confirmed player)
-    // 3 - Countdown (start_time exists, no end_time and countdown not zero)
-    // 4 - Battle Ongoing (start_time exists, no end_time)
-    // 5 - Battle Over (end_time exists)
     battleStatus() {
+      // Battle Status
+      // 1 - Loaded (no start_time, no confirmed players)
+      // 2 - Can Start (no start_time, at least one confirmed player)
+      // 3 - Countdown (start_time exists, no end_time and countdown not zero)
+      // 4 - Battle Ongoing (start_time exists, no end_time)
+      // 5 - Battle Over (end_time exists)
       return {
         battleLoaded: this.battleLoaded,
         readyToStart: this.readyToStart,
@@ -490,9 +477,6 @@ export default {
     deleteBattle() {
       if (this.battleLoaded) this.sendCable("delete_battle", { battle_id: this.battle.id });
     },
-    // updateBattle(battle) {
-    //   battle.deleted ? this.battle = null : this.battle = battle
-    // },
     parseChallengeInput(input) {
       const urlRegex = /^(https:\/\/)?www\.codewars\.com\/kata\/(?<challengeIdSlug>.+)\/train\/(?<language>.+)$/;
       const matchData = input.match(urlRegex);
@@ -544,6 +528,7 @@ export default {
       });
     },
     getRoomPlayers(userId) {
+      this.roomPlayersLoading = true
       this.sendCable("get_room_players");
     },
     openCodewars() {
@@ -718,8 +703,6 @@ export default {
     },
     pushToUsers(user) {
       if (this.users) this.pushToArray(this.users, user);
-
-      if (this.battle.players) this.pushToPlayers(user);
     },
     pushToPlayers(user) {
       if (this.battle.players)
@@ -728,6 +711,9 @@ export default {
         } else {
           this.pushToArray(this.battle.players, user);
       }
+    },
+    pushPlayersToUsers(players) {
+      players.forEach(player => this.pushToUsers(player))
     },
     completedIn(battle, user) {
       return (new Date(user.completed_at) - new Date(battle.start_time)) / 1000; // duration in seconds
@@ -843,23 +829,17 @@ export default {
                 this.users = this.users.filter(
                   e => e.id !== data.payload.user.id
                 );
-                // this.removeFromUsers(data.payload.user);
-                // if (this.currentUserIsModerator) console.info(`Removed user ${data.payload.user.username}`)
                 break;
 
               case "all":
                 this.users = data.payload.users;
                 this.users.forEach(user => this.pushToUsers(user));
                 this.usersInitialized = true;
-                if (this.currentUserIsModerator)
-                  // console.info(`Refreshed all users`);
                 break;
 
               case "room-players":
                 this.roomPlayers = data.payload.players;
-                this.roomPlayersInitialized = true;
-                if (this.currentUserIsModerator)
-                  // console.info(`Refreshed all room players`);
+                this.roomPlayersLoading = false;
                 break;
             }
             break;
@@ -878,19 +858,23 @@ export default {
           case "battles":
             switch (data.payload.action) {
               case "active":
+                this.battleInitialized = true;
+                this.battleLoading = false
                 if (data.payload.battle) {
-                  this.battleLoading = false
                   this.battle = data.payload.battle
                   if (this.battleOngoing) this.startClock();
-                  this.battleInitialized = true;
                 } else {
                   this.battle = {}
                 }
-
                 break;
 
               case "player":
                 this.pushToPlayers(data.payload.user);
+                break;
+
+              case "players":
+                this.battle.players = data.payload.players;
+                this.pushPlayersToUsers(this.battle.players)
                 break;
 
               default:
@@ -932,11 +916,9 @@ export default {
     this.$root.$on("update-settings", settings => this.updateSettings(settings));
     this.$root.$on("close-modal", this.closeModal);
     this.$root.$on("create-battle", challenge => this.createBattle(challenge));
+    this.$root.$on("show-offline-players", this.getRoomPlayers);
     this.$root.$on("delete-battle", this.deleteBattle);
     this.$root.$on("fetch-challenges", (userId = null) => this.fetchChallenges(userId));
-    this.$root.$on("get-room-players", this.getRoomPlayers);
-    this.$root.$on("push-user", user => this.pushToUsers(user));
-    this.$root.$on("remove-user", user => this.removeFromUsers(user));
     this.$root.$on("invite-user", userId => this.invitation("invite", userId));
     this.$root.$on("uninvite-user", userId =>
       this.invitation("uninvite", userId)
@@ -946,7 +928,6 @@ export default {
     this.$root.$on("confirm-invite", userId =>
       this.invitation("confirm", userId)
     );
-    // this.$root.$on('update-battle', (battle) => this.updateBattle(battle))
     this.$root.$on("initialize-battle", this.initializeBattle);
     this.$root.$on("start-countdown", this.startCountdown);
     this.$root.$on("end-battle", this.userEndsBattle);

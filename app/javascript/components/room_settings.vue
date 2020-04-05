@@ -35,7 +35,7 @@
         class="form-control"
         v-model="voiceChatUrl"
       />
-      <small>Invitation link to join video/voice call (Zoom/Slack/etc.)</small>
+      <small>Invitation link for video/voice call (Zoom/Slack/etc.)</small>
     </div>
   </div>
 </template>

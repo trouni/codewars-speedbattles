@@ -95,7 +95,7 @@
 
     <template v-slot:controls>
       <div v-if="currentUserIsModerator && !createNewBattle" class="d-contents">
-        <span v-if="battle.stage === 0" class="d-contents">
+        <span v-if="battle.stage === 0 && !loading" class="d-contents">
           <std-button small @click.native="createNewBattle = true" fa-icon="fas fa-cloud-upload-alt" title="Load Kata" />
         </span>
         <span v-else-if="battle.stage > 0 && battle.stage < 3" class="d-contents">
