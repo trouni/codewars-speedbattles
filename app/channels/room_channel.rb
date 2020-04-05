@@ -26,15 +26,6 @@ class RoomChannel < ApplicationCable::Channel
     # broadcast_users @room
   end
 
-  def trigger_event(data)
-    set_room
-    case data['event']
-    when 'battle-has-begun'
-      announcement = "<i class='fas fa-rocket mr-1'></i> The battle for <span class='chat-highlight'>#{@room.active_battle.challenge.name}</span> has begun!"
-      @room.announce(:chat, announcement)
-    end
-  end
-
   # =============
   #     CHAT
   # =============

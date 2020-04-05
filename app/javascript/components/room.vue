@@ -442,11 +442,6 @@ export default {
         this.sendChatMessage(chatMessage, true);
       }
     },
-    notifyEvent(event) {
-      if (this.currentUserIsModerator && !this.viewMode) {
-        this.sendCable("trigger_event", { event: event });
-      }
-    },
     sendChatMessage(message, announcement = false) {
       this.sendCable("create_message", {
         message: message,
