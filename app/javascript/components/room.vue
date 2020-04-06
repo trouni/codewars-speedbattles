@@ -1,6 +1,17 @@
 <template>
-  <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}, {'isolate-focus': isolateFocus || !wsConnected}]">
-    <span class="app-bg"/>
+  <div
+    id="super-container"
+    :class="[
+      viewMode,
+      roomStatus,
+      {
+        'ready-for-battle': readyForBattle,
+        'unfocused': unfocused || !wsConnected,
+        'disconnected': !wsConnected,
+      }
+    ]">
+    <span :class="['app-bg', {'initializing': initializing}]"/>
+
     <navbar :room-id="room.id" :loading="settingsLoading || !wsConnected" />
     <modal v-if="focus === 'modal' && settings" id="room-modal" :title="`SYS://Settings`">
       <template>
@@ -10,7 +21,9 @@
         <room-settings :settings="settings"/>
       </template>
     </modal>
-    <spinner v-if="initializing || !wsConnected">{{ wsConnected ? 'LOADING' : 'CONNECTING' }}</spinner>
+    <spinner v-if="initializing || !wsConnected" class="animated fadeIn">
+      {{ wsConnected ? 'LOADING' : 'CONNECTING' }}
+    </spinner>
 
     <div id="room" :class="{ moderator: currentUserIsModerator, 'initializing': initializing }">
 
@@ -112,7 +125,6 @@ export default {
       countdown: 0,
       countdownDuration: 10,
       focus: null,
-      isolateFocus: false,
       leaderboard: {},
       messagesInitialized: false,
       modalContent: 'user',
@@ -197,6 +209,9 @@ export default {
         this.messagesInitialized &&
         this.currentUser
       )
+    },
+    unfocused() {
+      return this.focus !== null || !this.wsConnected
     },
     allDataLoaded() {
       return (
@@ -387,11 +402,9 @@ export default {
     // =============
     openModal() {
       this.focus = 'modal'
-      this.isolateFocus = true
     },
     closeModal() {
       if (this.focus === 'modal') {
-        this.isolateFocus = false
         this.focus = null
       }
     },

@@ -1,7 +1,7 @@
 <template>
     <div class="spinner absolute-center">
         <div class="lds-ring small"><div></div><div></div><div></div><div></div></div>
-        <h3 class="animated fadeInDown faster" v-if="$slots.default"><slot /></h3>
+        <h3 class="animated fadeInDown delay-3s faster" v-if="$slots.default"><slot /></h3>
     </div>
 </template>
 

@@ -1,9 +1,11 @@
+$disconnection-animation-delay: 3s;
+
 #room {
   transition: transform 0.2s ease-out;
 }
 
 .grid-item {
-  transition: transform 0.2s ease-out, opacity 0.2s ease-out, filter 0.2s ease-out, visibility 0.2s ease-out 0.2s;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out, filter 0.3s ease-out;
 }
 
 #room-modal {
@@ -16,7 +18,7 @@
   flex-grow: 1;
 }
 
-#super-container.isolate-focus {
+#super-container.unfocused {
   #room {
     transform: scale(0.97);
   }
@@ -35,5 +37,15 @@
     transform: scale(1.08);
     filter: unset;
     opacity: 1;
+  }
+}
+
+#super-container.unfocused.disconnected {
+  #room {
+    transition: transform 1s ease-out $disconnection-animation-delay;
+  }
+
+  .grid-item {
+    transition: transform 1s ease-out $disconnection-animation-delay, opacity 1s ease-out $disconnection-animation-delay, filter 1s ease-out $disconnection-animation-delay;
   }
 }
