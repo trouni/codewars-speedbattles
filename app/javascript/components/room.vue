@@ -1,7 +1,7 @@
 <template>
-  <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}, {'isolate-focus': isolateFocus}]">
+  <div id="super-container" :class="[viewMode, roomStatus, {'ready-for-battle': readyForBattle}, {'isolate-focus': isolateFocus || !wsConnected}]">
     <span class="app-bg"/>
-    <navbar :room-id="room.id" :loading="settingsLoading" />
+    <navbar :room-id="room.id" :loading="settingsLoading || !wsConnected" />
     <modal v-if="focus === 'modal' && settings" id="room-modal" :title="`SYS://Settings`">
       <template>
         <user-settings :settings="settings" :moderator="currentUserIsModerator"/>
@@ -10,7 +10,7 @@
         <room-settings :settings="settings"/>
       </template>
     </modal>
-    <spinner v-if="initializing">{{ wsConnected ? 'LOADING' : 'CONNECTING' }}</spinner>
+    <spinner v-if="initializing || !wsConnected">{{ wsConnected ? 'LOADING' : 'CONNECTING' }}</spinner>
 
     <div id="room" :class="{ moderator: currentUserIsModerator, 'initializing': initializing }">
 
@@ -190,7 +190,6 @@ export default {
     },
     initializing() {
       return !(
-        this.wsConnected &&
         this.userSettingsInitialized &&
         this.roomSettingsInitialized &&
         this.usersInitialized &&
