@@ -16,7 +16,7 @@ export default {
     content: String,
   },
   mounted() {
-    this.$root.$emit('play-fx', 'hover');
+    this.$root.$emit('play-fx', 'message');
   },
   computed: {
     blocksLang() {

@@ -3,7 +3,7 @@
     <div v-if="battle.id" class="d-flex flex-column h-100">
       <div v-if="battle.challenge" class="challenge-info w-100 mb-3">
         <p class="mb-3">
-          <rank-hex :rank="battle.challenge.rank"/>
+          <rank-hex :rank="`${battle.challenge.rank}`"/>
           <strong class="highlight">{{ displayChallengeName ? battle.challenge.name : settings.room.classification }}</strong>
           <sup>
             <span v-if="userDefeated(currentUser.id)" class="badge badge-danger">Defeat</span>
@@ -98,8 +98,8 @@
         </span>
         <span v-else-if="battle.stage > 0 && battle.stage < 3" class="d-contents">
           <std-button @click.native="$root.$emit('delete-battle')" small fa-icon="fas fa-times-circle" title="Cancel" />
-          <std-button @click.native="$root.$emit('invite-survivors')" small fa-icon="fas fa-user-plus" title="Invite Survivors" />
-          <std-button @click.native="$root.$emit('invite-all')" small fa-icon="fas fa-user-plus" title="Invite All" />
+          <std-button @click.native="$root.$emit('invite-survivors')" small fa-icon="fas fa-user-plus" title="Invite Survivors" :disabled="eligibleUsers.length === 0" />
+          <std-button @click.native="$root.$emit('invite-all')" small fa-icon="fas fa-user-plus" title="Invite All" :disabled="eligibleUsers.length === 0" />
           <std-button v-if="battle.stage < 4" @click.native="$root.$emit('initialize-battle')" :disabled="!readyToStart" fa-icon="fas fa-radiation" title="Start Battle" :class="attentionWaitingToStart" />
         </span>
         <div v-else-if="battle.stage >= 3" class="d-contents">
@@ -116,7 +116,7 @@
             class="w-100"
             @keyup.enter="createBattle"
             @keyup.escape="createNewBattle = false"
-            placeholder="Enter the ID, slug or url of the kata (ESC to cancel)"
+            placeholder="Enter the name/ID/slug/url of the kata (ESC to cancel)"
             v-model="challengeInput"
             v-focus
           >
@@ -239,6 +239,11 @@
           (this.settings.room.classification === 'CONFIDENTIAL' && this.currentUserIsModerator) ||
           this.battle.stage === 0 ||
           this.battle.stage > 2
+      },
+      eligibleUsers() {
+        if (this.battle.stage === 0) { return [] }
+        // return this.battle.players
+        return this.users.filter(user => user.invite_status === 'eligible')
       },
       invitedUsers() {
         if (this.battle.stage === 0) { return [] }

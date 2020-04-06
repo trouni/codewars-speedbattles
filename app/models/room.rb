@@ -29,7 +29,7 @@ class Room < ApplicationRecord
   has_settings do |s|
     s.key :base, defaults: {
       sound: true,
-      classification: 'confidential',
+      classification: 'CONFIDENTIAL',
       min_kyu: -8,
       max_kyu: -1,
       auto_invite: false,
