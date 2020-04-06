@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="mt-3">
-      <h2>Room settings</h2>
-      <small>You are moderator for this war room.</small>
+      <h3>Room settings</h3>
+      <!-- <small>You are moderator for this war room.</small> -->
     </div>
-    <div class="form-group mt-2 mb-5">
+    <div class="form-group mt-3 mb-5">
       <!-- <h5 class="no-wrap">Room name</h5> -->
       <input
         @keydown.enter="updateSettings"

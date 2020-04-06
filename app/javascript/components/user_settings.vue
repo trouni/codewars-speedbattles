@@ -1,5 +1,9 @@
 <template>
   <div>
+    <div v-if="moderator" class="mt-3">
+      <h3>Profile settings</h3>
+      <!-- <small>You are moderator for this war room.</small> -->
+    </div>
     <div class="form-group mt-3 mb-5">
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="m-0 no-wrap">Display name</h5>

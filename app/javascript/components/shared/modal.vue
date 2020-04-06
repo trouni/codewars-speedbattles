@@ -65,7 +65,7 @@ export default {
     transform: translate(-50%, -50%);
     z-index: 100;
 
-    .widget-body {
+    .widget-content {
       overflow-y: scroll;
     }
   }
