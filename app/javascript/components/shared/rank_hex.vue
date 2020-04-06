@@ -1,6 +1,6 @@
 <template>
-  <span class="rank-hex d-inline-block">
-    <div v-if="rank" :class="['small-hex', rankColor[rank]]">
+  <span v-if="rank" class="rank-hex d-inline-block">
+    <div :class="['small-hex', rankColor[rank]]">
       <div class="inner-small-hex">
         <span v-html="rankName[rank]" />
       </div>
