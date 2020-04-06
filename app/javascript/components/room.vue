@@ -83,7 +83,8 @@
 </template>
 
 <script>
-import _ from "lodash";
+import debounce from "lodash/debounce";
+import kebabCase from "lodash/kebabCase";
 import RoomControls from "../components/room_controls.vue";
 import RoomChat from "../components/room_chat.vue";
 import RoomLeaderboard from "../components/room_leaderboard.vue";
@@ -146,9 +147,10 @@ export default {
           click: new Audio("../audio/select.mp3"),
           countdown: new Audio("../audio/countdown.mp3"),
           // https://audiojungle.net/item/counting-countdown-timer/21635290
-          countdownBeep: new Audio('../audio/beep.mp3'),
+          countdownTick: new Audio('../audio/countdown-tick.wav'),
+          countdownZero: new Audio('../audio/battlecruiser.mp3'),
           drums: new Audio("../audio/drums.mp3"),
-          hover: new Audio("../audio/hover.mp3"),
+          message: new Audio("../audio/hover.mp3"),
           interface: new Audio("../audio/interface.mp3"),
           mouseenter: new Audio("../audio/beep.mp3"),
           mouseover: new Audio("../audio/beep.mp3"),
@@ -390,7 +392,7 @@ export default {
         data: data
       });
     },
-    debouncedSendCable: _.debounce((cable, action, data) => {
+    debouncedSendCable: debounce((cable, action, data) => {
       cable.perform({
         channel: "RoomChannel",
         action: action,
@@ -495,7 +497,7 @@ export default {
       if (this.battleLoaded) this.sendCable("delete_battle", { battle_id: this.battle.id });
     },
     parseChallengeInput(input) {
-      const urlRegex = /^(https:\/\/)?www\.codewars\.com\/kata\/(?<challengeIdSlug>.+)\/train\/(?<language>.+)$/;
+      const urlRegex = /^(https:\/\/)?www\.codewars\.com\/kata\/(?<challengeIdSlug>.+?)\/?(train\/(?<language>.+))?$/;
       const matchData = input.match(urlRegex);
       if (matchData) {
         return {
@@ -504,7 +506,7 @@ export default {
         };
       } else {
         return {
-          challengeIdSlug: input,
+          challengeIdSlug: kebabCase(input),
           language: null
         };
       }
@@ -619,9 +621,10 @@ export default {
       this.countdown = countdown;
       const timer = setInterval(() => {
         if (this.countdown > 1) {
-          this.playSoundFx('countdownBeep')
+          this.playSoundFx('countdownTick')
           this.countdown -= 1;
         } else {
+          this.playSoundFx('countdownZero')
           this.countdown = 0;
           clearInterval(timer);
           if (this.currentUser.invite_status === "confirmed" && !this.viewMode)

@@ -48,6 +48,8 @@ module CodewarsHelper
     }
   rescue OpenURI::HTTPError => e
     return nil
+  rescue URI::InvalidURIError => e
+    return nil
   end
 
   private

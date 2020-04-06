@@ -21,7 +21,7 @@ export default {
   },
 
   parseChallengeInput (input) {
-    const urlRegex = /^(https:\/\/)?www\.codewars\.com\/kata\/(?<challengeIdSlug>.+)\/train\/(?<language>.+)$/;
+    const urlRegex = /^(https:\/\/)?www\.codewars\.com\/kata\/(?<challengeIdSlug>.+?)\/?(train\/(?<language>.+))?$/;
     const matchData = input.match(urlRegex);
     if (matchData) {
       return {
