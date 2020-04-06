@@ -116,7 +116,7 @@
             class="w-100"
             @keyup.enter="createBattle"
             @keyup.escape="createNewBattle = false"
-            placeholder="Enter the name/ID/slug/url of the kata (ESC to cancel)"
+            placeholder="Enter the name/url/ID of the kata (ESC to cancel)"
             v-model="challengeInput"
             v-focus
           >
