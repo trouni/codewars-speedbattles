@@ -22,5 +22,8 @@ module CodewarsSpeedbattles
     # the framework and any gems in your application.
 
     config.active_job.queue_adapter = :sidekiq
+
+    # Adding fonts to the assets pipeline
+    config.assets.paths << Rails.root.join("app", "assets", "fonts")
   end
 end

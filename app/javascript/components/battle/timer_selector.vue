@@ -63,10 +63,10 @@ export default {
     margin: 0;
     font-size: 0.9em;
     &.arrow-up {
-      top: -1em;
+      top: -1.15em;
     }
     &.arrow-down {
-      bottom: -1.2em;
+      bottom: -1em;
     }
     &.disabled {
       cursor: default;

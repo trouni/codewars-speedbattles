@@ -238,6 +238,7 @@ class Room < ApplicationRecord
         options: options,
       }
     )
+    chat.create_announcement(message) if options[:chat_msg]
   end
 
   def broadcast_messages(private_to_user_id: nil)
