@@ -462,9 +462,9 @@ export default {
         const msg = new SpeechSynthesisUtterance(message);
         const voices = speechSynthesis.getVoices();
         const voiceURI = options.voiceURI || "Google US English";
-        const soundFX = options.fx
-        const fxVolume = options.fxVolume
-        const fxPlayAt = options.fxPlayAt || 'asap'
+        const soundFX = options.sfx
+        const fxVolume = options.sfxVolume
+        const fxPlayAt = options.sfxPlayAt || 'asap'
         msg.voice =
           voices[voices.findIndex(e => e.voiceURI === voiceURI)];
         msg.rate = 1.1;
@@ -615,22 +615,26 @@ export default {
       soundFX.pause();
       soundFX.currentTime = 0;
       soundFX.volume = volume;
+      soundFX.onended = () => {
+        this.resetAmbianceVolume()
+      };
+      this.setBackgroundVolume()
       if (this.voiceON) soundFX.play();
     },
     startCountdown(countdown) {
       this.countdown = countdown;
+      if (this.countdown === 10) this.playVoiceFx("countdown")
+      this.playSoundFx('countdownTick')
       const timer = setInterval(() => {
-        if (this.countdown > 1) {
-          this.playSoundFx('countdownTick')
-          this.countdown -= 1;
-        } else {
-          this.playSoundFx('countdownZero')
-          this.countdown = 0;
-          clearInterval(timer);
-          if (this.currentUser.invite_status === "confirmed" && !this.viewMode)
-            this.openCodewars();
+        this.countdown -= 1;
+        if (this.countdown <= 0) {
           this.startClock();
-          // this.startAmbiance();
+          if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
+          if (!this.voiceON) this.playSoundFx('countdownZero')
+          clearInterval(timer);
+        } else {
+          if (this.countdown === 10) this.playVoiceFx("countdown")
+          this.playSoundFx('countdownTick')
         }
       }, 1000);
     },
@@ -639,33 +643,22 @@ export default {
       this.clockInterval = setInterval(() => {
         if (this.battle.stage === 4) {
           if (this.battle.time_limit > 0) {
-            const clockTime = this.timeRemainingInSeconds() > 0 ? this.timeRemainingInSeconds() : 0;
+            const timeRemaining = this.timeRemainingInSeconds()
+            const clockTime = Math.max(timeRemaining, 0);
             this.announce({ content: `<span class='timer highlight'>${this.formatDuration(clockTime)}</span>` });
-            if (
-              this.timeRemainingInSeconds() > 301 &&
-              this.timeRemainingInSeconds() <= 302
-            ) {
-              this.speak("WARNING! 5min remaining!", { cancelPrevious: true });
-            } else if (
-              this.timeRemainingInSeconds() > 121 &&
-              this.timeRemainingInSeconds() <= 122
-            ) {
-              this.speak("WARNING! 2min remaining!", { cancelPrevious: true });
-            } else if (
-              this.timeRemainingInSeconds() > 61 &&
-              this.timeRemainingInSeconds() <= 62
-            ) {
-              this.speak("WARNING! 1min remaining!", { cancelPrevious: true });
-            } else if (
-              this.timeRemainingInSeconds() > 10 &&
-              this.timeRemainingInSeconds() <= 11
-            ) {
-              this.setBackgroundVolume()
-              // this.speak(Math.round(this.timeRemainingInSeconds()), true)
-              this.playVoiceFx("countdown");
-            } else if (this.timeRemainingInSeconds() <= 0) {
+            if (timeRemaining <= 0) {
+              if (!this.voiceON && timeRemaining === 0) this.playSoundFx('countdownZero')
               this.endBattle();
               clearInterval(this.clockInterval);
+            } else if (timeRemaining <= 10) {
+              if (timeRemaining === 10) this.playVoiceFx("countdown")
+              if (!this.voiceON) this.playSoundFx('countdownTick')
+            } else if (timeRemaining === 61) {
+              this.speak("WARNING! 1min remaining!", { interrupt: true });
+            } else if (timeRemaining === 121) {
+              this.speak("WARNING! 2min remaining!", { interrupt: true });
+            } else if (timeRemaining === 301) {
+              this.speak("WARNING! 5min remaining!", { interrupt: true });
             }
           } else {
             const clockTime = this.timeSpentInSeconds();
@@ -682,7 +675,7 @@ export default {
       return (Date.now() - Date.parse(this.battle.start_time)) / 1000;
     },
     timeRemainingInSeconds() {
-      return this.battle.time_limit - this.timeSpentInSeconds();
+      return Math.ceil(this.battle.time_limit - this.timeSpentInSeconds());
     },
     formatDuration(durationInSeconds) {
       if (durationInSeconds < 0) durationInSeconds = 0;
@@ -789,7 +782,6 @@ export default {
               case "start-countdown":
                 // this.sendCable('invitation', { battle_id: this.battle.id, invite_action: 'uninvite-unconfirmed' })
                 this.startCountdown(data.payload.data.countdown);
-                this.playVoiceFx("countdown");
                 break;
 
               case "voice-announce":
