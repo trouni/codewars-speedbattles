@@ -175,7 +175,8 @@
 
   
   .widget .header {
-    background-color: rgba( $bezel-color, .25 );
+    // background-color: rgba( $bezel-color, .25 );
+    background-color: $fullopacity;
     transition: background-color $transition-speed ease-out;
   }
   

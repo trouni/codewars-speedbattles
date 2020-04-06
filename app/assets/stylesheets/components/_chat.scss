@@ -1,19 +1,8 @@
 #room-chat {
   // START: Custom tweaks specific to Chat widget
-  .header {
-    clip-path: polygon(0 0, $chat-header-width 0, calc(#{$chat-header-width} - #{$bezel}) 100%, 0 100%);
-    width: 50%;
-    padding-right: 0;
-  }
-  
-  .widget-body {
-    clip-path: polygon(0 $bezel, calc(#{$chat-header-width} - #{$bezel}) $bezel, $chat-header-width 0, 100% 0, 100% 100%, 0 100%);
-  }
-
   .widget-controls {
     min-height: unset;
   }
-
   // END: Custom widget tweaks
   
   .messages {
