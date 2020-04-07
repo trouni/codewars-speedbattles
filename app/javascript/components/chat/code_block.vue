@@ -11,13 +11,19 @@ export default {
     lang: String,
     content: String,
   },
+  data() {
+    return {
+      loading: true,
+    }
+  },
   watch: {
     codeContent() {
       this.loading = !this.$refs.codeContent.innerText
     }
   },
-  computed: {
-    },
+  mounted() {
+    this.loading = !this.$refs.codeContent.innerText
+  },
   methods: {
     codeContent() {
       return this.$refs.codeContent.innerText

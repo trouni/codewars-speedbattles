@@ -30,13 +30,14 @@ export default {
       return output
     },
     contentBlocks() {
-      return this.content.split(/^```\w*$/gm).map((block, idx) => {
+      const blocks = this.content.split(/^```\w*$/gm).map((block, idx) => {
         return {
           content: _.trim(block),
           code: idx % 2 === 1 ? this.blocksLang[(idx - 1) / 2] : false
         }
       })
-    }
+      return blocks.filter(block => block.content)
+    },
   },
   components: {
     CodeBlock: () => import('./code_block'),

@@ -68,6 +68,7 @@
           return this.messages.sort((a, b) => {
             return new Date(a.created_at) - new Date(b.created_at)
           })
+          .filter(message => this.hasContent(message))
         }
       },
       inputLines() {
@@ -198,6 +199,11 @@
           a.getMonth() === b.getMonth() &&
           a.getDate()=== b.getDate()
       },
+      hasContent(message) {
+        return message.content.split(/^```\w*$/gm)
+                              .filter(block => _.trim(block))
+                              .length > 0
+      }
     }
   }
 </script>
