@@ -1,5 +1,5 @@
 <template>
-    <div class="spinner absolute-center">
+    <div :class="['spinner', {'absolute-center':!inline}]">
         <div class="lds-ring small"><div></div><div></div><div></div><div></div></div>
         <h3 class="animated fadeInDown delay-3s faster" v-if="$slots.default"><slot /></h3>
     </div>
@@ -11,7 +11,8 @@ export default {
     title: {
       type: String,
       default: null,
-    }
+    },
+    inline: Boolean,
   }
 }
 </script>

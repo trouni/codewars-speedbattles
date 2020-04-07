@@ -1,6 +1,7 @@
 <template>
-    <pre v-highlightjs="content" class="d-flex">
-      <code :class="[lang, 'flex-grow-1']"></code>
+    <pre v-highlightjs="content" class="code-ctn">
+      <spinner v-if="loading" />
+      <code :class="[lang, 'flex-grow-1']" ref="codeContent" />
     </pre>
 </template>
 
@@ -9,11 +10,28 @@ export default {
   props: {
     lang: String,
     content: String,
-  }
+  },
+  watch: {
+    codeContent() {
+      this.loading = !this.$refs.codeContent.innerText
+    }
+  },
+  computed: {
+    },
+  methods: {
+    codeContent() {
+      return this.$refs.codeContent.innerText
+    }
+  },
 }
 </script>
 
 <style lang='scss'>
+  .code-ctn {
+    display: flex;
+    position: relative;
+  }
+
   .peace, .battle-loaded, .battle-confirmed {
     @import "highlight.js/scss/nord"
   }
