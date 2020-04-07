@@ -1,23 +1,23 @@
 // @font-face {
 //     font-family: 'NanumGothicCoding';
-//     src: url('NanumGothicCoding-Bold.eot');
+//     src: asset-url('NanumGothicCoding-Bold.eot');
 //     src: local('NanumGothicCoding-Bold'),
-//         url('NanumGothicCoding-Bold.eot?#iefix') format('embedded-opentype'),
-//         url('NanumGothicCoding-Bold.woff2') format('woff2'),
-//         url('NanumGothicCoding-Bold.woff') format('woff'),
-//         url('NanumGothicCoding-Bold.ttf') format('truetype');
+//         asset-url('NanumGothicCoding-Bold.eot?#iefix') format('embedded-opentype'),
+//         asset-url('NanumGothicCoding-Bold.woff2') format('woff2'),
+//         asset-url('NanumGothicCoding-Bold.woff') format('woff'),
+//         asset-url('NanumGothicCoding-Bold.ttf') format('truetype');
 //     font-weight: bold;
 //     font-style: normal;
 // }
 
 @font-face {
     font-family: 'NanumGothicCoding';
-    src: url('NanumGothicCoding.eot');
+    src: asset-url('NanumGothicCoding.eot');
     src: local('NanumGothicCoding'),
-        url('NanumGothicCoding.eot?#iefix') format('embedded-opentype'),
-        url('NanumGothicCoding.woff2') format('woff2'),
-        url('NanumGothicCoding.woff') format('woff'),
-        url('NanumGothicCoding.ttf') format('truetype');
+        asset-url('NanumGothicCoding.eot?#iefix') format('embedded-opentype'),
+        asset-url('NanumGothicCoding.woff2') format('woff2'),
+        asset-url('NanumGothicCoding.woff') format('woff'),
+        asset-url('NanumGothicCoding.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
