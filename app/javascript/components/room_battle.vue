@@ -3,7 +3,7 @@
     <div v-if="battle.id" class="d-flex flex-column h-100">
       <div v-if="battle.challenge" class="challenge-info w-100 mb-3">
         <p class="mb-3">
-          <rank-hex :rank="`${battle.challenge.rank}`"/>
+          <rank-hex :rank="'' + battle.challenge.rank"/>
           <strong class="highlight">{{ displayChallengeName ? battle.challenge.name : settings.room.classification }}</strong>
           <sup>
             <span v-if="userDefeated(currentUser.id)" class="badge badge-danger">Defeat</span>

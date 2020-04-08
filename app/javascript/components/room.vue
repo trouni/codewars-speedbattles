@@ -13,7 +13,7 @@
     <span :class="['app-bg', {'initializing': initializing}]"/>
 
     <navbar :room-id="room.id" :loading="settingsLoading || !wsConnected" />
-    <modal v-if="focus === 'modal' && settings" id="room-modal" :title="`SYS://Settings`">
+    <modal v-if="focus === 'modal' && settings" id="room-modal" title="SYS://Settings">
       <template>
         <user-settings :settings="settings" :moderator="currentUserIsModerator"/>
       </template>
