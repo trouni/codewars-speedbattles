@@ -48,6 +48,10 @@ class Room < ApplicationRecord
     }
   end
 
+  def inactive?
+    room_users.empty?
+  end
+
   def players
     super.distinct
     # User.joins(battle_invites: :battle).where(battle_invites: { confirmed: true }, battles: { room_id: id }).uniq
@@ -157,6 +161,8 @@ class Room < ApplicationRecord
   end
 
   def broadcast(subchannel: "logs", payload: nil, private_to_user_id: nil)
+    return if inactive?
+
     ActionCable.server.broadcast(
       private_to_user_id ? "user_#{private_to_user_id}" : "room_#{id}",
       subchannel: subchannel,
@@ -176,7 +182,7 @@ class Room < ApplicationRecord
   end
 
   def broadcast_to_moderator(subchannel: "logs", payload: nil)
-    return unless moderator
+    return if inactive? || !moderator
 
     ActionCable.server.broadcast(
       "user_#{moderator.id}",

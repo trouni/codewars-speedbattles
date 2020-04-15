@@ -36,6 +36,8 @@ class Message < ApplicationRecord
   # end
 
   def broadcast
+    return if room.inactive?
+
     ActionCable.server.broadcast(
       "room_#{room.id}",
       subchannel: "chat",

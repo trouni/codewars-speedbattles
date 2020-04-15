@@ -21,6 +21,7 @@
 
 class Battle < ApplicationRecord
   belongs_to :room
+  belongs_to :kata
   has_many :users, through: :room
   belongs_to :winner, class_name: "User", optional: true
   has_many :battle_invites, dependent: :destroy
@@ -54,7 +55,7 @@ class Battle < ApplicationRecord
 
     uninvite_unconfirmed
     # room.announce(:chat, "<h1>🍻</h1><p class='highlight'>Battle starting in #{countdown}s... Time for a drink!</p>")
-    room.announce(:chat, "<i class='fas fa-rocket mr-1'></i> The battle for <span class='chat-highlight'>#{challenge_name}</span> is about to begin...")
+    room.announce(:chat, "<i class='fas fa-rocket mr-1'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> is about to begin...")
     room.broadcast_action(action: 'start-countdown', data: { countdown: countdown })
     update(start_time: Time.now + countdown.seconds)
   end
@@ -67,12 +68,14 @@ class Battle < ApplicationRecord
     defeated_players.each(&:async_fetch_codewars_info)
     room.announce(
       :chat,
-      "<i class='fas fa-peace'></i> The battle for <span class='chat-highlight'>#{challenge_name}</span> is over."
+      "<i class='fas fa-peace'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> is over."
     )
     broadcast_players
   end
 
   def broadcast_all
+    return if room.inactive?
+    
     room.broadcast_active_battle
     # Broadcasting users to refresh invite status
     room.broadcast_users
@@ -88,12 +91,11 @@ class Battle < ApplicationRecord
 
   def challenge
     {
-      id: challenge_id,
-      url: challenge_url,
-      name: challenge_name,
+      id: kata.codewars_id,
+      url: kata.url,
+      name: kata.name,
       language: challenge_language,
-      rank: challenge_rank,
-      description: challenge_description
+      rank: kata.rank
     }
   end
 

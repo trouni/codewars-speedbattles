@@ -15,16 +15,18 @@
 
 class CompletedChallenge < ApplicationRecord
   belongs_to :user
+  belongs_to :kata, required: false
   validates :challenge_id, uniqueness: { scope: %i[user completed_at] }
+  validates :kata_id, uniqueness: { scope: %i[user completed_at] }
   # after_create :update_active_battle
 
   def api_expose
     {
       id: id,
       user_id: user.id,
-      challenge_id: challenge_id,
-      challenge_name: challenge_name,
-      challenge_slug: challenge_slug,
+      challenge_id: kata.codewars_id,
+      challenge_name: kata.name,
+      challenge_slug: kata.slug,
       completed_at: completed_at,
       completed_languages: completed_languages
     }
