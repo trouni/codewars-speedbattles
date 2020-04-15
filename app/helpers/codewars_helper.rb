@@ -1,4 +1,5 @@
 require 'open-uri'
+require 'nokogiri'
 require 'json'
 
 module CodewarsHelper
@@ -19,13 +20,15 @@ module CodewarsHelper
       puts "Already up-to-date."
     else
       json["data"].each do |challenge|
+        kata = Kata.find_or_create_by(codewars_id: challenge['id'])
         CompletedChallenge.create(
           user: user,
           challenge_id: challenge["id"],
           challenge_slug: challenge["slug"],
           challenge_name: challenge["name"],
           completed_at: DateTime.parse(challenge["completedAt"]),
-          completed_languages: challenge["completedLanguages"]
+          completed_languages: challenge["completedLanguages"],
+          kata: kata
         )
         puts "Added challenge '#{challenge["id"]}: #{challenge["slug"]}' to #{user.username}"
       end
@@ -52,7 +55,45 @@ module CodewarsHelper
     return nil
   end
 
+  def scrape_kata_page(challenge_id)
+    url = "https://www.codewars.com/kata/#{challenge_id}"
+    html_file = open(url).read
+    html_doc = Nokogiri::HTML(html_file)
+    # Adding votes data to kata
+    target_kata_info = html_doc.search('div[data-id]').first
+    codewars_id = target_kata_info.attribute('data-id').value
+    kata = Kata.find_or_initialize_by(codewars_id: codewars_id)
+    stats = extract_satisfaction_stats(target_kata_info)
+    kata.update(
+      satisfaction_rating: stats[:satisfaction],
+      total_votes: stats[:total_votes],
+      last_scraped_at: Time.now
+    )
+
+    # Creating katas in the db from similar katas on the page
+    html_doc.search('.list-item.kata').each do |html_kata|
+      codewars_id =  html_kata.attribute('id').value
+      name = html_kata.attribute('data-title').value
+      stats = extract_satisfaction_stats(html_kata)
+      kata = Kata.find_or_initialize_by(codewars_id: codewars_id)
+      kata.update(
+        name: name,
+        satisfaction_rating: stats[:satisfaction],
+        total_votes: stats[:total_votes],
+        last_scraped_at: Time.now
+      )
+    end
+  end
+
   private
+
+  def extract_satisfaction_stats(html_element)
+    m_data = html_element.search('.icon-moon-guage + span').text.strip.match(/(?<satisfaction_rating>.+)% of (?<total_votes>.+)/)
+    return {
+      satisfaction: m_data[:satisfaction_rating].to_i,
+      total_votes: m_data[:total_votes].delete(',').to_i
+    }
+  end
 
   def fetch_url(url)
     begin
