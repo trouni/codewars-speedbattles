@@ -7,6 +7,7 @@ class RoomChannel < ApplicationCable::Channel
     room_user = RoomUser.find_or_create_by(room: @room, user: @current_user)
     stream_from "room_#{@room.id}"
     stream_from "user_#{@current_user.id}"
+    @current_user.async_fetch_codewars_info unless Time.now - (User.first.last_fetched_at || Time.now) < 60
     @current_user.broadcast_settings
     @room.broadcast_settings(private_to_user_id: @current_user.id)
     @room.broadcast_users
