@@ -83,6 +83,8 @@ ActiveRecord::Schema.define(version: 2020_04_14_052347) do
     t.integer "total_stars"
     t.integer "vote_score"
     t.integer "satisfaction_rating"
+    t.integer "total_votes"
+    t.datetime "last_scraped_at"
     t.string "tags", default: [], array: true
     t.jsonb "other"
     t.datetime "created_at", null: false
