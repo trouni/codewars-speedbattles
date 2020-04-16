@@ -160,8 +160,9 @@ class Room < ApplicationRecord
     finished_battles.map { |battle| battle.score(player) }.reduce(:+)
   end
 
-  def available_katas(language: nil, rank: nil, min_votes: 50)
-    selection = Kata.where.not(id: Kata.joins(:users).where(users: { id: users }).distinct)
+  def available_katas(language: nil, rank: nil, min_votes: 50, excluded_users: [])
+    selected_users = users.reject { |user| excluded_users.include?(user) }
+    selection = Kata.where.not(id: Kata.joins(:users).where(users: { id: selected_users }).distinct)
     selection = selection.where.not(satisfaction_rating: nil).where('total_votes > ?', min_votes)
     selection = selection.where(rank: rank) if rank
     selection = selection.where("? = ANY (languages)", language) if language
