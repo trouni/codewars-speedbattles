@@ -95,7 +95,8 @@ class Battle < ApplicationRecord
       url: kata.url,
       name: kata.name,
       language: challenge_language,
-      rank: kata.rank
+      rank: kata.rank,
+      tags: kata.tags
     }
   end
 

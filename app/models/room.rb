@@ -160,6 +160,18 @@ class Room < ApplicationRecord
     finished_battles.map { |battle| battle.score(player) }.reduce(:+)
   end
 
+  def available_katas(language: nil, rank: nil, min_votes: 50)
+    selection = Kata.where.not(id: Kata.joins(:users).where(users: { id: users }).distinct)
+    selection = selection.where.not(satisfaction_rating: nil).where('total_votes > ?', min_votes)
+    selection = selection.where(rank: rank) if rank
+    selection = selection.where("? = ANY (languages)", language) if language
+    selection.order(satisfaction_rating: :desc)
+  end
+
+  def random_kata(**options)
+    available_katas(options).first(5).sample
+  end
+
   def broadcast(subchannel: "logs", payload: nil, private_to_user_id: nil)
     return if inactive?
 
