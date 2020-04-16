@@ -113,6 +113,7 @@ module CodewarsHelper
         name: name,
         rank: rank,
         tags: tags,
+        url: 'https://www.codewars.com/kata/' + codewars_id,
         total_stars: total_stars,
         satisfaction_rating: stats[:satisfaction],
         total_votes: stats[:total_votes],
