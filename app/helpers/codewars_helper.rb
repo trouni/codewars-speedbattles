@@ -85,6 +85,42 @@ module CodewarsHelper
     end
   end
 
+  def scrape_all_katas(language: 'ruby')
+    url = "https://www.codewars.com/kata/search/#{language}?q=&beta=false"
+    html_file = open(url).read
+    html_doc = Nokogiri::HTML(html_file)
+    total_katas = html_doc.search('.items-list > div:last-child > p').text.strip.split.first.to_i
+    last_page = (total_katas / 30).floor
+    ScrapeSearchPage.perform_later(language: language, last_page: last_page)
+  end
+
+  def scrape_search_page(language: 'ruby',  page_number: 0)
+    url = "https://www.codewars.com/kata/search/#{language}?q=&beta=false&page=#{page_number}"
+    html_file = open(url).read
+    html_doc = Nokogiri::HTML(html_file)
+
+    html_doc.search('.list-item.kata').each do |html_kata|
+      codewars_id =  html_kata.attribute('id').value
+      name = html_kata.attribute('data-title').value
+      rank = -html_kata.search('.inner-small-hex span').text.strip.match(/(\d) kyu/)[0].to_i
+      tags = html_kata.search('.keyword-tag a').map { |link| link.text.strip }
+      total_stars = html_kata.search("[data-rt=\"#{codewars_id}:total_stars\"]").text.strip.to_i
+      stats = extract_satisfaction_stats(html_kata)
+      kata = Kata.find_or_initialize_by(codewars_id: codewars_id)
+      puts "#{kata.persisted? ? 'Updating' : 'Creating'} kata '#{name}'..."
+      kata.languages << language unless kata.languages.include?(language)
+      kata.update(
+        name: name,
+        rank: rank,
+        tags: tags,
+        total_stars: total_stars,
+        satisfaction_rating: stats[:satisfaction],
+        total_votes: stats[:total_votes],
+        last_scraped_at: Time.now
+      )
+    end
+  end
+
   private
 
   def extract_satisfaction_stats(html_element)
