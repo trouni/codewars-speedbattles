@@ -1,6 +1,6 @@
 <template>
   <span v-if="rank" class="rank-hex d-inline-block">
-    <div :class="['small-hex', rankColor[rank]]">
+    <div :class="['small-hex', rankColor[rank], { inactive: inactive }]">
       <div class="inner-small-hex">
         <span v-html="rankName[rank]" />
       </div>
@@ -12,6 +12,7 @@
 export default {
   props: {
     rank: String,
+    inactive: Boolean,
   },
   data() {
     return {
@@ -194,6 +195,28 @@ export default {
   }
 }
 .black-rank {
+  background-color: #555;
+  color: #fff;
+  &:before {
+    border-right-color: #555;
+  }
+  &:after {
+    border-left-color: #555;
+  }
+  .inner-small-hex {
+    color: #999;
+  }
+}
+
+.inactive {
+  opacity: 0.3;
+}
+
+.clickable:hover {
+  transform: scale(1.05);
+}
+
+.inactive:not(:hover) {
   background-color: #555;
   color: #fff;
   &:before {
