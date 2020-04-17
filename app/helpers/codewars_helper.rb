@@ -23,9 +23,6 @@ module CodewarsHelper
         kata = Kata.find_or_create_by(codewars_id: challenge['id'])
         CompletedChallenge.create(
           user: user,
-          challenge_id: challenge["id"],
-          challenge_slug: challenge["slug"],
-          challenge_name: challenge["name"],
           completed_at: DateTime.parse(challenge["completedAt"]),
           completed_languages: challenge["completedLanguages"],
           kata: kata
@@ -35,24 +32,6 @@ module CodewarsHelper
     end
     user.update(last_fetched_at: Time.now)
     return json["totalPages"]
-  end
-
-  def fetch_kata_info(challenge_id)
-    json = fetch_url("https://www.codewars.com/api/v1/code-challenges/#{challenge_id}")
-    return nil unless json
-
-    return {
-      challenge_id: json["id"],
-      challenge_url: json["url"],
-      challenge_name: json["name"],
-      # challenge_language: args[:language],
-      challenge_rank: json["rank"]["id"],
-      challenge_description: json["description"]
-    }
-  rescue OpenURI::HTTPError => e
-    return nil
-  rescue URI::InvalidURIError => e
-    return nil
   end
 
   def scrape_kata_page(challenge_id)

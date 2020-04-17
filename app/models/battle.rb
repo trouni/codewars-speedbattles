@@ -4,17 +4,17 @@
 #
 #  id                    :bigint           not null, primary key
 #  room_id               :bigint
-#  challenge_id          :string
-#  challenge_url         :string
-#  challenge_name        :string
-#  challenge_language    :string
-#  challenge_rank        :integer
-#  challenge_description :text
+#  DELETE: challenge_id          :string
+#  DELETE: challenge_url         :string
+#  DELETE: challenge_name        :string
+#  RENAME: challenge_language    :string
+#  DELETE: challenge_rank        :integer
+#  DELETE: challenge_description :text
 #  max_survivors         :integer
 #  time_limit            :integer
 #  end_time              :datetime
 #  start_time            :datetime
-#  winner_id             :bigint
+#  DELETE: winner_id             :bigint
 #  created_at            :datetime         not null
 #  updated_at            :datetime         not null
 #
@@ -23,7 +23,6 @@ class Battle < ApplicationRecord
   belongs_to :room
   belongs_to :kata
   has_many :users, through: :room
-  belongs_to :winner, class_name: "User", optional: true
   has_many :battle_invites, dependent: :destroy
   has_many :players, through: :battle_invites, class_name: "User"
   has_many :completed_challenges, through: :players
@@ -54,7 +53,6 @@ class Battle < ApplicationRecord
     return if started?
 
     uninvite_unconfirmed
-    # room.announce(:chat, "<h1>🍻</h1><p class='highlight'>Battle starting in #{countdown}s... Time for a drink!</p>")
     room.announce(:chat, "<i class='fas fa-rocket mr-1'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> is about to begin...")
     room.broadcast_action(action: 'start-countdown', data: { countdown: countdown })
     update(start_time: Time.now + countdown.seconds)
@@ -115,25 +113,12 @@ class Battle < ApplicationRecord
   end
 
   def completed_challenge(player)
-    # return nil unless players.where(id: player.id).exists?
-
-    CompletedChallenge.includes(:user).joins(:user)
-                      .where(user_id: player.id, challenge_id: challenge_id)
-                      .order(completed_at: :asc).limit(1).first
-                      # .where(
-                      #   "completed_at > ? AND challenge_id = ? AND user_id = ?",
-                      #   start_time,
-                      #   challenge_id,
-                      #   player.id
-                      # )
+    CompletedChallenge.where(user_id: player.id, kata_id: kata_id)
+                      .order(completed_at: :asc).first
   end
 
   def completed_challenge_at(player)
-    # return nil unless players.where(id: player.id).exists?
-
-    CompletedChallenge.includes(:user).joins(:user)
-                      .where(user_id: player.id, challenge_id: challenge_id)
-                      .order(completed_at: :asc).limit(1).first&.completed_at
+    completed_challenge(player)&.completed_at
   end
 
   def invitation(user: nil, action: nil)
@@ -146,29 +131,7 @@ class Battle < ApplicationRecord
     else invite_user(user)
     end
   end
-
-  # def survived?(player)
-  #   return nil unless players.where(id: player.id).exists?
-
-  #   query_end_time = end_time || Time.now
-
-  #   CompletedChallenge.includes(:user).joins(:user).where(
-  #     "completed_at > ? AND completed_at < ? AND completed_challenges.challenge_id = ? AND user_id = ?",
-  #     start_time,
-  #     query_end_time,
-  #     challenge_id,
-  #     player.id
-  #   ).exists?
-  # end
-
-  def winner
-    completed_challenges.includes(:user).joins(:user).order(completed_at: :asc).limit(1).first&.user
-  end
-
-  def winner?(player)
-    completed_challenges.includes(:user).joins(:user).order(completed_at: :asc).limit(1).where(user_id: player.id).exists?
-  end
-
+  
   def completed_challenges
     query_end_time = end_time || Time.now
 
@@ -176,10 +139,10 @@ class Battle < ApplicationRecord
       .includes(:user)
       .joins(:user)
       .where(
-        "completed_challenges.completed_at > ? AND completed_challenges.completed_at < ? AND completed_challenges.challenge_id = ?",
+        "completed_challenges.completed_at > ? AND completed_challenges.completed_at < ? AND kata_id = ?",
         start_time,
         query_end_time,
-        challenge_id
+        kata_id
       )
       .order(:completed_at)
       # .map(&:user)
@@ -244,19 +207,13 @@ class Battle < ApplicationRecord
   def invited_players
     battle_invites.map(&:player)
   end
+  
+  def ineligible_users
+    users.includes(:completed_challenges).joins(:completed_challenges).where(completed_challenges: { kata_id: kata_id })
+  end
 
   def eligible_users
-    sql_query = <<-SQL
-      users.id NOT IN (
-        SELECT users.id
-        FROM users
-        JOIN completed_challenges
-        ON users.id = completed_challenges.user_id
-        WHERE challenge_id = ?
-      )
-    SQL
-    # users.includes(:completed_challenges).where(sql_query, challenge_id).where.not(users: { id: room.moderator_id })
-    users.includes(:completed_challenges).where(sql_query, challenge_id)
+    users.where.not(id: ineligible_users.pluck(:id))
   end
 
   def non_invited_users
@@ -274,11 +231,6 @@ class Battle < ApplicationRecord
 
   def unconfirmed_players
     battle_invites.where(confirmed: false).map(&:player)
-  end
-
-  def ineligible_users
-    users.joins(:completed_challenges).where("completed_challenges.challenge_id = ?", challenge_id)
-    # User.joins(:completed_challenges).where(completed_challenges: { challenge_id: challenge_id, user: room.users })
   end
 
   def uninvite_unconfirmed

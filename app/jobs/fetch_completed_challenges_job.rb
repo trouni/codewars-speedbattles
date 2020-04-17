@@ -8,7 +8,7 @@ class FetchCompletedChallengesJob < ApplicationJob
     # @battle = Battle.find(battle_id) if battle_id
     @battle = @user.active_battle
     # Fetching first page and retrieving number of pages
-    unless @user.completed_challenge?(@battle&.challenge_id)
+    unless @user.completed_challenge?(@battle&.kata)
       total_pages = fetch_page(@user)
       (1...total_pages).each { |page| fetch_page(@user, page) } if all_pages
     end
@@ -19,8 +19,7 @@ class FetchCompletedChallengesJob < ApplicationJob
   private
 
   def announce_completion
-    completed_challenge = @user.completed_challenges.find_by(challenge_id: @battle.challenge_id)
-    completed_in = time_for_speech(completed_challenge.completed_at - @battle.start_time)
+    completed_in = time_for_speech(@battle.completed_challenge_at(@user) - @battle.start_time)
     @battle.room.announce(
       :chat,
       "<i class='fas fa-shield-alt'></i> Challenge completed by <span class='chat-highlight'>@{#{@user.username}}</span>"

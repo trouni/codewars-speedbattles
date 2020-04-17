@@ -13,11 +13,7 @@ class Room < ApplicationRecord
   belongs_to :moderator, class_name: "User"
   has_many :room_users, dependent: :destroy
   has_many :users, through: :room_users
-  has_many :battles, dependent: :destroy do
-    def for_challenge(challenge_id)
-      where(challenge_id: challenge_id)
-    end
-  end
+  has_many :battles, dependent: :destroy
   has_many :players, through: :battles
   has_one :chat, dependent: :destroy
   has_many :messages, through: :chat
@@ -30,8 +26,7 @@ class Room < ApplicationRecord
     s.key :base, defaults: {
       sound: true,
       classification: 'CONFIDENTIAL',
-      min_kyu: -8,
-      max_kyu: -1,
+      ranks: [-8, -7, -6, -5, -4, -3, -2, -1],
       auto_invite: false,
       auto_start: false,
       voice_chat_url: nil,
@@ -45,6 +40,7 @@ class Room < ApplicationRecord
       sound: settings(:base).sound,
       voice_chat_url: settings(:base).voice_chat_url,
       classification: settings(:base).classification,
+      ranks: settings(:base).ranks
     }
   end
 
@@ -122,7 +118,7 @@ class Room < ApplicationRecord
     AND b.room_id = #{id}
     AND cc.completed_at > b.start_time
     AND cc.completed_at < b.end_time
-    AND cc.challenge_id = b.challenge_id
+    AND cc.kata_id = b.kata_id
     GROUP BY u.id
     SQL
 
@@ -150,7 +146,7 @@ class Room < ApplicationRecord
   def battles_survived(player)
     # Battle.joins(battle_invites: { player: :completed_challenges }).where(
     BattleInvite.includes(:player, :room, player: :completed_challenges).joins(:player, :room, player: :completed_challenges).where(
-      "battle_invites.confirmed = true AND battles.room_id = ? AND completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time AND completed_challenges.challenge_id = battles.challenge_id AND completed_challenges.user_id = ?",
+      "battle_invites.confirmed = true AND battles.room_id = ? AND completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time AND completed_challenges.kata_id = battles.kata_id AND completed_challenges.user_id = ?",
       id,
       player.id
     )
@@ -160,11 +156,11 @@ class Room < ApplicationRecord
     finished_battles.map { |battle| battle.score(player) }.reduce(:+)
   end
 
-  def available_katas(language: nil, rank: nil, min_votes: 50, excluded_users: [])
+  def available_katas(language: nil, ranks: nil, min_votes: 50, excluded_users: [])
     selected_users = users.reject { |user| excluded_users.include?(user) }
     selection = Kata.where.not(id: Kata.joins(:users).where(users: { id: selected_users }).distinct)
     selection = selection.where.not(satisfaction_rating: nil).where('total_votes > ?', min_votes)
-    selection = selection.where(rank: rank) if rank
+    selection = selection.where(rank: ranks) if ranks
     selection = selection.where("? = ANY (languages)", language) if language
     selection.order(satisfaction_rating: :desc)
   end
