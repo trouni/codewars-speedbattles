@@ -48,8 +48,20 @@ class RoomChannel < ApplicationCable::Channel
     set_room
     battle = Battle.find_or_initialize_by(room: @room, end_time: nil)
     battle.time_limit = [data["time_limit"] || 0, 90 * 60].min
-    challenge = fetch_kata_info(data["challenge_id"])
-    challenge ? battle.update(challenge) : @room.broadcast_active_battle
+    kata = Kata.find_by(codewars_id: data['challenge_id']) || Kata.find_by(slug: data['challenge_id'])
+    kata ? battle.update(kata: kata) : @room.broadcast_active_battle
+  end
+
+  def create_random_battle(data)
+    set_room
+    kata_options = data['kata'].transform_keys(&:to_sym)
+    battle = Battle.create(
+      room: @room,
+      end_time: nil,
+      kata: @room.random_kata(**kata_options),
+      time_limit: data['time_limit'] || 10 * 60
+    )
+    @room.broadcast_active_battle
   end
 
   def update_battle(data)
