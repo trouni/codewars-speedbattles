@@ -7,12 +7,13 @@ class FetchCompletedChallengesJob < ApplicationJob
     @user = User.find(user_id)
     # @battle = Battle.find(battle_id) if battle_id
     @battle = @user.active_battle
+    already_completed_battle = @user.survived?(@battle) if @battle
     # Fetching first page and retrieving number of pages
     unless @user.completed_challenge?(@battle&.kata)
       total_pages = fetch_page(@user)
       (1...total_pages).each { |page| fetch_page(@user, page) } if all_pages
     end
-    announce_completion if @battle && @user.survived?(@battle)
+    announce_completion if @battle && @user.survived?(@battle) && !already_completed_battle
     @user.room&.broadcast_player(user: @user) if @battle.players.include?(@user)
   end
 
