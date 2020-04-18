@@ -183,7 +183,8 @@
       },
       prefillBlockLang(e) {
         if (this.input === '```') {
-          const lang = this.settings.room.language
+          // Taking first language until multi-lang rooms are supported
+          const lang = this.settings.room.languages[0]
           e.target.value += lang + '\r\n'
           if (!lang) e.target.selectionStart = 3
           e.target.selectionEnd =  e.target.selectionStart + lang.length
