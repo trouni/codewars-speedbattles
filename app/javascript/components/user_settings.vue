@@ -59,8 +59,11 @@
           <span v-else class="badge badge-danger">Not connected</span>
         </sup>
       </h5>
-      <div v-if="settings.user.connected_webhook" class="d-flex justify-content-center">
-        <std-button @click.native="$root.$emit('update-settings', { user: { connected_webhook: false } })" small>Reconnect the webhook</std-button>
+      <div v-if="settings.user.connected_webhook">
+        <small>Last call received {{ formatDate(settings.user.last_webhook_at) }}.</small>
+        <span class="d-flex justify-content-center my-3">
+          <std-button @click.native="$root.$emit('update-settings', { user: { connected_webhook: false, last_webhook_at: null } })" small>Reconnect the webhook</std-button>
+        </span>
       </div>
       <div v-else>
         <small>Add these settings to your Codewars account in order to automatically detect when you have completed a challenge.</small>
@@ -156,6 +159,17 @@ export default {
     },
     resetTooltip() {
       this.tooltipText = 'Copy to clipboard'
+    },
+    formatDate(dateString) {
+      const date = new Date(dateString)
+      const time = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
+      const day = this.isSameDay(new Date, date) ? 'today' : `${date.toDateString()}`
+      return `${day} at ${time}`
+    },
+    isSameDay(a, b) {
+      return a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate()=== b.getDate()
     },
   }
 }

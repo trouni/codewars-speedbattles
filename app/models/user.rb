@@ -42,7 +42,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   after_create :async_fetch_codewars_info
-  after_commit :broadcast
+  after_save :broadcast, if: :saved_change_to_profile?
 
   scope :invited, ->(battle) { battle ? self.in(battle.room).select('battle_invites.created_at AS invited_at').joins(:battle_invites).where(battle_invites: { battle: battle }) : [] }
   scope :pending, ->(battle) { battle ? invited(battle).where(battle_invites: { confirmed: false }) : [] }
@@ -51,7 +51,7 @@ class User < ApplicationRecord
   alias_attribute :rank, :codewars_overall_rank
 
   has_settings do |s|
-    s.key :base, defaults: { sfx: true, voice: true, music: true, connected_webhook: false, hljs_lang: nil }
+    s.key :base, defaults: { sfx: true, voice: true, music: true, connected_webhook: false, last_webhook_at: nil, hljs_lang: nil }
   end
 
   def webhook_secret
@@ -103,8 +103,9 @@ class User < ApplicationRecord
       sfx: settings(:base).sfx,
       voice: settings(:base).voice,
       music: settings(:base).music,
-      hljs_lang: settings(:base).hljs_lang,
+      # hljs_lang: settings(:base).hljs_lang,
       connected_webhook: settings(:base).connected_webhook,
+      last_webhook_at: settings(:base).last_webhook_at,
       webhook_secret: webhook_secret
     }
   end
@@ -259,5 +260,14 @@ class User < ApplicationRecord
       subchannel: "settings",
       payload: { action: 'user', settings: get_settings }
     )
+  end
+
+  def saved_change_to_profile?
+    saved_change_to_name? ||
+    saved_change_to_username? ||
+    saved_change_to_codewars_honor? ||
+    saved_change_to_rank? ||
+    saved_change_to_codewars_overall_score ||
+    saved_change_to_codewars_leaderboard_position?
   end
 end

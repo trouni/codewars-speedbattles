@@ -416,10 +416,13 @@ export default {
       this.focus === 'modal' ? this.closeModal() : this.openModal()
     },
     updateSettings(updatedSettings) {
-      this.userSettingsLoading = true
-      this.roomSettingsLoading = true
-      this.sendCable("update_user_settings", { user: updatedSettings.user });
-      this.sendCable("update_room_settings", { room: updatedSettings.room });
+      if (updatedSettings.user) {
+        this.userSettingsLoading = true
+        this.sendCable("update_user_settings", { user: updatedSettings.user });
+      } else if (updatedSettings.room) {
+        this.roomSettingsLoading = true
+        this.sendCable("update_room_settings", { room: updatedSettings.room });
+      }
     },
     checkCurrentUserConnection() {
       setInterval(_ => {
@@ -824,7 +827,8 @@ export default {
           case "settings":
             switch (data.payload.action) {
               case "user":
-                this.settings.user = data.payload.settings
+                Vue.set(this.settings, 'user', data.payload.settings)
+                // this.settings.user = data.payload.settings
                 this.userSettingsInitialized = true
                 this.userSettingsLoading = false
                 break;
