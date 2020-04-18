@@ -47,7 +47,7 @@
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="m-0">Default syntax highlighter</h5>
         <select v-model="hljsLang" class="flex-grow-1 ml-3">
-          <option v-for="(lang, alias) in codewarsLangs" :value="lang" :key="alias">{{ alias }}</option>
+          <option v-for="(key, lang_name) in settings.room.codewars_langs" :value="lang_name" :key="key">{{ key }}</option>
         </select>
       </div>
       <small>Select a default language to write code blocks.</small>
@@ -120,30 +120,6 @@ export default {
       tooltipText: "Copy to clipboard",
       displayName: this.settings.user.name,
       hljsLang: this.settings.user.hljs_lang,
-      codewarsLangs: {
-        '': '',
-        'C': 'c',
-        'C#': 'c#',
-        'C++': 'c++',
-        'Clojure': 'clj',
-        'CoffeeScript': 'coffee',
-        'Crystal': 'cr',
-        'Dart': 'dart',
-        'Elixir': 'elixir',
-        'F#': 'fs',
-        'Go': 'go',
-        'Haskell': 'hs',
-        'Java': 'java',
-        'JavaScript': 'js',
-        'PHP': 'php',
-        'Python': 'py',
-        'Ruby': 'rb',
-        'Rust': 'rs',
-        'Shell': 'shell',
-        'SQL': 'sql',
-        'Swift': 'swift',
-        'TypeScript': 'ts',
-      }
     }
   },
   computed: {
