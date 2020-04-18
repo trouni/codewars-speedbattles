@@ -8,6 +8,7 @@ import Widget from '../components/shared/widget.vue'
 import NavBar from '../components/navbar.vue'
 import SignUpFormInputs from '../components/sign_up/form_inputs.vue'
 import StdButton from '../components/shared/button.vue'
+import NumberInput from '../components/shared/num_input.vue'
 import Modal from '../components/shared/modal.vue'
 import Spinner from '../components/shared/spinner.vue'
 import RankHex from '../components/shared/rank_hex.vue'
@@ -18,6 +19,7 @@ Vue.component('room', Room)
 Vue.component('widget', Widget)
 Vue.component('navbar', NavBar)
 Vue.component('std-button', StdButton)
+Vue.component('num-input', NumberInput)
 Vue.component('modal', Modal)
 Vue.component('spinner', Spinner)
 Vue.component('rank-hex', RankHex)
