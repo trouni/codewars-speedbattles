@@ -108,6 +108,7 @@ class RoomChannel < ApplicationCable::Channel
 
   def update_user_settings(data)
     if data['user']
+      set_current_user
       @current_user.update(name: data['user']['name'])
       @current_user.settings(:base).update(data['user'].except('name'))
     end
@@ -131,9 +132,6 @@ class RoomChannel < ApplicationCable::Channel
     set_room
     battle = Battle.find(data["battle_id"])
     user = User.find(data["user_id"])
-
-    # # Don't Fetch challenges if already completed or fetched within last 5 seconds
-    # return if user.survived?(battle) || (user.last_fetched_at || Time.now) > (Time.now - 5.seconds)
 
     FetchCompletedChallengesJob.perform_later(
       user_id: user.id,
