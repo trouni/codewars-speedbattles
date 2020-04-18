@@ -25,11 +25,18 @@ class Room < ApplicationRecord
   has_settings do |s|
     s.key :base, defaults: {
       sound: true,
-      classification: 'CONFIDENTIAL',
-      ranks: [-8, -7, -6, -5, -4, -3, -2, -1],
+      classification: 'TOP SECRET',
+      katas: {
+        ranks: [-8, -7, -6, -5, -4, -3, -2, -1],
+        min_votes: 50,
+        min_satisfaction: 90,
+        ignore_higher_rank_users: false,
+      },
+      languages: ['ruby'],
       auto_invite: false,
       auto_start: false,
       voice_chat_url: nil,
+      # Array of languages for future support of multi-lang rooms
       moderators: []
     }
   end
@@ -40,7 +47,9 @@ class Room < ApplicationRecord
       sound: settings(:base).sound,
       voice_chat_url: settings(:base).voice_chat_url,
       classification: settings(:base).classification,
-      ranks: settings(:base).ranks
+      katas: settings(:base).katas,
+      codewars_langs: Kata.languages,
+      languages: settings(:base).languages,
     }
   end
 
@@ -156,11 +165,14 @@ class Room < ApplicationRecord
     finished_battles.map { |battle| battle.score(player) }.reduce(:+)
   end
 
-  def available_katas(language: nil, ranks: nil, min_votes: 50, excluded_users: [])
+  def available_katas(language: nil, ranks: [], min_votes: nil, min_satisfaction: nil, ignore_higher_rank_users: true, excluded_users: [])
     selected_users = users.reject { |user| excluded_users.include?(user) }
+    selected_users.reject! { |user| user.rank > ranks.max } if ignore_higher_rank_users && ranks.any?
     selection = Kata.where.not(id: Kata.joins(:users).where(users: { id: selected_users }).distinct)
-    selection = selection.where.not(satisfaction_rating: nil).where('total_votes > ?', min_votes)
-    selection = selection.where(rank: ranks) if ranks
+    selection = selection.where.not(satisfaction_rating: nil)
+    selection = selection.where('total_votes > ?', min_votes) if min_votes
+    selection = selection.where('satisfaction_rating > ?', min_satisfaction) if min_satisfaction
+    selection = selection.where(rank: ranks) if ranks.any?
     selection = selection.where("? = ANY (languages)", language) if language
     selection.order(satisfaction_rating: :desc)
   end
