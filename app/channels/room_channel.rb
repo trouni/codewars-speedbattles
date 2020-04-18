@@ -54,7 +54,7 @@ class RoomChannel < ApplicationCable::Channel
   def create_battle(data)
     set_room
     battle = Battle.find_or_initialize_by(room: @room, end_time: nil)
-    battle.time_limit = [data["time_limit"] || 0, 90 * 60].min
+    battle.time_limit = data["time_limit"] if data["time_limit"]&.positive?
     battle.challenge_language = data['language']
     kata = Kata.find_by(codewars_id: data['challenge_id']) || Kata.find_by(slug: data['challenge_id'])
     kata ? battle.update(kata: kata) : @room.broadcast_active_battle
@@ -69,7 +69,7 @@ class RoomChannel < ApplicationCable::Channel
       end_time: nil,
       challenge_language: kata_options[:language],
       kata: @room.random_kata(**kata_options),
-      time_limit: data['time_limit'] * 60
+      time_limit: data['time_limit']
     )
     @room.broadcast_active_battle
   end
@@ -80,7 +80,7 @@ class RoomChannel < ApplicationCable::Channel
     case data["battle_action"]
     when "start" then battle.start(countdown: data["countdown"].to_i)
     when "end"
-      end_at = battle.time_limit ? [battle.start_time + battle.time_limit.seconds, Time.now].min : Time.now
+      end_at = battle.time_limit&.positive? ? [battle.start_time + battle.time_limit.seconds, Time.now].min : Time.now
       battle.terminate(end_at: end_at)
     when "ended-by-user"
       battle = @room.active_battle

@@ -103,7 +103,7 @@ class Battle < ApplicationRecord
       id: id,
       room_id: room.id,
       max_survivors: max_survivors,
-      time_limit: ((time_limit || 0) / 60).round * 60,
+      time_limit: time_limit || 0,
       start_time: start_time,
       end_time: end_time,
       challenge: challenge,

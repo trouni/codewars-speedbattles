@@ -486,13 +486,14 @@ export default {
     getKatasCount(kataOptions) {
       this.sendCable("available_katas_count", { kata: kataOptions });
     },
-    createBattle(challenge) {
+    createBattle(battleInfo) {
       this.battleLoading = true
       this.battle = {}
-      const challengeIdSlug = this.parseChallengeInput(challenge)
+      const challengeIdSlug = this.parseChallengeInput(battleInfo.challenge)
         .challengeIdSlug;
       this.sendCable("create_battle", {
         challenge_id: challengeIdSlug,
+        time_limit: battleInfo.timeLimit,
       });
     },
     createRandomBattle(battleOptions) {
@@ -938,7 +939,7 @@ export default {
     this.$root.$on("update-settings", settings => this.updateSettings(settings));
     this.$root.$on("close-modal", this.closeModal);
     this.$root.$on("get-katas-count", kataOptions => this.getKatasCount(kataOptions));
-    this.$root.$on("create-battle", challenge => this.createBattle(challenge));
+    this.$root.$on("create-battle", battleInfo => this.createBattle(battleInfo));
     this.$root.$on("create-random-battle", this.createRandomBattle);
     this.$root.$on("show-offline-players", this.getRoomPlayers);
     this.$root.$on("delete-battle", this.deleteBattle);

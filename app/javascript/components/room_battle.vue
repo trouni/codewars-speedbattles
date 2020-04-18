@@ -89,7 +89,7 @@
               append="min"
               editable
             />
-            <span v-else class="highlight justify-content-end" v-html="battle.time_limit === 0 ? 'No limit' : battle.time_limit / 60 + ' min'" />
+            <span v-else class="highlight justify-content-end" v-html="battle.time_limit === 0 ? 'No limit' : Math.round(battle.time_limit / 60) + ' min'" />
           </p>
         </div>
       </div>
@@ -233,7 +233,7 @@
         manualKataInput: false,
         challengeInput: '',
         seekAttentionClass: 'animated infinite pulse seek-attention',
-        timeLimitSetter: (this.battle.time_limit || 0) / 60,
+        timeLimitSetter: Math.round((this.battle.time_limit || 0) / 60),
         kataFiltersRanks: Vue.util.extend([], this.settings.room.katas.ranks),
         kataFiltersVotes: this.settings.room.katas.min_votes,
         kataFiltersSatisfaction: this.settings.room.katas.min_satisfaction,
@@ -358,7 +358,10 @@
       createBattle() {
         this.showNewBattleMenu = false
         this.manualKataInput = false
-        this.$root.$emit('create-battle', this.challengeInput)
+        this.$root.$emit('create-battle', {
+          challenge: this.challengeInput,
+          timeLimit: this.timeLimitSetter * 60,
+        })
         this.challengeInput = ''
         this.$root.$emit('play-fx', 'click')
       },
@@ -366,7 +369,7 @@
         this.showNewBattleMenu = false
         this.$root.$emit('create-random-battle', {
           kata: this.kataOptions,
-          time_limit: this.timeLimitSetter,
+          time_limit: this.timeLimitSetter * 60,
         })
         this.$root.$emit('play-fx', 'click')
       },

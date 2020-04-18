@@ -178,7 +178,7 @@ class Room < ApplicationRecord
   end
 
   def random_kata(**options)
-    available_katas(options).first(5).sample
+    available_katas(options).sample
   end
 
   def broadcast(subchannel: "logs", payload: nil, private_to_user_id: nil)
