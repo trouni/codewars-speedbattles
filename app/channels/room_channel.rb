@@ -44,10 +44,18 @@ class RoomChannel < ApplicationCable::Channel
   #    BATTLES
   # =============
 
+  def available_katas_count(data)
+    set_room
+    set_current_user
+    kata_options = data['kata'].transform_keys(&:to_sym)
+    @room.broadcast(subchannel: "battles", payload: { action: 'katas-count', count: @room.available_katas(**kata_options).count }, private_to_user_id: @current_user.id)
+  end
+
   def create_battle(data)
     set_room
     battle = Battle.find_or_initialize_by(room: @room, end_time: nil)
     battle.time_limit = [data["time_limit"] || 0, 90 * 60].min
+    battle.challenge_language = data['language']
     kata = Kata.find_by(codewars_id: data['challenge_id']) || Kata.find_by(slug: data['challenge_id'])
     kata ? battle.update(kata: kata) : @room.broadcast_active_battle
   end
@@ -55,11 +63,13 @@ class RoomChannel < ApplicationCable::Channel
   def create_random_battle(data)
     set_room
     kata_options = data['kata'].transform_keys(&:to_sym)
+    @room.settings(:base).update(katas: kata_options.except(:language))
     battle = Battle.create(
       room: @room,
       end_time: nil,
+      challenge_language: kata_options[:language],
       kata: @room.random_kata(**kata_options),
-      time_limit: data['time_limit'] || 10 * 60
+      time_limit: data['time_limit'] * 60
     )
     @room.broadcast_active_battle
   end
@@ -72,7 +82,10 @@ class RoomChannel < ApplicationCable::Channel
     when "end"
       end_at = battle.time_limit ? [battle.start_time + battle.time_limit.seconds, Time.now].min : Time.now
       battle.terminate(end_at: end_at)
-    when "ended-by-user" then battle.update(time_limit: (Time.now - battle.start_time + 15.seconds).round)
+    when "ended-by-user"
+      battle = @room.active_battle
+      battle.time_limit = (Time.now - battle.start_time + 15.seconds).round
+      @room.broadcast(subchannel: "battles", payload: { action: "active", battle: battle.api_expose })
     when "update" then battle.update(data["battle"])
     end
   end
@@ -90,7 +103,7 @@ class RoomChannel < ApplicationCable::Channel
   end
 
   # =============
-  #     USERS
+  #     SETTINGS
   # =============
 
   def update_user_settings(data)
@@ -109,6 +122,10 @@ class RoomChannel < ApplicationCable::Channel
     end
     @room.broadcast_settings
   end
+
+  # =============
+  #     USERS
+  # =============
   
   def fetch_user_challenges(data)
     set_room
