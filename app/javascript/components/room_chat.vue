@@ -183,9 +183,10 @@
       },
       prefillBlockLang(e) {
         if (this.input === '```') {
-          e.target.value += this.settings.user.hljs_lang || 'lang'
-          if (!this.settings.user.hljs_lang) e.target.selectionStart = 3
-          e.target.selectionEnd =  e.target.selectionStart + 4
+          const lang = this.settings.room.language
+          e.target.value += lang + '\r\n'
+          if (!lang) e.target.selectionStart = 3
+          e.target.selectionEnd =  e.target.selectionStart + lang.length
         }
       },
       formatMessageDate(sentDate) {

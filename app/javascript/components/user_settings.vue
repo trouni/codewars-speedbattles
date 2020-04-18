@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="moderator" class="mt-3">
-      <h3>Profile settings</h3>
+      <h3><strong class="highlight">Profile settings</strong></h3>
       <!-- <small>You are moderator for this war room.</small> -->
     </div>
     <div class="form-group mt-3 mb-5">
@@ -43,7 +43,7 @@
       </div>
       <small>Toggle music, sound effects and voice announcements.<span v-if="!settings.room.sound"><br><em>Sound settings have been partially disabled for this war room.</em></span></small>
     </div>
-    <div class="mb-5">
+    <!-- <div class="mb-5">
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="m-0">Default syntax highlighter</h5>
         <select v-model="hljsLang" class="flex-grow-1 ml-3">
@@ -51,7 +51,7 @@
         </select>
       </div>
       <small>Select a default language to write code blocks.</small>
-    </div>
+    </div> -->
     <div class="webhook-settings mb-5">
       <h5>Codewars webhook
         <sup>
