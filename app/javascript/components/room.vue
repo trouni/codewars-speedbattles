@@ -36,53 +36,56 @@
         </div>
       </widget>
 
-      <room-battle
-        id="room-battle"
-        class="grid-item"
-        :roomStatus="roomStatus"
-        :battle="battle"
-        :users="users"
-        :room="room"
-        :countdown="countdown"
-        :battle-status="battleStatus"
-        :current-user="currentUser"
-        :current-user-is-moderator="currentUserIsModerator"
-        :view-mode="viewMode"
-        :time-limit="timeLimit"
-        :ready-to-start="readyToStart"
-        :loading="(!usersInitialized && !battleInitialized) || battleLoading"
-        :focus="focus === 'battle'"
-        :settings="settings"
-      />
+      <div v-if="roomSettingsInitialized" class='d-contents'>
+        <room-battle
+          v-if="battleInitialized"
+          id="room-battle"
+          class="grid-item"
+          :roomStatus="roomStatus"
+          :battle="battle"
+          :users="users"
+          :room="room"
+          :countdown="countdown"
+          :battle-status="battleStatus"
+          :current-user="currentUser"
+          :current-user-is-moderator="currentUserIsModerator"
+          :view-mode="viewMode"
+          :ready-to-start="readyToStart"
+          :loading="(!usersInitialized && !battleInitialized) || battleLoading"
+          :focus="focus === 'battle'"
+          :settings="settings"
+        />
 
-      <room-leaderboard
-        v-if="currentUser"
-        class="grid-item"
-        :users="users"
-        :room="room"
-        :battle="battle"
-        :leaderboard="leaderboard"
-        :room-players="roomPlayers"
-        :current-user="currentUser"
-        :current-user-is-moderator="currentUserIsModerator"
-        :loading="!usersInitialized || roomPlayersLoading"
-        :focus="focus === 'leaderboard'"
-      />
-      
-      <room-chat
-        class="grid-item"
-        :messages="chat.messages"
-        :authors="chat.authors"
-        :current-user="currentUser"
-        :loading="!messagesInitialized"
-        :focus="focus === 'chat'"
-        :settings="settings"
-      />
+        <room-leaderboard
+          v-if="currentUser"
+          class="grid-item"
+          :users="users"
+          :room="room"
+          :battle="battle"
+          :leaderboard="leaderboard"
+          :room-players="roomPlayers"
+          :current-user="currentUser"
+          :current-user-is-moderator="currentUserIsModerator"
+          :loading="!usersInitialized || roomPlayersLoading"
+          :focus="focus === 'leaderboard'"
+        />
+        
+        <room-chat
+          class="grid-item"
+          :messages="chat.messages"
+          :authors="chat.authors"
+          :current-user="currentUser"
+          :loading="!messagesInitialized"
+          :focus="focus === 'chat'"
+          :settings="settings"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import Vue from 'vue/dist/vue.esm'
 import debounce from "lodash/debounce";
 import kebabCase from "lodash/kebabCase";
 import RoomControls from "../components/room_controls.vue";
@@ -136,7 +139,7 @@ export default {
       roomSettingsLoading: true,
       settings: {
         room: {},
-        user: {}
+        user: {},
       },
       sounds: {
         ambiance: {
@@ -161,7 +164,6 @@ export default {
         volumeAmbiance: 0.5,
         volumeBackgroundAmbiance: 0.2
       },
-      timeLimit: this.battle ? Math.round(this.battle.time_limit / 60) : 8,
       users: [],
       userSettingsInitialized: false,
       userSettingsLoading: true,
@@ -175,9 +177,6 @@ export default {
     setTimeout(_ => this.checkCurrentUserConnection(), 5000);
   },
   watch: {
-    battle: function() {
-      this.timeLimit = this.battle ? Math.round(this.battle.time_limit / 60) : this.timeLimit;
-    },
     battlePlayers: function() {
       this.pushPlayersToUsers(this.battle.players)
     },
@@ -484,14 +483,22 @@ export default {
     // =============
     //     BATTLE
     // =============
+    getKatasCount(kataOptions) {
+      this.sendCable("available_katas_count", { kata: kataOptions });
+    },
     createBattle(challenge) {
       this.battleLoading = true
+      this.battle = {}
       const challengeIdSlug = this.parseChallengeInput(challenge)
         .challengeIdSlug;
       this.sendCable("create_battle", {
         challenge_id: challengeIdSlug,
-        time_limit: this.timeLimit * 60
       });
+    },
+    createRandomBattle(battleOptions) {
+      this.battleLoading = true
+      this.battle = {}
+      this.sendCable('create_random_battle', battleOptions)
     },
     deleteBattle() {
       if (this.battleLoaded) this.sendCable("delete_battle", { battle_id: this.battle.id });
@@ -517,7 +524,6 @@ export default {
           battle_action: "start",
           battle_id: this.battle.id,
           countdown: this.countdownDuration,
-          time_limit: this.timeLimit * 60
         });
       }
     },
@@ -726,6 +732,8 @@ export default {
       }
     },
     pushPlayersToUsers(players) {
+      if (!players) return
+      
       players.forEach(player => {
         if (player.online) this.pushToUsers(player)
       })
@@ -750,16 +758,12 @@ export default {
         user_id: userId
       });
     },
-    editTimeLimit(step) {
-      const max = 90;
-      const min = 0;
-      if (this.timeLimit + step >= min && this.timeLimit + step <= max)
-        this.timeLimit += step;
-      this.debouncedSendCable(this.$cable, "update_battle", {
+    editTimeLimit(timeLimit) {
+      this.sendCable("update_battle", {
         battle_action: "update",
         battle_id: this.battle.id,
         countdown: this.countdownDuration,
-        battle: { id: this.battle.id, time_limit: this.timeLimit * 60 }
+        battle: { id: this.battle.id, time_limit: timeLimit * 60 }
       });
     }
   },
@@ -882,12 +886,16 @@ export default {
                 }
                 break;
 
+              case "katas-count":
+                Vue.set(this.settings.room.katas, 'count', data.payload.count)
+                break;
+
               case "player":
                 this.pushToPlayers(data.payload.user);
                 break;
 
               case "players":
-                this.battle.players = data.payload.players;
+                Vue.set(this.battle, 'players', data.payload.players)
                 this.pushPlayersToUsers(this.battle.players)
                 break;
 
@@ -929,7 +937,9 @@ export default {
     this.$root.$on("toggle-settings", this.toggleSettings);
     this.$root.$on("update-settings", settings => this.updateSettings(settings));
     this.$root.$on("close-modal", this.closeModal);
+    this.$root.$on("get-katas-count", kataOptions => this.getKatasCount(kataOptions));
     this.$root.$on("create-battle", challenge => this.createBattle(challenge));
+    this.$root.$on("create-random-battle", this.createRandomBattle);
     this.$root.$on("show-offline-players", this.getRoomPlayers);
     this.$root.$on("delete-battle", this.deleteBattle);
     this.$root.$on("fetch-challenges", (userId = null) => this.fetchChallenges(userId));
@@ -945,7 +955,7 @@ export default {
     this.$root.$on("initialize-battle", this.initializeBattle);
     this.$root.$on("start-countdown", this.startCountdown);
     this.$root.$on("end-battle", this.userEndsBattle);
-    this.$root.$on("edit-time-limit", step => this.editTimeLimit(step));
+    this.$root.$on("edit-time-limit", timeLimit => this.editTimeLimit(timeLimit));
     this.$root.$on("speak", message => this.speak(message));
     this.$root.$on("play-fx", sound => this.playSoundFx(sound));
     this.$root.$on("play-ambiance", track => this.startAmbiance(track));
