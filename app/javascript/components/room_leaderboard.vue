@@ -77,7 +77,7 @@ export default {
     //   this.findUser(this.room.moderator.id);
     // },
     title() {
-      return this.room.show_stats ? "NETWORK://Leaderboard" : "NETWORK://Users"
+      return this.room.show_stats ? "NETWK://Leaderboard" : "NETWK://Users"
     },
     leaderboardUsers() {
       const allUsers = this.showOffline && this.roomPlayers ? this.roomPlayers.concat(this.users) : this.users;
