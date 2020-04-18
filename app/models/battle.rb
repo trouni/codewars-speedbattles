@@ -92,7 +92,7 @@ class Battle < ApplicationRecord
       id: kata.codewars_id,
       url: kata.url,
       name: kata.name,
-      language: challenge_language,
+      language: challenge_language || 'ruby',
       rank: kata.rank,
       tags: kata.tags
     }
@@ -103,7 +103,7 @@ class Battle < ApplicationRecord
       id: id,
       room_id: room.id,
       max_survivors: max_survivors,
-      time_limit: time_limit,
+      time_limit: ((time_limit || 0) / 60).round * 60,
       start_time: start_time,
       end_time: end_time,
       challenge: challenge,
