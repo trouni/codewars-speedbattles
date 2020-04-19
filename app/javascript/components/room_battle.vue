@@ -7,9 +7,10 @@
             <rank-hex
               v-for="rank in [-8, -7, -6, -5, -4, -3, -2, -1]"
               :rank="'' + rank"
+              :selected="rankActive(rank)"
               :inactive="!rankActive(rank)"
               class="clickable mx-1"
-              @click.native="toggleRank(rank)"
+              @click.native="toggleRank(rank, $event)"
               :key="rank"
             />
           </div>
@@ -448,8 +449,13 @@
       rankActive(rank) {
         return includes(this.kataOptions.ranks, rank)
       },
-      toggleRank(rank) {
-        this.rankActive(rank) ? this.kataFiltersRanks.splice(this.kataFiltersRanks.indexOf(rank), 1) : this.kataFiltersRanks.push(rank)
+      toggleRank(rank, e) {
+        // Allow multiple ranks selection with cmd, shift or ctrl
+        if (e.metaKey || e.shiftKey || e.ctrlKey) {
+          this.rankActive(rank) ? this.kataFiltersRanks.splice(this.kataFiltersRanks.indexOf(rank), 1) : this.kataFiltersRanks.push(rank)
+        } else {
+          this.kataFiltersRanks = [rank]
+        }
       },
       updateTimeLimit: debounce(function() {
         if (this.battle.stage > 0 && this.battle.stage < 3) this.$root.$emit('edit-time-limit', this.timeLimitSetter)

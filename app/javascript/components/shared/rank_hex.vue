@@ -1,6 +1,7 @@
 <template>
   <span v-if="rank" class="rank-hex d-inline-block">
-    <div :class="['small-hex', rankColor[rank], { inactive: inactive }]">
+    <div :class="['small-hex', rankColor[rank], { selected: selected }, { inactive: inactive }]">
+      <span v-html="rankName[rank]" />
       <div class="inner-small-hex">
         <span v-html="rankName[rank]" />
       </div>
@@ -12,6 +13,7 @@
 export default {
   props: {
     rank: String,
+    selected: Boolean,
     inactive: Boolean,
   },
   data() {
@@ -49,7 +51,7 @@ export default {
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang='scss'>
 .rank-hex {
   vertical-align: bottom;
   opacity: 0.8;
@@ -64,7 +66,7 @@ export default {
   margin-left: 8px;
   text-align: center;
   line-height: 26px;
-  // font-weight: bold;
+  font-weight: bold;
   z-index: 1;
   text-shadow: none;
   line-height: 28px;
@@ -182,6 +184,7 @@ export default {
   }
 }
 .white-rank {
+  
   background-color: #e6e6e6;
   color: rgba(20, 20, 20, 0.7);
   &:before {
@@ -208,8 +211,31 @@ export default {
   }
 }
 
+.small-hex {
+  .inner-small-hex {
+    display: block;
+  }
+  & > span {
+    display: none;
+  }
+}
+
+.small-hex.selected {
+  .inner-small-hex {
+    display: none;
+  }
+  & > span {
+    line-height: 28px;
+    font-size: 12px;
+    display: block;
+  }
+}
+
 .inactive {
-  opacity: 0.3;
+  opacity: 0.7;
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .clickable:hover {
@@ -217,16 +243,16 @@ export default {
 }
 
 .inactive:not(:hover) {
-  background-color: #555;
-  color: #fff;
-  &:before {
-    border-right-color: #555;
-  }
-  &:after {
-    border-left-color: #555;
-  }
-  .inner-small-hex {
-    color: #999;
-  }
+  // background-color: #555;
+  // color: #fff;
+  // &:before {
+  //   border-right-color: #555;
+  // }
+  // &:after {
+  //   border-left-color: #555;
+  // }
+  // .inner-small-hex {
+  //   color: #999;
+  // }
 }
 </style>
