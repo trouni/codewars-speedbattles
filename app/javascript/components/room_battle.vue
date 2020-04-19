@@ -2,7 +2,7 @@
   <widget :header-title="headerTitle" :loading="loading" :seek-attention="battle.stage === 1" :focus="focus">
     <div v-if="currentUserIsModerator && showNewBattleMenu" class="d-flex flex-column h-100">
       <div class="battle-options container align-items-center">
-        <div class="form-group mb-5">
+        <div :class="['form-group mb-5', { disabled: manualKataInput }]">
           <div class="d-flex justify-content-center mt-5">
             <rank-hex
               v-for="rank in [-8, -7, -6, -5, -4, -3, -2, -1]"
@@ -29,13 +29,13 @@
                 <option v-for="(key, lang_name) in settings.room.codewars_langs" :value="lang_name" :key="key">{{ key }}</option>
               </select> -->
             </div>
-            <div v-if="!manualKataInput" class="battle-options-item mb-4">
+            <div :class="['battle-options-item mb-4', { disabled: manualKataInput }]">
               <h6 class="battle-options-title no-wrap">Min. user votes</h6>
               <h5 class="m-0">
                 <num-input class="highlight justify-content-end" :min="0" :max="9999" :step="10" v-model="kataFiltersVotes" editable />
               </h5>
             </div>
-            <div v-if="!manualKataInput" class="battle-options-item mb-4">
+            <div :class="['battle-options-item mb-4', { disabled: manualKataInput }]">
               <h6 class="battle-options-title no-wrap">Ignore higher rank users
                 <span
                   class="hint custom-tooltip"
@@ -52,7 +52,7 @@
                 <num-input class="highlight justify-content-end" :min="0" :max="99" :step="1" v-model="timeLimitSetter" append="min" editable />
               </h5>
             </div>
-            <div v-if="!manualKataInput" class="battle-options-item mb-4">
+            <div :class="['battle-options-item mb-4', { disabled: manualKataInput }]">
               <h6 class="battle-options-title no-wrap">Min. satisfaction rating</h6>
               <h5 class="m-0">
                 <num-input class="highlight justify-content-end" :min="0" :max="100" v-model="kataFiltersSatisfaction" editable append="%" />
