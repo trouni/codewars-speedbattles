@@ -7,15 +7,18 @@
 
   .main-title {
     .speed {
-      font-size: 2.5em;
+      font-size: 2.1em;
       animation-duration: 0.5s;
       animation-delay: 1s;
+      font-family: $body-font;
+      text-transform: uppercase;
     }
     .battles {
-      font-size: 1.72em;
-      color: $fullopacity-war;
+      font-size: 1.75em;
+      text-transform: uppercase;
+      color: lighten($fullopacity-war, 15%);
       font-weight: bold;
-      text-shadow: 0 0 5px rgba(white, 1), 0 0 5px rgba(white, 0.5);
+      text-shadow: 0 0 5px rgba(white, 1), 0 0 15px rgba(white, 0.5);
       animation-duration: 0.5s;
       animation-delay: 1.7s;
     }

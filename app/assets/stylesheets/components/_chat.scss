@@ -14,7 +14,7 @@
     padding: 0 1.5em 1em 1.5em;
   }
   
-  .messages li {
+  .messages li.message {
     // line-height: 1.2em;
     list-style: none;
   }
@@ -55,7 +55,7 @@
   .messages .user-message .content {
     font-family: $body-font;
     tab-size : 4;
-    white-space: pre-wrap;
+    // white-space: pre-wrap;
     overflow-wrap: break-word;
     // opacity: 0.8;
     code {
@@ -66,7 +66,7 @@
       padding: 5px;
       letter-spacing: 0;
     }
-    p code {
+    :not(pre) > code {
       font-size: 0.85em;
     }
     pre {
@@ -81,6 +81,14 @@
       span {
         font-weight: initial;
       }
+    }
+
+    ol {
+      padding: 0.7em 0 0.7em 3em;
+    }
+
+    img {
+      display: none
     }
   }
   
@@ -110,9 +118,9 @@
       padding: 0 8px;
       transition: opacity 0.5s ease-out;
     }
-    &.multiline:after {
-      opacity: 1;
-    }
+    // &.multiline:after {
+    //   opacity: 1;
+    // }
     #msg-textarea {
       background: none;
       white-space: pre-wrap;

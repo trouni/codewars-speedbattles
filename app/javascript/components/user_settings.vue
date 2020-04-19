@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="moderator" class="mt-3">
-      <h3>Profile settings</h3>
+      <h3><strong class="highlight">Profile settings</strong></h3>
       <!-- <small>You are moderator for this war room.</small> -->
     </div>
     <div class="form-group mt-3 mb-5">
@@ -43,15 +43,15 @@
       </div>
       <small>Toggle music, sound effects and voice announcements.<span v-if="!settings.room.sound"><br><em>Sound settings have been partially disabled for this war room.</em></span></small>
     </div>
-    <div class="mb-5">
+    <!-- <div class="mb-5">
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="m-0">Default syntax highlighter</h5>
         <select v-model="hljsLang" class="flex-grow-1 ml-3">
-          <option v-for="(lang, alias) in codewarsLangs" :value="lang" :key="alias">{{ alias }}</option>
+          <option v-for="(key, lang_name) in settings.room.codewars_langs" :value="lang_name" :key="key">{{ key }}</option>
         </select>
       </div>
       <small>Select a default language to write code blocks.</small>
-    </div>
+    </div> -->
     <div class="webhook-settings mb-5">
       <h5>Codewars webhook
         <sup>
@@ -59,8 +59,11 @@
           <span v-else class="badge badge-danger">Not connected</span>
         </sup>
       </h5>
-      <div v-if="settings.user.connected_webhook" class="d-flex justify-content-center">
-        <std-button @click.native="$root.$emit('update-settings', { user: { connected_webhook: false } })" small>Reconnect the webhook</std-button>
+      <div v-if="settings.user.connected_webhook">
+        <small>Last call received {{ formatDate(settings.user.last_webhook_at) }}.</small>
+        <span class="d-flex justify-content-center my-3">
+          <std-button @click.native="$root.$emit('update-settings', { user: { connected_webhook: false, last_webhook_at: null } })" small>Reconnect the webhook</std-button>
+        </span>
       </div>
       <div v-else>
         <small>Add these settings to your Codewars account in order to automatically detect when you have completed a challenge.</small>
@@ -120,30 +123,6 @@ export default {
       tooltipText: "Copy to clipboard",
       displayName: this.settings.user.name,
       hljsLang: this.settings.user.hljs_lang,
-      codewarsLangs: {
-        '': '',
-        'C': 'c',
-        'C#': 'c#',
-        'C++': 'c++',
-        'Clojure': 'clj',
-        'CoffeeScript': 'coffee',
-        'Crystal': 'cr',
-        'Dart': 'dart',
-        'Elixir': 'elixir',
-        'F#': 'fs',
-        'Go': 'go',
-        'Haskell': 'hs',
-        'Java': 'java',
-        'JavaScript': 'js',
-        'PHP': 'php',
-        'Python': 'py',
-        'Ruby': 'rb',
-        'Rust': 'rs',
-        'Shell': 'shell',
-        'SQL': 'sql',
-        'Swift': 'swift',
-        'TypeScript': 'ts',
-      }
     }
   },
   computed: {
@@ -180,6 +159,17 @@ export default {
     },
     resetTooltip() {
       this.tooltipText = 'Copy to clipboard'
+    },
+    formatDate(dateString) {
+      const date = new Date(dateString)
+      const time = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
+      const day = this.isSameDay(new Date, date) ? 'today' : `${date.toDateString()}`
+      return `${day} at ${time}`
+    },
+    isSameDay(a, b) {
+      return a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate()=== b.getDate()
     },
   }
 }

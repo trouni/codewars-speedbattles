@@ -1,10 +1,76 @@
 <template>
   <widget :header-title="headerTitle" :loading="loading" :seek-attention="battle.stage === 1" :focus="focus">
-    <div v-if="battle.id" class="d-flex flex-column h-100">
+    <div v-if="currentUserIsModerator && showNewBattleMenu" class="d-flex flex-column h-100">
+      <div class="battle-options container align-items-center">
+        <div :class="['form-group mb-5', { disabled: manualKataInput }]">
+          <div class="d-flex justify-content-center mt-5">
+            <rank-hex
+              v-for="rank in [-8, -7, -6, -5, -4, -3, -2, -1]"
+              :rank="'' + rank"
+              :selected="rankActive(rank)"
+              :inactive="!rankActive(rank)"
+              class="clickable mx-1"
+              @click.native="toggleRank(rank, $event)"
+              :key="rank"
+            />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col col-md-6">
+            <div class="battle-options-item mb-4">
+              <h6 class="battle-options-title no-wrap">Language
+                <span
+                  class="hint custom-tooltip"
+                  data-tooltip="You can modify the language in the war room settings."
+                ><sup>[?]</sup></span>
+              </h6>
+              <h5 class="m-0 text-right">{{ settings.room.codewars_langs[settings.room.languages[0]] }}</h5>
+              <!-- <select v-model="kataOptions.language" class="highlight justify-content-end">
+                <option v-for="(key, lang_name) in settings.room.codewars_langs" :value="lang_name" :key="key">{{ key }}</option>
+              </select> -->
+            </div>
+            <div :class="['battle-options-item mb-4', { disabled: manualKataInput }]">
+              <h6 class="battle-options-title no-wrap">Min. user votes</h6>
+              <h5 class="m-0">
+                <num-input class="highlight justify-content-end" :min="0" :max="9999" :step="10" v-model="kataFiltersVotes" editable />
+              </h5>
+            </div>
+            <div :class="['battle-options-item mb-4', { disabled: manualKataInput }]">
+              <h6 class="battle-options-title no-wrap">Ignore higher rank users
+                <span
+                  class="hint custom-tooltip"
+                  :data-tooltip="`Include katas already completed by users with a Codewars rank higher than ${-Math.max(...kataFiltersRanks)} kyu.`"
+                ><sup>[?]</sup></span>
+              </h6>
+              <std-button @click.native="kataFiltersIgnoreHigherRankUsers = !kataFiltersIgnoreHigherRankUsers">{{ kataFiltersIgnoreHigherRankUsers ? 'ON' : 'OFF' }}</std-button>
+            </div>
+          </div>
+          <div class="col col-md-6">
+            <div class="battle-options-item mb-4">
+              <h6 class="battle-options-title no-wrap">Time limit</h6>
+              <h5 class="m-0">
+                <num-input class="highlight justify-content-end" :min="0" :max="99" :step="1" v-model="timeLimitSetter" append="min" editable />
+              </h5>
+            </div>
+            <div :class="['battle-options-item mb-4', { disabled: manualKataInput }]">
+              <h6 class="battle-options-title no-wrap">Min. satisfaction rating</h6>
+              <h5 class="m-0">
+                <num-input class="highlight justify-content-end" :min="0" :max="100" v-model="kataFiltersSatisfaction" editable append="%" />
+              </h5>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p v-if="!manualKataInput" class="text-center"><small>Available katas with these options: {{ settings.room.katas.count }}</small></p>
+    </div>
+    <div v-else-if="battle.id" class="d-flex flex-column h-100">
       <div v-if="battle.challenge" class="challenge-info w-100 mb-3">
         <p class="mb-3">
           <rank-hex :rank="'' + battle.challenge.rank"/>
-          <strong class="highlight">{{ displayChallengeName ? battle.challenge.name : settings.room.classification }}</strong>
+          <strong v-if="displayChallengeName" class="highlight">
+            {{ battle.challenge.name }}
+          </strong>
+          <strong v-else class="highlight">{{ settings.room.classification }}</strong>
           <sup>
             <span v-if="userDefeated(currentUser.id)" class="badge badge-danger">Defeat</span>
             <span v-else-if="userSurvived(currentUser.id)" class="badge badge-success">Victory</span>
@@ -14,11 +80,17 @@
         <div class="d-flex">
           <p><small>Language:</small> <span class="highlight">{{ challengeLanguage }} </span></p>
           <p><span class="ml-1 mr-2">|</span><small>Time Limit:</small>
-            <timer-selector
-              class="highlight"
-              :time-limit="timeLimit"
-              :editable="currentUserIsModerator && battle.stage > 0 && battle.stage < 3"
+            <num-input
+              v-if="currentUserIsModerator && battle.stage > 0 && battle.stage < 3"
+              class="highlight justify-content-end"
+              :min="0"
+              :max="99"
+              :step="1"
+              v-model="timeLimitSetter"
+              append="min"
+              editable
             />
+            <span v-else class="highlight justify-content-end" v-html="battle.time_limit === 0 ? 'No limit' : Math.round(battle.time_limit / 60) + ' min'" />
           </p>
         </div>
       </div>
@@ -39,7 +111,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(survivor, index) in survivors" :class="['highlight animated fadeInUp', {'bg-highlight': isCurrentUser(survivor.id) }]" :title="survivor.username" :key="survivor.id">
+            <tr v-for="(survivor, index) in survivors" :class="['animated fadeInUp', {'highlight bg-highlight': isCurrentUser(survivor.id) }]" :title="`${survivor.username} (${-survivor.codewars.overall_rank} kyu)`" :key="survivor.id">
               <th scope="row">
                 <span class="data username">{{ survivor.name || survivor.username }}</span>
               </th>
@@ -62,14 +134,14 @@
                 <span class="data rank"></span>
               </td>
               <td>
-                <span class="data">End time</span>
+                <span class="data"></span>
               </td>
               <td>
                 <span class="data">{{ formatDuration((Date.parse(battle.end_time) - Date.parse(battle.start_time)) / 1000) }}</span>
               </td>
             </tr>
 
-            <tr v-for="defeatedUser in defeated" :title="defeatedUser.username" :class="['animated fadeInUp', { 'highlight-red': battle.stage === 0, 'bg-highlight': isCurrentUser(defeatedUser.id) }]" :key="defeatedUser.id">
+            <tr v-for="defeatedUser in defeated" :title="defeatedUser.username" :class="['animated fadeInUp', { '': battle.stage === 0, 'highlight-red bg-highlight': isCurrentUser(defeatedUser.id) }]" :key="defeatedUser.id">
               <th scope="row" :class="['username', { pending: !userIsConfirmed(defeatedUser.id) && battle.stage > 0 && battle.stage < 3 }]">
                 <span class="data username">{{ defeatedUser.name || defeatedUser.username }}</span>
               </th>
@@ -87,14 +159,31 @@
         </table>
       </div>
     </div>
-    <div v-else class="d-flex flex-column h-100">
+    <div v-else-if="!loading" class="d-flex flex-column h-100">
       <p class="highlight">> No previous battle records...</p>
     </div>
 
     <template v-slot:controls>
-      <div v-if="currentUserIsModerator && !createNewBattle" class="d-contents">
-        <span v-if="battle.stage === 0 && !loading" class="d-contents">
-          <std-button small @click.native="createNewBattle = true" fa-icon="fas fa-cloud-upload-alt" title="Load Kata" />
+      <div v-if="battle.stage < 3 && currentUserIsModerator" class="d-contents">
+        <div v-if="manualKataInput" class="with-prompt centered-prompt w-100">
+          <input
+            type="text"
+            class="w-100"
+            @keyup.enter="createBattle"
+            @keyup.escape="manualKataInput = false"
+            placeholder="Enter the ID/url of the kata to load (ESC to cancel)"
+            v-model="challengeInput"
+            v-focus
+          >
+          <std-button small @click.native="createBattle" fa-icon="fas fa-cloud-upload-alt" title="Load" />
+        </div>
+        <span v-else-if="showNewBattleMenu" class="d-contents">
+          <std-button small @click.native="showNewBattleMenu = false" fa-icon="fas fa-angle-double-left" title="Cancel" />
+          <std-button small @click.native="manualKataInput = true" fa-icon="fas fa-file-import" title="Import Kata" />
+          <std-button @click.native="createRandomBattle" fa-icon="fas fa-cloud-upload-alt" title="Load Random Kata" />
+        </span>
+        <span v-else-if="battle.stage === 0 && !loading && !showNewBattleMenu" class="d-contents">
+          <std-button @click.native="openNewBattleMenu" fa-icon="fas fa-plus-square" title="New Battle" />
         </span>
         <span v-else-if="battle.stage > 0 && battle.stage < 3" class="d-contents">
           <std-button @click.native="$root.$emit('delete-battle')" small fa-icon="fas fa-times-circle" title="Cancel" />
@@ -102,31 +191,23 @@
           <std-button @click.native="$root.$emit('invite-all')" small fa-icon="fas fa-user-plus" title="Invite All" :disabled="eligibleUsers.length === 0" />
           <std-button v-if="battle.stage < 4" @click.native="$root.$emit('initialize-battle')" :disabled="!readyToStart" fa-icon="fas fa-radiation" title="Start Battle" :class="attentionWaitingToStart" />
         </span>
-        <div v-else-if="battle.stage >= 3" class="d-contents">
-          <a :href="battle.stage < 4 ? '#' : challengeUrl" :target="battle.stage < 4 ? '' : '_blank'">
-            <std-button fa-icon="fas fa-rocket mr-1" title="Launch Codewars" :disabled="battle.stage < 4" />
-          </a>
-          <std-button v-if="userIsConfirmed(currentUser.id)" @click.native="completedChallenge" fa-icon="fas fa-check-double mr-1" title="Challenge Completed" :disabled= "battle.stage < 4" :loading="completedButtonClicked" />
-          <std-button v-if="currentUserIsModerator" @click.native="$root.$emit('end-battle')" :disabled="battle.stage < 4" fa-icon="fas fa-peace" title="End Battle" />
-        </div>
       </div>
-      <div v-else-if="currentUserIsModerator && createNewBattle" class="with-prompt centered-prompt w-100">
-          <input
-            type="text"
-            class="w-100"
-            @keyup.enter="createBattle"
-            @keyup.escape="createNewBattle = false"
-            placeholder="Enter the name/url/ID of the kata (ESC to cancel)"
-            v-model="challengeInput"
-            v-focus
-          >
+      <div v-else-if="battle.stage >= 3" class="d-contents">
+        <a :href="battle.stage < 4 ? '#' : challengeUrl" :target="battle.stage < 4 ? '' : '_blank'">
+          <std-button fa-icon="fas fa-rocket mr-1" title="Launch Codewars" :disabled="battle.stage < 4" />
+        </a>
+        <std-button v-if="userIsConfirmed(currentUser.id)" @click.native="completedChallenge" fa-icon="fas fa-check-double mr-1" title="Challenge Completed" :disabled= "battle.stage < 4" :loading="completedButtonClicked" />
+        <std-button v-if="currentUserIsModerator" @click.native="$root.$emit('end-battle')" :disabled="battle.stage < 4" fa-icon="fas fa-peace" title="End Battle" />
       </div>
     </template>
   </widget>
 </template>
 
 <script>
+  import Vue from 'vue/dist/vue.esm'
   import capitalize from 'lodash/capitalize'
+  import includes from 'lodash/includes'
+  import debounce from "lodash/debounce";
   
   export default {
     props: {
@@ -140,26 +221,44 @@
       currentUserIsModerator: Boolean,
       battleStatus: Object,
       viewMode: String,
-      timeLimit: Number,
       readyToStart: Boolean,
       loading: Boolean,
       focus: Boolean,
       settings: Object,
-    },
-    components: {
-      TimerSelector: () => import('./battle/timer_selector'),
+      katasCount: Number,
     },
     data() {
       return {
         completedButtonClicked: false,
-        createNewBattle: false,
+        showNewBattleMenu: false,
+        manualKataInput: false,
         challengeInput: '',
         seekAttentionClass: 'animated infinite pulse seek-attention',
+        timeLimitSetter: Math.round((this.battle.time_limit || 0) / 60),
+        kataFiltersRanks: Vue.util.extend([], this.settings.room.katas.ranks),
+        kataFiltersVotes: this.settings.room.katas.min_votes,
+        kataFiltersSatisfaction: this.settings.room.katas.min_satisfaction,
+        kataFiltersIgnoreHigherRankUsers: this.settings.room.katas.ignore_higher_rank_users,
+      }
+    },
+    watch: {
+      timeLimitSetter: {
+        handler: 'updateTimeLimit',
       }
     },
     computed: {
+      kataOptions() {
+        this.getKatasCount()
+        return {
+          ranks: this.kataFiltersRanks,
+          min_votes: this.kataFiltersVotes,
+          min_satisfaction: this.kataFiltersSatisfaction,
+          language: this.settings.room.languages[0],
+          ignore_higher_rank_users: this.kataFiltersIgnoreHigherRankUsers,
+        }
+      },
       challengeLanguage() {
-        return capitalize(this.battle.language) || 'Ruby'
+        return this.settings.room.codewars_langs[this.battle.challenge.language]
       },
       attentionWaitingToJoin() {
         if (this.currentUser.invite_status === 'invited') {
@@ -169,7 +268,6 @@
       },
       attentionWaitingToStart() {
         if (this.currentUserIsModerator && this.invitedUsers.length === 0 && this.confirmedUsers.length > 0) {
-          this.$root.$emit('play-fx', 'interface')
           return this.seekAttentionClass
         }
       },
@@ -187,7 +285,7 @@
       //   } else if (this.battle.stage > 0) {
       //     this.$root.$emit('announce',{content: 'Prepare for battle...'})
       //     return `${prefix}Mission_Briefing`
-      //   } else if (this.createNewBattle) {
+      //   } else if (this.showNewBattleMenu) {
       //     return `${prefix}New_Mission`
       //   } else {
       //     return `${prefix}Awaiting_Mission`
@@ -199,6 +297,8 @@
           return `${prefix}NEXT_MISSION`
         } else if (this.battle.stage === 4) {
           return `${prefix}MISSION_IN_PROGRESS`
+        } else if (this.showNewBattleMenu) {
+          return `${prefix}CREATE_NEW_BATTLE`
         } else {
           return `${prefix}LAST_MISSION_REPORT`
         }
@@ -257,10 +357,37 @@
     },
     methods: {
       createBattle() {
-        this.createNewBattle = false
-        this.$root.$emit('create-battle', this.challengeInput)
+        this.showNewBattleMenu = false
+        this.manualKataInput = false
+        this.$root.$emit('create-battle', {
+          challenge: this.challengeInput,
+          timeLimit: this.timeLimitSetter * 60,
+        })
         this.challengeInput = ''
         this.$root.$emit('play-fx', 'click')
+      },
+      createRandomBattle() {
+        this.showNewBattleMenu = false
+        this.$root.$emit('create-random-battle', {
+          kata: this.kataOptions,
+          time_limit: this.timeLimitSetter * 60,
+        })
+        this.$root.$emit('play-fx', 'click')
+      },
+      getKatasCount: debounce(function() {
+        this.$root.$emit('get-katas-count', this.kataOptions)
+      }, 1000),
+      defaultKataOptions() {
+        return {
+          ranks: Vue.util.extend([], this.settings.room.katas.ranks),
+          language: this.settings.room.languages[0],
+          min_votes: this.settings.room.katas.min_votes,
+          min_satisfaction: this.settings.room.katas.min_satisfaction,
+        }
+      },
+      openNewBattleMenu() {
+        // this.kataOptions = this.defaultKataOptions()
+        this.showNewBattleMenu = true
       },
       isCurrentUser(userId) {
         return this.currentUser.id === userId
@@ -319,11 +446,25 @@
         }, 3000)
         this.$root.$emit('fetch-challenges');
       },
+      rankActive(rank) {
+        return includes(this.kataOptions.ranks, rank)
+      },
+      toggleRank(rank, e) {
+        // Allow multiple ranks selection with cmd, shift or ctrl
+        if (e.metaKey || e.shiftKey || e.ctrlKey) {
+          this.rankActive(rank) ? this.kataFiltersRanks.splice(this.kataFiltersRanks.indexOf(rank), 1) : this.kataFiltersRanks.push(rank)
+        } else {
+          this.kataFiltersRanks = [rank]
+        }
+      },
+      updateTimeLimit: debounce(function() {
+        if (this.battle.stage > 0 && this.battle.stage < 3) this.$root.$emit('edit-time-limit', this.timeLimitSetter)
+      }, 300)
     }
   }
 </script>
 
-<style scoped>
+<style lang="scss">
   .challenge-info {
     font-size: 1.2em;
     padding: 0.5em 0.5em 0 0.5em;
@@ -331,5 +472,30 @@
 
   .rank > i {
     line-height: inherit;
+  }
+
+  .battle-options {
+    max-width: 600px;
+    .col:first-child {
+      border-right: solid 0.5px rgba(255,255,255,0.1)
+    }
+    .col {
+      padding: 0 2em;
+    }
+  }
+
+  .battle-options-item {
+    display: flex;
+    align-items: center;
+    min-height: 4em;
+    select {
+      text-align: right;
+      text-align-last: right;
+    }
+  }
+
+  .battle-options-title {
+    margin: 0;
+    flex-grow: 1;
   }
 </style>

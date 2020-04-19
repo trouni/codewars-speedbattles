@@ -8,7 +8,7 @@ class CodewarsController < ApplicationController
   def webhook
     payload = JSON.parse(Base64.decode64(request.headers[:HTTP_X_WEBHOOK_SECRET])).with_indifferent_access
     user = User.find(payload.fetch(:id))
-    user&.settings(:base).update(connected_webhook: true) if user&.authentication_token == payload.fetch(:t)
+    user&.settings(:base).update(connected_webhook: true, last_webhook_at: Time.now) if user&.authentication_token == payload.fetch(:t)
     update_user_from_webhook(params[:user]) if params[:user]
 
     skip_authorization
@@ -22,11 +22,12 @@ class CodewarsController < ApplicationController
     codewars_id = user[:id]
     user = User.find_by(codewars_id: codewars_id) || fetch_user(id: codewars_id)
     if user
-      user.update(codewars_id: codewars_id)
+      user.assign_attributes(codewars_id: codewars_id)
       codewars_honor = user[:honor]
-      user.update(codewars_honor: codewars_honor) if codewars_honor
+      user.assign_attributes(codewars_honor: codewars_honor) if codewars_honor
       codewars_rank = user[:rank]
-      user.update(codewars_rank: codewars_rank) if codewars_rank
+      user.assign_attributes(codewars_overall_rank: codewars_rank) if codewars_rank
+      user.save
       FetchCompletedChallengesJob.perform_later(user_id: user.id, all_pages: false)
     end
   end

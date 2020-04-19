@@ -45,6 +45,7 @@ a:hover {
 .disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 .hidden {
@@ -53,6 +54,12 @@ a:hover {
 
 .d-contents {
   display: contents;
+}
+
+.absolute-h-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .clickable {

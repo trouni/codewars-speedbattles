@@ -13,11 +13,7 @@ class Room < ApplicationRecord
   belongs_to :moderator, class_name: "User"
   has_many :room_users, dependent: :destroy
   has_many :users, through: :room_users
-  has_many :battles, dependent: :destroy do
-    def for_challenge(challenge_id)
-      where(challenge_id: challenge_id)
-    end
-  end
+  has_many :battles, dependent: :destroy
   has_many :players, through: :battles
   has_one :chat, dependent: :destroy
   has_many :messages, through: :chat
@@ -29,12 +25,18 @@ class Room < ApplicationRecord
   has_settings do |s|
     s.key :base, defaults: {
       sound: true,
-      classification: 'CONFIDENTIAL',
-      min_kyu: -8,
-      max_kyu: -1,
+      classification: 'TOP SECRET',
+      katas: {
+        ranks: [-8, -7, -6, -5, -4, -3, -2, -1],
+        min_votes: 50,
+        min_satisfaction: 90,
+        ignore_higher_rank_users: false,
+      },
+      languages: ['ruby'],
       auto_invite: false,
       auto_start: false,
       voice_chat_url: nil,
+      # Array of languages for future support of multi-lang rooms
       moderators: []
     }
   end
@@ -45,7 +47,14 @@ class Room < ApplicationRecord
       sound: settings(:base).sound,
       voice_chat_url: settings(:base).voice_chat_url,
       classification: settings(:base).classification,
+      katas: settings(:base).katas,
+      codewars_langs: Kata.languages,
+      languages: settings(:base).languages,
     }
+  end
+
+  def inactive?
+    room_users.empty?
   end
 
   def players
@@ -118,7 +127,7 @@ class Room < ApplicationRecord
     AND b.room_id = #{id}
     AND cc.completed_at > b.start_time
     AND cc.completed_at < b.end_time
-    AND cc.challenge_id = b.challenge_id
+    AND cc.kata_id = b.kata_id
     GROUP BY u.id
     SQL
 
@@ -146,7 +155,7 @@ class Room < ApplicationRecord
   def battles_survived(player)
     # Battle.joins(battle_invites: { player: :completed_challenges }).where(
     BattleInvite.includes(:player, :room, player: :completed_challenges).joins(:player, :room, player: :completed_challenges).where(
-      "battle_invites.confirmed = true AND battles.room_id = ? AND completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time AND completed_challenges.challenge_id = battles.challenge_id AND completed_challenges.user_id = ?",
+      "battle_invites.confirmed = true AND battles.room_id = ? AND completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time AND completed_challenges.kata_id = battles.kata_id AND completed_challenges.user_id = ?",
       id,
       player.id
     )
@@ -156,7 +165,25 @@ class Room < ApplicationRecord
     finished_battles.map { |battle| battle.score(player) }.reduce(:+)
   end
 
+  def available_katas(language: nil, ranks: [], min_votes: nil, min_satisfaction: nil, ignore_higher_rank_users: true, excluded_users: [])
+    selected_users = users.reject { |user| excluded_users.include?(user) }
+    selected_users.reject! { |user| user.rank > ranks.max } if ignore_higher_rank_users && ranks.any?
+    selection = Kata.where.not(id: Kata.joins(:users).where(users: { id: selected_users }).distinct)
+    selection = selection.where.not(satisfaction_rating: nil)
+    selection = selection.where('total_votes > ?', min_votes) if min_votes
+    selection = selection.where('satisfaction_rating > ?', min_satisfaction) if min_satisfaction
+    selection = selection.where(rank: ranks) if ranks.any?
+    selection = selection.where("? = ANY (languages)", language) if language
+    selection.order(satisfaction_rating: :desc)
+  end
+
+  def random_kata(**options)
+    available_katas(options).sample
+  end
+
   def broadcast(subchannel: "logs", payload: nil, private_to_user_id: nil)
+    return if inactive?
+
     ActionCable.server.broadcast(
       private_to_user_id ? "user_#{private_to_user_id}" : "room_#{id}",
       subchannel: subchannel,
@@ -176,7 +203,7 @@ class Room < ApplicationRecord
   end
 
   def broadcast_to_moderator(subchannel: "logs", payload: nil)
-    return unless moderator
+    return if inactive? || !moderator
 
     ActionCable.server.broadcast(
       "user_#{moderator.id}",
@@ -276,16 +303,16 @@ class Room < ApplicationRecord
     )
   end
 
-  def broadcast_leaderboard(private_to_user_id: nil)
-    broadcast(
-      subchannel: "leaderboard",
-      payload: {
-        action: "update",
-        leaderboard: leaderboard
-      },
-      private_to_user_id: private_to_user_id
-    )
-  end
+  # def broadcast_leaderboard(private_to_user_id: nil)
+  #   broadcast(
+  #     subchannel: "leaderboard",
+  #     payload: {
+  #       action: "update",
+  #       leaderboard: leaderboard
+  #     },
+  #     private_to_user_id: private_to_user_id
+  #   )
+  # end
 
   def broadcast_action(action:, data: nil)
     broadcast(subchannel: "action", payload: { action: action, data: data })
@@ -312,6 +339,6 @@ class Room < ApplicationRecord
   end
 
   def refresh_room
-    announce(:chat, "War room renamed to #{name}.")
+    announce(:chat, "War room renamed to <strong>#{name}</strong>.")
   end
 end

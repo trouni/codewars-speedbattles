@@ -1,21 +1,24 @@
 .custom-tooltip {
-  position: relative;
+  // position: relative;
 }
 
 .custom-tooltip:after {
   content: attr(data-tooltip);
+  position: absolute;
+  z-index: 10;
+  font-size: 12px;
   visibility: hidden;
-  width: 150px;
+  min-width: 150px;
   background-color: rgba(0,0,0,0.8);
   color: #fff;
+  white-space: nowrap;
   text-align: center;
   border-radius: 6px;
   padding: 5px;
-  position: absolute;
   bottom: -2em;
   left: calc(50% - 75px);
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 0.3s 300ms;
 }
 
 .custom-tooltip:after:after {
@@ -31,5 +34,14 @@
 
 .custom-tooltip:hover:after {
   visibility: visible;
+  opacity: 1;
+}
+
+.hint {
+  opacity: 0.5;
+  cursor: help;
+}
+
+.hint:hover {
   opacity: 1;
 }

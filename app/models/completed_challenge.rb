@@ -4,9 +4,9 @@
 #
 #  id                  :bigint           not null, primary key
 #  user_id             :bigint
-#  challenge_id        :string
-#  challenge_name      :string
-#  challenge_slug      :string
+#  DELETE: challenge_id        :string
+#  DELETE: challenge_name      :string
+#  DELETE: challenge_slug      :string
 #  completed_at        :datetime
 #  completed_languages :string
 #  created_at          :datetime         not null
@@ -15,20 +15,10 @@
 
 class CompletedChallenge < ApplicationRecord
   belongs_to :user
+  belongs_to :kata, required: false
   validates :challenge_id, uniqueness: { scope: %i[user completed_at] }
+  validates :kata_id, uniqueness: { scope: %i[user completed_at] }
   # after_create :update_active_battle
-
-  def api_expose
-    {
-      id: id,
-      user_id: user.id,
-      challenge_id: challenge_id,
-      challenge_name: challenge_name,
-      challenge_slug: challenge_slug,
-      completed_at: completed_at,
-      completed_languages: completed_languages
-    }
-  end
 
   def update_active_battle
     room = user.active_battle&.room

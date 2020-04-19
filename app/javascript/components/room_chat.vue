@@ -20,7 +20,7 @@
         <textarea
           id="msg-textarea"
           :rows="inputMinRows"
-          placeholder='Send a message...'
+          placeholder='Type your message... Start with ``` (triple backquotes) to write code.'
           @input="updateTextAreaRows"
           @keydown.enter="sendMessage"
           @keydown.tab="addTabCharacter"
@@ -158,7 +158,7 @@
       },
       sendMessage(e) {
         if (e.shiftKey) return
-        if (this.multilineInput && !e.metaKey && !e.ctrlKey) return
+        // if (this.multilineInput && !e.metaKey && !e.ctrlKey) return
 
         e.preventDefault()
         this.$root.$emit('send-chat-message', this.input );
@@ -183,9 +183,11 @@
       },
       prefillBlockLang(e) {
         if (this.input === '```') {
-          e.target.value += this.settings.user.hljs_lang || 'lang'
-          if (!this.settings.user.hljs_lang) e.target.selectionStart = 3
-          e.target.selectionEnd =  e.target.selectionStart + 4
+          // Taking first language until multi-lang rooms are supported
+          const lang = this.settings.room.languages[0]
+          e.target.value += lang + '\r\n'
+          if (!lang) e.target.selectionStart = 3
+          e.target.selectionEnd =  e.target.selectionStart + lang.length
         }
       },
       formatMessageDate(sentDate) {

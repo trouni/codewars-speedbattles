@@ -4,25 +4,29 @@ class RoomChannel < ApplicationCable::Channel
   def subscribed
     set_room
     set_current_user
-    room_user = RoomUser.find_or_create_by(room: @room, user: @current_user)
+    # Disconnect from all other rooms
+    ActionCable.server.remote_connections.where(current_user: @current_user).disconnect
+    stop_all_streams
+    # Subscribe to current room
+    RoomUser.where(user: @current_user).destroy_all
+    room_user = RoomUser.create(room: @room, user: @current_user)
     stream_from "room_#{@room.id}"
     stream_from "user_#{@current_user.id}"
+    # Send initial data to user
     @current_user.broadcast_settings
     @room.broadcast_settings(private_to_user_id: @current_user.id)
     @room.broadcast_users
     @room.broadcast_messages(private_to_user_id: @current_user.id)
     @room.broadcast_active_battle(private_to_user_id: @current_user.id)
-    @room.broadcast_leaderboard
+    # @room.broadcast_leaderboard
   end
 
   def unsubscribed
     set_room
     set_current_user
-    room_user = RoomUser.find_by(room: @room, user: @current_user)
-    room_user.destroy
-    # room_user.broadcast("remove")
     stop_all_streams
-    # broadcast_users @room
+    RoomUser.find_by(room: @room, user: @current_user).destroy
+    # RoomUser.where(user: @current_user).destroy_all
   end
 
   # =============
@@ -43,12 +47,35 @@ class RoomChannel < ApplicationCable::Channel
   #    BATTLES
   # =============
 
+  def available_katas_count(data)
+    set_room
+    set_current_user
+    kata_options = data['kata'].transform_keys(&:to_sym)
+    @room.broadcast(subchannel: "battles", payload: { action: 'katas-count', count: @room.available_katas(**kata_options).count }, private_to_user_id: @current_user.id)
+  end
+
   def create_battle(data)
     set_room
     battle = Battle.find_or_initialize_by(room: @room, end_time: nil)
-    battle.time_limit = [data["time_limit"] || 0, 90 * 60].min
-    challenge = fetch_kata_info(data["challenge_id"])
-    challenge ? battle.update(challenge) : @room.broadcast_active_battle
+    battle.time_limit = data["time_limit"] if data["time_limit"]&.positive?
+    battle.challenge_language = data['language']
+    kata = Kata.find_by(codewars_id: data['challenge_id']) || Kata.find_by(slug: data['challenge_id'])
+    kata ? battle.update(kata: kata) : @room.broadcast_active_battle
+  end
+
+  def create_random_battle(data)
+    set_room
+    kata_options = data['kata'].transform_keys(&:to_sym)
+    @room.settings(:base).update(katas: kata_options.except(:language))
+    battle = Battle.new(
+      room: @room,
+      end_time: nil,
+      challenge_language: kata_options[:language],
+      kata: @room.random_kata(**kata_options),
+      time_limit: data['time_limit']
+    )
+    # Only broadcast older battle if save failed
+    @room.broadcast_active_battle unless battle.save
   end
 
   def update_battle(data)
@@ -57,9 +84,12 @@ class RoomChannel < ApplicationCable::Channel
     case data["battle_action"]
     when "start" then battle.start(countdown: data["countdown"].to_i)
     when "end"
-      end_at = battle.time_limit ? [battle.start_time + battle.time_limit.seconds, Time.now].min : Time.now
+      end_at = battle.time_limit&.positive? ? [battle.start_time + battle.time_limit.seconds, Time.now].min : Time.now
       battle.terminate(end_at: end_at)
-    when "ended-by-user" then battle.update(time_limit: (Time.now - battle.start_time + 15.seconds).round)
+    when "ended-by-user"
+      battle = @room.active_battle
+      battle.time_limit = (Time.now - battle.start_time + 15.seconds).round
+      @room.broadcast(subchannel: "battles", payload: { action: "active", battle: battle.api_expose })
     when "update" then battle.update(data["battle"])
     end
   end
@@ -77,11 +107,12 @@ class RoomChannel < ApplicationCable::Channel
   end
 
   # =============
-  #     USERS
+  #     SETTINGS
   # =============
 
   def update_user_settings(data)
     if data['user']
+      set_current_user
       @current_user.update(name: data['user']['name'])
       @current_user.settings(:base).update(data['user'].except('name'))
     end
@@ -96,14 +127,15 @@ class RoomChannel < ApplicationCable::Channel
     end
     @room.broadcast_settings
   end
+
+  # =============
+  #     USERS
+  # =============
   
   def fetch_user_challenges(data)
     set_room
     battle = Battle.find(data["battle_id"])
     user = User.find(data["user_id"])
-
-    # # Don't Fetch challenges if already completed or fetched within last 5 seconds
-    # return if user.survived?(battle) || (user.last_fetched_at || Time.now) > (Time.now - 5.seconds)
 
     FetchCompletedChallengesJob.perform_later(
       user_id: user.id,
@@ -125,10 +157,10 @@ class RoomChannel < ApplicationCable::Channel
     @room.broadcast_players(private_to_user_id: @current_user.id)
   end
 
-  def get_leaderboard
-    set_room
-    @room.broadcast_leaderboard
-  end
+  # def get_leaderboard
+  #   set_room
+  #   @room.broadcast_leaderboard
+  # end
 
   private
 

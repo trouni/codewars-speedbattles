@@ -42,14 +42,17 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   after_create :async_fetch_codewars_info
-  after_commit :broadcast
+  after_save :broadcast, if: :saved_change_to_profile?
+  after_save :refresh_chat, if: :saved_change_to_name?
 
   scope :invited, ->(battle) { battle ? self.in(battle.room).select('battle_invites.created_at AS invited_at').joins(:battle_invites).where(battle_invites: { battle: battle }) : [] }
   scope :pending, ->(battle) { battle ? invited(battle).where(battle_invites: { confirmed: false }) : [] }
   scope :confirmed, ->(battle) { battle ? invited(battle).where(battle_invites: { confirmed: true }) : [] }
 
+  alias_attribute :rank, :codewars_overall_rank
+
   has_settings do |s|
-    s.key :base, defaults: { sfx: true, voice: true, music: true, connected_webhook: false, hljs_lang: nil }
+    s.key :base, defaults: { sfx: true, voice: true, music: false, connected_webhook: false, last_webhook_at: nil, hljs_lang: nil }
   end
 
   def webhook_secret
@@ -66,7 +69,7 @@ class User < ApplicationRecord
 
     self.in(room).select('completed_challenges.completed_at')
         .joins(:completed_challenges)
-        .where(completed_challenges: { challenge_id: room.active_battle.challenge_id })
+        .where(completed_challenges: { kata: room.active_battle.kata })
   end
 
   def self.eligible(room)
@@ -81,8 +84,8 @@ class User < ApplicationRecord
 
     confirmed(battle).select('completed_challenges.completed_at')
                      .joins(:battles, :completed_challenges)
-                     .where(<<-SQL, battle.challenge_id)
-                     completed_challenges.challenge_id = ?
+                     .where(<<-SQL, battle.kata_id)
+                     completed_challenges.kata_id = ?
                      AND completed_challenges.completed_at > battles.start_time
                      AND completed_challenges.completed_at < battles.end_time
                      SQL
@@ -101,8 +104,9 @@ class User < ApplicationRecord
       sfx: settings(:base).sfx,
       voice: settings(:base).voice,
       music: settings(:base).music,
-      hljs_lang: settings(:base).hljs_lang,
+      # hljs_lang: settings(:base).hljs_lang,
       connected_webhook: settings(:base).connected_webhook,
+      last_webhook_at: settings(:base).last_webhook_at,
       webhook_secret: webhook_secret
     }
   end
@@ -128,12 +132,14 @@ class User < ApplicationRecord
       completed_at: battle&.completed_challenge_at(self)
     }
 
-    no_stats = { battles_survived: nil, battles_fought: nil, total_score: nil }
-
     return standard_result unless for_room&.show_stats
 
-    return standard_result.merge(battles_survived: survived(for_room).size)
-                          .merge(battles_fought: battles.for_room(for_room).size)
+    survived = survived(for_room).size
+    fought = battles.for_room(for_room).size
+
+    return standard_result.merge(battles_survived: survived)
+                          .merge(battles_fought: fought)
+                          .merge(battles_lost: fought - survived)
                           .merge(total_score: for_room.total_score(self))
     # .merge(completed_at: active_battle&.completed_challenge_at(self))
   end
@@ -189,14 +195,13 @@ class User < ApplicationRecord
   def eligible?(battle = active_battle)
     return nil unless battle
 
-    # !completed_challenge?(battle.challenge_id) && !moderator?
-    !completed_challenge?(battle.challenge_id)
+    !completed_challenge?(battle.kata)
   end
 
-  def completed_challenge?(challenge_id)
-    return false if challenge_id.nil?
+  def completed_challenge?(kata)
+    return false unless kata
 
-    completed_challenges.where(challenge_id: challenge_id).exists?
+    completed_challenges.where(kata: kata).exists?
   end
 
   def survived?(battle)
@@ -204,7 +209,7 @@ class User < ApplicationRecord
 
     completed_challenges.includes(user: :battles)
                         .joins(user: :battles)
-                        .where(challenge_id: battle&.challenge_id)
+                        .where(kata: battle&.kata)
                         .where("completed_at > ? AND completed_at < ?", battle&.start_time, end_time)
                         .exists?
   end
@@ -216,7 +221,7 @@ class User < ApplicationRecord
   def survived(room = nil)
     result = battles.includes(:players, players: :completed_challenges)
                     .joins(:players, players: :completed_challenges)
-                    .where("battles.challenge_id = completed_challenges.challenge_id AND completed_challenges.user_id = ?", id)
+                    .where("battles.kata_id = completed_challenges.kata_id AND completed_challenges.user_id = ?", id)
                     .where("completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time")
 
     return result unless room
@@ -258,5 +263,18 @@ class User < ApplicationRecord
       subchannel: "settings",
       payload: { action: 'user', settings: get_settings }
     )
+  end
+
+  def saved_change_to_profile?
+    saved_change_to_name? ||
+    saved_change_to_username? ||
+    saved_change_to_codewars_honor? ||
+    saved_change_to_rank? ||
+    saved_change_to_codewars_overall_score ||
+    saved_change_to_codewars_leaderboard_position?
+  end
+
+  def refresh_chat
+    room&.broadcast_messages
   end
 end
