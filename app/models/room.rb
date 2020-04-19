@@ -339,6 +339,6 @@ class Room < ApplicationRecord
   end
 
   def refresh_room
-    announce(:chat, "War room renamed to #{name}.")
+    announce(:chat, "War room renamed to <strong>#{name}</strong>.")
   end
 end
