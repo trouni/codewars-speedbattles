@@ -4,26 +4,29 @@ class RoomChannel < ApplicationCable::Channel
   def subscribed
     set_room
     set_current_user
-    room_user = RoomUser.find_or_create_by(room: @room, user: @current_user)
+    # Disconnect from all other rooms
+    ActionCable.server.remote_connections.where(current_user: @current_user).disconnect
+    stop_all_streams
+    # Subscribe to current room
+    RoomUser.where(user: @current_user).destroy_all
+    room_user = RoomUser.create(room: @room, user: @current_user)
     stream_from "room_#{@room.id}"
     stream_from "user_#{@current_user.id}"
-    @current_user.async_fetch_codewars_info unless Time.now - (User.first.last_fetched_at || Time.now) < 60
+    # Send initial data to user
     @current_user.broadcast_settings
     @room.broadcast_settings(private_to_user_id: @current_user.id)
     @room.broadcast_users
     @room.broadcast_messages(private_to_user_id: @current_user.id)
     @room.broadcast_active_battle(private_to_user_id: @current_user.id)
-    @room.broadcast_leaderboard
+    # @room.broadcast_leaderboard
   end
 
   def unsubscribed
     set_room
     set_current_user
-    room_user = RoomUser.find_by(room: @room, user: @current_user)
-    room_user.destroy
-    # room_user.broadcast("remove")
     stop_all_streams
-    # broadcast_users @room
+    RoomUser.find_by(room: @room, user: @current_user).destroy
+    # RoomUser.where(user: @current_user).destroy_all
   end
 
   # =============
@@ -64,14 +67,15 @@ class RoomChannel < ApplicationCable::Channel
     set_room
     kata_options = data['kata'].transform_keys(&:to_sym)
     @room.settings(:base).update(katas: kata_options.except(:language))
-    battle = Battle.create(
+    battle = Battle.new(
       room: @room,
       end_time: nil,
       challenge_language: kata_options[:language],
       kata: @room.random_kata(**kata_options),
       time_limit: data['time_limit']
     )
-    @room.broadcast_active_battle
+    # Only broadcast older battle if save failed
+    @room.broadcast_active_battle unless battle.save
   end
 
   def update_battle(data)
@@ -93,7 +97,7 @@ class RoomChannel < ApplicationCable::Channel
   def delete_battle(data)
     set_room
     Battle.find(data["battle_id"]).destroy
-    @room.broadcast_active_battle
+    # @room.broadcast_active_battle
   end
 
   def invitation(data)
@@ -153,10 +157,10 @@ class RoomChannel < ApplicationCable::Channel
     @room.broadcast_players(private_to_user_id: @current_user.id)
   end
 
-  def get_leaderboard
-    set_room
-    @room.broadcast_leaderboard
-  end
+  # def get_leaderboard
+  #   set_room
+  #   @room.broadcast_leaderboard
+  # end
 
   private
 

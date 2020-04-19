@@ -12,15 +12,16 @@
 class RoomUser < ApplicationRecord
   belongs_to :room
   belongs_to :user
-  after_create :async_fetch_challenges
+  after_create :async_fetch_info
   after_create_commit :join_room
   after_destroy_commit :leave_room
-  validates :user, uniqueness: { scope: :room }
+  # validates :user, uniqueness: { scope: :room }
+  validates :user, uniqueness: true
 
   private
 
-  def async_fetch_challenges
-    FetchCompletedChallengesJob.perform_later(user_id: user_id) if user.last_fetched_at && user.last_fetched_at < (Time.now - 1.hour)
+  def async_fetch_info
+    user.async_fetch_codewars_info if user.last_fetched_at.nil? || Time.now - user.last_fetched_at > 60.minutes
   end
 
   def join_room

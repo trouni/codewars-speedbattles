@@ -303,16 +303,16 @@ class Room < ApplicationRecord
     )
   end
 
-  def broadcast_leaderboard(private_to_user_id: nil)
-    broadcast(
-      subchannel: "leaderboard",
-      payload: {
-        action: "update",
-        leaderboard: leaderboard
-      },
-      private_to_user_id: private_to_user_id
-    )
-  end
+  # def broadcast_leaderboard(private_to_user_id: nil)
+  #   broadcast(
+  #     subchannel: "leaderboard",
+  #     payload: {
+  #       action: "update",
+  #       leaderboard: leaderboard
+  #     },
+  #     private_to_user_id: private_to_user_id
+  #   )
+  # end
 
   def broadcast_action(action:, data: nil)
     broadcast(subchannel: "action", payload: { action: action, data: data })
