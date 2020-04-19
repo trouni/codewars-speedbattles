@@ -15,10 +15,12 @@ $teal: #00C1AB;
 // $gray: #0E0000;
 // $light-gray: #F4F4F4;
 
+$codewars-bg: #303133;
+
 $maincolor-peace: $darkblue;
 $fullopacity-peace: #0E4055;
 
-$maincolor-brink-of-war: lighten(#e39069, 15%);
+$maincolor-brink-of-war: desaturate(#e39069, 50%);
 $fullopacity-brink-of-war: #62544E;
 
 $maincolor-war: lighten(#b00e02, 20%);

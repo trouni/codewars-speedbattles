@@ -188,7 +188,7 @@
   }
 
   tr:hover {
-    background-color: rgba(lighten($maincolor, 10%), 0.1);
+    background-color: rgba($highlight, 0.2);
     transition: background-color $transition-speed ease-out;
   }
 

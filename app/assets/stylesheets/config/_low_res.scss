@@ -1,0 +1,133 @@
+// themes.scss
+
+@mixin theme($basecolor, $fullopacity) {
+  $maincolor: lighten($basecolor, 15%);
+  $textcolor: lighten( $maincolor, 35% );
+  $link-color: lighten( $maincolor, 10% );
+  $body-color: $textcolor;
+  $highlight: lighten($maincolor, 50%);
+  $headers-color: $highlight;
+  $widget-color: $maincolor;
+  $bezel-color: saturate( $widget-color, 50% );
+  $input-color: $textcolor;
+  $bg-color1: $codewars-bg;
+
+  .app-bg {
+    background: none;
+    &:before {
+      background-color: $bg-color1;
+    }
+  }
+
+  .corner-button {
+    // color: $highlight;
+    background-color: $fullopacity;
+    &:hover {
+      background-color: lighten($fullopacity, 10%);
+    }
+  }
+
+  // widgets.scss
+  .widget {
+    background: rgb(10, 10, 10);
+    box-shadow: unset;
+
+    .widget-body.loading {
+      filter: unset;
+    }
+  }
+
+  .widget-controls {
+    background: rgb(5, 5, 5);
+  }
+
+  // modal.scss
+  &.unfocused {
+    #room {
+      transform: unset;
+    } 
+    
+    .modal-overlay {
+      background-color: $codewars-bg;
+      transition: 1s background-color;
+    }
+
+    .grid-item {
+      display: none;
+      filter: unset;
+      opacity: unset;
+    }
+
+    .modal-widget.focus {
+      transform: unset;
+    }
+
+    .grid-item.focus {
+      transform: unset;
+      filter: unset;
+      opacity: unset;
+    }
+  }
+
+  // _chat.scss
+  .messages .user-message .content code {
+    background: rgb(5, 5, 5);
+  }
+
+  .widget-controls, .widget-body {
+    border-color: rgba(desaturate($bezel-color, 50%), 0.5);
+  }
+
+  // inline code styling
+  .messages .content :not(pre) > code {
+    background-color: $bezel-color;
+  }
+
+  // _buttons.scss
+
+  button, .button, input[type="submit"] {
+    text-shadow: unset;
+    &:hover {
+      text-shadow: unset;
+    }
+  }
+
+  // _inputs.scss
+  
+  input, textarea, select {
+    &::placeholder {
+      color: darken(desaturate($body-color, 20%), 20%);
+    }
+    &:disabled {
+      color: darken($input-color, 20%);
+    }
+  }
+
+  .widget-bg {
+    background-color: darken( desaturate($bezel-color, 50%), 15% );
+  }
+  
+  .seek-attention .widget-bg {
+    background-color: darken($bezel-color, 10%);
+  }
+}
+
+// PEACE (standard)
+#super-container.low-res.peace, #super-container.low-res.battle-loaded, #super-container.low-res.battle-confirmed {
+  @include theme($maincolor-peace, $fullopacity-peace);
+}
+
+// BRINK OF WAR (ready for battle)
+#super-container.low-res.ready-for-battle {
+  @include theme($maincolor-brink-of-war, $fullopacity-brink-of-war);
+}
+
+// COUNTDOWN (slower transitions)
+#super-container.low-res.countdown {
+  @include theme($maincolor-war, $fullopacity-war);
+}
+
+// WAR
+#super-container.low-res.war {
+  @include theme($maincolor-war, $fullopacity-war);
+}

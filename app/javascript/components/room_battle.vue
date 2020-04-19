@@ -81,9 +81,9 @@
           <p><small>Language:</small> <span class="highlight">{{ challengeLanguage }} </span></p>
           <p><span class="ml-1 mr-2">|</span><small>Time Limit:</small>
             <num-input
-              v-if="currentUserIsModerator && battle.stage > 0 && battle.stage < 3"
+              v-if="currentUserIsModerator && battle.stage > 0"
               class="highlight justify-content-end"
-              :min="0"
+              :min="battle.stage >= 3 ? timeLimitSetter : 0"
               :max="99"
               :step="1"
               v-model="timeLimitSetter"
@@ -178,8 +178,8 @@
           <std-button small @click.native="createBattle" fa-icon="fas fa-cloud-upload-alt" title="Load" />
         </div>
         <span v-else-if="showNewBattleMenu" class="d-contents">
-          <std-button small @click.native="showNewBattleMenu = false" fa-icon="fas fa-angle-double-left" title="Cancel" />
-          <std-button small @click.native="manualKataInput = true" fa-icon="fas fa-file-import" title="Import Kata" />
+          <std-button @click.native="showNewBattleMenu = false" fa-icon="fas fa-angle-double-left" title="Cancel" />
+          <std-button @click.native="manualKataInput = true" fa-icon="fas fa-file-import" title="Import Kata" />
           <std-button @click.native="createRandomBattle" fa-icon="fas fa-cloud-upload-alt" title="Load Random Kata" />
         </span>
         <span v-else-if="battle.stage === 0 && !loading && !showNewBattleMenu" class="d-contents">
@@ -458,7 +458,7 @@
         }
       },
       updateTimeLimit: debounce(function() {
-        if (this.battle.stage > 0 && this.battle.stage < 3) this.$root.$emit('edit-time-limit', this.timeLimitSetter)
+        if (this.battle.stage > 0) this.$root.$emit('edit-time-limit', this.timeLimitSetter)
       }, 300)
     }
   }

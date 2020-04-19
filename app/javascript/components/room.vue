@@ -8,6 +8,7 @@
         'ready-for-battle': readyForBattle,
         'unfocused': unfocused || !wsConnected,
         'disconnected': !wsConnected,
+        'low-res': settings.user.low_res_theme,
       }
     ]">
     <span :class="['app-bg', {'initializing': initializing}]"/>
@@ -32,7 +33,7 @@
 
     <div id="room" :class="{ moderator: currentUserIsModerator, 'initializing': initializing }">
 
-      <widget id="room-announcer" class="grid-item" :header-title="`PWD://War_Room/${settings.room.name}`" :focus="focus === 'announcer'">
+      <widget id="room-announcer" class="grid-item animated fadeIn" :header-title="`PWD://War_Room/${settings.room.name}`" :focus="focus === 'announcer'">
         <div class="d-flex align-items-center justify-content-center h-100">
           <span
             :class="['announcer mt-3', 'text-center', announcerWindow.status]"
@@ -820,8 +821,8 @@ export default {
           case "chat":
             switch (data.payload.action) {
               case "all":
-                this.chat.messages = data.payload.messages;
-                this.chat.authors = data.payload.authors;
+                Vue.set(this.chat, 'messages', data.payload.messages);
+                Vue.set(this.chat, 'authors', data.payload.authors);
                 // if (this.currentUserIsModerator) console.info(`Refreshed all messages`)
                 this.messagesInitialized = true;
                 break;
