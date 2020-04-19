@@ -95,7 +95,8 @@
   .messages .content code {
     border-color: rgba($body-color, 0.2);
   }
-  .messages .content p code {
+  // inline code styling
+  .messages .content :not(pre) > code {
     background-color: rgba($bezel-color, 0.3);
     color: $highlight;
     transition: color $transition-speed ease-out;
