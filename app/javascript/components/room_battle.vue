@@ -111,7 +111,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(survivor, index) in survivors" :class="['highlight animated fadeInUp', {'bg-highlight': isCurrentUser(survivor.id) }]" :title="`${survivor.username} (${-survivor.codewars.overall_rank} kyu)`" :key="survivor.id">
+            <tr v-for="(survivor, index) in survivors" :class="['animated fadeInUp', {'highlight bg-highlight': isCurrentUser(survivor.id) }]" :title="`${survivor.username} (${-survivor.codewars.overall_rank} kyu)`" :key="survivor.id">
               <th scope="row">
                 <span class="data username">{{ survivor.name || survivor.username }}</span>
               </th>
@@ -141,7 +141,7 @@
               </td>
             </tr>
 
-            <tr v-for="defeatedUser in defeated" :title="defeatedUser.username" :class="['animated fadeInUp', { 'highlight-red': battle.stage === 0, 'bg-highlight': isCurrentUser(defeatedUser.id) }]" :key="defeatedUser.id">
+            <tr v-for="defeatedUser in defeated" :title="defeatedUser.username" :class="['animated fadeInUp', { '': battle.stage === 0, 'highlight-red bg-highlight': isCurrentUser(defeatedUser.id) }]" :key="defeatedUser.id">
               <th scope="row" :class="['username', { pending: !userIsConfirmed(defeatedUser.id) && battle.stage > 0 && battle.stage < 3 }]">
                 <span class="data username">{{ defeatedUser.name || defeatedUser.username }}</span>
               </th>

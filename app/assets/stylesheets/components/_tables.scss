@@ -87,6 +87,8 @@ table.console-table {
   }
 
   tr.battle-over {
+    border-top: solid 0.5px rgba(white, 0.3);
+    border-bottom: solid 0.5px rgba(white, 0.3);
     background-color: rgba($red, 0.2);
     &:hover {
       background-color: rgba($red, 0.2) !important;
