@@ -40,7 +40,7 @@
         <room-battle
           v-if="battleInitialized"
           id="room-battle"
-          class="grid-item"
+          class="grid-item animated fadeIn"
           :roomStatus="roomStatus"
           :battle="battle"
           :users="users"
@@ -58,7 +58,7 @@
 
         <room-leaderboard
           v-if="currentUser"
-          class="grid-item"
+          class="grid-item animated fadeIn"
           :users="users"
           :room="room"
           :battle="battle"
@@ -70,7 +70,7 @@
         />
         
         <room-chat
-          class="grid-item"
+          class="grid-item animated fadeIn"
           :messages="chat.messages"
           :authors="chat.authors"
           :current-user="currentUser"
