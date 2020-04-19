@@ -52,7 +52,7 @@ class User < ApplicationRecord
   alias_attribute :rank, :codewars_overall_rank
 
   has_settings do |s|
-    s.key :base, defaults: { sfx: true, voice: true, music: false, connected_webhook: false, last_webhook_at: nil, hljs_lang: nil }
+    s.key :base, defaults: { sfx: true, voice: true, music: false, connected_webhook: false, last_webhook_at: nil, hljs_lang: nil, low_res_theme: false }
   end
 
   def webhook_secret
@@ -107,7 +107,8 @@ class User < ApplicationRecord
       # hljs_lang: settings(:base).hljs_lang,
       connected_webhook: settings(:base).connected_webhook,
       last_webhook_at: settings(:base).last_webhook_at,
-      webhook_secret: webhook_secret
+      webhook_secret: webhook_secret,
+      low_res_theme: settings(:base).low_res_theme,
     }
   end
 

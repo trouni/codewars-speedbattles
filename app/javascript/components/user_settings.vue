@@ -98,14 +98,26 @@
         </div>
       </div>
     </div>
-    <span class="d-flex justify-content-around mb-3">
-      <a href="/users/sign_out" data-method="delete">
-        <std-button @click.native="cancel" fa-icon="fas fa-sign-out-alt" small>Sign out</std-button>
-      </a>
-      <a href="/rooms/">
-        <std-button @click.native="cancel" fa-icon="fas fa-angle-double-left" small>Leave room</std-button>
-      </a>
-    </span>
+    <div class="form-group mb-5">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="m-0">Theme (Standard/Low-res)</h5>
+        <std-button
+          @click.native="lowRes = !lowRes"
+          :fa-icon="`fas ${lowRes ? 'fa-adjust' : 'fa-image'}`"
+        >{{ lowRes ? 'LOW RES' : 'STANDARD' }}</std-button>
+      </div>
+      <small>Alternative theme to improve performance on slower devices.</small>
+    </div>
+    <div class="form-group mb-5">
+      <div class="d-flex justify-content-around">
+        <a href="/users/sign_out" data-method="delete">
+          <std-button @click.native="cancel" fa-icon="fas fa-sign-out-alt" small>Sign out</std-button>
+        </a>
+        <a href="/rooms/">
+          <std-button @click.native="cancel" fa-icon="fas fa-angle-double-left" small>Leave room</std-button>
+        </a>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -123,6 +135,7 @@ export default {
       tooltipText: "Copy to clipboard",
       displayName: this.settings.user.name,
       hljsLang: this.settings.user.hljs_lang,
+      lowRes: this.settings.user.low_res_theme,
     }
   },
   computed: {
@@ -134,6 +147,7 @@ export default {
           voice: this.settings.user.voice,
           music: this.settings.user.music,
           hljs_lang: this.hljsLang,
+          low_res_theme: this.lowRes,
         }
       }
     },
