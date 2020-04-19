@@ -56,6 +56,12 @@ a:hover {
   display: contents;
 }
 
+.absolute-h-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .clickable {
   cursor: pointer;
 }

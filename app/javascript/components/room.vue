@@ -23,6 +23,11 @@
     </modal>
     <spinner v-if="initializing || !wsConnected" class="animated fadeIn">
       {{ wsConnected ? 'LOADING' : 'CONNECTING' }}
+      <p v-if="longDisconnection" class="absolute-h-center mt-5 animated fadeIn">
+        <small>Taking too long?</small>
+        <std-button small @click.native="reloadBrowser" class="no-wrap">Refresh the page</std-button>
+      </p>
+      
     </spinner>
 
     <div id="room" :class="{ moderator: currentUserIsModerator, 'initializing': initializing }">
@@ -128,6 +133,7 @@ export default {
       countdown: 0,
       countdownDuration: 10,
       focus: null,
+      longDisconnection: false,
       // leaderboard: {},
       messagesInitialized: false,
       modalContent: 'user',
@@ -400,6 +406,9 @@ export default {
     // =============
     //     ROOM
     // =============
+    reloadBrowser() {
+      location.reload()
+    },
     openModal() {
       this.focus = 'modal'
     },
@@ -775,9 +784,12 @@ export default {
     RoomChannel: {
       connected() {
         this.wsConnected = true
+        this.longDisconnection = false
+        clearTimeout(window.longDisconnectionTimeout)
       },
       rejected() {
         this.wsConnected = false
+        window.longDisconnectionTimeout = setTimeout(_ => this.longDisconnection = true, 8000)
       },
       received(data) {
         switch (data.subchannel) {
@@ -919,6 +931,7 @@ export default {
       },
       disconnected() {
         this.wsConnected = false
+        window.longDisconnectionTimeout = setTimeout(_ => this.longDisconnection = true, 15000)
       }
     }
   },
