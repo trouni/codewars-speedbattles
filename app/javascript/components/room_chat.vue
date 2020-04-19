@@ -20,7 +20,7 @@
         <textarea
           id="msg-textarea"
           :rows="inputMinRows"
-          placeholder='Send a message...'
+          placeholder='Type your message... Start with ``` (triple backquotes) to write code.'
           @input="updateTextAreaRows"
           @keydown.enter="sendMessage"
           @keydown.tab="addTabCharacter"
