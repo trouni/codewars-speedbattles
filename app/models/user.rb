@@ -43,6 +43,7 @@ class User < ApplicationRecord
 
   after_create :async_fetch_codewars_info
   after_save :broadcast, if: :saved_change_to_profile?
+  after_save :refresh_chat, if: :saved_change_to_name?
 
   scope :invited, ->(battle) { battle ? self.in(battle.room).select('battle_invites.created_at AS invited_at').joins(:battle_invites).where(battle_invites: { battle: battle }) : [] }
   scope :pending, ->(battle) { battle ? invited(battle).where(battle_invites: { confirmed: false }) : [] }
@@ -271,5 +272,9 @@ class User < ApplicationRecord
     saved_change_to_rank? ||
     saved_change_to_codewars_overall_score ||
     saved_change_to_codewars_leaderboard_position?
+  end
+
+  def refresh_chat
+    room&.broadcast_messages
   end
 end

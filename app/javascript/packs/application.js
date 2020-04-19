@@ -49,9 +49,8 @@ Vue.use(VueShowdown, {
     ghMentionsLink: "https://www.codewars.com/users/{u}",
     emoji: true,
     openLinksInNewWindow: true,
-    simpleLineBreaks: false,
+    simpleLineBreaks: true,
     requireSpaceBeforeHeadingText: true,
-
   },
 })
 

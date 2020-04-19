@@ -158,7 +158,7 @@
       },
       sendMessage(e) {
         if (e.shiftKey) return
-        if (this.multilineInput && !e.metaKey && !e.ctrlKey) return
+        // if (this.multilineInput && !e.metaKey && !e.ctrlKey) return
 
         e.preventDefault()
         this.$root.$emit('send-chat-message', this.input );
