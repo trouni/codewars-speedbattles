@@ -11,6 +11,7 @@
 .widget {
   position: relative;
   display: flex;
+  overflow: hidden; // added this for the modal widget - was moving when scrolling over the controls
   background: linear-gradient(154.9deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.8) 86.37%);
   height: 100%;
   min-height: 100px;

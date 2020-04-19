@@ -2,10 +2,11 @@
   <widget id="room-chat" :header-title="title" :loading="loading" :focus="focus">
     <div class="flex-grow-1"></div>
     <ul class="messages scrollable" v-chat-scroll="{always: true, smooth: true, scrollonremoved:true}" ref="messages">
-      <li v-for="message in sortedMessages" v-bind:class="messageClass(message)" :key="message.id">
+      <li v-for="(message, index) in sortedMessages" v-bind:class="messageClass(message)" :key="message.id">
         <div v-if="!isAnnouncement(message)">
-          <span class="message-header d-flex">
-            <span class="author" :title="message.author.username">{{ message.author.name || message.author.username }}</span>
+          <span class="message-header">
+            <h5 v-if="index === 0 || message.author.username !== sortedMessages[index - 1].author.username" class="author highlight" :title="message.author.username">{{ message.author.name || message.author.username }}</h5>
+            <span v-else />
             <div class="sent-at" v-html="formatMessageDate(message.created_at)" />
           </span>
           <chat-message :content="message.content" class="content" />
@@ -55,7 +56,7 @@
       return {
         title: "Comms://Chatlogs",
         input: "",
-        inputRowHeight: 0,
+        inputRowHeight: null,
         inputMinRows: 2,
         inputMaxRows: 17,
         submitHint: null,
@@ -119,6 +120,7 @@
         const textarea = this.$refs.textarea
         const storedInput = textarea.value
         textarea.value = ''
+        console.log(textarea.scrollHeight)
         this.inputRowHeight = textarea.scrollHeight / this.inputMinRows
         textarea.value = storedInput
       },
