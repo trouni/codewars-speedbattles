@@ -18,14 +18,21 @@
     // line-height: 1.2em;
     list-style: none;
   }
+
+  .messages .message-header {
+    display: flex;
+    justify-content: space-between;
+  }
   
   .messages .sent-at {
     font-family: $body-font;
     font-size: 0.85em;
-    opacity: 0.6;
+    opacity: 0;
     font-weight: 200;
     display: flex;
+    justify-content: flex-end;
     align-items: flex-end;
+    transition: opacity 0.2s ease-in;
   }
   
   .message .sent-at .date {
@@ -34,6 +41,10 @@
     transition: max-width 0.5s ease-in 1.5s, opacity 0.5s ease-in 1.5s;
     overflow: hidden;
     white-space: nowrap;
+  }
+
+  .message:hover .sent-at {
+    opacity: 0.6;
   }
   
   .message:hover .sent-at .date {
@@ -83,7 +94,7 @@
       }
     }
 
-    ol {
+    ol, ul {
       padding: 0.7em 0 0.7em 3em;
     }
 
@@ -105,22 +116,22 @@
     flex-grow: 1;
     display: flex;
     &:after {
+      display: none;
       font-family: $body-font;
-      opacity: 0;
       content: attr(data-submit-hint);
       position: absolute;
       right: 0;
       bottom: 0;
       font-size: 0.8em;
-      background: linear-gradient(150deg, rgba(0,0,0,0.5), rgba(0,0,0,0.8));
+      background: rgba(0,0,0,0.8);
       line-height: 1.5em;
       border-radius: 3px 3px 0 0;
       padding: 0 8px;
       transition: opacity 0.5s ease-out;
     }
-    // &.multiline:after {
-    //   opacity: 1;
-    // }
+    &.multiline:after {
+      // display: inherit;
+    }
     #msg-textarea {
       background: none;
       white-space: pre-wrap;
