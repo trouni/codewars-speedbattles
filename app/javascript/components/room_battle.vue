@@ -110,7 +110,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(survivor, index) in survivors" :class="['highlight animated fadeInUp', {'bg-highlight': isCurrentUser(survivor.id) }]" :title="survivor.username" :key="survivor.id">
+            <tr v-for="(survivor, index) in survivors" :class="['highlight animated fadeInUp', {'bg-highlight': isCurrentUser(survivor.id) }]" :title="`${survivor.username} (${-survivor.codewars.overall_rank} kyu)`" :key="survivor.id">
               <th scope="row">
                 <span class="data username">{{ survivor.name || survivor.username }}</span>
               </th>
@@ -133,7 +133,7 @@
                 <span class="data rank"></span>
               </td>
               <td>
-                <span class="data">End time</span>
+                <span class="data"></span>
               </td>
               <td>
                 <span class="data">{{ formatDuration((Date.parse(battle.end_time) - Date.parse(battle.start_time)) / 1000) }}</span>

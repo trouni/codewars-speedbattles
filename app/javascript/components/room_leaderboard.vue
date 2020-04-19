@@ -14,7 +14,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(user, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(user.id) }" :title="user.username" :key="user.id">
+            <tr v-for="(user, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(user.id) }" :title="`${user.username} (${-user.codewars.overall_rank} kyu)`" :key="user.id">
               <th scope="row" class="justify-content-between">
                 <span :class="['data user', {offline: !user.online}]">
                   <span :class="['mr-1', { 'online highlight': user.online }]">●</span>
@@ -27,11 +27,11 @@
                   <std-button v-if="showInviteButton(user.id)" @click.native="toggleInvite(user.id)" :title="showInviteButton(user.id)" small class="mr-2" />
                 </span>
               </th>
-              <td v-if="room.show_stats"><span class="data rank">{{ userRank(index) }}</span></td>
-              <td v-if="room.show_stats"><span class="data">{{ leaderboard[user.id] ? displayScore(leaderboard[user.id].total_score) : "-" }}</span></td>
-              <td v-if="room.show_stats"><span class="data">{{ leaderboard[user.id] ? leaderboard[user.id].battles_fought : "-" }}</span></td>
-              <td v-if="room.show_stats"><span class="data">{{ leaderboard[user.id] ? `${leaderboard[user.id].battles_survived} : ${leaderboard[user.id].battles_lost}` : "-" }}</span></td>
-              <!-- <td v-if="room.show_stats"><span class="data">{{ leaderboard[user.id] ? user.battles_fought : "-" }}</span></td> -->
+              <td v-if="room.show_stats"><span class="data rank">{{ userRanks[index] }}</span></td>
+              <td v-if="room.show_stats"><span class="data">{{ user ? displayScore(user.total_score) : "-" }}</span></td>
+              <td v-if="room.show_stats"><span class="data">{{ user ? user.battles_fought : "-" }}</span></td>
+              <td v-if="room.show_stats"><span class="data">{{ user ? `${user.battles_survived || '-'} : ${user.battles_lost || '-'}` : "-" }}</span></td>
+              <!-- <td v-if="room.show_stats"><span class="data">{{ user ? user.battles_fought : "-" }}</span></td> -->
             </tr>
           </tbody>
         </table>
@@ -87,23 +87,32 @@ export default {
     },
     sortedLeaderboard() {
       return this.leaderboardUsers.sort((a, b) => {
-        if (this.leaderboard[a.id] && this.leaderboard[b.id]) {
-          if (this.leaderboard[b.id].total_score !== this.leaderboard[a.id].total_score) {
-            return this.leaderboard[b.id].total_score - this.leaderboard[a.id].total_score
-          } else if (this.leaderboard[a.id].battles_fought === 0 || this.leaderboard[b.id].battles_fought === 0) {
-            return this.leaderboard[b.id].battles_fought - this.leaderboard[a.id].battles_fought
-          } else if (this.leaderboard[b.id].battles_survived !== this.leaderboard[a.id].battles_survived) {
-              return this.leaderboard[b.id].battles_survived - this.leaderboard[a.id].battles_survived
-          } else if (this.leaderboard[a.id].battles_lost !== this.leaderboard[b.id].battles_lost) {
-              return this.leaderboard[a.id].battles_lost - this.leaderboard[b.id].battles_lost
-          } else {
-            return b.username[0] > a.username[0] ? 1 : -1
-          }
-        } else if (this.leaderboard[a.id] || this.leaderboard[b.id]) {
-          return this.leaderboard[a.id] ? -1 : 1
+        if (b.total_score !== a.total_score) {
+          return b.total_score - a.total_score
+        } else if (b.battles_survived !== a.battles_survived) {
+            return b.battles_survived - a.battles_survived
+        } else if (a.battles_fought === 0 || b.battles_fought === 0) {
+          return b.battles_fought - a.battles_fought
+        } else if (a.battles_lost !== b.battles_lost) {
+            return a.battles_lost - b.battles_lost
+        } else if (a || b) {
+          return a ? -1 : 1
+        // } else {
+        //   return b.username[0] > a.username[0] ? 1 : -1
         } else {
           return (new Date(a.joined_at) - new Date(b.joined_at))
         }
+      })
+    },
+    userRanks() {
+      let rank = 0
+      let realRank = rank
+      return this.sortedLeaderboard.map((user, index) => {
+        realRank += 1
+        if (index === 0 || user.total_score < this.sortedLeaderboard[index - 1].total_score) {
+          rank = realRank
+        }
+        return rank
       })
     },
   },
@@ -115,15 +124,13 @@ export default {
     userRank(index) {
       if (index === 0) return 1
 
-      if (this.displayScore(this.sortedLeaderboard[index].total_score) === this.displayScore(this.sortedLeaderboard[index - 1].total_score)) return '↑'
+      if (this.displayScore(this.sortedLeaderboard[index].total_score) === this.displayScore(this.sortedLeaderboard[index - 1].total_score)) return '.' // '↑'
 
       return index + 1
     },
     displayScore(score) {
-      if (score === 0) return 0
-
       return score > 0 ? `+${score}` : 0
-      // return Math.max(0, score);
+      // return score > 0 ? `+${score}` : score
     },
     defeats(player) {
       return player.battles_fought - player.battles_survived

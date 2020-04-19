@@ -131,12 +131,14 @@ class User < ApplicationRecord
       completed_at: battle&.completed_challenge_at(self)
     }
 
-    no_stats = { battles_survived: nil, battles_fought: nil, total_score: nil }
-
     return standard_result unless for_room&.show_stats
 
-    return standard_result.merge(battles_survived: survived(for_room).size)
-                          .merge(battles_fought: battles.for_room(for_room).size)
+    survived = survived(for_room).size
+    fought = battles.for_room(for_room).size
+
+    return standard_result.merge(battles_survived: survived)
+                          .merge(battles_fought: fought)
+                          .merge(battles_lost: fought - survived)
                           .merge(total_score: for_room.total_score(self))
     # .merge(completed_at: active_battle&.completed_challenge_at(self))
   end

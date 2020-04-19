@@ -24,9 +24,28 @@ table.console-table {
     overflow: hidden;
   }
 
-  th:first-child .data {
+  td:not(:first-child) .data, th:not(:first-child) .data {
+    width: 100%;
+    justify-content: center;
+  }
+
+  :not(.battle-over) > td {
+    border-right: solid 0.5px rgba(white, 0.3);
+  }
+
+  td:last-child, th:last-child {
+    border-right: unset;
+  }
+
+  td:first-child, th:first-child {
     justify-content: left;
     padding-left: 1em;
+  }
+
+  .data:first-child {
+    display: flex;
+    margin: 0;
+    padding: 0;
   }
 
   .pending-label {
@@ -47,21 +66,16 @@ table.console-table {
     // }
   }
 
-  .data:first-child {
-    display: flex;
-    justify-content: center;
-    margin: 0;
-    padding: 0;
-  }
-
-  td:nth-child(2n) .data, th:nth-child(2n) .data {
-    justify-content: space-between;
-    &:before, &:after {
-      font-weight: normal;
-      content: "|";
-      // margin: 0 1em;
-    }
-  }
+  // td:nth-child(2n) .data, th:nth-child(2n) .data {
+  //   justify-content: center;
+  //   border-left: solid 0.5px rgba(white ,0.5);
+  //   border-right: solid 0.5px rgba(white ,0.5);
+  //   // &:before, &:after {
+  //   //   font-weight: normal;
+  //   //   content: "|";
+  //   //   // margin: 0 1em;
+  //   // }
+  // }
 
   tr {
     height: 1em;
@@ -87,11 +101,11 @@ table.console-table {
     overflow: hidden;
   }
 
-  td:last-child .data, th:last-child .data {
-    &:after {
-      visibility: hidden;
-    }
-  }
+  // td:last-child .data, th:last-child .data {
+  //   &:after {
+  //     visibility: hidden;
+  //   }
+  // }
 
   .bg-highlight {
     background-color: rgba(white, 0.1);

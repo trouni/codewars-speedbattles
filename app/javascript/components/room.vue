@@ -62,7 +62,6 @@
           :users="users"
           :room="room"
           :battle="battle"
-          :leaderboard="leaderboard"
           :room-players="roomPlayers"
           :current-user="currentUser"
           :current-user-is-moderator="currentUserIsModerator"
@@ -129,7 +128,7 @@ export default {
       countdown: 0,
       countdownDuration: 10,
       focus: null,
-      leaderboard: {},
+      // leaderboard: {},
       messagesInitialized: false,
       modalContent: 'user',
       room: this.roomInit,
@@ -867,16 +866,16 @@ export default {
             }
             break;
 
-          case "leaderboard":
-            switch (data.payload.action) {
-              case "update":
-                this.leaderboard = data.payload.leaderboard;
-                break;
+          // case "leaderboard":
+          //   switch (data.payload.action) {
+          //     case "update":
+          //       this.leaderboard = data.payload.leaderboard;
+          //       break;
 
-              default:
-                this.leaderboard = data.payload.leaderboard;
-            }
-            break;
+          //     default:
+          //       this.leaderboard = data.payload.leaderboard;
+          //   }
+          //   break;
 
           case "battles":
             switch (data.payload.action) {
