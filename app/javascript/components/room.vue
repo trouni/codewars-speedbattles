@@ -504,6 +504,7 @@ export default {
       this.sendCable('create_random_battle', battleOptions)
     },
     deleteBattle() {
+      this.battleLoading = true
       if (this.battleLoaded) this.sendCable("delete_battle", { battle_id: this.battle.id });
     },
     parseChallengeInput(input) {

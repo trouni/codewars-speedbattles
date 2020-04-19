@@ -27,7 +27,7 @@ class Battle < ApplicationRecord
   has_many :players, through: :battle_invites, class_name: "User"
   has_many :completed_challenges, through: :players
   scope :active, -> { where(end_time: nil) }
-  after_commit :broadcast_all
+  after_commit :broadcast_all, if: :persisted?
 
   def export_players
     {

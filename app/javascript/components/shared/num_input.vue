@@ -142,6 +142,6 @@ export default {
   }
 
   .append {
-    margin-left: 0.3em;
+    margin-left: 0.5em;
   }
 </style>

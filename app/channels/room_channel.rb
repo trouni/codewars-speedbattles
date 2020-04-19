@@ -97,7 +97,7 @@ class RoomChannel < ApplicationCable::Channel
   def delete_battle(data)
     set_room
     Battle.find(data["battle_id"]).destroy
-    # @room.broadcast_active_battle
+    @room.broadcast_active_battle
   end
 
   def invitation(data)
