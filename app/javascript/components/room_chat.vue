@@ -6,7 +6,6 @@
         <div v-if="!isAnnouncement(message)">
           <span class="message-header">
             <h6 v-if="index === 0 || message.author.username !== sortedMessages[index - 1].author.username" class="author" :title="message.author.username">
-              <rank-hex :rank="message.author.rank || -8" class="rank small" />
               <span>
                 {{ message.author.name || message.author.username }}
               </span>
