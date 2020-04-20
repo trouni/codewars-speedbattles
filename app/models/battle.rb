@@ -27,6 +27,7 @@ class Battle < ApplicationRecord
   has_many :players, through: :battle_invites, class_name: "User"
   has_many :completed_challenges, through: :players
   scope :active, -> { where(end_time: nil) }
+  after_create :invite_all, if: :auto_invite?
   after_commit :broadcast_all, if: :persisted?
 
   def export_players
@@ -37,6 +38,10 @@ class Battle < ApplicationRecord
       survived: User.survived(self),
       defeated: User.defeated(self)
     }
+  end
+
+  def auto_invite?
+    room.settings(:base).auto_invite
   end
 
   def launch(countdown)

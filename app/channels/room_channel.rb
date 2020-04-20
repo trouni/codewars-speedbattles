@@ -56,6 +56,7 @@ class RoomChannel < ApplicationCable::Channel
 
   def create_battle(data)
     set_room
+    @room.settings(:base).update(auto_invite: data['auto_invite'])
     battle = Battle.find_or_initialize_by(room: @room, end_time: nil)
     battle.time_limit = data["time_limit"] if data["time_limit"]&.positive?
     battle.challenge_language = data['language']
@@ -66,15 +67,16 @@ class RoomChannel < ApplicationCable::Channel
   def create_random_battle(data)
     set_room
     kata_options = data['kata'].transform_keys(&:to_sym)
-    @room.settings(:base).update(katas: kata_options.except(:language))
+    @room.settings(:base).update(katas: kata_options.except(:language), auto_invite: data['auto_invite'])
     battle = Battle.new(
       room: @room,
       end_time: nil,
       challenge_language: kata_options[:language],
       kata: @room.random_kata(**kata_options),
-      time_limit: data['time_limit']
+      time_limit: data['time_limit'],
     )
-    # Only broadcast older battle if save failed
+    
+    # Broadcast older battle if save failed
     @room.broadcast_active_battle unless battle.save
   end
 

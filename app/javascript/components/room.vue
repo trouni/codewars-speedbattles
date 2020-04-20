@@ -506,6 +506,7 @@ export default {
       this.sendCable("create_battle", {
         challenge_id: challengeIdSlug,
         time_limit: battleInfo.timeLimit,
+        auto_invite: battleInfo.autoInvite,
       });
     },
     createRandomBattle(battleOptions) {
