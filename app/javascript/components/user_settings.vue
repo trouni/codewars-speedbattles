@@ -100,13 +100,13 @@
     </div>
     <div class="form-group mb-5">
       <div class="d-flex justify-content-between align-items-center">
-        <h5 class="m-0">Theme (Standard/Low-res)</h5>
+        <h5 class="m-0">Low-res Theme</h5>
         <std-button
           @click.native="lowRes = !lowRes"
           :fa-icon="`fas ${lowRes ? 'fa-adjust' : 'fa-image'}`"
         >{{ lowRes ? 'LOW RES' : 'STANDARD' }}</std-button>
       </div>
-      <small>Alternative theme to improve performance on slower devices.</small>
+      <small>Alternative theme reducing transparency and effects for slower devices.</small>
     </div>
     <div class="form-group mb-5">
       <div class="d-flex justify-content-around">

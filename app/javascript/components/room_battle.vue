@@ -58,6 +58,15 @@
                 <num-input class="highlight justify-content-end" :min="0" :max="100" v-model="kataFiltersSatisfaction" editable append="%" />
               </h5>
             </div>
+            <div class="battle-options-item mb-4">
+              <h6 class="battle-options-title no-wrap">Auto-invite all players
+                <span
+                  class="hint custom-tooltip"
+                  :data-tooltip="`Invite all eligible players upon creating the battle.`"
+                ><sup>[?]</sup></span>
+              </h6>
+              <std-button @click.native="kataFiltersAutoInvite = !kataFiltersAutoInvite">{{ kataFiltersAutoInvite ? 'ON' : 'OFF' }}</std-button>
+            </div>
           </div>
         </div>
       </div>
@@ -239,6 +248,7 @@
         kataFiltersVotes: this.settings.room.katas.min_votes,
         kataFiltersSatisfaction: this.settings.room.katas.min_satisfaction,
         kataFiltersIgnoreHigherRankUsers: this.settings.room.katas.ignore_higher_rank_users,
+        kataFiltersAutoInvite: this.settings.room.auto_invite,
       }
     },
     watch: {
@@ -362,6 +372,7 @@
         this.$root.$emit('create-battle', {
           challenge: this.challengeInput,
           timeLimit: this.timeLimitSetter * 60,
+          autoInvite: this.kataFiltersAutoInvite,
         })
         this.challengeInput = ''
         this.$root.$emit('play-fx', 'click')
@@ -371,22 +382,14 @@
         this.$root.$emit('create-random-battle', {
           kata: this.kataOptions,
           time_limit: this.timeLimitSetter * 60,
+          auto_invite: this.kataFiltersAutoInvite,
         })
         this.$root.$emit('play-fx', 'click')
       },
       getKatasCount: debounce(function() {
         this.$root.$emit('get-katas-count', this.kataOptions)
       }, 1000),
-      defaultKataOptions() {
-        return {
-          ranks: Vue.util.extend([], this.settings.room.katas.ranks),
-          language: this.settings.room.languages[0],
-          min_votes: this.settings.room.katas.min_votes,
-          min_satisfaction: this.settings.room.katas.min_satisfaction,
-        }
-      },
       openNewBattleMenu() {
-        // this.kataOptions = this.defaultKataOptions()
         this.showNewBattleMenu = true
       },
       isCurrentUser(userId) {
@@ -485,6 +488,7 @@
   }
 
   .battle-options-item {
+    position: relative;
     display: flex;
     align-items: center;
     min-height: 4em;
