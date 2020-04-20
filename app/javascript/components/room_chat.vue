@@ -5,11 +5,24 @@
       <li v-for="(message, index) in sortedMessages" v-bind:class="messageClass(message)" :key="message.id">
         <div v-if="!isAnnouncement(message)">
           <span class="message-header">
-            <h5 v-if="index === 0 || message.author.username !== sortedMessages[index - 1].author.username" class="author highlight" :title="message.author.username">{{ message.author.name || message.author.username }}</h5>
+            <h6 v-if="index === 0 || message.author.username !== sortedMessages[index - 1].author.username" class="author" :title="message.author.username">
+              <rank-hex :rank="message.author.rank || -8" class="rank small" />
+              <span>
+                {{ message.author.name || message.author.username }}
+              </span>
+              <span class="author-info">
+                <span v-if="message.author.name" class="author-info-item username">
+                  ({{ message.author.username }})
+                </span>
+                <a :href="`https://www.codewars.com/users/${message.author.username}/completed`" target="_blank">View on Codewars</a>
+              </span>
+            </h6>
             <span v-else />
-            <div class="sent-at" v-html="formatMessageDate(message.created_at)" />
           </span>
-          <chat-message :content="message.content" class="content" />
+          <div class="message-content-ctn">
+            <div class="sent-at" v-html="formatMessageDate(message.created_at)" />
+            <chat-message :content="message.content" class="content" />
+          </div>
         </div>
         <div v-else>
           <span class="content" v-html="displayMsg(message)" />
@@ -120,7 +133,7 @@
         const textarea = this.$refs.textarea
         const storedInput = textarea.value
         textarea.value = ''
-        console.log(textarea.scrollHeight)
+        // console.log(textarea.scrollHeight)
         this.inputRowHeight = textarea.scrollHeight / this.inputMinRows
         textarea.value = storedInput
       },
@@ -212,9 +225,9 @@
   }
 </script>
 
-<style scoped>
+<style lang="scss">
 .join-call {
-  position: absolute;
+  position: absolute !important;
   bottom: 0.5em;
   right: 1em;
   z-index: 10;

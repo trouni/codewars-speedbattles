@@ -184,7 +184,7 @@ export default {
 }
 </script>
 
-<style lang='scss' scoped>
+<style lang='scss'>
   .user {
     line-height: 1.5em;
     font-size: 1em;

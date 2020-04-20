@@ -273,7 +273,7 @@ class Room < ApplicationRecord
       subchannel: "chat",
       payload: {
         action: "all",
-        messages: messages.includes(:user).order(created_at: :desc).limit(50).map(&:api_expose),
+        messages: messages.includes(:user).order(created_at: :desc).limit(100).map(&:api_expose),
         authors: chat.users.select(:id, :username, :name)
       },
       private_to_user_id: private_to_user_id

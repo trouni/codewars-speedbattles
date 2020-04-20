@@ -46,11 +46,12 @@ Vue.use(VueShowdown, {
     tables: false,
     ghCodeBlocks: true,
     ghMentions: true,
-    ghMentionsLink: "https://www.codewars.com/users/{u}",
+    ghMentionsLink: "https://www.codewars.com/users/{u}/completed",
     emoji: true,
     openLinksInNewWindow: true,
     simpleLineBreaks: true,
     requireSpaceBeforeHeadingText: true,
+    backslashEscapesHTMLTags: true,
   },
 })
 
