@@ -1,5 +1,5 @@
 <template>
-  <span v-if="rank" class="rank-hex d-inline-block">
+  <span v-if="rank" class="rank-hex">
     <div :class="['small-hex', rankColor[rank], { selected: selected }, { inactive: inactive }]">
       <span v-html="rankName[rank]" />
       <div class="inner-small-hex">
@@ -12,7 +12,7 @@
 <script>
 export default {
   props: {
-    rank: String,
+    rank: Number,
     selected: Boolean,
     inactive: Boolean,
   },
@@ -53,8 +53,17 @@ export default {
 
 <style lang='scss'>
 .rank-hex {
+  display: inline-block;
   vertical-align: bottom;
   opacity: 0.8;
+  &.small {
+    transform: scale(0.88);
+    margin: 0 -4px;
+  }
+  &.smaller {
+    transform: scale(0.8);
+    margin: 0 -6px;
+  }
 }
 .small-hex {
   height: 26px;
@@ -144,7 +153,7 @@ export default {
     z-index: 2;
   }
 }
-.blue-rank {
+.blue-rank, .kyu-4, .kyu-3 {
   background-color: #3c7ebb;
   color: rgba(20, 20, 20, 0.7);
   &:before {
@@ -157,7 +166,7 @@ export default {
     color: #3c7ebb;
   }
 }
-.purple-rank {
+.purple-rank, .kyu-2, .kyu-1 {
   background-color: #866cc7;
   color: rgba(20, 20, 20, 0.7);
   &:before {
@@ -170,7 +179,7 @@ export default {
     color: #866cc7;
   }
 }
-.yellow-rank {
+.yellow-rank, .kyu-6, .kyu-5 {
   background-color: #ecb613;
   color: rgba(20, 20, 20, 0.7);
   &:before {
@@ -183,8 +192,7 @@ export default {
     color: #ecb613;
   }
 }
-.white-rank {
-  
+.white-rank, .kyu-8, .kyu-7 {
   background-color: #e6e6e6;
   color: rgba(20, 20, 20, 0.7);
   &:before {
@@ -197,7 +205,7 @@ export default {
     color: #e6e6e6;
   }
 }
-.black-rank {
+.black-rank, .dan-1, .dan-2, .dan-3, .dan-4, .dan-5, .dan-6, .dan-7, .dan-8 {
   background-color: #555;
   color: #fff;
   &:before {

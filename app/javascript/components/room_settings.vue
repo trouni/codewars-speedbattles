@@ -32,7 +32,7 @@
       <div v-for="row in [0, 1]" class="d-flex justify-content-center mt-3" :key="row">
         <rank-hex
           v-for="rank in [-8 + 4 * row, -7 + 4 * row, -6 + 4 * row, -5 + 4 * row]"
-          :rank="'' + rank"
+          :rank="rank"
           :inactive="!rankActive(rank)"
           class="clickable mx-2"
           @click.native="toggleRank(rank)"

@@ -10,6 +10,11 @@ body {
   cursor: default;
   user-select: none;
   background-color: black;
+  font-weight: 200;
+}
+
+small {
+  font-weight: inherit;
 }
 
 // h1, h2, h3, h4, h5, h6 {

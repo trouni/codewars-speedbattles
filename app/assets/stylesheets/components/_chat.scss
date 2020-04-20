@@ -20,12 +20,18 @@
   }
 
   .messages .message-header {
-    display: flex;
-    justify-content: space-between;
+    // display: flex;
+    // justify-content: space-between;
   }
-  
+  .message {
+    position: relative;
+  }
+
   .messages .sent-at {
     font-family: $body-font;
+    position: absolute;
+    right: 0;
+    top: -1.5em;
     font-size: 0.85em;
     opacity: 0;
     font-weight: 200;
@@ -51,15 +57,33 @@
     opacity: 1;
     max-width: 100%;
   }
-
+  .message-content-ctn {
+    position: relative;
+    margin: 0 2rem 1rem 2rem;
+  }
+  
   .messages .user-message .author {
-    font-family: $headers-font;
-    margin-top: 1em;
-    margin-right: 0.7em;
+    font-family: $body-font;
+    margin-top: 1rem;
+    margin-right: 0.7rem;
     opacity: 1;
     font-weight: 600;
-    .sent-at {
-      margin-left: 0.6em;
+    letter-spacing: 1px;
+    a {
+      margin-left: 0.4em;
+      opacity: 0;
+      font-family: $headers-font;
+    }
+    .author-info {
+      font-weight: 200;
+      font-size: 0.9em;
+    }
+    &:hover a {
+      opacity: 0.7;
+    }
+    .username {
+      margin-left: 0.3em;
+      opacity: 0.7;
     }
   }
   
@@ -83,7 +107,7 @@
     pre {
       font-size: 0.85em;
       overflow: initial;
-      margin: 5px 2em;
+      margin: 0;
     }
     pre code {
       padding: 1em;
@@ -129,9 +153,9 @@
       padding: 0 8px;
       transition: opacity 0.5s ease-out;
     }
-    &.multiline:after {
-      // display: inherit;
-    }
+    // &.multiline:after {
+    //   display: inherit;
+    // }
     #msg-textarea {
       background: none;
       white-space: pre-wrap;

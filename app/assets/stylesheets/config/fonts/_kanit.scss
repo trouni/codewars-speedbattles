@@ -166,29 +166,29 @@
     font-style: italic;
 }
 
-// @font-face {
-//     font-family: 'Kanit';
-//     src: asset-url('Kanit-LightItalic.eot');
-//     src: local('Kanit Light Italic'), local('Kanit-LightItalic'),
-//         asset-url('Kanit-LightItalic.eot?#iefix') format('embedded-opentype'),
-//         asset-url('Kanit-LightItalic.woff2') format('woff2'),
-//         asset-url('Kanit-LightItalic.woff') format('woff'),
-//         asset-url('Kanit-LightItalic.ttf') format('truetype');
-//     font-weight: 300;
-//     font-style: italic;
-// }
+@font-face {
+    font-family: 'Kanit';
+    src: asset-url('Kanit-LightItalic.eot');
+    src: local('Kanit Light Italic'), local('Kanit-LightItalic'),
+        asset-url('Kanit-LightItalic.eot?#iefix') format('embedded-opentype'),
+        asset-url('Kanit-LightItalic.woff2') format('woff2'),
+        asset-url('Kanit-LightItalic.woff') format('woff'),
+        asset-url('Kanit-LightItalic.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+}
 
-// @font-face {
-//     font-family: 'Kanit';
-//     src: asset-url('Kanit-Light.eot');
-//     src: local('Kanit Light'), local('Kanit-Light'),
-//         asset-url('Kanit-Light.eot?#iefix') format('embedded-opentype'),
-//         asset-url('Kanit-Light.woff2') format('woff2'),
-//         asset-url('Kanit-Light.woff') format('woff'),
-//         asset-url('Kanit-Light.ttf') format('truetype');
-//     font-weight: 300;
-//     font-style: normal;
-// }
+@font-face {
+    font-family: 'Kanit';
+    src: asset-url('Kanit-Light.eot');
+    src: local('Kanit Light'), local('Kanit-Light'),
+        asset-url('Kanit-Light.eot?#iefix') format('embedded-opentype'),
+        asset-url('Kanit-Light.woff2') format('woff2'),
+        asset-url('Kanit-Light.woff') format('woff'),
+        asset-url('Kanit-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
 
 // @font-face {
 //     font-family: 'Kanit';

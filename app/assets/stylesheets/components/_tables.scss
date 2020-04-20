@@ -22,6 +22,7 @@ table.console-table {
     display: flex;
     white-space: nowrap;
     overflow: hidden;
+    font-weight: 200;
   }
 
   td:not(:first-child) .data, th:not(:first-child) .data {

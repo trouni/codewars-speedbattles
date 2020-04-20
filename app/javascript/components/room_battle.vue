@@ -6,7 +6,7 @@
           <div class="d-flex justify-content-center mt-5">
             <rank-hex
               v-for="rank in [-8, -7, -6, -5, -4, -3, -2, -1]"
-              :rank="'' + rank"
+              :rank="rank"
               :selected="rankActive(rank)"
               :inactive="!rankActive(rank)"
               class="clickable mx-1"
@@ -66,7 +66,7 @@
     <div v-else-if="battle.id" class="d-flex flex-column h-100">
       <div v-if="battle.challenge" class="challenge-info w-100 mb-3">
         <p class="mb-3">
-          <rank-hex :rank="'' + battle.challenge.rank"/>
+          <rank-hex :rank="battle.challenge.rank"/>
           <strong v-if="displayChallengeName" class="highlight">
             {{ battle.challenge.name }}
           </strong>

@@ -1,7 +1,7 @@
 <template>
   <span>
     <span v-for="(contentBlock, i) in contentBlocks" :key="i">
-      <vue-showdown v-if="contentBlock.code === false" :markdown="contentBlock.content" />
+      <vue-showdown v-if="contentBlock.code === false" :markdown="contentBlock.content" :extensions="[processingRules]" />
       <code-block v-else :content="contentBlock.content" :lang="contentBlock.code" />
     </span>
   </span>
@@ -14,6 +14,26 @@ export default {
   name: 'chat-message',
   props: {
     content: String,
+  },
+  data() {
+    return {
+      processingRules: () => [
+        // Removes <p> tags around text to allow html to display inline
+        {
+          type: 'output',
+          filter: function(text, converter) {
+            var re = /<\/?p[^>]*>/ig;
+            text = text.replace(re, '');
+            return text;
+          }
+        },
+        {
+          type: 'lang',
+          regex: /\b([1-8]) ?(kyu|dan)s?\b/g,
+          replace: '<span class="rank-hex smaller"><div class="small-hex $2-$1"><div class="inner-small-hex"><span>$1 $2</span></div></div></span>'
+        },
+      ],
+    }
   },
   mounted() {
     this.$root.$emit('play-fx', 'message');
