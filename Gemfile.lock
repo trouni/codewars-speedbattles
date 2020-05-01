@@ -188,6 +188,7 @@ GEM
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 2.0)
     ruby-progressbar (1.10.1)
+    ruby_http_client (3.5.0)
     sassc (2.3.0)
       ffi (~> 1.9)
     sassc-rails (2.1.2)
@@ -197,6 +198,11 @@ GEM
       sprockets-rails
       tilt
     semantic_range (2.3.0)
+    sendgrid-actionmailer (3.0.2)
+      mail (~> 2.7)
+      sendgrid-ruby (~> 6.0)
+    sendgrid-ruby (6.2.0)
+      ruby_http_client (~> 3.4)
     sidekiq (6.0.7)
       connection_pool (>= 2.2.2)
       rack (~> 2.0)
@@ -276,6 +282,7 @@ DEPENDENCIES
   redis
   rubocop
   sassc-rails
+  sendgrid-actionmailer
   sidekiq
   sidekiq-failures (~> 1.0)
   simple_form
