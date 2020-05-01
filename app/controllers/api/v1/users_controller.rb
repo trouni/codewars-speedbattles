@@ -2,6 +2,7 @@ require 'open-uri'
 
 class Api::V1::UsersController < ApplicationController
   skip_before_action :authenticate_user!, only: :valid_username?
+
   def index
     @room = Room.find(params[:id] || params[:room_id])
     @users = policy_scope(User)
