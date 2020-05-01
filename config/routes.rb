@@ -10,6 +10,8 @@ Rails.application.routes.draw do
   # Sidekiq Web UI, only for admins.
   require "sidekiq/web"
   authenticate :user, lambda { |u| u.admin } do
+    get '/admin', to: 'admin#home', as: :admin
+    post '/admin/announce', to: 'admin#announce', as: :announce
     mount Sidekiq::Web => '/sidekiq'
   end
   
