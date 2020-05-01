@@ -32,7 +32,6 @@ class Room < ApplicationRecord
         min_satisfaction: 90,
         ignore_higher_rank_users: false,
       },
-      auto_invite: false,
       languages: ['ruby'],
       auto_invite: false,
       auto_start: false,

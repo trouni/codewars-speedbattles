@@ -5,6 +5,10 @@ class FetchCompletedChallengesJob < ApplicationJob
   # user_id, battle_id, all_pages
   def perform(user_id:, all_pages: true)
     @user = User.find(user_id)
+    if @user.last_fetched_at > Time.now - 1.minute
+      puts 'Fetched less than 1 min ago. Skipping fetch.'
+      return
+    end
     # @battle = Battle.find(battle_id) if battle_id
     @battle = @user.active_battle
     already_completed_battle = @user.survived?(@battle) if @battle
