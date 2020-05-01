@@ -3,12 +3,12 @@
   bottom: 16px;
   right: 16px;
   z-index: 1000;
-  background-color: rgba($darkblue, 0.3);
   box-shadow: 0 0 5px rgba(white, 0.2);
 }
 
 .alert-info {
   border-color: rgba($fullopacity-peace, 1);
+  background-color: rgba($darkblue, 0.3);
   color: rgba(white, 0.7);
 }
 
