@@ -20,7 +20,7 @@ class Room < ApplicationRecord
   validates :name, presence: true
 
   after_create :create_chat
-  after_save :refresh_room, if: :saved_change_to_name?
+  after_update :announce_new_name, if: :saved_change_to_name?
 
   has_settings do |s|
     s.key :base, defaults: {
@@ -338,7 +338,7 @@ class Room < ApplicationRecord
     Chat.create!(room: self, name: name)
   end
 
-  def refresh_room
+  def announce_new_name
     announce(:chat, "War room renamed to <strong>#{name}</strong>.")
   end
 end
