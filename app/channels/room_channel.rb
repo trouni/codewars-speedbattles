@@ -19,6 +19,9 @@ class RoomChannel < ApplicationCable::Channel
     @room.broadcast_messages(private_to_user_id: @current_user.id)
     @room.broadcast_active_battle(private_to_user_id: @current_user.id)
     # @room.broadcast_leaderboard
+
+    # Invite to battle if autonomous room
+    @room.active_battle.invitation(user: @current_user, action: "invite") if @room.settings(:base).autonomous
   end
 
   def unsubscribed

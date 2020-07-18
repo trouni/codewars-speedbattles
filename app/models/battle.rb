@@ -127,6 +127,8 @@ class Battle < ApplicationRecord
   end
 
   def invitation(user: nil, action: nil)
+    return if started?
+
     case action
     when "uninvite" then uninvite_user(user)
     when "confirm" then confirm_user(user)
