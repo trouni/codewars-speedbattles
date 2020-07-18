@@ -41,7 +41,7 @@ class Battle < ApplicationRecord
   end
 
   def auto_invite?
-    room.settings(:base).auto_invite
+    room.settings(:base).autonomous || room.settings(:base).auto_invite
   end
 
   def launch(countdown)

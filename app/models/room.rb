@@ -34,8 +34,9 @@ class Room < ApplicationRecord
       },
       languages: ['ruby'],
       auto_invite: false,
-      auto_start: false,
+      autonomous: false,
       voice_chat_url: nil,
+      time_limit: 10 * 60,
       # Array of languages for future support of multi-lang rooms
       moderators: []
     }
@@ -50,6 +51,7 @@ class Room < ApplicationRecord
       katas: settings(:base).katas,
       codewars_langs: Kata.languages,
       languages: settings(:base).languages,
+      autonomous: settings(:base).autonomous,
     }
   end
 
