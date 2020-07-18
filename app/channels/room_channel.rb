@@ -87,7 +87,7 @@ class RoomChannel < ApplicationCable::Channel
     set_room
     battle = Battle.find(data["battle_id"])
     case data["battle_action"]
-    when "start" then battle.start(countdown: data["countdown"].to_i)
+    when "start" then StartBattle.perform_now(battle, countdown: data["countdown"].to_i)
     when "end"
       end_at = battle.time_limit&.positive? ? [battle.start_time + battle.time_limit.seconds, Time.now].min : Time.now
       battle.terminate(end_at: end_at)
@@ -109,6 +109,7 @@ class RoomChannel < ApplicationCable::Channel
     battle = Battle.find(data["battle_id"])
     user = User.find(data["user_id"]) if data["user_id"]
     battle.invitation(user: user, action: data["invite_action"])
+    auto_start_battle if @room.settings(:base).autonomous
   end
 
   # =============
@@ -175,5 +176,14 @@ class RoomChannel < ApplicationCable::Channel
 
   def set_current_user
     @current_user = User.find(params[:user_id])
+  end
+
+  def auto_start_battle(countdown: 120)
+    set_room
+    if @room.active_battle.can_start?
+      StartBattle.perform_now(@room.active_battle, countdown)
+    else
+      CancelStartBattle.perform_now(@room.active_battle)
+    end
   end
 end

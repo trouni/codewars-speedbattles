@@ -57,7 +57,7 @@ class Battle < ApplicationRecord
   def start(countdown: 0)
     return if started?
 
-    uninvite_unconfirmed
+    # uninvite_unconfirmed
     room.announce(:chat, "<i class='fas fa-rocket mr-1'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> is about to begin...")
     room.broadcast_action(action: 'start-countdown', data: { countdown: countdown })
     update(start_time: Time.now + countdown.seconds)
@@ -208,7 +208,7 @@ class Battle < ApplicationRecord
   end
 
   def can_start?
-    battle_invites.where(confirmed: true).count > 1
+    !started? && battle_invites.where(confirmed: true).count > 1
   end
 
   def invited_players
