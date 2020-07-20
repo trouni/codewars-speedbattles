@@ -138,7 +138,7 @@ export default {
     showInviteButton(userId) {
       const user = this.findUser(userId)
 
-      if (this.currentUserIsModerator && user && user.online && this.battle && this.battle.stage > 0 && this.battle.stage < 3) {
+      if (this.currentUserIsModerator && user && user.online && this.battle && this.battleStage > 0 && this.battleStage < 3) {
         switch (user.invite_status) {
           case 'eligible':
             return 'invite'
