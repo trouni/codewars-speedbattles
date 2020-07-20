@@ -55,7 +55,7 @@ class Room < ApplicationRecord
       katas: settings(:base).katas,
       codewars_langs: Kata.languages,
       languages: settings(:base).languages,
-      autonomous: settings(:base).autonomous,
+      autonomous: autonomous?,
       next_event: {
         timer: [(settings(:base).next_event[:when] - Time.now).ceil, 0].max,
         type: settings(:base).next_event[:type]
@@ -65,6 +65,10 @@ class Room < ApplicationRecord
 
   def inactive?
     room_users.empty?
+  end
+
+  def autonomous?
+    settings(:base).autonomous
   end
 
   def next_event?
