@@ -20,8 +20,12 @@ class RoomChannel < ApplicationCable::Channel
     @room.broadcast_active_battle(private_to_user_id: @current_user.id)
     # @room.broadcast_leaderboard
 
-    # Invite to battle if autonomous room
-    @room.active_battle.invitation(user: @current_user, action: "invite") if @room.settings(:base).autonomous
+    if @room.autonomous?
+      # Invite to existing battle if autonomous room
+      @room.active_battle&.invitation(user: @current_user, action: "invite")
+      # Create battle if at_peace and no next event
+      CreateRandomBattle.perform_now(room: @room) if @room.at_peace? && !@room.next_event?
+    end
   end
 
   def unsubscribed
@@ -71,16 +75,7 @@ class RoomChannel < ApplicationCable::Channel
     set_room
     kata_options = data['kata'].transform_keys(&:to_sym)
     @room.settings(:base).update(katas: kata_options.except(:language), auto_invite: data['auto_invite'])
-    battle = Battle.new(
-      room: @room,
-      end_time: nil,
-      challenge_language: kata_options[:language],
-      kata: @room.random_kata(**kata_options),
-      time_limit: data['time_limit'],
-    )
-    
-    # Broadcast older battle if save failed
-    @room.broadcast_active_battle unless battle.save
+    CreateRandomBattle.perform_now(room: @room, language: data['language'], time_limit: data['time_limit'], kata_options: kata_options)
   end
 
   def update_battle(data)
@@ -109,7 +104,7 @@ class RoomChannel < ApplicationCable::Channel
     battle = Battle.find(data["battle_id"])
     user = User.find(data["user_id"]) if data["user_id"]
     battle.invitation(user: user, action: data["invite_action"])
-    auto_start_battle if @room.settings(:base).autonomous
+    auto_start_battle if @room.autonomous?
   end
 
   # =============
@@ -178,12 +173,12 @@ class RoomChannel < ApplicationCable::Channel
     @current_user = User.find(params[:user_id])
   end
 
-  def auto_start_battle(countdown: 120)
+  def auto_start_battle(countdown: 30)
     set_room
     if @room.active_battle.can_start?
       StartBattle.perform_now(@room.active_battle, countdown)
-    else
-      CancelStartBattle.perform_now(@room.active_battle)
+    # else
+      # CancelStartBattle.perform_now(@room.active_battle)
     end
   end
 end
