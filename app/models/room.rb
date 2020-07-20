@@ -38,7 +38,11 @@ class Room < ApplicationRecord
       voice_chat_url: nil,
       time_limit: 10 * 60,
       # Array of languages for future support of multi-lang rooms
-      moderators: []
+      moderators: [],
+      next_event: {
+        when: Time.now,
+        type: nil 
+      }
     }
   end
 
@@ -52,6 +56,10 @@ class Room < ApplicationRecord
       codewars_langs: Kata.languages,
       languages: settings(:base).languages,
       autonomous: settings(:base).autonomous,
+      next_event: {
+        timer: [(settings(:base).next_event[:when] - Time.now).ceil, 0].max,
+        type: settings(:base).next_event[:type]
+      }
     }
   end
 
@@ -332,6 +340,16 @@ class Room < ApplicationRecord
   def broadcast_player(action: "player", user:)
     broadcast_user(user: user)
     broadcast(subchannel: "battles", payload: { action: action, user: user.api_expose(self, active_battle) })
+  end
+
+  def set_timer(countdown, type)
+    settings(:base).update(next_event: { when: Time.now + countdown.seconds, type: type })
+    broadcast_settings
+  end
+
+  def schedule_next_battle(countdown = 10)
+    set_timer(countdown, 'next-battle')
+    CreateRandomBattle.set(wait: (countdown - 1).seconds).perform_later(room: self)
   end
 
   private
