@@ -67,6 +67,10 @@ class Room < ApplicationRecord
     room_users.empty?
   end
 
+  def next_event?
+    Time.now <= settings(:base).next_event[:when]
+  end
+
   def players
     super.distinct
     # User.joins(battle_invites: :battle).where(battle_invites: { confirmed: true }, battles: { room_id: id }).uniq
@@ -97,7 +101,7 @@ class Room < ApplicationRecord
 
   # Room has an ongoing battle (started but not finished)
   def at_war?
-    active_battle.present? && active_battle.start_time.present?
+    active_battle.present? && active_battle.start_time.present? && !active_battle.end_time.present?
   end
 
   # Room has a pending battle (set up but not yet started)
@@ -347,7 +351,7 @@ class Room < ApplicationRecord
     broadcast_settings
   end
 
-  def schedule_next_battle(countdown = 10)
+  def schedule_next_battle(countdown = 60)
     set_timer(countdown, 'next-battle')
     CreateRandomBattle.set(wait: (countdown - 1).seconds).perform_later(room: self)
   end
