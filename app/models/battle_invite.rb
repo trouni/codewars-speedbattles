@@ -15,6 +15,7 @@ class BattleInvite < ApplicationRecord
   belongs_to :battle
   has_one :room, through: :battle
   belongs_to :player, class_name: "User"
+  validates :player, uniqueness: { scope: :battle }
   # after_commit :broadcast_user, only: :destroy
 
   def broadcast_user
