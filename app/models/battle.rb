@@ -41,7 +41,7 @@ class Battle < ApplicationRecord
   end
 
   def auto_invite?
-    room.settings(:base).autonomous || room.settings(:base).auto_invite
+    room.autonomous? || room.settings(:base).auto_invite
   end
 
   def launch(countdown)
@@ -58,8 +58,8 @@ class Battle < ApplicationRecord
     return if started?
 
     # uninvite_unconfirmed
-    room.announce(:chat, "<i class='fas fa-rocket mr-1'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> is about to begin...")
-    room.broadcast_action(action: 'start-countdown', data: { countdown: countdown })
+    # room.announce(:chat, "<i class='fas fa-rocket mr-1'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> is about to begin...")
+    # room.broadcast_action(action: 'countdown', data: { countdown: countdown, timer_for: 'start-battle' })
     update(start_time: Time.now + countdown.seconds)
   end
 
@@ -74,6 +74,7 @@ class Battle < ApplicationRecord
       "<i class='fas fa-peace'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> is over."
     )
     broadcast_players
+    room.schedule_next_battle if room.autonomous?
   end
 
   def broadcast_all
@@ -127,7 +128,7 @@ class Battle < ApplicationRecord
   end
 
   def invitation(user: nil, action: nil)
-    return if started?
+    return if started? || over?
 
     case action
     when "uninvite" then uninvite_user(user)
@@ -196,7 +197,7 @@ class Battle < ApplicationRecord
   end
 
   def started?
-    !start_time.nil?
+    !start_time.nil? && Time.now >= start_time
   end
 
   def ongoing?
