@@ -30,6 +30,9 @@ class Battle < ApplicationRecord
   after_create :invite_all, if: :auto_invite?
   after_commit :broadcast_all, if: :persisted?
 
+  validates :start_time, uniqueness: { scope: :room }
+  validates :end_time, uniqueness: { scope: :room }
+
   def export_players
     {
       # Using 'invited' instead of pending for retro-compatibility
