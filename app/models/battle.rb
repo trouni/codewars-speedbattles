@@ -28,7 +28,8 @@ class Battle < ApplicationRecord
   has_many :completed_challenges, through: :players
   scope :active, -> { where(end_time: nil) }
   after_create :invite_all, if: :auto_invite?
-  after_commit :broadcast_all, if: :persisted?
+  after_commit :broadcast_all
+  after_create :destroy_if_invalid
 
   validates :start_time, uniqueness: { scope: :room }
   validates :end_time, uniqueness: { scope: :room }
@@ -57,13 +58,14 @@ class Battle < ApplicationRecord
     room.broadcast_action(action: "launch-codewars") if countdown <= 0
   end
 
-  def start(countdown: 0)
+  def start
     return if started?
 
     # uninvite_unconfirmed
     # room.announce(:chat, "<i class='fas fa-rocket mr-1'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> is about to begin...")
     # room.broadcast_action(action: 'countdown', data: { countdown: countdown, timer_for: 'start-battle' })
-    update(start_time: Time.now + countdown.seconds)
+    update(start_time: Time.now)
+    ScheduleEndBattle.perform_now(battle_id: id, delay_in_seconds: time_limit) if time_limit&.positive?
   end
 
   def terminate(end_at: nil)
@@ -77,12 +79,13 @@ class Battle < ApplicationRecord
       "<i class='fas fa-peace'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> is over."
     )
     broadcast_players
-    room.schedule_next_battle if room.autonomous?
+    ScheduleRandomBattle.perform_now(room_id: room.id, delay_in_seconds: 60) if room.autonomous?
   end
 
   def broadcast_all
     return if room.inactive?
     
+    room.broadcast_settings
     room.broadcast_active_battle
     # Broadcasting users to refresh invite status
     room.broadcast_users
@@ -134,8 +137,10 @@ class Battle < ApplicationRecord
     return if started? || over?
 
     case action
+    when "confirm"
+      confirm_user(user)
+      auto_start_battle if room.autonomous?
     when "uninvite" then uninvite_user(user)
-    when "confirm" then confirm_user(user)
     when "all" then invite_all
     when "uninvite-unconfirmed" then uninvite_unconfirmed
     when "survivors" then invite_survivors
@@ -200,7 +205,7 @@ class Battle < ApplicationRecord
   end
 
   def started?
-    !start_time.nil? && Time.now >= start_time
+    start_time.present?
   end
 
   def ongoing?
@@ -208,11 +213,7 @@ class Battle < ApplicationRecord
   end
 
   def over?
-    !end_time.nil?
-  end
-
-  def can_start?
-    !started? && battle_invites.where(confirmed: true).count > 1
+    end_time.present?
   end
 
   def invited_players
@@ -240,8 +241,9 @@ class Battle < ApplicationRecord
     eligible_users.includes(:battle_invites).where(sql_query, id)
   end
 
-  def unconfirmed_players
-    battle_invites.where(confirmed: false).map(&:player)
+  def confirmed_players
+    # TODO: refactor to remove .map
+    battle_invites.where(confirmed: true).map(&:player)
   end
 
   def uninvite_unconfirmed
@@ -284,9 +286,12 @@ class Battle < ApplicationRecord
   end
 
   def invite_all
-    BattleInvite.create(non_invited_users.map { |user| { player: user, battle: self } })
-    broadcast_players
-    # room.broadcast_active_battle
+    users_to_invite = non_invited_users.map { |user| { player: user, battle: self } }
+    if users_to_invite.any?
+      BattleInvite.create(users_to_invite)
+      broadcast_players
+      # room.broadcast_active_battle
+    end
   end
 
   def invite_survivors
@@ -296,6 +301,21 @@ class Battle < ApplicationRecord
       next unless user.eligible?
 
       invite_user(user)
+    end
+  end
+
+  def destroy_if_invalid
+    destroy unless valid?
+  end
+
+  def auto_start_battle(delay: 30.seconds)
+    return if started?
+
+    if confirmed_players.count > 1
+      ScheduleStartBattle.perform_now(battle_id: id, delay_in_seconds: delay.to_i)
+    # else
+    #   # Currently not working
+    #   CancelStartBattle.perform_now(battle_id: id)
     end
   end
 end
