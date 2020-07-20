@@ -22,9 +22,9 @@ class RoomChannel < ApplicationCable::Channel
 
     if @room.autonomous?
       # Invite to existing battle if autonomous room
-      @room.active_battle&.invitation(user: @current_user, action: "invite")
+      @room.active_battle&.invitation(user: @current_user, action: "invite") unless @room.active_battle.started?
       # Create battle if at_peace and no next event
-      CreateRandomBattle.perform_now(room: @room) if @room.at_peace? && !@room.next_event?
+      ScheduleRandomBattle.perform_now(room_id: @room.id, delay_in_seconds: 20) unless @room.unfinished_battle? || @room.next_event?
     end
   end
 
@@ -75,22 +75,25 @@ class RoomChannel < ApplicationCable::Channel
     set_room
     kata_options = data['kata'].transform_keys(&:to_sym)
     @room.settings(:base).update(katas: kata_options.except(:language), auto_invite: data['auto_invite'])
-    CreateRandomBattle.perform_now(room: @room, language: data['language'], time_limit: data['time_limit'], kata_options: kata_options)
+    ScheduleRandomBattle.perform_now(room_id: @room.id, language: data['language'], time_limit: data['time_limit'], kata_options: kata_options)
   end
 
   def update_battle(data)
     set_room
     battle = Battle.find(data["battle_id"])
     case data["battle_action"]
-    when "start" then StartBattle.perform_now(battle, countdown: data["countdown"].to_i)
+    when "start" then ScheduleStartBattle.perform_now(battle_id: battle.id, delay_in_seconds: data["countdown"].to_i)
     when "end"
       end_at = battle.time_limit&.positive? ? [battle.start_time + battle.time_limit.seconds, Time.now].min : Time.now
       battle.terminate(end_at: end_at)
     when "ended-by-user"
       battle = @room.active_battle
-      battle.time_limit = (Time.now - battle.start_time + 15.seconds).round
-      @room.broadcast(subchannel: "battles", payload: { action: "active", battle: battle.api_expose })
-    when "update" then battle.update(data["battle"])
+      ScheduleEndBattle.perform_now(battle_id: battle.id, delay_in_seconds: 15)
+      # battle.time_limit = (Time.now - battle.start_time + 15.seconds).round
+      # @room.broadcast(subchannel: "battles", payload: { action: "active", battle: battle.api_expose })
+    when "update"
+      battle.update(data["battle"])
+      ScheduleEndBattle.perform_now(battle_id: battle.id, end_at: battle.start_time + battle.time_limit.seconds) if battle.time_limit.positive? && battle.ongoing?
     end
   end
 
@@ -104,7 +107,6 @@ class RoomChannel < ApplicationCable::Channel
     battle = Battle.find(data["battle_id"])
     user = User.find(data["user_id"]) if data["user_id"]
     battle.invitation(user: user, action: data["invite_action"])
-    auto_start_battle if @room.autonomous?
   end
 
   # =============
@@ -171,14 +173,5 @@ class RoomChannel < ApplicationCable::Channel
 
   def set_current_user
     @current_user = User.find(params[:user_id])
-  end
-
-  def auto_start_battle(countdown: 30)
-    set_room
-    if @room.active_battle.can_start?
-      StartBattle.perform_now(@room.active_battle, countdown)
-    # else
-      # CancelStartBattle.perform_now(@room.active_battle)
-    end
   end
 end
