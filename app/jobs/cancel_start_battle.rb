@@ -1,10 +1,10 @@
 class CancelStartBattle < ApplicationJob
   queue_as :default
 
-  def perform(battle)
-    return if Time.now >= battle.start_time
+  def perform(battle_id:)
+    battle = Battle.find(battle_id)
+    return if battle.started?
 
-    battle.room.set_timer(0, '')
-    battle.update(start_time: nil)
+    # battle.room.clear_next_event!(only: 'start-battle')
   end
 end

@@ -1,9 +1,12 @@
 class CreateRandomBattle < ApplicationJob
   queue_as :default
 
-  def perform(room:, language: nil, time_limit: nil, kata_options: nil)
-    kata_options ||= room.settings(:base).katas
+  def perform(room_id:, language: nil, time_limit: nil, kata_options: nil, force: false)
+    room = Room.find(room_id)
     battle = Battle.find_or_initialize_by(room: room, end_time: nil)
+    return unless battle.new_record? && (latest_job_for?(room) || force)
+
+    kata_options ||= room.settings(:base).katas
     battle.assign_attributes(
       challenge_language: language || room.settings(:base).languages.sample,
       kata: room.random_kata(**kata_options),
@@ -12,6 +15,6 @@ class CreateRandomBattle < ApplicationJob
     
     # Broadcast older battle if save failed
     room.broadcast_active_battle unless battle.save
-    room.set_timer(0, '')
+    # room.clear_next_event!(only: 'next-battle')
   end
 end
