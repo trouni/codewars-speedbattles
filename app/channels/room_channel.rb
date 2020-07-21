@@ -19,6 +19,13 @@ class RoomChannel < ApplicationCable::Channel
     @room.broadcast_messages(private_to_user_id: @current_user.id)
     @room.broadcast_active_battle(private_to_user_id: @current_user.id)
     # @room.broadcast_leaderboard
+
+    if @room.autonomous?
+      # Invite to existing battle if autonomous room
+      @room.active_battle&.invitation(user: @current_user, action: "invite") unless @room.active_battle.started?
+      # Create battle if at_peace and no next event
+      ScheduleRandomBattle.perform_now(room_id: @room.id, delay_in_seconds: 20) unless @room.unfinished_battle? || @room.next_event?
+    end
   end
 
   def unsubscribed
@@ -68,31 +75,25 @@ class RoomChannel < ApplicationCable::Channel
     set_room
     kata_options = data['kata'].transform_keys(&:to_sym)
     @room.settings(:base).update(katas: kata_options.except(:language), auto_invite: data['auto_invite'])
-    battle = Battle.new(
-      room: @room,
-      end_time: nil,
-      challenge_language: kata_options[:language],
-      kata: @room.random_kata(**kata_options),
-      time_limit: data['time_limit'],
-    )
-    
-    # Broadcast older battle if save failed
-    @room.broadcast_active_battle unless battle.save
+    ScheduleRandomBattle.perform_now(room_id: @room.id, language: data['language'], time_limit: data['time_limit'], kata_options: kata_options)
   end
 
   def update_battle(data)
     set_room
     battle = Battle.find(data["battle_id"])
     case data["battle_action"]
-    when "start" then battle.start(countdown: data["countdown"].to_i)
+    when "start" then ScheduleStartBattle.perform_now(battle_id: battle.id, delay_in_seconds: data["countdown"].to_i)
     when "end"
       end_at = battle.time_limit&.positive? ? [battle.start_time + battle.time_limit.seconds, Time.now].min : Time.now
       battle.terminate(end_at: end_at)
     when "ended-by-user"
       battle = @room.active_battle
-      battle.time_limit = (Time.now - battle.start_time + 15.seconds).round
-      @room.broadcast(subchannel: "battles", payload: { action: "active", battle: battle.api_expose })
-    when "update" then battle.update(data["battle"])
+      ScheduleEndBattle.perform_now(battle_id: battle.id, delay_in_seconds: 15)
+      # battle.time_limit = (Time.now - battle.start_time + 15.seconds).round
+      # @room.broadcast(subchannel: "battles", payload: { action: "active", battle: battle.api_expose })
+    when "update"
+      battle.update(data["battle"])
+      ScheduleEndBattle.perform_now(battle_id: battle.id, end_at: battle.start_time + battle.time_limit.seconds) if battle.time_limit.positive? && battle.ongoing?
     end
   end
 

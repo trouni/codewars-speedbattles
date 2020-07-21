@@ -5,7 +5,6 @@
       viewMode,
       roomStatus,
       {
-        'ready-for-battle': readyForBattle,
         'unfocused': unfocused || !wsConnected,
         'disconnected': !wsConnected,
         'low-res': settings.user.low_res_theme,
@@ -47,12 +46,12 @@
           v-if="battleInitialized"
           id="room-battle"
           class="grid-item animated fadeIn"
-          :roomStatus="roomStatus"
           :battle="battle"
+          :battleStage="battleStage"
           :users="users"
           :room="room"
           :countdown="countdown"
-          :battle-status="battleStatus"
+          :battle-joinable="battleJoinable"
           :current-user="currentUser"
           :current-user-is-moderator="currentUserIsModerator"
           :view-mode="viewMode"
@@ -68,6 +67,7 @@
           :users="users"
           :room="room"
           :battle="battle"
+          :battleStage="battleStage"
           :room-players="roomPlayers"
           :current-user="currentUser"
           :current-user-is-moderator="currentUserIsModerator"
@@ -93,7 +93,6 @@
 import Vue from 'vue/dist/vue.esm'
 import debounce from "lodash/debounce";
 import kebabCase from "lodash/kebabCase";
-import RoomControls from "../components/room_controls.vue";
 import RoomChat from "../components/room_chat.vue";
 import RoomLeaderboard from "../components/room_leaderboard.vue";
 import RoomBattle from "../components/room_battle.vue";
@@ -102,7 +101,6 @@ import RoomSettings from "../components/room_settings.vue";
 
 export default {
   components: {
-    RoomControls,
     RoomChat,
     RoomLeaderboard,
     RoomBattle,
@@ -131,8 +129,10 @@ export default {
       },
       clockInterval: null,
       controlsType: "",
+      countdownDuration: 15,
       countdown: 0,
-      countdownDuration: 10,
+      countdownMsg: null,
+      countdownEndMsg: null,
       focus: null,
       longDisconnection: false,
       // leaderboard: {},
@@ -170,6 +170,7 @@ export default {
         volumeAmbiance: 0.5,
         volumeBackgroundAmbiance: 0.2
       },
+      timer: null,
       users: [],
       userSettingsInitialized: false,
       userSettingsLoading: true,
@@ -185,6 +186,37 @@ export default {
   watch: {
     battlePlayers: function() {
       this.pushPlayersToUsers(this.battle.players)
+    },
+    settings: {
+      handler(settings) {
+        // Handling of timer
+        if (settings.room.next_event && settings.room.next_event.timer >= 0) {
+          this.countdown = Math.round(settings.room.next_event.timer);
+          switch (settings.room.next_event.type) {
+            case 'start-battle':
+              this.countdownMsg = 'Battle starting in...';
+              this.countdownEndMsg = 'Starting battle...';
+              this.startCountdown(this.countdown, this.startBattleCountdown);
+              break;
+  
+            case 'next-battle':
+              this.countdownMsg = 'Loading next battle in...';
+              this.countdownEndMsg = 'Waiting for players to start battle...';
+              this.startCountdown(this.countdown);
+              break;
+
+            case 'end-battle':
+              this.countdownMsg = '';
+              this.countdownEndMsg = 'The battle is over.';
+              this.startCountdown(this.countdown, this.battleClockCountdown);
+              break;
+  
+            default:
+              break;
+          }
+        }
+      },
+      deep: true
     },
     sounds: {
       handler: function() {
@@ -231,7 +263,7 @@ export default {
       );
     },
     seekAttention() {
-      if (this.battleStatus.battleOngoing) {
+      if (this.battleStage === 4) {
         return ["animated pulse seek-attention"];
       } else {
         return null;
@@ -240,11 +272,6 @@ export default {
     announcerWindow() {
       let status = this.announcement.status || "normal";
       let content = this.announcement.content || this.announcement.defaultContent;
-
-      if (this.countdown > 0) {
-        status = "warning";
-        content = `<p><small class='m-0'>Battle starting in...</small></p><span class="timer highlight">${this.countdown}</span>`;
-      }
 
       return {
         status: status,
@@ -291,10 +318,10 @@ export default {
     },
     roomStatus() {
       // STATUSES
-      if (this.battleStage === 4) {
+      if (this.battleStage >= 4) {
         return "war";
       } else if (this.battleStage === 3) {
-        return "countdown";
+        return this.battleJoinable ? "ready-for-battle" : "countdown";
       } else if (this.battleStage === 2) {
         return "battle-confirmed";
       } else if (this.battleStage === 1) {
@@ -303,32 +330,17 @@ export default {
         return "peace";
       }
     },
-    battleStatus() {
-      // Battle Status
-      // 1 - Loaded (no start_time, no confirmed players)
-      // 2 - Can Start (no start_time, at least one confirmed player)
-      // 3 - Countdown (start_time exists, no end_time and countdown not zero)
-      // 4 - Battle Ongoing (start_time exists, no end_time)
-      // 5 - Battle Over (end_time exists)
-      return {
-        battleLoaded: this.battleLoaded,
-        readyToStart: this.readyToStart,
-        battleCountdown: this.battleCountdown,
-        battleOngoing: this.battleOngoing,
-        battleOver: this.battleOver,
-        showBattleInfo: this.battleOngoing || this.battleOver
-      };
-    },
     battleStage() {
-      let stage;
-      if (this.battleLoaded && !this.readyToStart) stage = 1;
-      else if (this.readyToStart) stage = 2;
-      else if (this.battleCountdown) stage = 3;
-      else if (this.battleOngoing) stage = 4;
-      else stage = 0;
+      return this.settings.room.battle_stage
+      // let stage;
+      // if (this.battleLoaded && !this.readyToStart) stage = 1;
+      // else if (this.readyToStart) stage = 2;
+      // else if (this.battleCountdown) stage = 3;
+      // else if (this.battleOngoing) stage = 4;
+      // else stage = 0;
 
-      this.$set(this.battle, "stage", stage);
-      return stage;
+      // this.$set(this.battle, "stage", stage);
+      // return stage;
     },
     battleLoaded() {
       if (!this.battle.id) return false;
@@ -341,7 +353,7 @@ export default {
       return (
         !this.battle.start_time &&
         !this.battle.end_time &&
-        this.confirmedUsers.length > 0
+        this.confirmedUsers.length > 1
       );
     },
     readyForBattle() {
@@ -361,6 +373,11 @@ export default {
         !this.battle.end_time &&
         this.countdown !== 0
       );
+    },
+    battleJoinable() {
+      if (!this.battle.id) return false;
+
+      return this.battleStage < 3 || (this.battleStage === 3 && this.countdown > 10);
     },
     battleOngoing() {
       if (!this.battle.id) return false;
@@ -478,8 +495,8 @@ export default {
         const fxPlayAt = options.sfxPlayAt || 'asap'
         msg.voice =
           voices[voices.findIndex(e => e.voiceURI === voiceURI)];
-        msg.rate = 1.1;
-        msg.pitch = 0.85;
+        // msg.rate = 1.1;
+        // msg.pitch = 0.85;
         msg.onstart = () => {
           this.setBackgroundVolume()
           if (fxPlayAt === 'start') this.playSoundFx(soundFX, fxVolume);
@@ -542,18 +559,18 @@ export default {
         });
       }
     },
-    endBattle() {
-      if (this.currentUserIsModerator && this.battleStage > 3)
-        this.sendCable("update_battle", {
-          battle_action: 'end',
-          battle_id: this.battle.id,
-        });
-      this.stopAmbiance();
-      this.challengeInput = "";
-      this.announce({
-        content: `<i class="fas fa-peace"></i> The battle for <span class='chat-highlight'>${this.battle.challenge.name}</span> is over.`,
-      });
-    },
+    // endBattle() {
+    //   if (this.currentUserIsModerator && this.battleStage > 3)
+    //     this.sendCable("update_battle", {
+    //       battle_action: 'end',
+    //       battle_id: this.battle.id,
+    //     });
+    //   this.stopAmbiance();
+    //   this.challengeInput = "";
+    //   this.announce({
+    //     content: `<i class="fas fa-peace"></i> The battle for <span class='chat-highlight'>${this.battle.challenge.name}</span> is over.`,
+    //   });
+    // },
     userEndsBattle() {
       if (this.currentUserIsModerator && this.battleStage > 3)
         this.sendCable("update_battle", {
@@ -642,34 +659,69 @@ export default {
       this.setBackgroundVolume()
       if (this.voiceON) soundFX.play();
     },
-    startCountdown(countdown) {
-      this.countdown = countdown;
-      if (this.countdown === 10) this.playVoiceFx("countdown")
-      this.playSoundFx('countdownTick')
-      const timer = setInterval(() => {
+    startBattleCountdown() {
+      if (this.countdown < 0) {
+        // this.startBattleClock();
+        if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
+        if (!this.voiceON) this.playSoundFx('countdownZero')
+      } else {
+        if (this.countdown === 10) this.playVoiceFx("countdown")
+        if (this.countdown < 60) this.playSoundFx('countdownTick')
+      }
+    },
+    battleClockCountdown() {
+      const timeRemaining = this.countdown;
+      const clockTime = Math.max(timeRemaining, 0);
+      if (timeRemaining <= 0) {
+        if (!this.voiceON && timeRemaining === 0) this.playSoundFx('countdownZero')
+        clearInterval(this.clockInterval);
+      } else if (timeRemaining <= 10) {
+        if (timeRemaining === 10) this.playVoiceFx("countdown")
+        if (!this.voiceON) this.playSoundFx('countdownTick')
+      } else if (timeRemaining === 61) {
+        this.speak("WARNING! 1min remaining!", { interrupt: true });
+      } else if (timeRemaining === 121) {
+        this.speak("WARNING! 2min remaining!", { interrupt: true });
+      } else if (timeRemaining === 301) {
+        this.speak("WARNING! 5min remaining!", { interrupt: true });
+      }
+    },
+    refreshCountdownDisplay() {
+      if (this.countdown >= 0) {
+        const clockTime = this.battleStage !== 3 ? this.formatDuration(this.countdown) : this.countdown
+        this.announcement.status = "warning";
+        this.announcement.content = `<p><small class='m-0'>${this.countdownMsg}</small></p><span class="timer highlight">${clockTime}</span>`;
+      } else if (this.countdownEndMsg) {
+        this.announcement.content = this.countdownEndMsg;
+        this.countdownEndMsg = null;
+      }
+    },
+    startCountdown(countdown = null, callback = _ => {}) {
+      if (countdown) this.countdown = countdown;
+      if (this.countdown <= 0) return;
+      
+      clearInterval(this.timer);
+      // Last iteration when countdown == -1
+      this.timer = setInterval(() => {
+        this.refreshCountdownDisplay();
+        callback();
+        if (this.countdown < 0) clearInterval(this.timer);
         this.countdown -= 1;
-        if (this.countdown <= 0) {
-          this.startClock();
-          if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
-          if (!this.voiceON) this.playSoundFx('countdownZero')
-          clearInterval(timer);
-        } else {
-          if (this.countdown === 10) this.playVoiceFx("countdown")
-          this.playSoundFx('countdownTick')
-        }
       }, 1000);
     },
-    startClock() {
+    startBattleClock() {
+      console.log('starting battle clock')
+      console.log('battle stage', this.battleStage)
       clearInterval(this.clockInterval);
       this.clockInterval = setInterval(() => {
-        if (this.battle.stage === 4) {
+        if (this.battleStage >= 3) {
           if (this.battle.time_limit > 0) {
             const timeRemaining = this.timeRemainingInSeconds()
             const clockTime = Math.max(timeRemaining, 0);
             this.announce({ content: `<span class='timer highlight'>${this.formatDuration(clockTime)}</span>` });
             if (timeRemaining <= 0) {
               if (!this.voiceON && timeRemaining === 0) this.playSoundFx('countdownZero')
-              this.endBattle();
+              // this.endBattle();
               clearInterval(this.clockInterval);
             } else if (timeRemaining <= 10) {
               if (timeRemaining === 10) this.playVoiceFx("countdown")
@@ -801,11 +853,6 @@ export default {
                 this.countdown = data.payload.data.countdown;
                 break;
 
-              case "start-countdown":
-                // this.sendCable('invitation', { battle_id: this.battle.id, invite_action: 'uninvite-unconfirmed' })
-                this.startCountdown(data.payload.data.countdown);
-                break;
-
               case "voice-announce":
                 this.speak(data.payload.message, data.payload.options);
                 break;
@@ -899,7 +946,7 @@ export default {
                 this.battleLoading = false
                 if (data.payload.battle) {
                   this.battle = data.payload.battle
-                  if (this.battleOngoing) this.startClock();
+                  // if (this.battleOngoing) this.startBattleClock();
                 } else {
                   this.battle = {}
                 }

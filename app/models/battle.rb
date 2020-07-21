@@ -28,7 +28,11 @@ class Battle < ApplicationRecord
   has_many :completed_challenges, through: :players
   scope :active, -> { where(end_time: nil) }
   after_create :invite_all, if: :auto_invite?
-  after_commit :broadcast_all, if: :persisted?
+  after_commit :broadcast_all
+  after_create :destroy_if_invalid
+
+  validates :start_time, uniqueness: { scope: :room }
+  validates :end_time, uniqueness: { scope: :room }
 
   def export_players
     {
@@ -41,7 +45,7 @@ class Battle < ApplicationRecord
   end
 
   def auto_invite?
-    room.settings(:base).auto_invite
+    room.autonomous? || room.settings(:base).auto_invite
   end
 
   def launch(countdown)
@@ -54,13 +58,12 @@ class Battle < ApplicationRecord
     room.broadcast_action(action: "launch-codewars") if countdown <= 0
   end
 
-  def start(countdown: 0)
+  def start
     return if started?
 
+    update(start_time: Time.now)
+    ScheduleEndBattle.perform_now(battle_id: id, delay_in_seconds: time_limit) if time_limit&.positive?
     uninvite_unconfirmed
-    room.announce(:chat, "<i class='fas fa-rocket mr-1'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> is about to begin...")
-    room.broadcast_action(action: 'start-countdown', data: { countdown: countdown })
-    update(start_time: Time.now + countdown.seconds)
   end
 
   def terminate(end_at: nil)
@@ -74,18 +77,20 @@ class Battle < ApplicationRecord
       "<i class='fas fa-peace'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> is over."
     )
     broadcast_players
+    ScheduleRandomBattle.perform_now(room_id: room.id, delay_in_seconds: 60) if room.autonomous?
   end
 
   def broadcast_all
     return if room.inactive?
     
+    room.broadcast_settings
     room.broadcast_active_battle
     # Broadcasting users to refresh invite status
     room.broadcast_users
     broadcast_players
   end
 
-  def refresh_status
+  def check_if_time_over
     return unless ongoing? && time_limit&.positive?
 
     expected_end_time = start_time + time_limit.seconds
@@ -127,9 +132,13 @@ class Battle < ApplicationRecord
   end
 
   def invitation(user: nil, action: nil)
+    return if started? || over?
+
     case action
+    when "confirm"
+      confirm_user(user)
+      auto_start_battle if room.autonomous?
     when "uninvite" then uninvite_user(user)
-    when "confirm" then confirm_user(user)
     when "all" then invite_all
     when "uninvite-unconfirmed" then uninvite_unconfirmed
     when "survivors" then invite_survivors
@@ -194,7 +203,7 @@ class Battle < ApplicationRecord
   end
 
   def started?
-    !start_time.nil?
+    start_time.present?
   end
 
   def ongoing?
@@ -202,11 +211,7 @@ class Battle < ApplicationRecord
   end
 
   def over?
-    !end_time.nil?
-  end
-
-  def can_start?
-    battle_invites.where(confirmed: true).count > 1
+    end_time.present?
   end
 
   def invited_players
@@ -234,8 +239,9 @@ class Battle < ApplicationRecord
     eligible_users.includes(:battle_invites).where(sql_query, id)
   end
 
-  def unconfirmed_players
-    battle_invites.where(confirmed: false).map(&:player)
+  def confirmed_players
+    # TODO: refactor to remove .map
+    battle_invites.where(confirmed: true).map(&:player)
   end
 
   def uninvite_unconfirmed
@@ -278,9 +284,12 @@ class Battle < ApplicationRecord
   end
 
   def invite_all
-    BattleInvite.create(non_invited_users.map { |user| { player: user, battle: self } })
-    broadcast_players
-    # room.broadcast_active_battle
+    users_to_invite = non_invited_users.map { |user| { player: user, battle: self } }
+    if users_to_invite.any?
+      BattleInvite.create(users_to_invite)
+      broadcast_players
+      # room.broadcast_active_battle
+    end
   end
 
   def invite_survivors
@@ -290,6 +299,21 @@ class Battle < ApplicationRecord
       next unless user.eligible?
 
       invite_user(user)
+    end
+  end
+
+  def destroy_if_invalid
+    destroy unless valid?
+  end
+
+  def auto_start_battle(delay: 30.seconds)
+    return if started?
+
+    if confirmed_players.count > 1
+      ScheduleStartBattle.perform_now(battle_id: id, delay_in_seconds: delay.to_i)
+    # else
+    #   # Currently not working
+    #   CancelStartBattle.perform_now(battle_id: id)
     end
   end
 end

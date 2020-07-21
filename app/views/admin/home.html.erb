@@ -2,7 +2,7 @@
   <div class="row justify-content-center">
     <div class="grid-item col-md-9 col-lg-6">
       <%= render 'shared/widget', title: "Make an announcement" do %>
-        <%= simple_form_for :announce, url: announce_path do |f| %>
+        <%= simple_form_for :announce, url: announce_path, remote: true do |f| %>
           <%= f.error_notification %>
 
           <div class="form-inputs">
@@ -28,8 +28,8 @@ function speak(message = "No message") {
   var voices = window.speechSynthesis.getVoices();
   var msg = new SpeechSynthesisUtterance(message);
   msg.voice = voices[voices.findIndex(e => e.voiceURI === voiceURI)];
-  msg.rate = 1.1;
-  msg.pitch = 0.85;
+  // msg.rate = 1.1;
+  // msg.pitch = 0.85;
   window.speechSynthesis.speak(msg);
 }
 

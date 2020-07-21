@@ -34,10 +34,16 @@ class Room < ApplicationRecord
       },
       languages: ['ruby'],
       auto_invite: false,
-      auto_start: false,
+      autonomous: false,
       voice_chat_url: nil,
+      time_limit: 10 * 60,
       # Array of languages for future support of multi-lang rooms
-      moderators: []
+      moderators: [],
+      next_event: {
+        at: Time.now,
+        type: nil,
+        jid: nil
+      }
     }
   end
 
@@ -50,6 +56,12 @@ class Room < ApplicationRecord
       katas: settings(:base).katas,
       codewars_langs: Kata.languages,
       languages: settings(:base).languages,
+      autonomous: autonomous?,
+      battle_stage: battle_stage,
+      next_event: {
+        timer: time_until_next_event,
+        type: settings(:base).next_event[:type]
+      }
     }
   end
 
@@ -57,14 +69,41 @@ class Room < ApplicationRecord
     room_users.empty?
   end
 
+  def autonomous?
+    settings(:base).autonomous
+  end
+
+  def next_event
+    settings(:base).next_event
+  end
+
+  def time_until_next_event
+    return unless settings(:base).next_event[:at]
+
+    time_left = settings(:base).next_event[:at] - Time.now
+    return time_left if time_left.positive?
+  end
+  alias_method :next_event?, :time_until_next_event
+
+  def clear_next_event!(only: nil)
+    set_next_event(at: Time.now) if only.nil? || only == next_event[:type]
+  end
+
   def players
     super.distinct
     # User.joins(battle_invites: :battle).where(battle_invites: { confirmed: true }, battles: { room_id: id }).uniq
   end
 
+  def unfinished_battle
+    Battle.includes(:room).joins(:room).find_by(room: self, end_time: nil)
+  end
+
+  def unfinished_battle?
+    unfinished_battle.present?
+  end
+
   def active_battle
-    active_battle = Battle.includes(:room).joins(:room).find_by(room: self, end_time: nil)
-    return active_battle || last_battle
+    return unfinished_battle || last_battle
   end
 
   def active_battle?
@@ -80,28 +119,22 @@ class Room < ApplicationRecord
     finished_battles.first
   end
 
-  # Room has no battle set up
-  def at_peace?
-    !Battle.includes(:room).joins(:room).where(room: id, end_time: nil).exists?
-  end
+  def battle_stage
+    # 0 - No battle loaded / Battle Over (end_time exists)
+    return 0 unless unfinished_battle
 
-  # Room has an ongoing battle (started but not finished)
-  def at_war?
-    active_battle.present? && active_battle.start_time.present?
-  end
-
-  # Room has a pending battle (set up but not yet started)
-  def brink_of_war?
-    Battle.includes(:room).joins(:room).where(room: self, end_time: nil).where.not(start_time: nil).present?
-  end
-
-  def battle_status
-    if at_peace?
-      "at_peace"
-    elsif brink_of_war?
-      "brink_of_war"
-    elsif at_war?
-      "at_war"
+    # 4 - Battle Ongoing (start_time exists, no end_time)
+    if unfinished_battle&.ongoing?
+      4
+    # 3 - Countdown (start_time exists, no end_time and countdown not zero)
+    elsif next_event[:type] == 'start-battle' && time_until_next_event
+      3
+    # 2 - Can Start (no start_time, at least one confirmed player)
+    elsif !unfinished_battle&.started? && unfinished_battle&.confirmed_players.count > 1
+      2
+    # 1 - Loaded (no start_time, less than 2 confirmed players)
+    else
+      1
     end
   end
 
@@ -323,7 +356,7 @@ class Room < ApplicationRecord
   end
 
   def broadcast_active_battle(private_to_user_id: nil)
-    active_battle&.refresh_status
+    active_battle&.check_if_time_over
     broadcast(subchannel: "battles", payload: { action: "active", battle: active_battle&.api_expose }, private_to_user_id: private_to_user_id)
   end
 
@@ -331,6 +364,21 @@ class Room < ApplicationRecord
     broadcast_user(user: user)
     broadcast(subchannel: "battles", payload: { action: action, user: user.api_expose(self, active_battle) })
   end
+
+  def set_next_event(at:, type: nil, jid: nil)
+    settings(:base).update(next_event: { at: at, type: type, jid: jid })
+    broadcast_settings
+  end
+
+  def set_timer(delay, type = nil, jid = nil)
+    # delay must be a duration (e.g. seconds, minutes, etc.)
+    set_next_event(at: Time.now + delay, type: type, jid: jid)
+  end
+
+  # def schedule_next_battle(delay = 60.seconds)
+  #   set_timer(delay, 'next-battle')
+  #   CreateRandomBattle.set(wait: delay - 1.second).perform_later(room_id: id)
+  # end
 
   private
 

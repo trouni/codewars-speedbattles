@@ -1,5 +1,5 @@
 <template>
-  <widget :header-title="headerTitle" :loading="loading" :seek-attention="battle.stage === 1" :focus="focus">
+  <widget :header-title="headerTitle" :loading="loading" :seek-attention="battleStage === 1" :focus="focus">
     <div v-if="currentUserIsModerator && showNewBattleMenu" class="d-flex flex-column h-100">
       <div class="battle-options container align-items-center">
         <div :class="['form-group mb-5', { disabled: manualKataInput }]">
@@ -90,9 +90,9 @@
           <p><small>Language:</small> <span class="highlight">{{ challengeLanguage }} </span></p>
           <p><span class="ml-1 mr-2">|</span><small>Time Limit:</small>
             <num-input
-              v-if="currentUserIsModerator && battle.stage > 0"
+              v-if="currentUserIsModerator && battleStage > 0"
               class="highlight justify-content-end"
-              :min="battle.stage >= 3 ? timeLimitSetter : 0"
+              :min="battleStage > 3 ? timeLimitSetter : 0"
               :max="99"
               :step="1"
               v-model="timeLimitSetter"
@@ -103,8 +103,8 @@
           </p>
         </div>
       </div>
-      <p v-if="battle.stage === 1 && defeated.length < 1" class="m-auto highlight">> Waiting for players to join the battle...</p>
-      <div v-else-if="currentUser.invite_status == 'invited'" class="d-flex flex-column justify-content-center align-items-center flex-grow-1 mb-5">
+      <p v-if="battleStage === 1 && invitedUsers.length < 1" class="m-auto highlight">> Waiting for players to join the battle...</p>
+      <div v-else-if="currentUser.invite_status == 'invited' && battleJoinable" class="d-flex flex-column justify-content-center align-items-center flex-grow-1 mb-5">
         <p>You have been requested to join this battle.</p>
         <std-button large @click.native="$root.$emit('confirm-invite', currentUser.id)" title="Join battle" :class="['my-3', attentionWaitingToJoin]"/>
         <std-button small @click.native="$root.$emit('uninvite-user', currentUser.id)" title="Skip" />
@@ -113,7 +113,7 @@
         <table class="console-table h-100">
           <thead>
             <tr>
-              <th scope="col" style="width: 50%;"><span class="data">WARRIORS {{ battle.stage > 0 && battle.players ? `[${confirmedUsers.length}/${invitedUsers.length + confirmedUsers.length}]` : ""}}</span></th>
+              <th scope="col" style="width: 50%;"><span class="data">WARRIORS {{ battleStage > 0 && battle.players ? `[${confirmedUsers.length}/${invitedUsers.length + confirmedUsers.length}]` : ""}}</span></th>
               <th scope="col" style="width: 10%;"><span class="data">RANK</span></th>
               <th scope="col" style="width: 20%;"><span class="data">STATUS</span></th>
               <th scope="col" style="width: 20%;"><span class="data">TIME</span></th>
@@ -135,7 +135,7 @@
               </td>
             </tr>
 
-            <tr v-if="battle.stage === 0" class="battle-over">
+            <tr v-if="battleStage === 0" class="battle-over">
               <th scope="row" :class="[]">
                 <span class="data">Battle over</span>
               </th>
@@ -150,15 +150,15 @@
               </td>
             </tr>
 
-            <tr v-for="defeatedUser in defeated" :title="defeatedUser.username" :class="['animated fadeInUp', { '': battle.stage === 0, 'highlight-red bg-highlight': isCurrentUser(defeatedUser.id) }]" :key="defeatedUser.id">
-              <th scope="row" :class="['username', { pending: !userIsConfirmed(defeatedUser.id) && battle.stage > 0 && battle.stage < 3 }]">
+            <tr v-for="defeatedUser in defeated" :title="defeatedUser.username" :class="['animated fadeInUp', { '': battleStage === 0, 'highlight-red bg-highlight': isCurrentUser(defeatedUser.id) }]" :key="defeatedUser.id">
+              <th scope="row" :class="['username', { pending: !userIsConfirmed(defeatedUser.id) && battleStage > 0 && battleStage < 3 }]">
                 <span class="data username">{{ defeatedUser.name || defeatedUser.username }}</span>
               </th>
               <td>
-                <span class="data rank">{{ battle.stage === 0 ? '' : '-' }}<i v-if="battle.stage === 0" class="fas fa-skull-crossbones"></i></span>
+                <span class="data rank">{{ battleStage === 0 ? '' : '-' }}<i v-if="battleStage === 0" class="fas fa-skull-crossbones"></i></span>
               </td>
               <td>
-                <span class="data">{{ battle.stage === 0 ? 'Defeated' : '-' }}</span>
+                <span class="data">{{ battleStage === 0 ? 'Defeated' : '-' }}</span>
               </td>
               <td>
                 <span class="data">{{ defeatedUser.completed_at ? displayCompletionTime(battle, defeatedUser) : '-' }}</span>
@@ -173,7 +173,7 @@
     </div>
 
     <template v-slot:controls>
-      <div v-if="battle.stage < 3 && currentUserIsModerator" class="d-contents">
+      <div v-if="battleStage < 3 && currentUserIsModerator" class="d-contents">
         <div v-if="manualKataInput" class="with-prompt centered-prompt w-100">
           <input
             type="text"
@@ -191,22 +191,22 @@
           <std-button @click.native="manualKataInput = true" fa-icon="fas fa-file-import" title="Import Kata" />
           <std-button @click.native="createRandomBattle" fa-icon="fas fa-cloud-upload-alt" title="Load Random Kata" />
         </span>
-        <span v-else-if="battle.stage === 0 && !loading && !showNewBattleMenu" class="d-contents">
+        <span v-else-if="battleStage === 0 && !loading && !showNewBattleMenu" class="d-contents">
           <std-button @click.native="openNewBattleMenu" fa-icon="fas fa-plus-square" title="New Battle" />
         </span>
-        <span v-else-if="battle.stage > 0 && battle.stage < 3" class="d-contents">
+        <span v-else-if="battleStage > 0 && battleStage < 3" class="d-contents">
           <std-button @click.native="$root.$emit('delete-battle')" small fa-icon="fas fa-times-circle" title="Cancel" />
           <std-button @click.native="$root.$emit('invite-survivors')" small fa-icon="fas fa-user-plus" title="Invite Survivors" :disabled="eligibleUsers.length === 0" />
           <std-button @click.native="$root.$emit('invite-all')" small fa-icon="fas fa-user-plus" title="Invite All" :disabled="eligibleUsers.length === 0" />
-          <std-button v-if="battle.stage < 4" @click.native="$root.$emit('initialize-battle')" :disabled="!readyToStart" fa-icon="fas fa-radiation" title="Start Battle" :class="attentionWaitingToStart" />
+          <std-button v-if="battleStage < 4" @click.native="$root.$emit('initialize-battle')" :disabled="!readyToStart" fa-icon="fas fa-radiation" title="Start Battle" :class="attentionWaitingToStart" />
         </span>
       </div>
-      <div v-else-if="battle.stage >= 3" class="d-contents">
-        <a :href="battle.stage < 4 ? '#' : challengeUrl" :target="battle.stage < 4 ? '' : '_blank'">
-          <std-button fa-icon="fas fa-rocket mr-1" title="Launch Codewars" :disabled="battle.stage < 4" />
+      <div v-else-if="battleStage >= 3" class="d-contents">
+        <a :href="battleStage < 4 ? '#' : challengeUrl" :target="battleStage < 4 ? '' : '_blank'">
+          <std-button fa-icon="fas fa-rocket mr-1" title="Launch Codewars" :disabled="battleStage < 4" />
         </a>
-        <std-button v-if="userIsConfirmed(currentUser.id)" @click.native="completedChallenge" fa-icon="fas fa-check-double mr-1" title="Challenge Completed" :disabled= "battle.stage < 4" :loading="completedButtonClicked" />
-        <std-button v-if="currentUserIsModerator" @click.native="$root.$emit('end-battle')" :disabled="battle.stage < 4" fa-icon="fas fa-peace" title="End Battle" />
+        <std-button v-if="userIsConfirmed(currentUser.id)" @click.native="completedChallenge" fa-icon="fas fa-check-double mr-1" title="Challenge Completed" :disabled= "battleStage < 4" :loading="completedButtonClicked" />
+        <std-button v-if="currentUserIsModerator" @click.native="$root.$emit('end-battle')" :disabled="battleStage < 4" fa-icon="fas fa-peace" title="End Battle" />
       </div>
     </template>
   </widget>
@@ -221,14 +221,14 @@
   export default {
     props: {
       initializing: Boolean,
-      roomStatus: String,
       room: Object,
       users: Array,
       battle: Object,
+      battleStage: Number,
       countdown: Number,
       currentUser: Object,
       currentUserIsModerator: Boolean,
-      battleStatus: Object,
+      battleJoinable: Boolean,
       viewMode: String,
       readyToStart: Boolean,
       loading: Boolean,
@@ -254,6 +254,15 @@
     watch: {
       timeLimitSetter: {
         handler: 'updateTimeLimit',
+      },
+      currentUser: {
+        handler(newVal, oldVal) {
+          if (newVal.invite_status !== 'invited') return;
+
+          if (!oldVal || oldVal.invite_status !== newVal.invite_status) this.$root.$emit('play-fx', 'interface')
+        },
+        deep: true,
+        immediate: true
       }
     },
     computed: {
@@ -272,12 +281,11 @@
       },
       attentionWaitingToJoin() {
         if (this.currentUser.invite_status === 'invited') {
-          this.$root.$emit('play-fx', 'interface')
           return this.seekAttentionClass
         }
       },
       attentionWaitingToStart() {
-        if (this.currentUserIsModerator && this.invitedUsers.length === 0 && this.confirmedUsers.length > 0) {
+        if (this.currentUserIsModerator && this.invitedUsers.length === 0 && this.confirmedUsers.length > 1) {
           return this.seekAttentionClass
         }
       },
@@ -285,27 +293,11 @@
         if (this.battle.challenge.language === null) { this.battle.challenge.language = 'ruby' }
         return `${this.battle.challenge.url}/train/${this.battle.challenge.language}`
       },
-      // headerTitle() {
-      //   const prefix = 'KATA://'
-      //   if (this.battle.stage === 4) {
-      //     return `${prefix}Battle_Report`
-      //   } else if (this.battle.stage === 5) {
-      //     this.$root.$emit('announce',{content: 'Battle over. Awaiting next mission...'})
-      //     return `${prefix}Last_Battle_Report`
-      //   } else if (this.battle.stage > 0) {
-      //     this.$root.$emit('announce',{content: 'Prepare for battle...'})
-      //     return `${prefix}Mission_Briefing`
-      //   } else if (this.showNewBattleMenu) {
-      //     return `${prefix}New_Mission`
-      //   } else {
-      //     return `${prefix}Awaiting_Mission`
-      //   }
-      // },
       headerTitle() {
         const prefix = 'KATA://'
-        if (this.battle.stage > 0 && this.battle.stage < 4) {
+        if (this.battleStage > 0 && this.battleStage < 4) {
           return `${prefix}NEXT_MISSION`
-        } else if (this.battle.stage === 4) {
+        } else if (this.battleStage >= 4) {
           return `${prefix}MISSION_IN_PROGRESS`
         } else if (this.showNewBattleMenu) {
           return `${prefix}CREATE_NEW_BATTLE`
@@ -320,19 +312,22 @@
       },
       showChallenge() {
         if (this.battle) {
-          return (this.currentUserIsModerator || this.battle.stage > 2)
+          return (this.currentUserIsModerator || this.battleStage > 2)
         }
       },
       survivors() {
         if (this.battle.players) {
-          return this.battle.players.filter(user => this.completedOnTime(user)).sort((a,b) => {
+          return this.battle.players.filter(user => this.completedOnTime(user))
+                                    .sort((a,b) => {
             return (new Date(a.completed_at) - new Date(b.completed_at))
           });
         }
       },
       defeated() {
         if (this.battle.players) {
-          return this.battle.players.filter(user => !this.completedOnTime(user)).sort((a,b) => {
+          return this.battle.players.filter(user => user.invite_status === 'confirmed' || user.invite_status === 'defeated')
+                                    .filter(user => !this.completedOnTime(user))
+                                    .sort((a,b) => {
             if (a.completed_at && b.completed_at) {
               return (new Date(a.completed_at) - new Date(b.completed_at))
             } else if (a.completed_at || b.completed_at) {
@@ -347,16 +342,16 @@
       displayChallengeName() {
         return this.settings.room.classification === 'UNCLASSIFIED' ||
           (this.settings.room.classification === 'CONFIDENTIAL' && this.currentUserIsModerator) ||
-          this.battle.stage === 0 ||
-          this.battle.stage > 2
+          this.battleStage === 0 ||
+          this.battleStage > 2
       },
       eligibleUsers() {
-        if (this.battle.stage === 0) { return [] }
+        if (this.battleStage === 0) { return [] }
         // return this.battle.players
         return this.users.filter(user => user.invite_status === 'eligible')
       },
       invitedUsers() {
-        if (this.battle.stage === 0) { return [] }
+        if (this.battleStage === 0) { return [] }
         // return this.battle.players
         return this.users.filter(user => user.invite_status === 'invited')
       },
@@ -414,7 +409,8 @@
         }
       },
       completedOnTime(user) {
-        return (user.completed_at < this.battle.end_time || !this.battle.end_time) && user.completed_at > this.battle.start_time;
+        return (user.completed_at < this.battle.end_time || !this.battle.end_time) &&
+               user.completed_at > this.battle.start_time;
       },
       findUser(userId) {
         const index = this.users.findIndex((e) => e.id === userId);
@@ -461,7 +457,7 @@
         }
       },
       updateTimeLimit: debounce(function() {
-        if (this.battle.stage > 0) this.$root.$emit('edit-time-limit', this.timeLimitSetter)
+        if (this.battleStage > 0) this.$root.$emit('edit-time-limit', this.timeLimitSetter)
       }, 300)
     }
   }
