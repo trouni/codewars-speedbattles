@@ -190,31 +190,30 @@ export default {
     settings: {
       handler(settings) {
         // Handling of timer
-        if (settings.room.next_event && settings.room.next_event.timer > 0) {
-          this.countdown = settings.room.next_event.timer;
+        if (settings.room.next_event && settings.room.next_event.timer >= 0) {
+          this.countdown = Math.round(settings.room.next_event.timer);
           switch (settings.room.next_event.type) {
             case 'start-battle':
               this.countdownMsg = 'Battle starting in...';
               this.countdownEndMsg = 'Starting battle...';
-              this.startCountdown(settings.room.next_event.timer, this.startBattleCountdown);
+              this.startCountdown(this.countdown, this.startBattleCountdown);
               break;
   
             case 'next-battle':
               this.countdownMsg = 'Loading next battle in...';
               this.countdownEndMsg = 'Waiting for players to start battle...';
-              this.startCountdown(settings.room.next_event.timer);
+              this.startCountdown(this.countdown);
               break;
 
             case 'end-battle':
               this.countdownMsg = '';
               this.countdownEndMsg = 'The battle is over.';
-              this.startCountdown(settings.room.next_event.timer, this.battleClockCountdown);
+              this.startCountdown(this.countdown, this.battleClockCountdown);
               break;
   
             default:
               break;
           }
-
         }
       },
       deep: true
@@ -699,6 +698,8 @@ export default {
     },
     startCountdown(countdown = null, callback = _ => {}) {
       if (countdown) this.countdown = countdown;
+      if (this.countdown <= 0) return;
+      
       clearInterval(this.timer);
       // Last iteration when countdown == -1
       this.timer = setInterval(() => {

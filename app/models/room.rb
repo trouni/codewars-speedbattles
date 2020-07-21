@@ -59,7 +59,7 @@ class Room < ApplicationRecord
       autonomous: autonomous?,
       battle_stage: battle_stage,
       next_event: {
-        timer: time_until_next_event&.ceil,
+        timer: time_until_next_event,
         type: settings(:base).next_event[:type]
       }
     }
@@ -356,7 +356,7 @@ class Room < ApplicationRecord
   end
 
   def broadcast_active_battle(private_to_user_id: nil)
-    active_battle&.refresh_status
+    active_battle&.check_if_time_over
     broadcast(subchannel: "battles", payload: { action: "active", battle: active_battle&.api_expose }, private_to_user_id: private_to_user_id)
   end
 
