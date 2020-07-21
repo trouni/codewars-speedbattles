@@ -61,11 +61,9 @@ class Battle < ApplicationRecord
   def start
     return if started?
 
-    # uninvite_unconfirmed
-    # room.announce(:chat, "<i class='fas fa-rocket mr-1'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> is about to begin...")
-    # room.broadcast_action(action: 'countdown', data: { countdown: countdown, timer_for: 'start-battle' })
     update(start_time: Time.now)
     ScheduleEndBattle.perform_now(battle_id: id, delay_in_seconds: time_limit) if time_limit&.positive?
+    uninvite_unconfirmed
   end
 
   def terminate(end_at: nil)
@@ -92,7 +90,7 @@ class Battle < ApplicationRecord
     broadcast_players
   end
 
-  def refresh_status
+  def check_if_time_over
     return unless ongoing? && time_limit&.positive?
 
     expected_end_time = start_time + time_limit.seconds
