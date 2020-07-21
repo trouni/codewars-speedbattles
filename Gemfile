@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 ruby '~> 2.6.3'
 
 gem 'autoprefixer-rails'
+gem 'blazer'
 gem 'bootsnap', require: false
 gem 'devise'
 gem 'fast_jsonapi'
