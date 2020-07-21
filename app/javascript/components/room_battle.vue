@@ -103,7 +103,7 @@
           </p>
         </div>
       </div>
-      <p v-if="battleStage === 1 && defeated.length < 1" class="m-auto highlight">> Waiting for players to join the battle...</p>
+      <p v-if="battleStage === 1 && invitedUsers.length < 1" class="m-auto highlight">> Waiting for players to join the battle...</p>
       <div v-else-if="currentUser.invite_status == 'invited' && battleJoinable" class="d-flex flex-column justify-content-center align-items-center flex-grow-1 mb-5">
         <p>You have been requested to join this battle.</p>
         <std-button large @click.native="$root.$emit('confirm-invite', currentUser.id)" title="Join battle" :class="['my-3', attentionWaitingToJoin]"/>
@@ -254,6 +254,15 @@
     watch: {
       timeLimitSetter: {
         handler: 'updateTimeLimit',
+      },
+      currentUser: {
+        handler(newVal, oldVal) {
+          if (newVal.invite_status !== 'invited') return;
+
+          if (!oldVal || oldVal.invite_status !== newVal.invite_status) this.$root.$emit('play-fx', 'interface')
+        },
+        deep: true,
+        immediate: true
       }
     },
     computed: {
@@ -272,12 +281,11 @@
       },
       attentionWaitingToJoin() {
         if (this.currentUser.invite_status === 'invited') {
-          this.$root.$emit('play-fx', 'interface')
           return this.seekAttentionClass
         }
       },
       attentionWaitingToStart() {
-        if (this.currentUserIsModerator && this.invitedUsers.length === 0 && this.confirmedUsers.length > 0) {
+        if (this.currentUserIsModerator && this.invitedUsers.length === 0 && this.confirmedUsers.length > 1) {
           return this.seekAttentionClass
         }
       },
@@ -309,14 +317,17 @@
       },
       survivors() {
         if (this.battle.players) {
-          return this.battle.players.filter(user => this.completedOnTime(user)).sort((a,b) => {
+          return this.battle.players.filter(user => this.completedOnTime(user))
+                                    .sort((a,b) => {
             return (new Date(a.completed_at) - new Date(b.completed_at))
           });
         }
       },
       defeated() {
         if (this.battle.players) {
-          return this.battle.players.filter(user => !this.completedOnTime(user)).sort((a,b) => {
+          return this.battle.players.filter(user => user.invite_status === 'confirmed' || user.invite_status === 'defeated')
+                                    .filter(user => !this.completedOnTime(user))
+                                    .sort((a,b) => {
             if (a.completed_at && b.completed_at) {
               return (new Date(a.completed_at) - new Date(b.completed_at))
             } else if (a.completed_at || b.completed_at) {
@@ -398,7 +409,8 @@
         }
       },
       completedOnTime(user) {
-        return (user.completed_at < this.battle.end_time || !this.battle.end_time) && user.completed_at > this.battle.start_time;
+        return (user.completed_at < this.battle.end_time || !this.battle.end_time) &&
+               user.completed_at > this.battle.start_time;
       },
       findUser(userId) {
         const index = this.users.findIndex((e) => e.id === userId);
