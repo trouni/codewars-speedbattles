@@ -645,8 +645,7 @@ export default {
     },
     startBattleCountdown() {
       if (this.countdown < 0) {
-        // this.startBattleClock();
-        if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
+        // if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
         if (!this.voiceON) this.playSoundFx('countdownZero')
       } else {
         if (this.countdown === 10) this.playVoiceFx("countdown")
@@ -836,6 +835,10 @@ export default {
                 this.speak(data.payload.message, data.payload.options);
                 break;
 
+              case "open-codewars":
+                if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
+                break;
+
               default:
                 if (this.currentUserIsModerator)
                   console.log(
@@ -888,11 +891,11 @@ export default {
                 this.pushToUsers(data.payload.user);
                 break;
 
-              case "remove":
-                this.users = this.users.filter(
-                  e => e.id !== data.payload.user.id
-                );
-                break;
+              // case "remove":
+              //   this.users = this.users.filter(
+              //     e => e.id !== data.payload.user.id
+              //   );
+              //   break;
 
               case "all":
                 data.payload.users.forEach(user => this.pushToUsers(user));
