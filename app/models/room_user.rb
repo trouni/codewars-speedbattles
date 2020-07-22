@@ -13,8 +13,7 @@ class RoomUser < ApplicationRecord
   belongs_to :room
   belongs_to :user
   after_create :async_fetch_info
-  after_create_commit :join_room
-  after_destroy_commit :leave_room
+  after_commit :broadcast_user
   # validates :user, uniqueness: { scope: :room }
   validates :user, uniqueness: true
 
@@ -24,11 +23,7 @@ class RoomUser < ApplicationRecord
     user.async_fetch_codewars_info if user.last_fetched_at.nil? || Time.now - user.last_fetched_at > 60.minutes
   end
 
-  def join_room
+  def broadcast_user
     room.broadcast_user(action: "add", user: user)
-  end
-
-  def leave_room
-    room.broadcast_user(action: "remove", user: user)
   end
 end
