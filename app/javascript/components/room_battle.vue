@@ -257,7 +257,7 @@
       },
       currentUser: {
         handler(newVal, oldVal) {
-          if (newVal.invite_status !== 'invited') return;
+          if (newVal && newVal.invite_status !== 'invited') return;
 
           if (!oldVal || oldVal.invite_status !== newVal.invite_status) this.$root.$emit('play-fx', 'interface')
         },
