@@ -97,7 +97,7 @@ export default {
         // } else {
         //   return b.username[0] > a.username[0] ? 1 : -1
         } else {
-          return (new Date(a.joined_at) - new Date(b.joined_at))
+          return (new Date(a.joined_room_at) - new Date(b.joined_room_at))
         }
       })
     },
