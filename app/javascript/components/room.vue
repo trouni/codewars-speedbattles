@@ -326,15 +326,6 @@ export default {
     },
     battleStage() {
       return this.settings.room.battle_stage
-      // let stage;
-      // if (this.battleLoaded && !this.readyToStart) stage = 1;
-      // else if (this.readyToStart) stage = 2;
-      // else if (this.battleCountdown) stage = 3;
-      // else if (this.battleOngoing) stage = 4;
-      // else stage = 0;
-
-      // this.$set(this.battle, "stage", stage);
-      // return stage;
     },
     battleLoaded() {
       if (!this.battle.id) return false;
@@ -783,21 +774,6 @@ export default {
     pushToUsers(user) {
       if (this.users) this.pushToArray(this.users, user);
     },
-    pushToPlayers(user) {
-      if (this.battle.players)
-        if (user.invite_status === "eligible" || user.invite_status === "ineligible") {
-          this.removeFromArray(this.battle.players, user);
-        } else {
-          this.pushToArray(this.battle.players, user);
-      }
-    },
-    pushPlayersToUsers(players) {
-      if (!players) return
-      
-      players.forEach(player => {
-        if (player.online) this.pushToUsers(player)
-      })
-    },
     completedIn(battle, user) {
       return (new Date(user.completed_at) - new Date(battle.start_time)) / 1000; // duration in seconds
     },
@@ -920,17 +896,6 @@ export default {
             }
             break;
 
-          // case "leaderboard":
-          //   switch (data.payload.action) {
-          //     case "update":
-          //       this.leaderboard = data.payload.leaderboard;
-          //       break;
-
-          //     default:
-          //       this.leaderboard = data.payload.leaderboard;
-          //   }
-          //   break;
-
           case "battles":
             switch (data.payload.action) {
               case "active":
@@ -946,15 +911,6 @@ export default {
 
               case "katas-count":
                 Vue.set(this.settings.room.katas, 'count', data.payload.count)
-                break;
-
-              case "player":
-                this.pushToPlayers(data.payload.user);
-                break;
-
-              case "players":
-                Vue.set(this.battle, 'players', data.payload.players)
-                this.pushPlayersToUsers(this.battle.players)
                 break;
 
               default:
