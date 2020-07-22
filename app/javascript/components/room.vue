@@ -184,9 +184,6 @@ export default {
     setTimeout(_ => this.checkCurrentUserConnection(), 5000);
   },
   watch: {
-    battlePlayers: function() {
-      this.pushPlayersToUsers(this.battle.players)
-    },
     settings: {
       handler(settings) {
         // Handling of timer
@@ -298,20 +295,17 @@ export default {
     },
     invitedUsers() {
       if (this.battleStage === 0) { return [] }
-      // return this.battle.players
+
       return this.users.filter(user => user.invite_status === 'invited')
     },
     confirmedUsers() {
-      if (!this.battle.players) {
+      if (!this.users) {
         return [];
       } else {
-        return this.battle.players.filter(
+        return this.users.filter(
           user => user.invite_status == "confirmed"
         );
       }
-    },
-    battlePlayers() {
-      return this.battle.players
     },
     allConfirmed() {
       return this.battleStage === 2 && this.invitedUsers.length === 0;
@@ -351,8 +345,7 @@ export default {
       if (!this.battle.id) return false;
 
       return (
-        !this.battle.start_time &&
-        !this.battle.end_time &&
+        this.battleStage < 3 &&
         this.confirmedUsers.length > 1
       );
     },

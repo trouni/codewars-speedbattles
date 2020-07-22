@@ -113,7 +113,7 @@
         <table class="console-table h-100">
           <thead>
             <tr>
-              <th scope="col" style="width: 50%;"><span class="data">WARRIORS {{ battleStage > 0 && battle.players ? `[${confirmedUsers.length}/${invitedUsers.length + confirmedUsers.length}]` : ""}}</span></th>
+              <th scope="col" style="width: 50%;"><span class="data">WARRIORS {{ battleStage > 0 && users ? `[${confirmedUsers.length}/${invitedUsers.length + confirmedUsers.length}]` : ""}}</span></th>
               <th scope="col" style="width: 10%;"><span class="data">RANK</span></th>
               <th scope="col" style="width: 20%;"><span class="data">STATUS</span></th>
               <th scope="col" style="width: 20%;"><span class="data">TIME</span></th>
@@ -316,16 +316,16 @@
         }
       },
       survivors() {
-        if (this.battle.players) {
-          return this.battle.players.filter(user => this.completedOnTime(user))
+        if (this.users) {
+          return this.users.filter(user => this.completedOnTime(user))
                                     .sort((a,b) => {
             return (new Date(a.completed_at) - new Date(b.completed_at))
           });
         }
       },
       defeated() {
-        if (this.battle.players) {
-          return this.battle.players.filter(user => user.invite_status === 'confirmed' || user.invite_status === 'defeated')
+        if (this.users) {
+          return this.users.filter(user => user.invite_status === 'invited' || user.invite_status === 'confirmed' || user.invite_status === 'defeated')
                                     .filter(user => !this.completedOnTime(user))
                                     .sort((a,b) => {
             if (a.completed_at && b.completed_at) {
@@ -347,17 +347,17 @@
       },
       eligibleUsers() {
         if (this.battleStage === 0) { return [] }
-        // return this.battle.players
+        // return this.users
         return this.users.filter(user => user.invite_status === 'eligible')
       },
       invitedUsers() {
         if (this.battleStage === 0) { return [] }
-        // return this.battle.players
+        // return this.users
         return this.users.filter(user => user.invite_status === 'invited')
       },
       confirmedUsers() {
-        if (!this.battle.players) { return [] }
-        return this.battle.players.filter(user => user.invite_status == 'confirmed');
+        if (!this.users) { return [] }
+        return this.users.filter(user => user.invite_status == 'confirmed');
       },
     },
     methods: {
@@ -417,8 +417,8 @@
         return this.users[index]
       },
       findPlayer(userId) {
-        const index = this.battle.players.findIndex((e) => e.id === userId);
-        return this.battle.players[index]
+        const index = this.users.findIndex((e) => e.id === userId);
+        return this.users[index]
       },
       findBattle(battleId) {
         const index = this.previousBattles.findIndex((e) => e.id === battleId);
