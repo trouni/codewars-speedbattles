@@ -115,9 +115,7 @@ class Battle < ApplicationRecord
       time_limit: time_limit || 0,
       start_time: start_time,
       end_time: end_time,
-      challenge: challenge,
-      # players: User.info(room, group: :current_players).as_json
-      # players: export_players
+      challenge: challenge
     }
   end
 

@@ -113,7 +113,7 @@ class User < ApplicationRecord
   end
 
   def self.info(room, group: :current_users_and_players, user: nil)
-    return unless %i[single_user online_users current_players current_users_and_players all_users_and_players].include? group
+    return unless %i[single_user current_users_and_players all_users_and_players].include? group
 
     sql = <<-SQL
     WITH current_battle AS (

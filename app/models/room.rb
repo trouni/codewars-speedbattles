@@ -250,7 +250,7 @@ class Room < ApplicationRecord
       subchannel: "users",
       payload: {
         action: "all",
-        users: User.info(self, group: :online_users).as_json
+        users: User.info(self, group: :current_users_and_players).as_json
       },
       private_to_user_id: private_to_user_id
     )
