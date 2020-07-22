@@ -34,15 +34,15 @@ class Battle < ApplicationRecord
   validates :start_time, uniqueness: { scope: :room }
   validates :end_time, uniqueness: { scope: :room }
 
-  def export_players
-    {
-      # Using 'invited' instead of pending for retro-compatibility
-      invited: User.pending(self),
-      confirmed: User.confirmed(self),
-      survived: User.survived(self),
-      defeated: User.defeated(self)
-    }
-  end
+  # def export_players
+  #   {
+  #     # Using 'invited' instead of pending for retro-compatibility
+  #     invited: User.pending(self),
+  #     confirmed: User.confirmed(self),
+  #     survived: User.survived(self),
+  #     defeated: User.defeated(self)
+  #   }
+  # end
 
   def auto_invite?
     room.autonomous? || room.settings(:base).auto_invite

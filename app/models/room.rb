@@ -85,15 +85,6 @@ class Room < ApplicationRecord
   end
   alias_method :next_event?, :time_until_next_event
 
-  def clear_next_event!(only: nil)
-    set_next_event(at: Time.now) if only.nil? || only == next_event[:type]
-  end
-
-  def players
-    super.distinct
-    # User.joins(battle_invites: :battle).where(battle_invites: { confirmed: true }, battles: { room_id: id }).uniq
-  end
-
   def unfinished_battle
     Battle.includes(:room).joins(:room).find_by(room: self, end_time: nil)
   end
@@ -112,7 +103,6 @@ class Room < ApplicationRecord
 
   def finished_battles
     Battle.includes(:room).joins(:room).where(room_id: id).where.not(end_time: nil).order(end_time: :desc)
-    # battles.where.not(end_time: nil)
   end
 
   def last_battle
@@ -136,66 +126,6 @@ class Room < ApplicationRecord
     else
       1
     end
-  end
-
-  def leaderboard
-    query_fought = <<-SQL
-    SELECT COUNT(*) AS battles_fought, u.id AS id, u.username AS username, u.name AS name, u.codewars_honor, u.codewars_clan, u.codewars_leaderboard_position, u.codewars_overall_rank, u.codewars_overall_score
-    FROM battles b
-    JOIN battle_invites bi ON b.id = bi.battle_id
-    JOIN users u ON bi.player_id = u.id
-    WHERE bi.confirmed = true
-    AND b.room_id = #{id}
-    AND b.end_time IS NOT NULL
-    GROUP BY u.id
-    SQL
-
-    query_survived = <<-SQL
-    SELECT COUNT(*) AS battles_survived, u.id AS id
-    FROM battles b
-    JOIN battle_invites bi ON b.id = bi.battle_id
-    JOIN users u ON bi.player_id = u.id
-    LEFT JOIN completed_challenges cc ON cc.user_id = u.id
-    WHERE bi.confirmed = true
-    AND b.room_id = #{id}
-    AND cc.completed_at > b.start_time
-    AND cc.completed_at < b.end_time
-    AND cc.kata_id = b.kata_id
-    GROUP BY u.id
-    SQL
-
-    query = <<-SQL
-    SELECT FirstQuery.id, FirstQuery.username, FirstQuery.name, FirstQuery.codewars_honor, FirstQuery.battles_fought AS battles_fought, COALESCE(SecondQuery.battles_survived, 0) AS battles_survived, (COALESCE(FirstQuery.battles_fought, 0) - COALESCE(SecondQuery.battles_survived, 0)) AS battles_lost, (COALESCE(SecondQuery.battles_survived, 0) * 5) - (COALESCE(FirstQuery.battles_fought, 0) - COALESCE(SecondQuery.battles_survived, 0)) AS total_score
-    FROM (#{query_fought}) AS FirstQuery
-    LEFT JOIN (#{query_survived}) AS SecondQuery ON FirstQuery.id = SecondQuery.id
-    ORDER BY total_score DESC
-    SQL
-
-    leaderboard = {}
-    ActiveRecord::Base.connection.exec_query(query).as_json.each { |e| leaderboard[e["id"].to_s] = e }
-    return leaderboard
-    # return ActiveRecord::Base.connection.exec_query(query).as_json
-  end
-
-  def battles_fought(player)
-    BattleInvite.includes(:player, :battle, :room).joins(:player, :battle, :room).where(
-      confirmed: true,
-      battles: { room_id: id },
-      users: { id: player }
-    )
-  end
-
-  def battles_survived(player)
-    # Battle.joins(battle_invites: { player: :completed_challenges }).where(
-    BattleInvite.includes(:player, :room, player: :completed_challenges).joins(:player, :room, player: :completed_challenges).where(
-      "battle_invites.confirmed = true AND battles.room_id = ? AND completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time AND completed_challenges.kata_id = battles.kata_id AND completed_challenges.user_id = ?",
-      id,
-      player.id
-    )
-  end
-
-  def total_score(player)
-    finished_battles.map { |battle| battle.score(player) }.reduce(:+)
   end
 
   def available_katas(language: nil, ranks: [], min_votes: nil, min_satisfaction: nil, ignore_higher_rank_users: true, excluded_users: [])
@@ -256,11 +186,6 @@ class Room < ApplicationRecord
     )
   end
 
-  def old_users_info
-    users.includes(:battles, :room, :completed_challenges, :battle_invites)
-                    .map { |user| user.unused_api_expose(self, active_battle) }
-  end
-
   def announce(channel, message, **options)
     case channel
     when :chat then chat.create_announcement(message)
@@ -304,11 +229,6 @@ class Room < ApplicationRecord
     )
   end
 
-  def old_players_info
-    players.includes(:battles, :room, :completed_challenges, :battle_invites)
-                    .map { |user| user.unused_api_expose(self, active_battle) }
-  end
-
   def broadcast_action(action:, data: nil)
     broadcast(subchannel: "action", payload: { action: action, data: data })
   end
@@ -346,4 +266,84 @@ class Room < ApplicationRecord
   def announce_new_name
     announce(:chat, "War room renamed to <strong>#{name}</strong>.")
   end
+
+
+  # def clear_next_event!(only: nil)
+  #   set_next_event(at: Time.now) if only.nil? || only == next_event[:type]
+  # end
+
+  # def players
+  #   super.distinct
+  #   # User.joins(battle_invites: :battle).where(battle_invites: { confirmed: true }, battles: { room_id: id }).uniq
+  # end
+
+  # def leaderboard
+  #   query_fought = <<-SQL
+  #   SELECT COUNT(*) AS battles_fought, u.id AS id, u.username AS username, u.name AS name, u.codewars_honor, u.codewars_clan, u.codewars_leaderboard_position, u.codewars_overall_rank, u.codewars_overall_score
+  #   FROM battles b
+  #   JOIN battle_invites bi ON b.id = bi.battle_id
+  #   JOIN users u ON bi.player_id = u.id
+  #   WHERE bi.confirmed = true
+  #   AND b.room_id = #{id}
+  #   AND b.end_time IS NOT NULL
+  #   GROUP BY u.id
+  #   SQL
+
+  #   query_survived = <<-SQL
+  #   SELECT COUNT(*) AS battles_survived, u.id AS id
+  #   FROM battles b
+  #   JOIN battle_invites bi ON b.id = bi.battle_id
+  #   JOIN users u ON bi.player_id = u.id
+  #   LEFT JOIN completed_challenges cc ON cc.user_id = u.id
+  #   WHERE bi.confirmed = true
+  #   AND b.room_id = #{id}
+  #   AND cc.completed_at > b.start_time
+  #   AND cc.completed_at < b.end_time
+  #   AND cc.kata_id = b.kata_id
+  #   GROUP BY u.id
+  #   SQL
+
+  #   query = <<-SQL
+  #   SELECT FirstQuery.id, FirstQuery.username, FirstQuery.name, FirstQuery.codewars_honor, FirstQuery.battles_fought AS battles_fought, COALESCE(SecondQuery.battles_survived, 0) AS battles_survived, (COALESCE(FirstQuery.battles_fought, 0) - COALESCE(SecondQuery.battles_survived, 0)) AS battles_lost, (COALESCE(SecondQuery.battles_survived, 0) * 5) - (COALESCE(FirstQuery.battles_fought, 0) - COALESCE(SecondQuery.battles_survived, 0)) AS total_score
+  #   FROM (#{query_fought}) AS FirstQuery
+  #   LEFT JOIN (#{query_survived}) AS SecondQuery ON FirstQuery.id = SecondQuery.id
+  #   ORDER BY total_score DESC
+  #   SQL
+
+  #   leaderboard = {}
+  #   ActiveRecord::Base.connection.exec_query(query).as_json.each { |e| leaderboard[e["id"].to_s] = e }
+  #   return leaderboard
+  #   # return ActiveRecord::Base.connection.exec_query(query).as_json
+  # end
+
+  # def battles_fought(player)
+  #   BattleInvite.includes(:player, :battle, :room).joins(:player, :battle, :room).where(
+  #     confirmed: true,
+  #     battles: { room_id: id },
+  #     users: { id: player }
+  #   )
+  # end
+
+  # def battles_survived(player)
+  #   # Battle.joins(battle_invites: { player: :completed_challenges }).where(
+  #   BattleInvite.includes(:player, :room, player: :completed_challenges).joins(:player, :room, player: :completed_challenges).where(
+  #     "battle_invites.confirmed = true AND battles.room_id = ? AND completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time AND completed_challenges.kata_id = battles.kata_id AND completed_challenges.user_id = ?",
+  #     id,
+  #     player.id
+  #   )
+  # end
+
+  # def total_score(player)
+  #   finished_battles.map { |battle| battle.score(player) }.reduce(:+)
+  # end
+
+  # def old_players_info
+  #   players.includes(:battles, :room, :completed_challenges, :battle_invites)
+  #                   .map { |user| user.unused_api_expose(self, active_battle) }
+  # end
+
+  # def old_users_info
+  #   users.includes(:battles, :room, :completed_challenges, :battle_invites)
+  #                   .map { |user| user.unused_api_expose(self, active_battle) }
+  # end
 end
