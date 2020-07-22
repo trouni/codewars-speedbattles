@@ -772,6 +772,9 @@ export default {
       return result;
     },
     pushToUsers(user) {
+      const dateFields = ['last_fetched_at', 'joined_at', 'invited_at', 'completed_at']
+      // Parsing dates before pushing user into array
+      dateFields.forEach(field => user[field] = user[field] ? Date(user[field]) : null)
       if (this.users) this.pushToArray(this.users, user);
     },
     completedIn(battle, user) {
