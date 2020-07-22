@@ -5,7 +5,7 @@
         <table :class="['console-table h-100', { 'no-stats': !room.show_stats }]">
           <thead>
             <tr>
-              <th scope="col" :style="room.show_stats ? 'width: 50%;' : 'width: 100%;'"><span class="data">WARRIORS [{{ leaderboardUsers.length }}]</span></th>
+              <th scope="col" :style="room.show_stats ? 'width: 50%;' : 'width: 100%;'"><span class="data">WARRIORS [{{ sortedLeaderboard.length }}]</span></th>
               <th v-if="room.show_stats" scope="col" style="width: 6%;"><span class="data">#</span></th>
               <th v-if="room.show_stats" scope="col" style="width: 12%;"><span class="data">SCORE</span></th>
               <th v-if="room.show_stats" scope="col" style="width: 12%;"><span class="data">BATTLES</span></th>
@@ -14,7 +14,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(user, index) in leaderboardUsers" :class="{ 'highlight current-user': isCurrentUser(user.id) }" :title="`${user.username} (${-user.codewars_overall_rank} kyu)`" :key="user.id">
+            <tr v-for="(user, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(user.id) }" :title="`${user.username} (${-user.codewars_overall_rank} kyu)`" :key="user.id">
               <th scope="row" class="justify-content-between">
                 <span :class="['data user', {offline: !user.online}]">
                   <span :class="['mr-1', { 'online highlight': user.online }]">●</span>
@@ -82,31 +82,31 @@ export default {
       const onlineUsers = this.users.filter(user => user.online);
       return this.showOffline ? this.users : onlineUsers;
     },
-    // sortedLeaderboard() {
-    //   return this.leaderboardUsers.sort((a, b) => {
-    //     if (b.total_score !== a.total_score) {
-    //       return b.total_score - a.total_score
-    //     } else if (b.battles_survived !== a.battles_survived) {
-    //         return b.battles_survived - a.battles_survived
-    //     } else if (a.battles_fought === 0 || b.battles_fought === 0) {
-    //       return b.battles_fought - a.battles_fought
-    //     } else if (a.battles_lost !== b.battles_lost) {
-    //         return a.battles_lost - b.battles_lost
-    //     } else if (a || b) {
-    //       return a ? -1 : 1
-    //     // } else {
-    //     //   return b.username[0] > a.username[0] ? 1 : -1
-    //     } else {
-    //       return a.joined_room_at - b.joined_room_at
-    //     }
-    //   })
-    // },
+    sortedLeaderboard() {
+      return this.leaderboardUsers.sort((a, b) => {
+        if (b.total_score !== a.total_score) {
+          return b.total_score - a.total_score
+        } else if (b.battles_survived !== a.battles_survived) {
+            return b.battles_survived - a.battles_survived
+        } else if (a.battles_fought === 0 || b.battles_fought === 0) {
+          return b.battles_fought - a.battles_fought
+        } else if (a.battles_lost !== b.battles_lost) {
+            return a.battles_lost - b.battles_lost
+        } else if (a || b) {
+          return a ? -1 : 1
+        // } else {
+        //   return b.username[0] > a.username[0] ? 1 : -1
+        } else {
+          return a.joined_room_at - b.joined_room_at
+        }
+      })
+    },
     userRanks() {
       let rank = 0
       let realRank = rank
-      return this.leaderboardUsers.map((user, index) => {
+      return this.sortedLeaderboard.map((user, index) => {
         realRank += 1
-        if (index === 0 || user.total_score < this.leaderboardUsers[index - 1].total_score) {
+        if (index === 0 || user.total_score < this.sortedLeaderboard[index - 1].total_score) {
           rank = realRank
         }
         return rank
@@ -121,7 +121,7 @@ export default {
     userRank(index) {
       if (index === 0) return 1
 
-      if (this.displayScore(this.leaderboardUsers[index].total_score) === this.displayScore(this.leaderboardUsers[index - 1].total_score)) return '.' // '↑'
+      if (this.displayScore(this.sortedLeaderboard[index].total_score) === this.displayScore(this.sortedLeaderboard[index - 1].total_score)) return '.' // '↑'
 
       return index + 1
     },
