@@ -112,18 +112,22 @@ class User < ApplicationRecord
     }
   end
 
+  def info
+    return unless room
+    
+    room.users_info(:current_users_and_players).find { |u| u['id'] == id}
+  end
+
   def api_expose(for_room = room, battle = active_battle)
     standard_result = {
       id: id,
       username: username,
       name: name,
-      codewars: {
-        clan: codewars_clan,
-        honor: codewars_honor,
-        leaderboard_position: codewars_leaderboard_position,
-        overall_rank: codewars_overall_rank,
-        overall_score: codewars_overall_score
-      },
+      codewars_clan: codewars_clan,
+      codewars_honor: codewars_honor,
+      codewars_leaderboard_position: codewars_leaderboard_position,
+      codewars_overall_rank: codewars_overall_rank,
+      codewars_overall_score: codewars_overall_score,
       last_fetched_at: last_fetched_at,
       online: !room.nil?,
       invite_status: invite_status(battle),
