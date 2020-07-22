@@ -307,19 +307,19 @@
       },
       previousBattles() {
         return this.room.finished_battles.sort((a, b) => {
-          return new Date(b.end_time) - new Date(a.end_time)
+          return b.end_time - a.end_time
         })
       },
       showChallenge() {
         if (this.battle) {
-          return (this.currentUserIsModerator || this.battleStage > 2)
+          return this.currentUserIsModerator || this.battleStage > 2
         }
       },
       survivors() {
         if (this.users) {
           return this.users.filter(user => this.completedOnTime(user))
                                     .sort((a,b) => {
-            return (new Date(a.completed_at) - new Date(b.completed_at))
+            return a.completed_at - b.completed_at
           });
         }
       },
@@ -329,11 +329,11 @@
                                     .filter(user => !this.completedOnTime(user))
                                     .sort((a,b) => {
             if (a.completed_at && b.completed_at) {
-              return (new Date(a.completed_at) - new Date(b.completed_at))
+              return a.completed_at - b.completed_at
             } else if (a.completed_at || b.completed_at) {
               return a.completed_at ? -1 : 1
             } else {
-              return (new Date(a.joined_battle_at) - new Date(b.joined_battle_at))
+              return a.joined_battle_at - b.joined_battle_at
               // return (b.invite_status || [""])[0] < (a.invite_status || [""])[0] ? 1 : -1
             }
           });
@@ -425,11 +425,11 @@
         return this.previousBattles[index]
       },
       completedIn(battle, user) {
-        return (new Date(user.completed_at) - new Date(battle.start_time)) / 1000 // duration in seconds
+        return (user.completed_at - battle.start_time) / 1000 // duration in seconds
       },
       displayCompletionTime(battle, user) {
         const completedIn = this.completedIn(battle, user)
-        const completedAt = new Date(user.completed_at)
+        const completedAt = user.completed_at
         return completedIn >= 0 ? this.formatDuration(completedIn) : completedAt.toLocaleDateString()
       },
       formatDuration(durationInSeconds) {

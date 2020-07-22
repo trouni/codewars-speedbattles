@@ -180,7 +180,6 @@ export default {
     };
   },
   created() {
-    this.$set(this.battle, "stage", this.battleStage);
     setTimeout(_ => this.checkCurrentUserConnection(), 5000);
   },
   watch: {
@@ -774,11 +773,12 @@ export default {
     pushToUsers(user) {
       const dateFields = ['last_fetched_at', 'joined_room_at', 'joined_battle_at', 'completed_at']
       // Parsing dates before pushing user into array
-      dateFields.forEach(field => user[field] = user[field] ? new Date(user[field]) : null)
+      user = this.parseDates(user, dateFields)
       if (this.users) this.pushToArray(this.users, user);
     },
-    completedIn(battle, user) {
-      return (new Date(user.completed_at) - new Date(battle.start_time)) / 1000; // duration in seconds
+    parseDates(element, dateFields) {
+      dateFields.forEach(field => element[field] = element[field] ? new Date(element[field]) : null)
+      return element
     },
     removeFromArray(array, element) {
       const elementIndex = array.findIndex(e => e.id === element.id);
@@ -905,8 +905,9 @@ export default {
                 this.battleInitialized = true;
                 this.battleLoading = false
                 if (data.payload.battle) {
-                  this.battle = data.payload.battle
-                  // if (this.battleOngoing) this.startBattleClock();
+                  const dateFields = ['start_time', 'end_time']
+                  // Parsing dates before pushing user into array
+                  this.battle = this.parseDates(data.payload.battle, dateFields)
                 } else {
                   this.battle = {}
                 }
