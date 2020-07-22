@@ -201,6 +201,7 @@ class User < ApplicationRecord
         FROM current_players u
         JOIN completed_challenges cc ON u.id = cc.user_id
         WHERE (SELECT kata_id FROM current_battle) = cc.kata_id
+        AND cc.completed_at < (SELECT end_time FROM current_battle) + INTERVAL '1 DAY'
     ), completed_challenges AS (
         SELECT cc.*, b.id AS battle_id, b.start_time, b.end_time
         FROM all_users_and_players u
