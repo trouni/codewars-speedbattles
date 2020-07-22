@@ -151,7 +151,7 @@
             </tr>
 
             <tr v-for="defeatedUser in defeated" :title="defeatedUser.username" :class="['animated fadeInUp', { '': battleStage === 0, 'highlight-red bg-highlight': isCurrentUser(defeatedUser.id) }]" :key="defeatedUser.id">
-              <th scope="row" :class="['username', { pending: !userIsConfirmed(defeatedUser.id) && battleStage > 0 && battleStage < 3 }]">
+              <th scope="row" :class="['username', { pending: !userIsConfirmed(defeatedUser.id) && battleJoinable }]">
                 <span class="data username">{{ defeatedUser.name || defeatedUser.username }}</span>
               </th>
               <td>
@@ -325,7 +325,7 @@
       },
       defeated() {
         if (this.users) {
-          return this.users.filter(user => user.invite_status === 'invited' || user.invite_status === 'confirmed' || user.invite_status === 'defeated')
+          return this.users.filter(user => (this.battleJoinable && user.invite_status === 'invited') || user.invite_status === 'confirmed' || user.invite_status === 'defeated')
                                     .filter(user => !this.completedOnTime(user))
                                     .sort((a,b) => {
             if (a.completed_at && b.completed_at) {
