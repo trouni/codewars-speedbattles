@@ -53,7 +53,6 @@
 <script>
 export default {
   props: {
-    roomPlayers: Array,
     users: Array,
     battle: Object,
     room: Object,
@@ -80,10 +79,8 @@ export default {
       return this.room.show_stats ? "NETWK://Leaderboard" : "NETWK://Users"
     },
     leaderboardUsers() {
-      const allUsers = this.showOffline && this.roomPlayers ? this.roomPlayers.concat(this.users) : this.users;
-      return allUsers.reduce((uniqueUsers, user) => {
-        return uniqueUsers.map(user => user.username).includes(user.username) ? uniqueUsers : [...uniqueUsers, user]
-      }, [])
+      const onlineUsers = this.users.filter(user => user.online);
+      return this.showOffline ? this.users : onlineUsers;
     },
     sortedLeaderboard() {
       return this.leaderboardUsers.sort((a, b) => {
