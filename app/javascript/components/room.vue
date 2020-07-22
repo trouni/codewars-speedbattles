@@ -764,7 +764,7 @@ export default {
       if (elementIndex === -1) {
         array.push(element);
       } else {
-        // array[index] = user; // Vue cannot detect change in the array with this method
+        // Vue cannot detect change in the array with array[index] = user
         result.oldElement = array[elementIndex];
         array.splice(elementIndex, 1, element);
       }
@@ -777,7 +777,13 @@ export default {
       if (this.users) this.pushToArray(this.users, user);
     },
     parseDates(element, dateFields) {
-      dateFields.forEach(field => element[field] = element[field] ? new Date(element[field]) : null)
+      dateFields.forEach(field => {
+        if (element[field]) {
+          // If UTC timezone info is missing, add it to the string before parsing
+          if (!element[field].match(/Z$/i)) element[field] += 'Z'
+          element[field] = new Date(element[field])
+        }
+      })
       return element
     },
     removeFromArray(array, element) {
