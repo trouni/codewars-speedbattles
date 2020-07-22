@@ -117,7 +117,7 @@ class Battle < ApplicationRecord
       start_time: start_time,
       end_time: end_time,
       challenge: challenge,
-      players: players.includes(:room, :battles, :completed_challenges).map { |user| user.api_expose(room, self) }
+      players: room.users_info(:current_players).as_json
       # players: export_players
     }
   end
@@ -254,7 +254,7 @@ class Battle < ApplicationRecord
       subchannel: "battles",
       payload: {
         action: "players",
-        players: players.map { |user| user.api_expose(room, self) }
+        players: room.users_info(:current_players).as_json
       }
     )
   end

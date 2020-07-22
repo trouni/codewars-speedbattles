@@ -65,6 +65,148 @@ class Room < ApplicationRecord
     }
   end
 
+  def users_info(group = :current_users_and_players)
+    return unless %i[online_users current_players current_users_and_players all_users_and_players].include? group
+
+    sql = <<-SQL
+    WITH current_battle AS (
+          SELECT b.*
+          FROM battles b
+          JOIN rooms r ON r.id = b.room_id
+          WHERE r.id = #{id}
+          ORDER BY b.created_at DESC
+          LIMIT 1
+    ), current_battle_invites AS (
+          SELECT *
+          FROM battle_invites bi
+          WHERE bi.battle_id = (SELECT id FROM current_battle)
+    ), online_users AS (
+          SELECT u.*
+          FROM users u
+          JOIN room_users ru ON ru.user_id = u.id
+          WHERE ru.room_id = #{id}
+    ), all_players AS (
+          SELECT u.*
+          FROM rooms r
+          JOIN battles b ON b.room_id = r.id
+          JOIN battle_invites bi ON b.id = bi.battle_id
+          JOIN users u ON bi.player_id = u.id
+          WHERE r.id = #{id}
+          GROUP BY u.id
+    ), ineligible_users AS (
+          SELECT u.*
+          FROM online_users u
+          JOIN completed_challenges cc ON u.id = cc.user_id
+          WHERE (SELECT kata_id FROM current_battle) = cc.kata_id
+          AND cc.completed_at IS NOT NULL
+    ), invited_users AS (
+          SELECT u.*
+          FROM users u
+          JOIN current_battle_invites bi ON bi.player_id = u.id
+          WHERE NOT bi.confirmed
+          GROUP BY u.id
+    ), current_players AS (
+          SELECT u.*
+          FROM users u
+          JOIN current_battle_invites bi ON bi.player_id = u.id
+          WHERE bi.confirmed
+          GROUP BY u.id
+    ), current_users_and_players AS (
+          SELECT * FROM current_players
+          UNION
+          SELECT * FROM online_users
+    ), all_users_and_players AS (
+          SELECT * FROM online_users
+          UNION
+          SELECT * FROM all_players
+    ), current_battle_started AS (
+          SELECT (
+              CASE WHEN EXISTS (
+                  SELECT *
+                  FROM current_battle b
+                  WHERE b.start_time IS NOT NULL
+              ) THEN TRUE ELSE FALSE END
+          )
+          FROM battles
+          LIMIT 1
+    ), current_battle_over AS (
+          SELECT (
+              CASE WHEN EXISTS (
+                  SELECT *
+                  FROM current_battle b
+                  WHERE b.end_time IS NOT NULL
+              ) THEN TRUE ELSE FALSE END
+          )
+          FROM battles
+          LIMIT 1
+    ), current_battle_ongoing AS (
+          SELECT (
+              CASE WHEN EXISTS (
+                  SELECT *
+                  FROM current_battle b
+                  WHERE b.start_time IS NOT NULL
+                  AND b.end_time IS NULL
+              ) THEN TRUE ELSE FALSE END
+          )
+          FROM battles
+          LIMIT 1
+    ), survived_current_battle AS (
+          SELECT u.*, cc.completed_at
+          FROM current_battle b
+          JOIN battle_invites bi ON bi.battle_id = b.id
+          JOIN current_players u ON bi.player_id = u.id
+          JOIN completed_challenges cc ON u.id = cc.user_id
+          WHERE (
+              b.kata_id = cc.kata_id
+              AND cc.completed_at > b.start_time
+              AND (cc.completed_at < b.end_time OR (SELECT * FROM current_battle_ongoing))
+          )
+    ), defeated_current_battle AS (
+          SELECT u.*
+          FROM current_players u
+          WHERE (SELECT * FROM current_battle_started)
+          AND u.id NOT IN (SELECT id FROM survived_current_battle)
+    ), current_completed_challenges AS (
+          SELECT cc.*
+          FROM current_players u
+          JOIN completed_challenges cc ON u.id = cc.user_id
+          WHERE (SELECT kata_id FROM current_battle) = cc.kata_id
+    )
+
+    SELECT
+    u.id,
+    u.username,
+    u.name,
+    u.codewars_clan,
+    u.codewars_honor,
+    u.codewars_leaderboard_position,
+    u.codewars_overall_rank,
+    u.codewars_overall_score,
+    u.last_fetched_at,
+    (
+      CASE WHEN u.id IN (SELECT id FROM online_users) THEN TRUE ELSE FALSE END
+    ) AS online,
+    ru.created_at AS joined_at,
+    CASE
+    WHEN u.id IN (SELECT id FROM survived_current_battle) THEN 'survived'
+    WHEN u.id IN (SELECT id FROM defeated_current_battle) THEN 'defeated'
+    WHEN u.id IN (SELECT id FROM current_players) THEN 'confirmed'
+    WHEN u.id IN (SELECT id FROM invited_users) THEN 'invited'
+    WHEN u.id IN (SELECT id FROM ineligible_users) THEN 'ineligible'
+    ELSE 'eligible'
+    END AS invite_status,
+    bi.created_at AS invited_at,
+    cc.completed_at
+    FROM (SELECT * FROM #{group}) u
+    LEFT OUTER JOIN (SELECT user_id, completed_at FROM current_completed_challenges) cc ON cc.user_id = u.id
+    LEFT OUTER JOIN room_users ru ON ru.user_id = u.id
+    LEFT OUTER JOIN current_battle_invites bi ON bi.player_id = u.id
+
+    SQL
+
+    execute_sql(sql, room_id: id)
+  end
+
   def inactive?
     room_users.empty?
   end
@@ -250,11 +392,15 @@ class Room < ApplicationRecord
       subchannel: "users",
       payload: {
         action: "all",
-        users: users.includes(:battles, :room, :completed_challenges, :battle_invites)
-                    .map { |user| user.api_expose(self, active_battle) }
+        users: users_info(:online_users).as_json
       },
       private_to_user_id: private_to_user_id
     )
+  end
+
+  def old_users_info
+    users.includes(:battles, :room, :completed_challenges, :battle_invites)
+                    .map { |user| user.api_expose(self, active_battle) }
   end
 
   def new_broadcast_users
@@ -313,16 +459,21 @@ class Room < ApplicationRecord
     )
   end
 
+  # Broadcast all room players (for offline players stats)
   def broadcast_players(private_to_user_id: nil)
     broadcast(
       subchannel: "users",
       payload: {
         action: "room-players",
-        players: players.includes(:battles, :room, :completed_challenges, :battle_invites)
-                    .map { |user| user.api_expose(self, active_battle) }
+        players: old_players_info
       },
       private_to_user_id: private_to_user_id
     )
+  end
+
+  def old_players_info
+    players.includes(:battles, :room, :completed_challenges, :battle_invites)
+                    .map { |user| user.api_expose(self, active_battle) }
   end
 
   def new_broadcast_players(private_to_user_id: nil)
@@ -352,7 +503,7 @@ class Room < ApplicationRecord
   end
 
   def broadcast_user(action: "add", user:)
-    broadcast(subchannel: "users", payload: { action: action, user: user.api_expose(self, active_battle) })
+    broadcast(subchannel: "users", payload: { action: action, user: user.info })
   end
 
   def broadcast_active_battle(private_to_user_id: nil)
@@ -362,7 +513,7 @@ class Room < ApplicationRecord
 
   def broadcast_player(action: "player", user:)
     broadcast_user(user: user)
-    broadcast(subchannel: "battles", payload: { action: action, user: user.api_expose(self, active_battle) })
+    broadcast(subchannel: "battles", payload: { action: action, user: user.info })
   end
 
   def set_next_event(at:, type: nil, jid: nil)
