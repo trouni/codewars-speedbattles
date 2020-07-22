@@ -274,6 +274,7 @@ class User < ApplicationRecord
     LEFT OUTER JOIN (SELECT user_id, completed_at FROM current_completed_challenges) cc ON cc.user_id = u.id
     LEFT OUTER JOIN room_users ru ON ru.user_id = u.id
     LEFT OUTER JOIN current_battle_invites bi ON bi.player_id = u.id
+    ORDER BY total_score DESC, battles_survived DESC, battles_fought DESC, battles_lost ASC, joined_room_at ASC, username ASC
 
     SQL
 
