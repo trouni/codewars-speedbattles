@@ -120,7 +120,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(survivor, index) in survivors" :class="['animated fadeInUp', {'highlight bg-highlight': isCurrentUser(survivor.id) }]" :title="`${survivor.username} (${-survivor.codewars.overall_rank} kyu)`" :key="survivor.id">
+            <tr v-for="(survivor, index) in survivors" :class="['animated fadeInUp', {'highlight bg-highlight': isCurrentUser(survivor.id) }]" :title="`${survivor.username} (${-survivor.codewars_overall_rank} kyu)`" :key="survivor.id">
               <th scope="row">
                 <span class="data username">{{ survivor.name || survivor.username }}</span>
               </th>
