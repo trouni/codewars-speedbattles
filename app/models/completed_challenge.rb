@@ -24,7 +24,7 @@ class CompletedChallenge < ApplicationRecord
     battle = user.active_battle
     room = battle&.room
     room&.broadcast_active_battle
-    room&.broadcast_player(user: user) if battle&.players&.include?(user)
+    room&.broadcast_user(user: user) if battle&.players&.include?(user)
     announce_completion
   end
   

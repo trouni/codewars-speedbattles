@@ -76,7 +76,7 @@ class Battle < ApplicationRecord
       :chat,
       "<i class='fas fa-peace'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> is over."
     )
-    broadcast_players
+    room.broadcast_users
     ScheduleRandomBattle.perform_now(room_id: room.id, delay_in_seconds: 60) if room.autonomous?
   end
 
@@ -87,7 +87,6 @@ class Battle < ApplicationRecord
     room.broadcast_active_battle
     # Broadcasting users to refresh invite status
     room.broadcast_users
-    broadcast_players
   end
 
   def check_if_time_over
@@ -117,7 +116,7 @@ class Battle < ApplicationRecord
       start_time: start_time,
       end_time: end_time,
       challenge: challenge,
-      players: room.users_info(:current_players).as_json
+      # players: User.info(room, group: :current_players).as_json
       # players: export_players
     }
   end
@@ -249,23 +248,13 @@ class Battle < ApplicationRecord
     room.broadcast_users
   end
 
-  def broadcast_players
-    room.broadcast(
-      subchannel: "battles",
-      payload: {
-        action: "players",
-        players: room.users_info(:current_players).as_json
-      }
-    )
-  end
-
   private
 
   def invite_user(user)
     return unless non_invited_users.where(id: user.id).exists?
 
     battle_invite = BattleInvite.includes(:battle, :player).joins(:battle, :player).create(battle: self, player: user)
-    battle_invite.broadcast_player
+    battle_invite.broadcast_user
   end
 
   def uninvite_user(user)
@@ -273,21 +262,21 @@ class Battle < ApplicationRecord
 
     battle_invite = BattleInvite.find_by(battle: self, player: user)
     battle_invite&.destroy
-    battle_invite.broadcast_player
+    battle_invite.broadcast_user
   end
 
   def confirm_user(user)
     battle_invite = BattleInvite.find_by(battle: self, player: user)
     battle_invite.update(confirmed: true)
     # room.broadcast_user(user: user)
-    battle_invite.broadcast_player
+    battle_invite.broadcast_user
   end
 
   def invite_all
     users_to_invite = non_invited_users.map { |user| { player: user, battle: self } }
     if users_to_invite.any?
       BattleInvite.create(users_to_invite)
-      broadcast_players
+      room.broadcast_users
       # room.broadcast_active_battle
     end
   end
