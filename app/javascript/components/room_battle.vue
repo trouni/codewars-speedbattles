@@ -103,7 +103,7 @@
           </p>
         </div>
       </div>
-      <p v-if="battleStage === 1 && invitedUsers.length < 1" class="m-auto highlight">> Waiting for players to join the battle...</p>
+      <p v-if="battleStage === 1 && (invitedUsers.length + confirmedUsers.length) < 1" class="m-auto highlight">> Waiting for players to join the battle...</p>
       <div v-else-if="currentUser.invite_status == 'invited' && battleJoinable" class="d-flex flex-column justify-content-center align-items-center flex-grow-1 mb-5">
         <p>You have been requested to join this battle.</p>
         <std-button large @click.native="$root.$emit('confirm-invite', currentUser.id)" title="Join battle" :class="['my-3', attentionWaitingToJoin]"/>
