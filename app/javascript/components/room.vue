@@ -909,13 +909,12 @@ export default {
                 break;
 
               case "all":
-                this.users = data.payload.users;
-                this.users.forEach(user => this.pushToUsers(user));
+                data.payload.users.forEach(user => this.pushToUsers(user));
                 this.usersInitialized = true;
                 break;
 
               case "room-players":
-                this.roomPlayers = data.payload.players;
+                data.payload.users.forEach(user => this.pushToUsers(user));
                 this.roomPlayersLoading = false;
                 break;
             }
