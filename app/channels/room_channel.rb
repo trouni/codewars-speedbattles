@@ -157,14 +157,9 @@ class RoomChannel < ApplicationCable::Channel
   def get_room_players
     set_room
     set_current_user
-    @room.broadcast_players(private_to_user_id: @current_user.id)
+    @room.broadcast_all_users(private_to_user_id: @current_user.id)
   end
-
-  # def get_leaderboard
-  #   set_room
-  #   @room.broadcast_leaderboard
-  # end
-
+  
   private
 
   def set_room

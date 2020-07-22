@@ -293,7 +293,7 @@ class Room < ApplicationRecord
   end
 
   # Broadcast all room players (for offline players stats)
-  def broadcast_players(private_to_user_id: nil)
+  def broadcast_all_users(private_to_user_id: nil)
     broadcast(
       subchannel: "users",
       payload: {
@@ -320,11 +320,6 @@ class Room < ApplicationRecord
   def broadcast_active_battle(private_to_user_id: nil)
     active_battle&.check_if_time_over
     broadcast(subchannel: "battles", payload: { action: "active", battle: active_battle&.api_expose }, private_to_user_id: private_to_user_id)
-  end
-
-  def broadcast_player(action: "player", user:)
-    broadcast_user(user: user)
-    # broadcast(subchannel: "battles", payload: { action: action, user: user.info(self) })
   end
 
   def set_next_event(at:, type: nil, jid: nil)
