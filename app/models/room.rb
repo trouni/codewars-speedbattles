@@ -298,7 +298,7 @@ class Room < ApplicationRecord
       subchannel: "users",
       payload: {
         action: "room-players",
-        players: User.info(self, group: :all_users_and_players)
+        users: User.info(self, group: :all_users_and_players)
       },
       private_to_user_id: private_to_user_id
     )
