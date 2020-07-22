@@ -202,6 +202,7 @@ export default {
               break;
 
             case 'end-battle':
+              this.stopAmbiance();
               this.countdownMsg = '';
               this.countdownEndMsg = 'The battle is over.';
               this.startCountdown(this.countdown, this.battleClockCountdown);

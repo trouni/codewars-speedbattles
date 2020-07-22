@@ -10,11 +10,8 @@ class FetchCompletedChallengesJob < ApplicationJob
       return
     end
 
-    @battle = @user.active_battle
-    unless @user.completed_challenge?(@battle&.kata)
-      # Fetching first page and retrieving number of pages
-      total_pages = fetch_page(@user)
-      (1...total_pages).each { |page| fetch_page(@user, page) } if all_pages
-    end
+    # Fetching first page and retrieving number of pages
+    total_pages = fetch_page(@user)
+    (1...total_pages).each { |page| fetch_page(@user, page) } if all_pages
   end
 end
