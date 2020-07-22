@@ -34,28 +34,8 @@ class Battle < ApplicationRecord
   validates :start_time, uniqueness: { scope: :room }
   validates :end_time, uniqueness: { scope: :room }
 
-  # def export_players
-  #   {
-  #     # Using 'invited' instead of pending for retro-compatibility
-  #     invited: User.pending(self),
-  #     confirmed: User.confirmed(self),
-  #     survived: User.survived(self),
-  #     defeated: User.defeated(self)
-  #   }
-  # end
-
   def auto_invite?
     room.autonomous? || room.settings(:base).auto_invite
-  end
-
-  def launch(countdown)
-    while countdown.positive?
-      countdown -= 1
-      sleep(1)
-      room.broadcast_action(action: "update-countdown", data: { countdown: countdown })
-    end
-
-    room.broadcast_action(action: "launch-codewars") if countdown <= 0
   end
 
   def start
@@ -149,12 +129,7 @@ class Battle < ApplicationRecord
     CompletedChallenge
       .includes(:user)
       .joins(:user)
-      .where(
-        "completed_challenges.completed_at > ? AND completed_challenges.completed_at < ? AND kata_id = ?",
-        start_time,
-        query_end_time,
-        kata_id
-      )
+      .where(completed_challenges: { kata: kata, completed_at: (start_time..query_end_time) })
       .order(:completed_at)
       # .map(&:user)
   end
@@ -164,39 +139,11 @@ class Battle < ApplicationRecord
     players.reject{ |player| surviving_ids.include?(player.id) }
   end
 
-  def expose_results
-    survivors = completed_challenges.map do |challenge|
-      {
-        user_id: challenge.user_id,
-        username: User.find(challenge.user_id).username,
-        completed_at: challenge.completed_at
-      }
-    end
-    not_finished = defeated_players.map do |player|
-      {
-        user_id: player.id,
-        username: player.username,
-        completed_at: nil
-      }
-    end
-    return {
-      survivors: survivors,
-      not_finished: not_finished
-    }
-  end
-
-  def individual_ranking(player)
-    completed_challenges.find_index(player) + 1 if completed_challenges.find_index(player.id)
-  end
-
-  def score(player)
-    return 0 unless player.invited?(self)
-
-    player.survived?(self) ? 5 : -1
-  end
-
   def survivors
-    completed_challenges.includes(:user).joins(:user).map(&:user)
+    players.includes(:completed_challenges).joins(:completed_challenges).where(
+      completed_challenges: { kata: kata, completed_at: (start_time..end_time) },
+    )
+    # completed_challenges.includes(:user).joins(:user).map(&:user)
   end
 
   def started?
@@ -209,10 +156,6 @@ class Battle < ApplicationRecord
 
   def over?
     end_time.present?
-  end
-
-  def invited_players
-    battle_invites.map(&:player)
   end
   
   def ineligible_users
@@ -237,8 +180,7 @@ class Battle < ApplicationRecord
   end
 
   def confirmed_players
-    # TODO: refactor to remove .map
-    battle_invites.where(confirmed: true).map(&:player)
+    players.where(battle_invites: { confirmed: true })
   end
 
   def uninvite_unconfirmed
@@ -275,17 +217,18 @@ class Battle < ApplicationRecord
     if users_to_invite.any?
       BattleInvite.create(users_to_invite)
       room.broadcast_users
-      # room.broadcast_active_battle
     end
   end
 
   def invite_survivors
     return unless room.last_battle
 
-    room.last_battle.survivors.each do |user|
-      next unless user.eligible?
-
-      invite_user(user)
+    users_to_invite = room.last_battle.survivors
+                                      .select { |u| u.eligible? }
+                                      .map { |u| { player: u, battle: self } }
+    if users_to_invite.any?
+      BattleInvite.create(users_to_invite)
+      room.broadcast_users
     end
   end
 
@@ -303,4 +246,55 @@ class Battle < ApplicationRecord
     #   CancelStartBattle.perform_now(battle_id: id)
     end
   end
+
+  # def expose_results
+  #   survivors = completed_challenges.map do |challenge|
+  #     {
+  #       user_id: challenge.user_id,
+  #       username: User.find(challenge.user_id).username,
+  #       completed_at: challenge.completed_at
+  #     }
+  #   end
+  #   not_finished = defeated_players.map do |player|
+  #     {
+  #       user_id: player.id,
+  #       username: player.username,
+  #       completed_at: nil
+  #     }
+  #   end
+  #   return {
+  #     survivors: survivors,
+  #     not_finished: not_finished
+  #   }
+  # end
+
+  # def individual_ranking(player)
+  #   completed_challenges.find_index(player) + 1 if completed_challenges.find_index(player.id)
+  # end
+
+  # def score(player)
+  #   return 0 unless player.invited?(self)
+
+  #   player.survived?(self) ? 5 : -1
+  # end
+
+  # def export_players
+  #   {
+  #     # Using 'invited' instead of pending for retro-compatibility
+  #     invited: User.pending(self),
+  #     confirmed: User.confirmed(self),
+  #     survived: User.survived(self),
+  #     defeated: User.defeated(self)
+  #   }
+  # end
+
+  # def launch(countdown)
+  #   while countdown.positive?
+  #     countdown -= 1
+  #     sleep(1)
+  #     room.broadcast_action(action: "update-countdown", data: { countdown: countdown })
+  #   end
+
+  #   room.broadcast_action(action: "launch-codewars") if countdown <= 0
+  # end
 end
