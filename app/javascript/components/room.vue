@@ -198,7 +198,7 @@ export default {
   
             case 'next-battle':
               this.countdownMsg = 'Loading next battle in...';
-              this.countdownEndMsg = 'Waiting for players to start battle...';
+              this.countdownEndMsg = 'Waiting for players to join...';
               this.startCountdown(this.countdown);
               break;
 
@@ -370,7 +370,7 @@ export default {
     battleJoinable() {
       if (!this.battle.id) return false;
 
-      return this.battleStage < 3 || (this.battleStage === 3 && this.countdown > 10);
+      return this.battleLoaded && (this.battleStage < 3 || (this.battleStage === 3 && this.countdown > 10));
     },
     battleOngoing() {
       if (!this.battle.id) return false;
