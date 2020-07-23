@@ -138,6 +138,7 @@ export default {
       // leaderboard: {},
       messagesInitialized: false,
       modalContent: 'user',
+      openedCodewars: false,
       room: this.roomInit,
       roomPlayers: [],
       roomPlayersLoading: false,
@@ -190,6 +191,7 @@ export default {
           this.countdown = Math.round(settings.room.next_event.timer);
           switch (settings.room.next_event.type) {
             case 'start-battle':
+              this.openedCodewars = false;
               this.countdownMsg = 'Battle starting in...';
               this.countdownEndMsg = 'Starting battle...';
               this.startCountdown(this.countdown, this.startBattleCountdown);
@@ -575,6 +577,7 @@ export default {
     openCodewars() {
       this.battle.challenge.language = this.battle.challenge.language || "ruby";
       window.open(this.challengeUrl);
+      this.openedCodewars = true;
     },
     setBackgroundVolume() {
       this.ambianceMusic.volume = Math.min(

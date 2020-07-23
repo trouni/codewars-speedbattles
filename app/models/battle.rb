@@ -42,7 +42,7 @@ class Battle < ApplicationRecord
     return if started?
 
     update(start_time: Time.now)
-    # room.broadcast_action(action: "open-codewars")
+    room.broadcast_action(action: "open-codewars")
     ScheduleEndBattle.perform_now(battle_id: id, delay_in_seconds: time_limit) if time_limit&.positive?
     uninvite_unconfirmed
   end
