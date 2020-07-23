@@ -189,8 +189,9 @@ export default {
   },
   watch: {
     settings: {
-      handler(settings) {
+      handler(settings, oldSettings) {
         // Handling of timer
+        // TODO: Prevent the timer from reloading when changing sound options
         if (settings.room.next_event && settings.room.next_event.timer >= 0) {
           this.countdown = Math.round(settings.room.next_event.timer);
           switch (settings.room.next_event.type) {
@@ -348,7 +349,7 @@ export default {
       }
     },
     battleStage() {
-      return this.battle.stage
+      return this.battle.stage || 0
     },
     battleLoaded() {
       if (!this.battle.id) return false;
