@@ -18,27 +18,16 @@ class CompletedChallenge < ApplicationRecord
   belongs_to :kata, required: false
   validates :challenge_id, uniqueness: { scope: %i[user completed_at] }
   validates :kata_id, uniqueness: { scope: %i[user completed_at] }
-  after_create :broadcast_challenge, if: :should_broadcast?
+  after_create :broadcast, if: :should_broadcast?
+  after_create :announce_completion, if: :should_announce?
 
-  def broadcast_challenge
+  def broadcast
     battle = user.active_battle
     room = battle&.room
     room&.broadcast_active_battle
-    room&.broadcast_user(user: user) if battle&.players&.include?(user)
-    announce_completion
+    room&.broadcast_user(user: user)
   end
   
-  private
-  
-  def should_broadcast?
-    battle = user.active_battle
-    battle.present? &&
-    battle.kata == kata &&
-    battle.ongoing? &&
-    completed_at > battle.start_time &&
-    completed_at < (battle.end_time || Time.now)
-  end
-
   def announce_completion
     battle = user.active_battle
     completed_in = time_for_speech(battle.completed_challenge_at(user) - battle.start_time)
@@ -54,6 +43,19 @@ class CompletedChallenge < ApplicationRecord
       fxVolume: 0.8,
       interrupt: false
     )
+  end
+  
+  private
+
+  def should_broadcast?
+    battle = user.active_battle
+    battle.present? && battle.kata == kata
+  end
+  
+  def should_announce?
+    should_broadcast? &&
+    battle.ongoing? &&
+    completed_at > battle.start_time
   end
 
   def time_for_speech(duration_in_seconds)
