@@ -53,6 +53,7 @@ class CompletedChallenge < ApplicationRecord
   end
   
   def should_announce?
+    battle = user.active_battle
     should_broadcast? &&
     battle.ongoing? &&
     completed_at > battle.start_time
