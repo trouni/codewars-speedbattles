@@ -73,7 +73,7 @@
         <div class="form-group">
           <small>
             <label for="webhook_url" class="form-control-label w-100 text-center">Payload url</label>
-            <div class="custom-tooltip clickable copyable" :data-tooltip="tooltipText" @mouseleave="resetTooltip">
+            <div class="custom-tooltip clickable copyable webhook-border payload-url-color" :data-tooltip="tooltipText" @mouseleave="resetTooltip">
               <input
                 @click="copyToClipboard($event)"
                 type="text"
@@ -84,7 +84,7 @@
               />
             </div>
             <label for="webhook_url" class="form-control-label w-100 text-center mt-3">Secret</label>
-            <div class="custom-tooltip clickable copyable" :data-tooltip="tooltipText" @mouseleave="resetTooltip">
+            <div class="custom-tooltip clickable copyable webhook-border secret-color" :data-tooltip="tooltipText" @mouseleave="resetTooltip">
               <input
                 @click="copyToClipboard($event)"
                 type="text"
