@@ -685,12 +685,17 @@ export default {
       if (countdown) this.countdown = countdown;
       if (this.countdown <= 0) return;
       
+      console.log('clear timer')
       clearInterval(this.timer);
       // Last iteration when countdown == -1
       this.timer = setInterval(() => {
         this.refreshCountdownDisplay();
         callback();
-        if (this.countdown < 0) clearInterval(this.timer);
+        console.log(this.countdown)
+        if (this.countdown < 0) {
+          clearInterval(this.timer)
+          console.log('clear timer')
+        };
         this.countdown -= 1;
       }, 1000);
     },
