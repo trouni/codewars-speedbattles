@@ -12,7 +12,7 @@
     ]">
     <span :class="['app-bg', {'initializing': initializing}]"/>
 
-    <navbar :room-id="room.id" :loading="settingsLoading || !wsConnected" />
+    <navbar :room-id="roomInit.id" :loading="settingsLoading || !wsConnected" />
     <modal v-if="focus === 'modal' && settings" id="room-modal" title="SYS://Settings">
       <template>
         <user-settings :settings="settings" :moderator="currentUserIsModerator"/>
@@ -396,7 +396,7 @@ export default {
     subscribeToCable() {
       this.$cable.subscribe({
         channel: "RoomChannel",
-        room_id: this.room.id,
+        room_id: this.roomInit.id,
         user_id: this.currentUserId
       });
     },
@@ -559,7 +559,7 @@ export default {
     },
     fetchChallenges(userId) {
       this.sendCable("fetch_user_challenges", {
-        user_id: userId ? userId : this.currentUser.id,
+        user_id: userId ? userId : this.currentUserId,
         battle_id: this.battle.id
       });
     },
@@ -826,6 +826,8 @@ export default {
         window.longDisconnectionTimeout = setTimeout(_ => this.longDisconnection = true, 8000)
       },
       received(data) {
+        if (data.roomId !== this.roomInit.id && data.userId !== this.currentUserId) return;
+
         switch (data.subchannel) {
           case "action":
             switch (data.payload.action) {

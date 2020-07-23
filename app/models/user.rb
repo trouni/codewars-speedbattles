@@ -347,7 +347,8 @@ class User < ApplicationRecord
     ActionCable.server.broadcast(
       "user_#{id}",
       subchannel: "settings",
-      payload: { action: 'user', settings: get_settings }
+      payload: { action: 'user', settings: get_settings },
+      userId: id
     )
   end
 

@@ -150,7 +150,8 @@ class Room < ApplicationRecord
     ActionCable.server.broadcast(
       private_to_user_id ? "user_#{private_to_user_id}" : "room_#{id}",
       subchannel: subchannel,
-      payload: payload
+      payload: payload,
+      roomId: id
     )
   end
 
