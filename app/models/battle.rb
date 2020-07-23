@@ -91,8 +91,28 @@ class Battle < ApplicationRecord
       time_limit: time_limit || 0,
       start_time: start_time,
       end_time: end_time,
-      challenge: challenge
+      challenge: challenge,
+      stage: stage
     }
+  end
+
+  def stage
+    # 0 - No battle loaded / Battle Over (end_time exists)
+    if end_time.present?
+      0
+    # 4 - Battle Ongoing (start_time exists, no end_time)
+    elsif ongoing?
+      4
+    # 3 - Countdown (no end_time and countdown not zero)
+    elsif room.next_event[:type] == 'start-battle' && room.time_until_next_event
+      3
+    # 2 - Can Start (no start_time, at least one confirmed player)
+    elsif !started? && confirmed_players.count > 1
+      2
+    # 1 - Loaded (no start_time, less than 2 confirmed players)
+    else
+      1
+    end
   end
 
   def completed_challenge(player)
@@ -165,6 +185,7 @@ class Battle < ApplicationRecord
 
   def confirmed_players
     players.where(battle_invites: { confirmed: true })
+    # broadcasting in after_commit
   end
 
   def uninvite_unconfirmed
@@ -190,8 +211,6 @@ class Battle < ApplicationRecord
   def confirm_user(user)
     battle_invite = BattleInvite.find_by(battle: self, player: user)
     battle_invite.update(confirmed: true)
-    # room.broadcast_user(user: user)
-    battle_invite.broadcast_user
   end
 
   def invite_all

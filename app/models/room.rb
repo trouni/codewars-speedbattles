@@ -59,7 +59,6 @@ class Room < ApplicationRecord
       codewars_langs: Kata.languages,
       languages: settings(:base).languages,
       autonomous: autonomous?,
-      battle_stage: battle_stage,
       next_event: {
         timer: time_until_next_event,
         type: settings(:base).next_event[:type]
@@ -109,25 +108,6 @@ class Room < ApplicationRecord
 
   def last_battle
     finished_battles.first
-  end
-
-  def battle_stage
-    # 0 - No battle loaded / Battle Over (end_time exists)
-    return 0 unless unfinished_battle
-
-    # 4 - Battle Ongoing (start_time exists, no end_time)
-    if unfinished_battle&.ongoing?
-      4
-    # 3 - Countdown (start_time exists, no end_time and countdown not zero)
-    elsif next_event[:type] == 'start-battle' && time_until_next_event
-      3
-    # 2 - Can Start (no start_time, at least one confirmed player)
-    elsif !unfinished_battle&.started? && unfinished_battle&.confirmed_players.count > 1
-      2
-    # 1 - Loaded (no start_time, less than 2 confirmed players)
-    else
-      1
-    end
   end
 
   def available_katas(language: nil, ranks: [], min_votes: nil, min_satisfaction: nil, ignore_higher_rank_users: true, excluded_users: [])

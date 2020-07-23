@@ -32,7 +32,11 @@
 
     <div id="room" :class="{ moderator: currentUserIsModerator, 'initializing': initializing }">
 
-      <widget id="room-announcer" class="grid-item animated fadeIn" :header-title="`PWD://War_Room/${settings.room.name}`" :focus="focus === 'announcer'">
+      <widget
+        id="room-announcer"
+        class="grid-item animated fadeIn"
+        :header-title="`PWD://War_Room/${roomName.replace(/\s/g, '_')}`"
+        :focus="focus === 'announcer'">
         <div class="d-flex align-items-center justify-content-center h-100">
           <span
             :class="['announcer mt-3', 'text-center', announcerWindow.status]"
@@ -191,15 +195,14 @@ export default {
           this.countdown = Math.round(settings.room.next_event.timer);
           switch (settings.room.next_event.type) {
             case 'start-battle':
-              this.openedCodewars = false;
               this.countdownMsg = 'Battle starting in...';
-              this.countdownEndMsg = 'Starting battle...';
+              // this.countdownEndMsg = 'Starting battle...';
               this.startCountdown(this.countdown, this.startBattleCountdown);
               break;
   
             case 'next-battle':
               this.countdownMsg = 'Loading next battle in...';
-              this.countdownEndMsg = 'Waiting for players to join...';
+              // this.countdownEndMsg = 'Waiting for players to join...';
               this.startCountdown(this.countdown);
               break;
 
@@ -222,12 +225,30 @@ export default {
       },
       deep: true
     },
-    battleStage: function() {
-      if (this.battleStage === 4) this.startAmbiance()
-      else this.stopAmbiance()
+    battleStage: {
+      handler: function() {
+        if (this.battleStage === 4) {
+          this.startAmbiance()
+          if (!this.battle.time_limit) this.startClock()
+        } else {
+          this.stopAmbiance()
+        }
+
+        if (this.battleStage === 3) {
+        } else if (this.battleStage === 2) {
+        } else if (this.battleStage === 1) {
+          this.announce({ content: "Waiting for players to join..." })
+        } else if (this.battleStage === 0) {
+          this.openedCodewars = false;
+        }
+      },
+      immediate: true
     }
   },
   computed: {
+    roomName() {
+      return this.settings.room.name || ''
+    },
     settingsLoading() {
       return this.userSettingsLoading || this.roomSettingsLoading
     },
@@ -327,7 +348,7 @@ export default {
       }
     },
     battleStage() {
-      return this.settings.room.battle_stage
+      return this.battle.stage
     },
     battleLoaded() {
       if (!this.battle.id) return false;
@@ -568,11 +589,11 @@ export default {
       this.sendCable("get_room_players");
     },
     openCodewars() {
-      if (!this.openedCodewars) {
-        this.openedCodewars = true;
-        this.battle.challenge.language = this.battle.challenge.language || "ruby";
-        window.open(this.challengeUrl);
-      }
+      if (this.openedCodewars) return;
+
+      this.openedCodewars = true;
+      this.battle.challenge.language = this.battle.challenge.language || "ruby";
+      window.open(this.challengeUrl);
     },
     setBackgroundVolume() {
       this.ambianceMusic.volume = Math.min(
@@ -651,7 +672,6 @@ export default {
     },
     battleClockCountdown() {
       const timeRemaining = this.countdown;
-      const clockTime = Math.max(timeRemaining, 0);
       if (timeRemaining <= 0) {
         this.stopAmbiance()
         if (!this.voiceON && timeRemaining === 0) this.playSoundFx('countdownZero')
@@ -692,38 +712,20 @@ export default {
         this.countdown -= 1;
       }, 1000);
     },
-    startBattleClock() {
+    startClock() {
       clearInterval(this.clockInterval);
       this.clockInterval = setInterval(() => {
-        if (this.battleStage >= 3) {
-          if (this.battle.time_limit > 0) {
-            const timeRemaining = this.timeRemainingInSeconds()
-            const clockTime = Math.max(timeRemaining, 0);
-            this.announce({ content: `<span class='timer highlight'>${this.formatDuration(clockTime)}</span>` });
-            if (timeRemaining <= 0) {
-              if (!this.voiceON && timeRemaining === 0) this.playSoundFx('countdownZero')
-              // this.endBattle();
-              clearInterval(this.clockInterval);
-            } else if (timeRemaining <= 10) {
-              if (timeRemaining === 10) this.playVoiceFx("countdown")
-              if (!this.voiceON) this.playSoundFx('countdownTick')
-            } else if (timeRemaining === 61) {
-              this.speak("WARNING! 1min remaining!", { interrupt: true });
-            } else if (timeRemaining === 121) {
-              this.speak("WARNING! 2min remaining!", { interrupt: true });
-            } else if (timeRemaining === 301) {
-              this.speak("WARNING! 5min remaining!", { interrupt: true });
-            }
-          } else {
-            const clockTime = this.timeSpentInSeconds();
-            this.announce({
-              content: `<p class='highlight'><small>TIME ELAPSED</small></p><span class="timer highlight no-limit">${this.formatDuration(clockTime)}</span>`
-            });
-          }
+        if (this.countdown > 0) {
+          clearInterval(this.clockInterval);
+        } else if (this.battleStage >= 3) {
+          const clockTime = this.timeSpentInSeconds();
+          this.announce({
+            content: `<p class='highlight'><small>TIME ELAPSED</small></p><span class="timer highlight no-limit">${this.formatDuration(clockTime)}</span>`
+          });
         } else {
           clearInterval(this.clockInterval);
         }
-      }, 1000);
+      })
     },
     timeSpentInSeconds() {
       return (Date.now() - Date.parse(this.battle.start_time)) / 1000;
@@ -917,12 +919,13 @@ export default {
             switch (data.payload.action) {
               case "active":
                 this.battleInitialized = true;
-                this.battleLoading = false
+                this.battleLoading = false;
                 if (data.payload.battle) {
                   const dateFields = ['start_time', 'end_time']
                   // Parsing dates before pushing user into array
                   this.battle = this.parseDates(data.payload.battle, dateFields)
                 } else {
+                  // When room has no battle history
                   this.battle = {}
                 }
                 break;

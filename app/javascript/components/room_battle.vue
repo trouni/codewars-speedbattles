@@ -1,5 +1,5 @@
 <template>
-  <widget :header-title="headerTitle" :loading="loading" :seek-attention="battleStage === 1" :focus="focus">
+  <widget :header-title="headerTitle" :loading="loading" :seek-attention="battleStage > 0 || battleStage < 3" :focus="focus">
     <div v-if="currentUserIsModerator && showNewBattleMenu" class="d-flex flex-column h-100">
       <div class="battle-options container align-items-center">
         <div :class="['form-group mb-5', { disabled: manualKataInput }]">
