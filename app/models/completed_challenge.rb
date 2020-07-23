@@ -14,7 +14,6 @@
 class CompletedChallenge < ApplicationRecord
   belongs_to :user
   belongs_to :kata, required: false
-  validates :challenge_id, uniqueness: { scope: %i[user completed_at] }
   validates :kata_id, uniqueness: { scope: %i[user completed_at] }
   after_create :broadcast, if: :should_broadcast?
   after_create :announce_completion, if: :should_announce?
