@@ -574,7 +574,6 @@ export default {
     },
     openCodewars() {
       this.battle.challenge.language = this.battle.challenge.language || "ruby";
-      console.log('Opening codewars...', this.challengeUrl)
       window.open(this.challengeUrl);
     },
     setBackgroundVolume() {
@@ -644,7 +643,6 @@ export default {
       if (this.voiceON) soundFX.play();
     },
     startBattleCountdown() {
-      console.log(this.countdown)
       if (this.countdown < 0) {
         if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
         if (!this.voiceON) this.playSoundFx('countdownZero')
@@ -700,8 +698,6 @@ export default {
       }, 1000);
     },
     startBattleClock() {
-      console.log('starting battle clock')
-      console.log('battle stage', this.battleStage)
       clearInterval(this.clockInterval);
       this.clockInterval = setInterval(() => {
         if (this.battleStage >= 3) {
