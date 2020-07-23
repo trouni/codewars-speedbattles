@@ -7,7 +7,7 @@ namespace :bm do
     room = args[:room_id] ? Room.find(args[:room_id]) : Room.last
     Benchmark.bm do |x|
       x.report(:original) { n.times do; room.old_users_info; end }
-      x.report(:new) { n.times do; User.info(room, group: :current_users); end }
+      x.report(:new) { n.times do; User.info(room, :current_users); end }
     end
   end
 
@@ -17,7 +17,7 @@ namespace :bm do
     room = args[:room_id] ? Room.find(args[:room_id]) : Room.last
     Benchmark.bm do |x|
       x.report(:original) { n.times do; room.old_players_info; end }
-      x.report(:new) { n.times do; User.info(room, group: :all_users_and_players); end }
+      x.report(:new) { n.times do; User.info(room, :all_users_and_players); end }
     end
   end
 end
