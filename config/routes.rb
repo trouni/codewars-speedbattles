@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   mount ActionCable.server => '/cable'
   devise_for :users, controllers: { registrations: 'registrations' }
   resources :rooms, only: [ :index, :show, :new, :create ]
+  get '/settings', to: 'pages#settings', as: :settings
   
   post '/webhook', to: 'codewars#webhook'
   
