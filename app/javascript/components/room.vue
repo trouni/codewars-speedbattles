@@ -74,7 +74,7 @@
           :loading="!usersInitialized || roomPlayersLoading"
           :focus="focus === 'leaderboard'"
         />
-        
+
         <room-chat
           class="grid-item animated fadeIn"
           :messages="chat.messages"
@@ -177,11 +177,11 @@ export default {
       userSettingsLoading: true,
       usersInitialized: false,
       viewMode: new URL(window.location.href).searchParams.get("view"),
-      wsConnected: false
+      wsConnected: false,
+      reconnectInterval: null
     };
   },
   created() {
-    setTimeout(_ => this.checkCurrentUserConnection(), 5000);
   },
   watch: {
     settings: {
@@ -394,7 +394,6 @@ export default {
   },
   methods: {
     subscribeToCable() {
-      console.info('Connecting to cable...')
       this.$cable.subscribe({
         channel: "RoomChannel",
         room_id: this.room.id,
@@ -444,14 +443,12 @@ export default {
         this.sendCable("update_room_settings", { room: updatedSettings.room });
       }
     },
-    checkCurrentUserConnection() {
-      setInterval(_ => {
-        const currentUserIndex = this.users.findIndex(
-          e => e.id === this.currentUser.id
-        );
-
-        if (currentUserIndex === -1) this.sendCable("resubscribe");
-      }, 60000);
+    checkConnection() {
+      if (this.initializing) {
+        console.info('Taking longer than usual, trying to resubscribe...')
+        this.sendCable("subscribed")
+      }
+      else clearInterval(this.reconnectInterval)
     },
     stripHTML(html) {
       var doc = new DOMParser().parseFromString(html, "text/html");
@@ -829,13 +826,13 @@ export default {
   channels: {
     RoomChannel: {
       connected() {
-        console.info('Connected to cable.')
         this.wsConnected = true
         clearTimeout(window.longDisconnectionTimeout)
         this.longDisconnection = false
+        this.reconnectInterval = setInterval(this.checkConnection, 2000);
       },
       rejected() {
-        console.info('Connection to cable rejected.')
+        console.warn('Connection to cable rejected.')
         this.wsConnected = false
         this.subscribeToCable()
         window.longDisconnectionTimeout = setTimeout(_ => this.longDisconnection = true, 8000)
@@ -958,7 +955,7 @@ export default {
         console.log("Error");
       },
       disconnected() {
-        console.info('Disconnected from cable.')
+        console.warn('Disconnected from cable.')
         this.wsConnected = false
         this.subscribeToCable()
         window.longDisconnectionTimeout = setTimeout(_ => this.longDisconnection = true, 15000)

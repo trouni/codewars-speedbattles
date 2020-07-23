@@ -14,7 +14,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(user, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(user.id) }" :title="`${user.username} (${-user.codewars_overall_rank} kyu)`" :key="user.id">
+            <tr v-for="(user, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(user.id) }" :title="`${user.username} | ${-user.codewars_overall_rank} kyu | ${user.total_survived || 0} wins on SpeedBattles`" :key="user.id">
               <th scope="row" class="justify-content-between">
                 <span :class="['data user', {offline: !user.online}]">
                   <span :class="['mr-1', { 'online highlight': user.online }]">●</span>
