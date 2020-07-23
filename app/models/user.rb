@@ -156,7 +156,7 @@ class User < ApplicationRecord
                 SELECT *
                 FROM current_battle b
                 WHERE b.start_time IS NOT NULL
-            ) THEN TRUE ELSE FALSE END
+            ) THEN true ELSE false END
         )
         FROM battles
         LIMIT 1
@@ -166,7 +166,7 @@ class User < ApplicationRecord
                 SELECT *
                 FROM current_battle b
                 WHERE b.end_time IS NOT NULL
-            ) THEN TRUE ELSE FALSE END
+            ) THEN true ELSE false END
         )
         FROM battles
         LIMIT 1
@@ -177,7 +177,7 @@ class User < ApplicationRecord
                 FROM current_battle b
                 WHERE b.start_time IS NOT NULL
                 AND b.end_time IS NULL
-            ) THEN TRUE ELSE FALSE END
+            ) THEN true ELSE false END
         )
         FROM battles
         LIMIT 1
@@ -242,7 +242,7 @@ class User < ApplicationRecord
       u.codewars_overall_score,
       u.last_fetched_at,
       (
-        CASE WHEN u.id IN (SELECT id FROM online_users) THEN TRUE ELSE FALSE END
+        CASE WHEN u.id IN (SELECT id FROM online_users) THEN true ELSE false END
       ) AS online,
       ru.created_at AS joined_room_at,
       CASE
@@ -250,7 +250,9 @@ class User < ApplicationRecord
       WHEN u.id IN (SELECT id FROM defeated_current_battle) THEN 'defeated'
       WHEN u.id IN (SELECT id FROM current_players) THEN 'confirmed'
       WHEN u.id IN (SELECT id FROM invited_users) THEN 'invited'
-      WHEN u.id IN (SELECT id FROM ineligible_users) THEN 'ineligible'
+      WHEN u.id IN (SELECT id FROM ineligible_users) OR (
+        CASE WHEN u.id IN (SELECT id FROM online_users) THEN false ELSE true END
+      ) THEN 'ineligible'
       ELSE 'eligible'
       END AS invite_status,
       bi.updated_at AS joined_battle_at,
