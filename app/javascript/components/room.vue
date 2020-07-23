@@ -196,13 +196,13 @@ export default {
               break;
   
             case 'next-battle':
+              this.stopAmbiance();
               this.countdownMsg = 'Loading next battle in...';
               this.countdownEndMsg = 'Waiting for players to join...';
               this.startCountdown(this.countdown);
               break;
 
             case 'end-battle':
-              this.stopAmbiance();
               this.countdownMsg = '';
               this.countdownEndMsg = 'The battle is over.';
               this.startCountdown(this.countdown, this.battleClockCountdown);
@@ -645,7 +645,7 @@ export default {
     },
     startBattleCountdown() {
       if (this.countdown < 0) {
-        // if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
+        if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
         if (!this.voiceON) this.playSoundFx('countdownZero')
       } else {
         if (this.countdown === 10) this.playVoiceFx("countdown")

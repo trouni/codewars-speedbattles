@@ -42,7 +42,7 @@ class Battle < ApplicationRecord
     return if started?
 
     update(start_time: Time.now)
-    room.broadcast_action(action: "open-codewars")
+    # room.broadcast_action(action: "open-codewars")
     ScheduleEndBattle.perform_now(battle_id: id, delay_in_seconds: time_limit) if time_limit&.positive?
     uninvite_unconfirmed
   end
@@ -180,7 +180,7 @@ class Battle < ApplicationRecord
   private
 
   def invite_user(user)
-    battle_invite = BattleInvite.includes(:battle, :player).find_or_create_by(battle: self, player: user)
+    battle_invite = BattleInvite.create(battle: self, player: user)
     battle_invite.broadcast_user
   end
 
@@ -202,7 +202,7 @@ class Battle < ApplicationRecord
   def invite_all
     users_to_invite = eligible_users.map { |user| { player: user, battle: self } }
     if users_to_invite.any?
-      BattleInvite.find_or_create_by(users_to_invite)
+      BattleInvite.create(users_to_invite)
       room.broadcast_users
     end
   end
