@@ -343,7 +343,7 @@
         return this.settings.room.classification === 'UNCLASSIFIED' ||
           (this.settings.room.classification === 'CONFIDENTIAL' && this.currentUserIsModerator) ||
           this.battleStage === 0 ||
-          this.battleStage > 2
+          this.battleStage > 2 && !this.battleJoinable
       },
       eligibleUsers() {
         if (this.battleStage === 0) { return [] }
