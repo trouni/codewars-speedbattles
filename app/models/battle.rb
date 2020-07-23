@@ -66,8 +66,8 @@ class Battle < ApplicationRecord
     
     room.broadcast_settings
     room.broadcast_active_battle
-    # Broadcasting users to refresh invite status
-    room.broadcast_users
+    # Broadcasting all users to refresh invite status incl. offline players
+    room.broadcast_all_users
   end
 
   def check_if_time_over
