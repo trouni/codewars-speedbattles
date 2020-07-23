@@ -10,9 +10,4 @@ namespace :users do
       puts output
     end
   end
-
-  desc "Add all users from latest 24 hours to the latest battle as confirmed players"
-  task add_to_last_battle: :environment do
-
-  end
 end

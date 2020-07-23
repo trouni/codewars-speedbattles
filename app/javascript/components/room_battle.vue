@@ -103,7 +103,7 @@
           </p>
         </div>
       </div>
-      <p v-if="battleStage === 1 && invitedUsers.length < 1" class="m-auto highlight">> Waiting for players to join the battle...</p>
+      <p v-if="battleStage === 1 && (invitedUsers.length + confirmedUsers.length) < 1" class="m-auto highlight">> Waiting for players to join the battle...</p>
       <div v-else-if="currentUser.invite_status == 'invited' && battleJoinable" class="d-flex flex-column justify-content-center align-items-center flex-grow-1 mb-5">
         <p>You have been requested to join this battle.</p>
         <std-button large @click.native="$root.$emit('confirm-invite', currentUser.id)" title="Join battle" :class="['my-3', attentionWaitingToJoin]"/>
@@ -113,14 +113,14 @@
         <table class="console-table h-100">
           <thead>
             <tr>
-              <th scope="col" style="width: 50%;"><span class="data">WARRIORS {{ battleStage > 0 && battle.players ? `[${confirmedUsers.length}/${invitedUsers.length + confirmedUsers.length}]` : ""}}</span></th>
+              <th scope="col" style="width: 50%;"><span class="data">WARRIORS {{ battleStage > 0 && users ? `[${confirmedUsers.length}/${invitedUsers.length + confirmedUsers.length}]` : ""}}</span></th>
               <th scope="col" style="width: 10%;"><span class="data">RANK</span></th>
               <th scope="col" style="width: 20%;"><span class="data">STATUS</span></th>
               <th scope="col" style="width: 20%;"><span class="data">TIME</span></th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(survivor, index) in survivors" :class="['animated fadeInUp', {'highlight bg-highlight': isCurrentUser(survivor.id) }]" :title="`${survivor.username} (${-survivor.codewars.overall_rank} kyu)`" :key="survivor.id">
+            <tr v-for="(survivor, index) in survivors" :class="['animated fadeInUp', {'highlight bg-highlight': isCurrentUser(survivor.id) }]" :title="`${survivor.username} (${-survivor.codewars_overall_rank} kyu)`" :key="survivor.id">
               <th scope="row">
                 <span class="data username">{{ survivor.name || survivor.username }}</span>
               </th>
@@ -151,7 +151,7 @@
             </tr>
 
             <tr v-for="defeatedUser in defeated" :title="defeatedUser.username" :class="['animated fadeInUp', { '': battleStage === 0, 'highlight-red bg-highlight': isCurrentUser(defeatedUser.id) }]" :key="defeatedUser.id">
-              <th scope="row" :class="['username', { pending: !userIsConfirmed(defeatedUser.id) && battleStage > 0 && battleStage < 3 }]">
+              <th scope="row" :class="['username', { pending: !userIsConfirmed(defeatedUser.id) && battleJoinable }]">
                 <span class="data username">{{ defeatedUser.name || defeatedUser.username }}</span>
               </th>
               <td>
@@ -257,7 +257,7 @@
       },
       currentUser: {
         handler(newVal, oldVal) {
-          if (newVal.invite_status !== 'invited') return;
+          if (newVal && newVal.invite_status !== 'invited') return;
 
           if (!oldVal || oldVal.invite_status !== newVal.invite_status) this.$root.$emit('play-fx', 'interface')
         },
@@ -307,33 +307,33 @@
       },
       previousBattles() {
         return this.room.finished_battles.sort((a, b) => {
-          return new Date(b.end_time) - new Date(a.end_time)
+          return b.end_time - a.end_time
         })
       },
       showChallenge() {
         if (this.battle) {
-          return (this.currentUserIsModerator || this.battleStage > 2)
+          return this.currentUserIsModerator || this.battleStage > 2
         }
       },
       survivors() {
-        if (this.battle.players) {
-          return this.battle.players.filter(user => this.completedOnTime(user))
+        if (this.users) {
+          return this.users.filter(user => this.completedOnTime(user))
                                     .sort((a,b) => {
-            return (new Date(a.completed_at) - new Date(b.completed_at))
+            return a.completed_at - b.completed_at
           });
         }
       },
       defeated() {
-        if (this.battle.players) {
-          return this.battle.players.filter(user => user.invite_status === 'confirmed' || user.invite_status === 'defeated')
+        if (this.users) {
+          return this.users.filter(user => (this.battleJoinable && user.invite_status === 'invited') || user.invite_status === 'confirmed' || user.invite_status === 'defeated')
                                     .filter(user => !this.completedOnTime(user))
                                     .sort((a,b) => {
             if (a.completed_at && b.completed_at) {
-              return (new Date(a.completed_at) - new Date(b.completed_at))
+              return a.completed_at - b.completed_at
             } else if (a.completed_at || b.completed_at) {
               return a.completed_at ? -1 : 1
             } else {
-              return (new Date(a.invited_at) - new Date(b.invited_at))
+              return a.joined_battle_at - b.joined_battle_at
               // return (b.invite_status || [""])[0] < (a.invite_status || [""])[0] ? 1 : -1
             }
           });
@@ -347,17 +347,17 @@
       },
       eligibleUsers() {
         if (this.battleStage === 0) { return [] }
-        // return this.battle.players
+        // return this.users
         return this.users.filter(user => user.invite_status === 'eligible')
       },
       invitedUsers() {
         if (this.battleStage === 0) { return [] }
-        // return this.battle.players
+        // return this.users
         return this.users.filter(user => user.invite_status === 'invited')
       },
       confirmedUsers() {
-        if (!this.battle.players) { return [] }
-        return this.battle.players.filter(user => user.invite_status == 'confirmed');
+        if (!this.users) { return [] }
+        return this.users.filter(user => user.invite_status == 'confirmed');
       },
     },
     methods: {
@@ -417,20 +417,21 @@
         return this.users[index]
       },
       findPlayer(userId) {
-        const index = this.battle.players.findIndex((e) => e.id === userId);
-        return this.battle.players[index]
+        const index = this.users.findIndex((e) => e.id === userId);
+        return this.users[index]
       },
       findBattle(battleId) {
         const index = this.previousBattles.findIndex((e) => e.id === battleId);
         return this.previousBattles[index]
       },
       completedIn(battle, user) {
-        return (new Date(user.completed_at) - new Date(battle.start_time)) / 1000 // duration in seconds
+        return (user.completed_at - battle.start_time) / 1000 // duration in seconds
       },
       displayCompletionTime(battle, user) {
         const completedIn = this.completedIn(battle, user)
-        const completedAt = new Date(user.completed_at)
-        return completedIn >= 0 ? this.formatDuration(completedIn) : completedAt.toLocaleDateString()
+        // const completedAt = user.completed_at
+        // return completedIn >= 0 ? this.formatDuration(completedIn) : completedAt.toLocaleDateString()
+        return this.formatDuration(completedIn)
       },
       formatDuration(durationInSeconds) {
         const hours = Math.floor(durationInSeconds / 60 / 60)

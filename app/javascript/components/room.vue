@@ -138,6 +138,7 @@ export default {
       // leaderboard: {},
       messagesInitialized: false,
       modalContent: 'user',
+      openedCodewars: false,
       room: this.roomInit,
       roomPlayers: [],
       roomPlayersLoading: false,
@@ -180,13 +181,9 @@ export default {
     };
   },
   created() {
-    this.$set(this.battle, "stage", this.battleStage);
     setTimeout(_ => this.checkCurrentUserConnection(), 5000);
   },
   watch: {
-    battlePlayers: function() {
-      this.pushPlayersToUsers(this.battle.players)
-    },
     settings: {
       handler(settings) {
         // Handling of timer
@@ -194,6 +191,7 @@ export default {
           this.countdown = Math.round(settings.room.next_event.timer);
           switch (settings.room.next_event.type) {
             case 'start-battle':
+              this.openedCodewars = false;
               this.countdownMsg = 'Battle starting in...';
               this.countdownEndMsg = 'Starting battle...';
               this.startCountdown(this.countdown, this.startBattleCountdown);
@@ -201,7 +199,7 @@ export default {
   
             case 'next-battle':
               this.countdownMsg = 'Loading next battle in...';
-              this.countdownEndMsg = 'Waiting for players to start battle...';
+              this.countdownEndMsg = 'Waiting for players to join...';
               this.startCountdown(this.countdown);
               break;
 
@@ -225,7 +223,8 @@ export default {
       deep: true
     },
     battleStage: function() {
-      if (this.battleStage === 4) this.startAmbiance();
+      if (this.battleStage === 4) this.startAmbiance()
+      else this.stopAmbiance()
     }
   },
   computed: {
@@ -298,20 +297,17 @@ export default {
     },
     invitedUsers() {
       if (this.battleStage === 0) { return [] }
-      // return this.battle.players
+
       return this.users.filter(user => user.invite_status === 'invited')
     },
     confirmedUsers() {
-      if (!this.battle.players) {
+      if (!this.users) {
         return [];
       } else {
-        return this.battle.players.filter(
+        return this.users.filter(
           user => user.invite_status == "confirmed"
         );
       }
-    },
-    battlePlayers() {
-      return this.battle.players
     },
     allConfirmed() {
       return this.battleStage === 2 && this.invitedUsers.length === 0;
@@ -332,15 +328,6 @@ export default {
     },
     battleStage() {
       return this.settings.room.battle_stage
-      // let stage;
-      // if (this.battleLoaded && !this.readyToStart) stage = 1;
-      // else if (this.readyToStart) stage = 2;
-      // else if (this.battleCountdown) stage = 3;
-      // else if (this.battleOngoing) stage = 4;
-      // else stage = 0;
-
-      // this.$set(this.battle, "stage", stage);
-      // return stage;
     },
     battleLoaded() {
       if (!this.battle.id) return false;
@@ -351,8 +338,7 @@ export default {
       if (!this.battle.id) return false;
 
       return (
-        !this.battle.start_time &&
-        !this.battle.end_time &&
+        this.battleStage < 3 &&
         this.confirmedUsers.length > 1
       );
     },
@@ -377,7 +363,7 @@ export default {
     battleJoinable() {
       if (!this.battle.id) return false;
 
-      return this.battleStage < 3 || (this.battleStage === 3 && this.countdown > 10);
+      return this.battleLoaded && (this.battleStage < 3 || (this.battleStage === 3 && this.countdown > 10));
     },
     battleOngoing() {
       if (!this.battle.id) return false;
@@ -589,9 +575,9 @@ export default {
       this.sendCable("get_room_players");
     },
     openCodewars() {
-      if (this.battle.challenge.language === null)
-        this.battle.challenge.language = "ruby";
+      this.battle.challenge.language = this.battle.challenge.language || "ruby";
       window.open(this.challengeUrl);
+      this.openedCodewars = true;
     },
     setBackgroundVolume() {
       this.ambianceMusic.volume = Math.min(
@@ -661,7 +647,6 @@ export default {
     },
     startBattleCountdown() {
       if (this.countdown < 0) {
-        // this.startBattleClock();
         if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
         if (!this.voiceON) this.playSoundFx('countdownZero')
       } else {
@@ -673,6 +658,7 @@ export default {
       const timeRemaining = this.countdown;
       const clockTime = Math.max(timeRemaining, 0);
       if (timeRemaining <= 0) {
+        this.stopAmbiance()
         if (!this.voiceON && timeRemaining === 0) this.playSoundFx('countdownZero')
         clearInterval(this.clockInterval);
       } else if (timeRemaining <= 10) {
@@ -700,18 +686,21 @@ export default {
       if (countdown) this.countdown = countdown;
       if (this.countdown <= 0) return;
       
+      console.log('clear timer')
       clearInterval(this.timer);
       // Last iteration when countdown == -1
       this.timer = setInterval(() => {
         this.refreshCountdownDisplay();
         callback();
-        if (this.countdown < 0) clearInterval(this.timer);
+        console.log(this.countdown)
+        if (this.countdown < 0) {
+          clearInterval(this.timer)
+          console.log('clear timer')
+        };
         this.countdown -= 1;
       }, 1000);
     },
     startBattleClock() {
-      console.log('starting battle clock')
-      console.log('battle stage', this.battleStage)
       clearInterval(this.clockInterval);
       this.clockInterval = setInterval(() => {
         if (this.battleStage >= 3) {
@@ -781,32 +770,27 @@ export default {
       if (elementIndex === -1) {
         array.push(element);
       } else {
-        // array[index] = user; // Vue cannot detect change in the array with this method
+        // Vue cannot detect change in the array with array[index] = user
         result.oldElement = array[elementIndex];
         array.splice(elementIndex, 1, element);
       }
       return result;
     },
     pushToUsers(user) {
+      const dateFields = ['last_fetched_at', 'joined_room_at', 'joined_battle_at', 'completed_at']
+      // Parsing dates before pushing user into array
+      user = this.parseDates(user, dateFields)
       if (this.users) this.pushToArray(this.users, user);
     },
-    pushToPlayers(user) {
-      if (this.battle.players)
-        if (user.invite_status === "eligible" || user.invite_status === "ineligible") {
-          this.removeFromArray(this.battle.players, user);
-        } else {
-          this.pushToArray(this.battle.players, user);
-      }
-    },
-    pushPlayersToUsers(players) {
-      if (!players) return
-      
-      players.forEach(player => {
-        if (player.online) this.pushToUsers(player)
+    parseDates(element, dateFields) {
+      dateFields.forEach(field => {
+        if (element[field]) {
+          // If UTC timezone info is missing, add it to the string before parsing
+          if (!element[field].match(/Z$/i)) element[field] += 'Z'
+          element[field] = new Date(element[field])
+        }
       })
-    },
-    completedIn(battle, user) {
-      return (new Date(user.completed_at) - new Date(battle.start_time)) / 1000; // duration in seconds
+      return element
     },
     removeFromArray(array, element) {
       const elementIndex = array.findIndex(e => e.id === element.id);
@@ -855,6 +839,10 @@ export default {
 
               case "voice-announce":
                 this.speak(data.payload.message, data.payload.options);
+                break;
+
+              case "open-codewars":
+                if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
                 break;
 
               default:
@@ -909,35 +897,23 @@ export default {
                 this.pushToUsers(data.payload.user);
                 break;
 
-              case "remove":
-                this.users = this.users.filter(
-                  e => e.id !== data.payload.user.id
-                );
-                break;
+              // case "remove":
+              //   this.users = this.users.filter(
+              //     e => e.id !== data.payload.user.id
+              //   );
+              //   break;
 
               case "all":
-                this.users = data.payload.users;
-                this.users.forEach(user => this.pushToUsers(user));
+                data.payload.users.forEach(user => this.pushToUsers(user));
                 this.usersInitialized = true;
                 break;
 
               case "room-players":
-                this.roomPlayers = data.payload.players;
+                data.payload.users.forEach(user => this.pushToUsers(user));
                 this.roomPlayersLoading = false;
                 break;
             }
             break;
-
-          // case "leaderboard":
-          //   switch (data.payload.action) {
-          //     case "update":
-          //       this.leaderboard = data.payload.leaderboard;
-          //       break;
-
-          //     default:
-          //       this.leaderboard = data.payload.leaderboard;
-          //   }
-          //   break;
 
           case "battles":
             switch (data.payload.action) {
@@ -945,8 +921,9 @@ export default {
                 this.battleInitialized = true;
                 this.battleLoading = false
                 if (data.payload.battle) {
-                  this.battle = data.payload.battle
-                  // if (this.battleOngoing) this.startBattleClock();
+                  const dateFields = ['start_time', 'end_time']
+                  // Parsing dates before pushing user into array
+                  this.battle = this.parseDates(data.payload.battle, dateFields)
                 } else {
                   this.battle = {}
                 }
@@ -954,15 +931,6 @@ export default {
 
               case "katas-count":
                 Vue.set(this.settings.room.katas, 'count', data.payload.count)
-                break;
-
-              case "player":
-                this.pushToPlayers(data.payload.user);
-                break;
-
-              case "players":
-                Vue.set(this.battle, 'players', data.payload.players)
-                this.pushPlayersToUsers(this.battle.players)
                 break;
 
               default:

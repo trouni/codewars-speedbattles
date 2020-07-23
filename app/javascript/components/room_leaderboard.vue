@@ -14,7 +14,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(user, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(user.id) }" :title="`${user.username} (${-user.codewars.overall_rank} kyu)`" :key="user.id">
+            <tr v-for="(user, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(user.id) }" :title="`${user.username} (${-user.codewars_overall_rank} kyu)`" :key="user.id">
               <th scope="row" class="justify-content-between">
                 <span :class="['data user', {offline: !user.online}]">
                   <span :class="['mr-1', { 'online highlight': user.online }]">●</span>
@@ -53,7 +53,6 @@
 <script>
 export default {
   props: {
-    roomPlayers: Array,
     users: Array,
     battle: Object,
     room: Object,
@@ -80,10 +79,8 @@ export default {
       return this.room.show_stats ? "NETWK://Leaderboard" : "NETWK://Users"
     },
     leaderboardUsers() {
-      const allUsers = this.showOffline && this.roomPlayers ? this.roomPlayers.concat(this.users) : this.users;
-      return allUsers.reduce((uniqueUsers, user) => {
-        return uniqueUsers.map(user => user.username).includes(user.username) ? uniqueUsers : [...uniqueUsers, user]
-      }, [])
+      const onlineUsers = this.users.filter(user => user.online);
+      return this.showOffline ? this.users : onlineUsers;
     },
     sortedLeaderboard() {
       return this.leaderboardUsers.sort((a, b) => {
@@ -95,12 +92,12 @@ export default {
           return b.battles_fought - a.battles_fought
         } else if (a.battles_lost !== b.battles_lost) {
             return a.battles_lost - b.battles_lost
-        } else if (a || b) {
-          return a ? -1 : 1
-        // } else {
-        //   return b.username[0] > a.username[0] ? 1 : -1
+        } else if (a.online && b.online) {
+          return a.joined_room_at - b.joined_room_at
+        } else if (a.online || b.online) {
+          return a.online ? -1 : 1
         } else {
-          return (new Date(a.joined_at) - new Date(b.joined_at))
+          return b.username[0] > a.username[0] ? 1 : -1
         }
       })
     },
