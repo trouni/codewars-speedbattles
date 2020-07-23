@@ -550,18 +550,6 @@ export default {
         });
       }
     },
-    // endBattle() {
-    //   if (this.currentUserIsModerator && this.battleStage > 3)
-    //     this.sendCable("update_battle", {
-    //       battle_action: 'end',
-    //       battle_id: this.battle.id,
-    //     });
-    //   this.stopAmbiance();
-    //   this.challengeInput = "";
-    //   this.announce({
-    //     content: `<i class="fas fa-peace"></i> The battle for <span class='chat-highlight'>${this.battle.challenge.name}</span> is over.`,
-    //   });
-    // },
     userEndsBattle() {
       if (this.currentUserIsModerator && this.battleStage > 3)
         this.sendCable("update_battle", {
@@ -580,9 +568,11 @@ export default {
       this.sendCable("get_room_players");
     },
     openCodewars() {
-      this.battle.challenge.language = this.battle.challenge.language || "ruby";
-      window.open(this.challengeUrl);
-      this.openedCodewars = true;
+      if (!this.openedCodewars) {
+        this.openedCodewars = true;
+        this.battle.challenge.language = this.battle.challenge.language || "ruby";
+        window.open(this.challengeUrl);
+      }
     },
     setBackgroundVolume() {
       this.ambianceMusic.volume = Math.min(
@@ -691,16 +681,13 @@ export default {
       if (countdown) this.countdown = countdown;
       if (this.countdown <= 0) return;
       
-      console.log('clear timer')
       clearInterval(this.timer);
       // Last iteration when countdown == -1
       this.timer = setInterval(() => {
         this.refreshCountdownDisplay();
         callback();
-        console.log(this.countdown)
         if (this.countdown < 0) {
           clearInterval(this.timer)
-          console.log('clear timer')
         };
         this.countdown -= 1;
       }, 1000);
@@ -789,10 +776,11 @@ export default {
     },
     parseDates(element, dateFields) {
       dateFields.forEach(field => {
-        if (element[field]) {
+        let timestamp = element[field]
+        if (timestamp) {
           // If UTC timezone info is missing, add it to the string before parsing
-          if (!element[field].match(/Z$/i)) element[field] += 'Z'
-          element[field] = new Date(element[field])
+          if (!timestamp.match(/Z$/i)) timestamp += 'Z'
+          element[field] = new Date(timestamp)
         }
       })
       return element
