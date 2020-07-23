@@ -196,7 +196,6 @@ export default {
               break;
   
             case 'next-battle':
-              this.stopAmbiance();
               this.countdownMsg = 'Loading next battle in...';
               this.countdownEndMsg = 'Waiting for players to join...';
               this.startCountdown(this.countdown);
@@ -222,7 +221,8 @@ export default {
       deep: true
     },
     battleStage: function() {
-      if (this.battleStage === 4) this.startAmbiance();
+      if (this.battleStage === 4) this.startAmbiance()
+      else this.stopAmbiance()
     }
   },
   computed: {
@@ -573,8 +573,8 @@ export default {
       this.sendCable("get_room_players");
     },
     openCodewars() {
-      if (this.battle.challenge.language === null)
-        this.battle.challenge.language = "ruby";
+      this.battle.challenge.language = this.battle.challenge.language || "ruby";
+      console.log('Opening codewars...', this.challengeUrl)
       window.open(this.challengeUrl);
     },
     setBackgroundVolume() {
@@ -644,6 +644,7 @@ export default {
       if (this.voiceON) soundFX.play();
     },
     startBattleCountdown() {
+      console.log(this.countdown)
       if (this.countdown < 0) {
         if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
         if (!this.voiceON) this.playSoundFx('countdownZero')
@@ -656,6 +657,7 @@ export default {
       const timeRemaining = this.countdown;
       const clockTime = Math.max(timeRemaining, 0);
       if (timeRemaining <= 0) {
+        this.stopAmbiance()
         if (!this.voiceON && timeRemaining === 0) this.playSoundFx('countdownZero')
         clearInterval(this.clockInterval);
       } else if (timeRemaining <= 10) {
