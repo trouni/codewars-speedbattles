@@ -4,9 +4,11 @@
 #
 #  id           :bigint           not null, primary key
 #  name         :string
-#  moderator_id :bigint
+#  show_stats   :boolean          default(TRUE)
+#  sound        :boolean          default(TRUE)
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
+#  moderator_id :bigint
 #
 
 class Room < ApplicationRecord
@@ -164,16 +166,6 @@ class Room < ApplicationRecord
       },
       private_to_user_id: private_to_user_id
     })
-  end
-
-  def broadcast_to_moderator(subchannel: "logs", payload: nil)
-    return if inactive? || !moderator
-
-    ActionCable.server.broadcast(
-      "user_#{moderator.id}",
-      subchannel: subchannel,
-      payload: payload
-    )
   end
 
   def broadcast_users(private_to_user_id: nil)

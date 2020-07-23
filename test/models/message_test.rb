@@ -3,11 +3,11 @@
 # Table name: messages
 #
 #  id         :bigint           not null, primary key
-#  user_id    :bigint
-#  chat_id    :bigint
 #  content    :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
+#  chat_id    :bigint
+#  user_id    :bigint
 #
 
 require 'test_helper'
