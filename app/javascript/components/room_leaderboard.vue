@@ -92,12 +92,12 @@ export default {
           return b.battles_fought - a.battles_fought
         } else if (a.battles_lost !== b.battles_lost) {
             return a.battles_lost - b.battles_lost
-        } else if (a || b) {
-          return a ? -1 : 1
-        // } else {
-        //   return b.username[0] > a.username[0] ? 1 : -1
-        } else {
+        } else if (a.online && b.online) {
           return a.joined_room_at - b.joined_room_at
+        } else if (a.online || b.online) {
+          return a.online ? -1 : 1
+        } else {
+          return b.username[0] > a.username[0] ? 1 : -1
         }
       })
     },
