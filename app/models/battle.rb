@@ -141,10 +141,11 @@ class Battle < ApplicationRecord
   end
 
   def survivors
-    players.includes(:completed_challenges).joins(:completed_challenges).where(
-      completed_challenges: { kata: kata, completed_at: (start_time..end_time) },
-    )
-    # completed_challenges.includes(:user).joins(:user).map(&:user)
+    players.includes(:completed_challenges).joins(:completed_challenges)
+           .where(completed_challenges: {
+             kata: kata,
+             completed_at: (start_time..end_time)
+           })
   end
 
   def started?
@@ -164,20 +165,7 @@ class Battle < ApplicationRecord
   end
 
   def eligible_users
-    users.where.not(id: ineligible_users.pluck(:id))
-  end
-
-  def non_invited_users
-    sql_query = <<-SQL
-      users.id NOT IN (
-        SELECT users.id
-        FROM users
-        JOIN battle_invites
-        ON users.id = battle_invites.player_id
-        WHERE battle_id = ?
-      )
-    SQL
-    eligible_users.includes(:battle_invites).where(sql_query, id)
+    users.where.not(id: ineligible_users)
   end
 
   def confirmed_players
@@ -192,9 +180,7 @@ class Battle < ApplicationRecord
   private
 
   def invite_user(user)
-    return unless non_invited_users.where(id: user.id).exists?
-
-    battle_invite = BattleInvite.includes(:battle, :player).joins(:battle, :player).create(battle: self, player: user)
+    battle_invite = BattleInvite.includes(:battle, :player).find_or_create_by(battle: self, player: user)
     battle_invite.broadcast_user
   end
 
@@ -214,9 +200,9 @@ class Battle < ApplicationRecord
   end
 
   def invite_all
-    users_to_invite = non_invited_users.map { |user| { player: user, battle: self } }
+    users_to_invite = eligible_users.map { |user| { player: user, battle: self } }
     if users_to_invite.any?
-      BattleInvite.create(users_to_invite)
+      BattleInvite.find_or_create_by(users_to_invite)
       room.broadcast_users
     end
   end
