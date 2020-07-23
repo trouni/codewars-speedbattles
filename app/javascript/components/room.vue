@@ -393,6 +393,14 @@ export default {
     },
   },
   methods: {
+    subscribeToCable() {
+      console.info('Connecting to cable...')
+      this.$cable.subscribe({
+        channel: "RoomChannel",
+        room_id: this.room.id,
+        user_id: this.currentUserId
+      });
+    },
     sendCable(action, data) {
       this.$cable.perform({
         channel: "RoomChannel",
@@ -821,12 +829,15 @@ export default {
   channels: {
     RoomChannel: {
       connected() {
+        console.info('Connected to cable.')
         this.wsConnected = true
-        this.longDisconnection = false
         clearTimeout(window.longDisconnectionTimeout)
+        this.longDisconnection = false
       },
       rejected() {
+        console.info('Connection to cable rejected.')
         this.wsConnected = false
+        this.subscribeToCable()
         window.longDisconnectionTimeout = setTimeout(_ => this.longDisconnection = true, 8000)
       },
       received(data) {
@@ -947,7 +958,9 @@ export default {
         console.log("Error");
       },
       disconnected() {
+        console.info('Disconnected from cable.')
         this.wsConnected = false
+        this.subscribeToCable()
         window.longDisconnectionTimeout = setTimeout(_ => this.longDisconnection = true, 15000)
       }
     }
@@ -955,11 +968,8 @@ export default {
   mounted() {
     speechSynthesis.cancel();
 
-    this.$cable.subscribe({
-      channel: "RoomChannel",
-      room_id: this.room.id,
-      user_id: this.currentUserId
-    });
+    this.subscribeToCable();
+
     this.$root.$on("announce", message => this.announce(message));
     this.$root.$on("send-chat-message", message =>
       this.sendChatMessage(message)
