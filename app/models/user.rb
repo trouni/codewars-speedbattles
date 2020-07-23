@@ -91,15 +91,16 @@ class User < ApplicationRecord
     }
   end
 
-  def self.info(room, group: :current_users_and_players, user: nil)
-    return unless %i[single_user current_users_and_players all_users_and_players].include? group
+  def self.info(room, user_group = :current_users_and_players, user: nil)
+    user_group = :single_user if user.present?
+    return unless %i[single_user current_users_and_players all_users_and_players].include? user_group
 
     sql = <<-SQL
     WITH current_battle AS (
         SELECT b.*
         FROM battles b
         JOIN rooms r ON r.id = b.room_id
-        WHERE r.id = #{room.id}
+        WHERE r.id = :room_id
         ORDER BY b.created_at DESC
         LIMIT 1
     ), current_battle_invites AS (
@@ -109,19 +110,19 @@ class User < ApplicationRecord
     ), single_user AS (
         SELECT *
         FROM users
-        WHERE users.id = #{user&.id || 0}
+        WHERE users.id = :user_id
     ), online_users AS (
         SELECT u.*
         FROM users u
         JOIN room_users ru ON ru.user_id = u.id
-        WHERE ru.room_id = #{room.id}
+        WHERE ru.room_id = :room_id
     ), all_players AS (
         SELECT u.*
         FROM rooms r
         JOIN battles b ON b.room_id = r.id
         JOIN battle_invites bi ON b.id = bi.battle_id
         JOIN users u ON bi.player_id = u.id
-        WHERE r.id = #{room.id}
+        WHERE r.id = :room_id
         GROUP BY u.id
     ), ineligible_users AS (
         SELECT u.*
@@ -224,7 +225,7 @@ class User < ApplicationRecord
         ) AS survived_battle
         FROM battle_invites bi
         JOIN battles b ON bi.battle_id = b.id
-        WHERE b.room_id = #{room.id}
+        WHERE b.room_id = :room_id
         AND bi.confirmed
         AND b.end_time IS NOT NULL
     )
@@ -274,7 +275,7 @@ class User < ApplicationRecord
           FROM participations p
           WHERE p.player_id = u.id
       ) AS total_score
-    FROM (SELECT * FROM #{user ? :single_user : group}) u
+    FROM (SELECT * FROM #{user_group}) u
     LEFT OUTER JOIN (SELECT user_id, completed_at FROM current_completed_challenges) cc ON cc.user_id = u.id
     LEFT OUTER JOIN room_users ru ON ru.user_id = u.id
     LEFT OUTER JOIN current_battle_invites bi ON bi.player_id = u.id
@@ -282,11 +283,11 @@ class User < ApplicationRecord
 
     SQL
 
-    execute_sql(sql, room_id: room.id)
+    execute_sql(sql, room_id: room.id, user_id: user&.id || 0)
   end
 
   def info(room)
-    self.class.info(room, user: self).first
+    self.class.info(room, :single_user, user: self).first
   end
 
   def admin?
