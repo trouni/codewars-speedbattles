@@ -30,11 +30,7 @@ class User < ApplicationRecord
   has_one :room, through: :room_user, required: false
   has_many :rooms_as_moderator, class_name: "Room", foreign_key: 'moderator_id'
   has_many :battle_invites, foreign_key: 'player_id'
-  has_many :battles, through: :battle_invites do
-    # def for_room(room)
-    #   where(room_id: room.id, battle_invites: { confirmed: true }).where.not(end_time: nil)
-    # end
-  end
+  has_many :battles, through: :battle_invites
   has_many :completed_challenges, dependent: :destroy
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
@@ -44,10 +40,6 @@ class User < ApplicationRecord
   after_create :async_fetch_codewars_info
   after_save :broadcast, if: :saved_change_to_profile?
   after_save :refresh_chat, if: :saved_change_to_name?
-
-  # scope :invited, ->(battle) { battle ? self.in(battle.room).select('battle_invites.created_at AS joined_battle_at').joins(:battle_invites).where(battle_invites: { battle: battle }) : [] }
-  # scope :pending, ->(battle) { battle ? invited(battle).where(battle_invites: { confirmed: false }) : [] }
-  # scope :confirmed, ->(battle) { battle ? invited(battle).where(battle_invites: { confirmed: true }) : [] }
 
   alias_attribute :rank, :codewars_overall_rank
 
@@ -224,7 +216,7 @@ class User < ApplicationRecord
       )
     ), completed_challenges AS (
         SELECT cc.*, b.id AS battle_id, b.start_time, b.end_time
-        FROM all_users_and_players u
+        FROM #{user_group} u
         LEFT OUTER JOIN battle_invites bi ON u.id = bi.player_id
         LEFT OUTER JOIN battles b ON bi.battle_id = b.id
         LEFT OUTER JOIN completed_challenges cc ON cc.user_id = u.id
@@ -244,6 +236,18 @@ class User < ApplicationRecord
         WHERE b.room_id = :room_id
         AND bi.confirmed
         AND b.end_time IS NOT NULL
+    ), total_survived_battles AS (
+      SELECT u.id AS user_id, COUNT(*) AS total_survived
+      FROM #{user_group} u
+      JOIN completed_challenges cc ON cc.user_id = u.id
+      JOIN battle_invites bi ON bi.player_id = u.id
+      JOIN battles b ON b.id = bi.battle_id
+      WHERE (
+          b.kata_id = cc.kata_id
+          AND cc.completed_at BETWEEN b.start_time AND b.end_time
+          AND bi.confirmed
+      )
+      GROUP BY u.id
     )
 
     SELECT
@@ -292,12 +296,15 @@ class User < ApplicationRecord
           SELECT SUM(CASE WHEN p.survived_battle THEN 5 ELSE -1 END)
           FROM participations p
           WHERE p.player_id = u.id
-      ) AS total_score
-    FROM (SELECT * FROM #{user_group}) u
-    LEFT OUTER JOIN (SELECT user_id, completed_at FROM current_completed_challenges) cc ON cc.user_id = u.id
-    LEFT OUTER JOIN room_users ru ON ru.user_id = u.id
-    LEFT OUTER JOIN current_battle_invites bi ON bi.player_id = u.id
-    ORDER BY total_score DESC, battles_survived DESC, battles_fought DESC, battles_lost ASC, joined_room_at ASC, username ASC
+      ) AS total_score,
+      tsb.total_survived
+
+      FROM (SELECT * FROM #{user_group}) u
+      LEFT OUTER JOIN (SELECT user_id, completed_at FROM current_completed_challenges) cc ON cc.user_id = u.id
+      LEFT OUTER JOIN room_users ru ON ru.user_id = u.id
+      LEFT OUTER JOIN current_battle_invites bi ON bi.player_id = u.id
+      LEFT OUTER JOIN total_survived_battles tsb ON tsb.user_id = u.id
+      ORDER BY total_score DESC, battles_survived DESC, battles_fought DESC, battles_lost ASC, joined_room_at ASC, username ASC
 
     SQL
 
@@ -356,141 +363,4 @@ class User < ApplicationRecord
   def refresh_chat
     room&.broadcast_messages
   end
-
-  # def active_invite(battle = active_battle)
-  #   battle_invites.find_by(battle: battle)
-  # end
-
-  # def invited?(battle = active_battle)
-  #   return nil unless battle
-
-  #   battle_invites.where(battle: battle).exists?
-  # end
-
-  # def confirmed?(battle = active_battle)
-  #   return nil unless battle
-
-  #   battle_invites.where(battle: battle, confirmed: true).exists?
-  # end
-
-  # def eligible?(battle = active_battle)
-  #   return nil unless battle
-
-  #   !completed_challenge?(battle.kata)
-  # end
-
-  # def completed_challenge?(kata)
-  #   return false unless kata
-
-  #   completed_challenges.where(kata: kata).exists?
-  # end
-
-  # def survived?(battle)
-  #   end_time = battle&.end_time || Time.now
-
-  #   completed_challenges.includes(user: :battles)
-  #                       .joins(user: :battles)
-  #                       .where(kata: battle&.kata)
-  #                       .where("completed_at > ? AND completed_at < ?", battle&.start_time, end_time)
-  #                       .exists?
-  # end
-
-  # def defeated?(battle)
-  #   return battle.over? && !survived?(battle)
-  # end
-
-  # def survived(room = nil)
-  #   result = battles.includes(:players, players: :completed_challenges)
-  #                   .joins(:players, players: :completed_challenges)
-  #                   .where("battles.kata_id = completed_challenges.kata_id AND completed_challenges.user_id = ?", id)
-  #                   .where("completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time")
-
-  #   return result unless room
-
-  #   return result.includes(:room).joins(:room).where(rooms: { id: room.id })
-  # end
-
-  # def status(battle = active_battle)
-  #   return nil unless battle
-    
-  #   if survived?(battle)
-  #     "survived"
-  #   elsif defeated?(battle)
-  #     "defeated"
-  #   elsif confirmed?(battle)
-  #     "confirmed"
-  #   elsif invited?(battle)
-  #     "invited"
-  #   elsif eligible?(battle)
-  #     "eligible"
-  #   else
-  #     "ineligible"
-  #   end
-  # end
-  # alias invite_status status
-
-  # def moderator?(for_room = room)
-  #   rooms_as_moderator.include?(for_room)
-  # end
-
-  # def self.valid_username?(username)
-  #   url = "https://www.codewars.com/api/v1/users/#{username}"
-  #   puts "Fetching data from #{url}"
-  #   json = JSON.parse(open(url).read)
-  #   return json["username"] == username
-  # rescue StandardError
-  #   return false
-  # end
-  
-  # def unused_api_expose(for_room = room, battle = active_battle)
-  #   standard_result = {
-  #     id: id,
-  #     username: username,
-  #     name: name,
-  #     codewars_clan: codewars_clan,
-  #     codewars_honor: codewars_honor,
-  #     codewars_leaderboard_position: codewars_leaderboard_position,
-  #     codewars_overall_rank: codewars_overall_rank,
-  #     codewars_overall_score: codewars_overall_score,
-  #     last_fetched_at: last_fetched_at,
-  #     online: !room.nil?,
-  #     invite_status: invite_status(battle),
-  #     status: invite_status(battle),
-  #     joined_battle_at: active_invite(battle)&.created_at,
-  #     joined_room_at: room_user&.created_at,
-  #     completed_at: battle&.completed_challenge_at(self)
-  #   }
-
-  #   return standard_result unless for_room&.show_stats
-
-  #   survived = survived(for_room).size
-  #   fought = battles.for_room(for_room).size
-
-  #   return standard_result.merge(battles_survived: survived)
-  #                         .merge(battles_fought: fought)
-  #                         .merge(battles_lost: fought - survived)
-  #                         .merge(total_score: for_room.total_score(self))
-  #   # .merge(completed_at: active_battle&.completed_challenge_at(self))
-  # end
-
-  # def self.ineligible(room)
-  #   return self.in(room) unless room.active_battle
-
-  #   self.in(room).select('completed_challenges.completed_at')
-  #       .joins(:completed_challenges)
-  #       .where(completed_challenges: { kata: room.active_battle.kata })
-  # end
-
-  # def self.eligible(room)
-  #   return [] unless room.active_battle
-
-  #   self.in(room)
-  #       .where('users.id NOT IN (?)', ineligible(room).pluck(:id))
-  # end
-
-  # def self.defeated(battle)
-  #   return [] unless battle
-
-  #   confirmed(battle).where('users.id NOT IN (?)', survived(battle).pluck(:id))
-  # end
 end
