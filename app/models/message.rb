@@ -30,21 +30,14 @@ class Message < ApplicationRecord
     }
   end
 
-  # def self.create_announcement(content, chat_id)
-  #   return Message.create(
-  #     user: User.find_or_create_bot,
-  #     content: content,
-  #     chat: Chat.find(chat_id)
-  #   )
-  # end
-
   def broadcast
     return if room.inactive?
 
     ActionCable.server.broadcast(
       "room_#{room.id}",
       subchannel: "chat",
-      payload: api_expose
+      payload: api_expose,
+      roomId: room.id
     )
   end
 end

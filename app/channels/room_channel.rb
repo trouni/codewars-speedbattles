@@ -143,7 +143,6 @@ class RoomChannel < ApplicationCable::Channel
       user_id: user.id,
       all_pages: false
     )
-    # @room.broadcast_to_moderator(subchannel: "logs", payload: "Fetching challenges for #{user.username}...")
   end
 
   def get_room_players

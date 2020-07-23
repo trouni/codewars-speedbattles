@@ -166,16 +166,6 @@ class Room < ApplicationRecord
     })
   end
 
-  def broadcast_to_moderator(subchannel: "logs", payload: nil)
-    return if inactive? || !moderator
-
-    ActionCable.server.broadcast(
-      "user_#{moderator.id}",
-      subchannel: subchannel,
-      payload: payload
-    )
-  end
-
   def broadcast_users(private_to_user_id: nil)
     broadcast(
       subchannel: "users",

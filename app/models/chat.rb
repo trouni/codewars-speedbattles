@@ -15,10 +15,6 @@ class Chat < ApplicationRecord
   has_many :users, -> { distinct }, through: :messages
   after_create :welcome_message
 
-  # def broadcast_announcement(content)
-  #   Message.create_announcement(content, id)
-  # end
-
   def create_announcement(content)
     Message.create(
       user: nil,
