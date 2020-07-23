@@ -1,5 +1,8 @@
 <div class="container vh-100 pt-5" data-controller="settings">
-  <%= image_tag 'webhook_setup.jpg', class: 'webhook-setup',  data: { action: "mouseout->settings#hideHint" } %>
+  <div class="webhook-setup-preview" data-action="mouseout->settings#hideHint" data-target="settings.setupPreview">
+    <h3 class="absolute-center w-100 text-center highlight text-white">Copy & paste the Payload url and Secret into your Codewars settings...</h3>
+    <%= image_tag 'webhook_setup.jpg' %>
+  </div>
   <div class="row justify-content-center">
     <div class="col-md-9 col-lg-6">
       <%= render 'shared/widget', title: "Edit settings" do %>
@@ -12,18 +15,19 @@
       <div class="form-inputs">
         <%#= f.input :email, required: true, autofocus: true %>
         <%#= f.input :username, label: "Codewars username", required: true %>
-        <%= f.input :name, label: "Display name", required: false, maxlength: 24, hint: 'Your Codewars username will be shown unless you specify a name.' %>
+        <%= f.input :name, label: "Display name", required: false, maxlength: 24, placeholder: current_user.username, hint: 'Your Codewars username will be shown unless you specify a name.' %>
       </div>
 
-      <div class="webhook-settings">
-        <label class="form-control-label">Codewars Webhook <sup><span class="badge badge-<%= current_user.connected_webhook ? 'success' : 'danger' %>"><%= current_user.connected_webhook ? 'Connected' : 'Not connected' %></span></sup></label>
+      <div class="webhook-settings" data-action="mouseover->settings#showHint mouseout->settings#hideHint">
+        <label class="form-control-label">Codewars Webhook <sup><span class="badge badge-<%= current_user.connected_webhook? ? 'success' : 'danger' %>"><%= current_user.connected_webhook? ? 'Connected' : 'Not connected' %></span></sup></label>
+        <p>Add these settings to your Codewars account in order to automatically detect when you have completed a challenge.</p>
         <div class="d-flex flex-column align-items-center justify-content-center my-3">
-          <a href="https://www.codewars.com/users/edit#forgot_password" target="_blank" class="button small" data-action="mouseover->settings#showHint mouseout->settings#hideHint">Update your Codewars settings</a>
+          <a href="https://www.codewars.com/users/edit#forgot_password" target="_blank" class="button small">Open Codewars settings</a>
         </div>
         <div class="form-group">
           <small>
             <label for="webhook_url" class="form-control-label w-100 text-center">Payload url</label>
-            <div class="custom-tooltip clickable copyable" data-tooltip="Copy to Clipboard" data-action="click->settings#copy mouseout->settings#reset">
+            <div class="custom-tooltip clickable copyable webhook-border payload-url-color" data-tooltip="Copy to Clipboard" data-action="click->settings#copy mouseout->settings#reset">
               <input
                 type="text"
                 name="webhook_url"
@@ -33,7 +37,7 @@
               />
             </div>
             <label for="webhook_url" class="form-control-label w-100 text-center mt-3">Secret</label>
-            <div class="custom-tooltip clickable copyable" data-tooltip="Copy to Clipboard" data-action="click->settings#copy mouseout->settings#reset">
+            <div class="custom-tooltip clickable copyable webhook-border secret-color" data-tooltip="Copy to Clipboard" data-action="click->settings#copy mouseout->settings#reset">
               <input type="text" name="webhook_secret" class="form-control text-center shrink-unless-hover" readonly value="<%= current_user.webhook_secret %>" />
             </div>
           </small>

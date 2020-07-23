@@ -1,5 +1,6 @@
 class RoomsController < ApplicationController
   skip_before_action :authenticate_user!, only: [:index]
+  before_action :connected_webhook?, except: [:index]
 
   def index
     @rooms = policy_scope(Room).order(created_at: :asc)
@@ -31,5 +32,12 @@ class RoomsController < ApplicationController
 
   def room_params
     params.require(:room).permit(:name)
+  end
+
+  def connected_webhook?
+    if current_user.present? && !current_user.connected_webhook?
+      flash[:notice] = "Please set up the Codewars webhook to continue..."
+      redirect_to edit_user_registration_path
+    end
   end
 end

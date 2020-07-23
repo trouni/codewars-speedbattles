@@ -23,7 +23,9 @@
         <div class="form-actions d-flex justify-content-center">
           <button type="submit" name="commit" value="Log in" class="button large mx-auto"><i class="fas fa-sign-in-alt mr-2"></i>Log in</button>
         </div>
-        <p class="text-center mb-0"><%= link_to "Forgot your password?", new_password_path(resource_name) %></p>
+        <p class="text-center mt-2 mb-0">
+          <%= render 'devise/shared/links' %>
+        </p>
         <% end %>
       <% end %>
     </div>

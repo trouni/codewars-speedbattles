@@ -10,7 +10,7 @@
 import { Controller } from "stimulus"
 
 export default class extends Controller {
-  static targets = []
+  static targets = ['setupPreview']
 
   connect() {
   }
@@ -36,10 +36,10 @@ export default class extends Controller {
 
   showHint() {
     console.log('show hint')
-    document.querySelector('img.webhook-setup').style.display = 'unset';
+    this.setupPreviewTarget.style.display = 'unset';
   }
 
   hideHint() {
-    document.querySelector('img.webhook-setup').style.display = 'none';
+    this.setupPreviewTarget.style.display = 'none';
   }
 }
