@@ -3,9 +3,9 @@ class FetchCompletedChallengesJob < ApplicationJob
   queue_as :default
 
   # user_id, battle_id, all_pages
-  def perform(user_id:, all_pages: true)
+  def perform(user_id:, all_pages: true, force: false)
     @user = User.find(user_id)
-    if @user.last_fetched_at && @user.last_fetched_at > Time.now - 1.minute
+    if @user.last_fetched_at && @user.last_fetched_at > Time.now - 1.minute && !force
       puts 'Fetched less than 1 min ago. Skipping fetch.'
       return
     end
