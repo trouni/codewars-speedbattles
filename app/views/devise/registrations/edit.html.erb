@@ -18,10 +18,10 @@
         <%= f.input :name, label: "Display name", required: false, maxlength: 24, placeholder: current_user.username, hint: 'Your Codewars username will be shown unless you specify a name.' %>
       </div>
 
-      <div class="webhook-settings" data-action="mouseover->settings#showHint mouseout->settings#hideHint">
+      <div class="webhook-settings">
         <label class="form-control-label">Codewars Webhook <sup><span class="badge badge-<%= current_user.connected_webhook? ? 'success' : 'danger' %>"><%= current_user.connected_webhook? ? 'Connected' : 'Not connected' %></span></sup></label>
         <p>Add these settings to your Codewars account in order to automatically detect when you have completed a challenge.</p>
-        <div class="d-flex flex-column align-items-center justify-content-center my-3">
+        <div class="d-flex flex-column align-items-center justify-content-center my-3" data-action="mouseover->settings#showHint mouseout->settings#hideHint">
           <a href="https://www.codewars.com/users/edit#forgot_password" target="_blank" class="button small">Open Codewars settings</a>
         </div>
         <div class="form-group">
