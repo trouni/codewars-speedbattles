@@ -2,21 +2,16 @@
 #
 # Table name: battles
 #
-#  id                    :bigint           not null, primary key
-#  room_id               :bigint
-#  DELETE: challenge_id          :string
-#  DELETE: challenge_url         :string
-#  DELETE: challenge_name        :string
-#  RENAME: challenge_language    :string
-#  DELETE: challenge_rank        :integer
-#  DELETE: challenge_description :text
-#  max_survivors         :integer
-#  time_limit            :integer
-#  end_time              :datetime
-#  start_time            :datetime
-#  DELETE: winner_id             :bigint
-#  created_at            :datetime         not null
-#  updated_at            :datetime         not null
+#  id                 :bigint           not null, primary key
+#  challenge_language :string
+#  end_time           :datetime
+#  max_survivors      :integer
+#  start_time         :datetime
+#  time_limit         :integer
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  kata_id            :bigint
+#  room_id            :bigint
 #
 
 class Battle < ApplicationRecord
@@ -96,8 +91,28 @@ class Battle < ApplicationRecord
       time_limit: time_limit || 0,
       start_time: start_time,
       end_time: end_time,
-      challenge: challenge
+      challenge: challenge,
+      stage: stage
     }
+  end
+
+  def stage
+    # 0 - No battle loaded / Battle Over (end_time exists)
+    if end_time.present?
+      0
+    # 4 - Battle Ongoing (start_time exists, no end_time)
+    elsif ongoing?
+      4
+    # 3 - Countdown (no end_time and countdown not zero)
+    elsif room.next_event[:type] == 'start-battle' && room.time_until_next_event
+      3
+    # 2 - Can Start (no start_time, at least one confirmed player)
+    elsif !started? && confirmed_players.count > 1
+      2
+    # 1 - Loaded (no start_time, less than 2 confirmed players)
+    else
+      1
+    end
   end
 
   def completed_challenge(player)
@@ -170,6 +185,7 @@ class Battle < ApplicationRecord
 
   def confirmed_players
     players.where(battle_invites: { confirmed: true })
+    # broadcasting in after_commit
   end
 
   def uninvite_unconfirmed
@@ -195,8 +211,6 @@ class Battle < ApplicationRecord
   def confirm_user(user)
     battle_invite = BattleInvite.find_by(battle: self, player: user)
     battle_invite.update(confirmed: true)
-    # room.broadcast_user(user: user)
-    battle_invite.broadcast_user
   end
 
   def invite_all
@@ -233,55 +247,4 @@ class Battle < ApplicationRecord
     #   CancelStartBattle.perform_now(battle_id: id)
     end
   end
-
-  # def expose_results
-  #   survivors = completed_challenges.map do |challenge|
-  #     {
-  #       user_id: challenge.user_id,
-  #       username: User.find(challenge.user_id).username,
-  #       completed_at: challenge.completed_at
-  #     }
-  #   end
-  #   not_finished = defeated_players.map do |player|
-  #     {
-  #       user_id: player.id,
-  #       username: player.username,
-  #       completed_at: nil
-  #     }
-  #   end
-  #   return {
-  #     survivors: survivors,
-  #     not_finished: not_finished
-  #   }
-  # end
-
-  # def individual_ranking(player)
-  #   completed_challenges.find_index(player) + 1 if completed_challenges.find_index(player.id)
-  # end
-
-  # def score(player)
-  #   return 0 unless player.invited?(self)
-
-  #   player.survived?(self) ? 5 : -1
-  # end
-
-  # def export_players
-  #   {
-  #     # Using 'invited' instead of pending for retro-compatibility
-  #     invited: User.pending(self),
-  #     confirmed: User.confirmed(self),
-  #     survived: User.survived(self),
-  #     defeated: User.defeated(self)
-  #   }
-  # end
-
-  # def launch(countdown)
-  #   while countdown.positive?
-  #     countdown -= 1
-  #     sleep(1)
-  #     room.broadcast_action(action: "update-countdown", data: { countdown: countdown })
-  #   end
-
-  #   room.broadcast_action(action: "launch-codewars") if countdown <= 0
-  # end
 end

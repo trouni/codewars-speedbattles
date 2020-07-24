@@ -1,5 +1,5 @@
 <template>
-  <widget id="room-leaderboard" :header-title="title" :loading="loading" :focus="focus">
+  <widget id="room-leaderboard" :header-title="title" :loading="loading && showOffline" :focus="focus">
     <div class="d-flex flex-column h-100">
       <div class="fixed-header">
         <table :class="['console-table h-100', { 'no-stats': !room.show_stats }]">
@@ -14,13 +14,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(user, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(user.id) }" :title="`${user.username} (${-user.codewars_overall_rank} kyu)`" :key="user.id">
+            <tr v-for="(user, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(user.id) }" :title="`${user.username} | ${-user.codewars_overall_rank} kyu | ${user.total_survived || 0} wins on SpeedBattles`" :key="user.id">
               <th scope="row" class="justify-content-between">
                 <span :class="['data user', {offline: !user.online}]">
                   <span :class="['mr-1', { 'online highlight': user.online }]">●</span>
-                  <!-- <span :class="userClass(user.id)" v-if="showInviteButton(user.id, 'eligible')" @click="$root.$emit('invite-user', user.id)">{{ user.username }}</span>
-                  <span :class="userClass(user.id)" v-else-if="showInviteButton(user.id, 'invited')" @click="$root.$emit('uninvite-user', user.id)">{{ user.username }}</span>
-                  <span :class="userClass(user.id)" @click="toggleInvite(user.id)" :disabled="!currentUserIsModerator">{{ user.name || user.username }} -->
                   <span :class="[userClass(user.id), 'username']">{{ user.name || user.username }}</span>
                 </span>
                 <span class="invite-button">
@@ -55,6 +52,7 @@ export default {
   props: {
     users: Array,
     battle: Object,
+    battleStage: Number,
     room: Object,
     currentUser: Object,
     currentUserIsModerator: Boolean,
@@ -72,9 +70,6 @@ export default {
     }
   },
   computed: {
-    // moderator() {
-    //   this.findUser(this.room.moderator.id);
-    // },
     title() {
       return this.room.show_stats ? "NETWK://Leaderboard" : "NETWK://Users"
     },
@@ -135,7 +130,7 @@ export default {
     showInviteButton(userId) {
       const user = this.findUser(userId)
 
-      if (this.currentUserIsModerator && user && user.online && this.battle && this.battleStage > 0 && this.battleStage < 3) {
+      if (this.currentUserIsModerator && user && user.online && this.battleStage > 0 && this.battleStage <= 3) {
         switch (user.invite_status) {
           case 'eligible':
             return 'invite'
@@ -153,8 +148,6 @@ export default {
             return false
             break
         }
-
-        // return this.currentUserIsModerator && this.findUser(userId).invite_status == inviteStatus
       }
     },
     isCurrentUser(userId) {

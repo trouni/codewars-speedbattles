@@ -35,7 +35,7 @@ class RoomsController < ApplicationController
   end
 
   def connected_webhook?
-    if current_user.present? && !current_user.connected_webhook?
+    if current_user.present? && !current_user.connected_webhook? && !current_user.admin?
       flash[:notice] = "Please set up the Codewars webhook to continue..."
       redirect_to edit_user_registration_path
     end

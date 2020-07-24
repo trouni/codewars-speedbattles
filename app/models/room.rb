@@ -4,9 +4,11 @@
 #
 #  id           :bigint           not null, primary key
 #  name         :string
-#  moderator_id :bigint
+#  show_stats   :boolean          default(TRUE)
+#  sound        :boolean          default(TRUE)
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
+#  moderator_id :bigint
 #
 
 class Room < ApplicationRecord
@@ -57,7 +59,6 @@ class Room < ApplicationRecord
       codewars_langs: Kata.languages,
       languages: settings(:base).languages,
       autonomous: autonomous?,
-      battle_stage: battle_stage,
       next_event: {
         timer: time_until_next_event,
         type: settings(:base).next_event[:type]
@@ -109,25 +110,6 @@ class Room < ApplicationRecord
     finished_battles.first
   end
 
-  def battle_stage
-    # 0 - No battle loaded / Battle Over (end_time exists)
-    return 0 unless unfinished_battle
-
-    # 4 - Battle Ongoing (start_time exists, no end_time)
-    if unfinished_battle&.ongoing?
-      4
-    # 3 - Countdown (start_time exists, no end_time and countdown not zero)
-    elsif next_event[:type] == 'start-battle' && time_until_next_event
-      3
-    # 2 - Can Start (no start_time, at least one confirmed player)
-    elsif !unfinished_battle&.started? && unfinished_battle&.confirmed_players.count > 1
-      2
-    # 1 - Loaded (no start_time, less than 2 confirmed players)
-    else
-      1
-    end
-  end
-
   def available_katas(language: nil, ranks: [], min_votes: nil, min_satisfaction: nil, ignore_higher_rank_users: true, excluded_users: [])
     selected_users = users.reject { |user| excluded_users.include?(user) }
     selected_users.reject! { |user| user.rank > ranks.max } if ignore_higher_rank_users && ranks.any?
@@ -150,7 +132,8 @@ class Room < ApplicationRecord
     ActionCable.server.broadcast(
       private_to_user_id ? "user_#{private_to_user_id}" : "room_#{id}",
       subchannel: subchannel,
-      payload: payload
+      payload: payload,
+      roomId: id
     )
   end
 
@@ -163,16 +146,6 @@ class Room < ApplicationRecord
       },
       private_to_user_id: private_to_user_id
     })
-  end
-
-  def broadcast_to_moderator(subchannel: "logs", payload: nil)
-    return if inactive? || !moderator
-
-    ActionCable.server.broadcast(
-      "user_#{moderator.id}",
-      subchannel: subchannel,
-      payload: payload
-    )
   end
 
   def broadcast_users(private_to_user_id: nil)
@@ -252,11 +225,6 @@ class Room < ApplicationRecord
     set_next_event(at: Time.now + delay, type: type, jid: jid)
   end
 
-  # def schedule_next_battle(delay = 60.seconds)
-  #   set_timer(delay, 'next-battle')
-  #   CreateRandomBattle.set(wait: delay - 1.second).perform_later(room_id: id)
-  # end
-
   private
 
   def create_chat
@@ -266,84 +234,4 @@ class Room < ApplicationRecord
   def announce_new_name
     announce(:chat, "War room renamed to <strong>#{name}</strong>.")
   end
-
-
-  # def clear_next_event!(only: nil)
-  #   set_next_event(at: Time.now) if only.nil? || only == next_event[:type]
-  # end
-
-  # def players
-  #   super.distinct
-  #   # User.joins(battle_invites: :battle).where(battle_invites: { confirmed: true }, battles: { room_id: id }).uniq
-  # end
-
-  # def leaderboard
-  #   query_fought = <<-SQL
-  #   SELECT COUNT(*) AS battles_fought, u.id AS id, u.username AS username, u.name AS name, u.codewars_honor, u.codewars_clan, u.codewars_leaderboard_position, u.codewars_overall_rank, u.codewars_overall_score
-  #   FROM battles b
-  #   JOIN battle_invites bi ON b.id = bi.battle_id
-  #   JOIN users u ON bi.player_id = u.id
-  #   WHERE bi.confirmed = true
-  #   AND b.room_id = #{id}
-  #   AND b.end_time IS NOT NULL
-  #   GROUP BY u.id
-  #   SQL
-
-  #   query_survived = <<-SQL
-  #   SELECT COUNT(*) AS battles_survived, u.id AS id
-  #   FROM battles b
-  #   JOIN battle_invites bi ON b.id = bi.battle_id
-  #   JOIN users u ON bi.player_id = u.id
-  #   LEFT JOIN completed_challenges cc ON cc.user_id = u.id
-  #   WHERE bi.confirmed = true
-  #   AND b.room_id = #{id}
-  #   AND cc.completed_at > b.start_time
-  #   AND cc.completed_at < b.end_time
-  #   AND cc.kata_id = b.kata_id
-  #   GROUP BY u.id
-  #   SQL
-
-  #   query = <<-SQL
-  #   SELECT FirstQuery.id, FirstQuery.username, FirstQuery.name, FirstQuery.codewars_honor, FirstQuery.battles_fought AS battles_fought, COALESCE(SecondQuery.battles_survived, 0) AS battles_survived, (COALESCE(FirstQuery.battles_fought, 0) - COALESCE(SecondQuery.battles_survived, 0)) AS battles_lost, (COALESCE(SecondQuery.battles_survived, 0) * 5) - (COALESCE(FirstQuery.battles_fought, 0) - COALESCE(SecondQuery.battles_survived, 0)) AS total_score
-  #   FROM (#{query_fought}) AS FirstQuery
-  #   LEFT JOIN (#{query_survived}) AS SecondQuery ON FirstQuery.id = SecondQuery.id
-  #   ORDER BY total_score DESC
-  #   SQL
-
-  #   leaderboard = {}
-  #   ActiveRecord::Base.connection.exec_query(query).as_json.each { |e| leaderboard[e["id"].to_s] = e }
-  #   return leaderboard
-  #   # return ActiveRecord::Base.connection.exec_query(query).as_json
-  # end
-
-  # def battles_fought(player)
-  #   BattleInvite.includes(:player, :battle, :room).joins(:player, :battle, :room).where(
-  #     confirmed: true,
-  #     battles: { room_id: id },
-  #     users: { id: player }
-  #   )
-  # end
-
-  # def battles_survived(player)
-  #   # Battle.joins(battle_invites: { player: :completed_challenges }).where(
-  #   BattleInvite.includes(:player, :room, player: :completed_challenges).joins(:player, :room, player: :completed_challenges).where(
-  #     "battle_invites.confirmed = true AND battles.room_id = ? AND completed_challenges.completed_at > battles.start_time AND completed_challenges.completed_at < battles.end_time AND completed_challenges.kata_id = battles.kata_id AND completed_challenges.user_id = ?",
-  #     id,
-  #     player.id
-  #   )
-  # end
-
-  # def total_score(player)
-  #   finished_battles.map { |battle| battle.score(player) }.reduce(:+)
-  # end
-
-  # def old_players_info
-  #   players.includes(:battles, :room, :completed_challenges, :battle_invites)
-  #                   .map { |user| user.unused_api_expose(self, active_battle) }
-  # end
-
-  # def old_users_info
-  #   users.includes(:battles, :room, :completed_challenges, :battle_invites)
-  #                   .map { |user| user.unused_api_expose(self, active_battle) }
-  # end
 end
