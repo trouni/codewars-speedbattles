@@ -23,6 +23,7 @@ class CompletedChallenge < ApplicationRecord
     room = battle&.room
     room&.broadcast_active_battle
     room&.broadcast_user(user: user)
+    room&.broadcast_settings(private_to_user_id: user.id)
   end
   
   def announce_completion
