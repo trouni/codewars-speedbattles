@@ -74,7 +74,7 @@
 
 <script>
 import Vue from 'vue/dist/vue.esm'
-import EventBus from '../services/event_bus'
+import EventBus from '../../services/event_bus'
 import includes from 'lodash/includes'
 import sortBy from 'lodash/sortBy'
 

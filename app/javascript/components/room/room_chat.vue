@@ -62,7 +62,7 @@
       settings: Object,
     },
     components: {
-      ChatMessage: () => import('./chat/message'),
+      ChatMessage: () => import('../chat/message'),
     },
     data() {
       return {
