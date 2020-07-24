@@ -101,6 +101,7 @@ import RoomChat from "../components/room_chat.vue";
 import RoomLeaderboard from "../components/room_leaderboard.vue";
 import RoomBattle from "../components/room_battle.vue";
 import RoomSettings from "../components/room_settings.vue";
+import UserSettings from "../components/settings/user_settings.vue";
 
 export default {
   components: {

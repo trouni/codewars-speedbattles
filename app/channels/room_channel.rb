@@ -10,7 +10,7 @@ class RoomChannel < ApplicationCable::Channel
     # Subscribe to current room
     RoomUser.where(user: @current_user).destroy_all
     room_user = RoomUser.create(room: @room, user: @current_user)
-    stream_from "room_#{@room.id}"
+    stream_from "room_#{@room.id}" if @room
     stream_from "user_#{@current_user.id}"
     # Send initial data to user
     @current_user.broadcast_settings

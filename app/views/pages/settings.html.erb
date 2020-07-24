@@ -1,7 +1,3 @@
 <div data-behavior="vue">
-  <modal>
-    <template>
-      <user-settings :settings="<%= { user: current_user.get_settings, room: { sound: true} }.to_json%>"/>
-    </template>
-  </modal>
+  <settings />
 </div>
