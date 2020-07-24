@@ -31,7 +31,7 @@ class CompletedChallenge < ApplicationRecord
     completed_in = time_for_speech(battle.completed_challenge_at(user) - battle.start_time)
     battle.room.announce(
       :chat,
-      "<i class='fas fa-shield-alt'></i> Challenge completed by <span class='chat-highlight'>@{#{user.username}}</span>."
+      "<i class='fas fa-shield-alt'></i> Challenge completed by <span class='chat-highlight'>@{#{user.name || user.username}}</span>."
     )
     battle.room.announce(
       :voice,
