@@ -97,11 +97,11 @@
 import Vue from 'vue/dist/vue.esm'
 import debounce from "lodash/debounce";
 import kebabCase from "lodash/kebabCase";
-import RoomChat from "../components/room_chat.vue";
-import RoomLeaderboard from "../components/room_leaderboard.vue";
-import RoomBattle from "../components/room_battle.vue";
-import UserSettings from "../components/user_settings.vue";
-import RoomSettings from "../components/room_settings.vue";
+import RoomChat from "../components/room/room_chat.vue";
+import RoomLeaderboard from "../components/room/room_leaderboard.vue";
+import RoomBattle from "../components/room/room_battle.vue";
+import UserSettings from "../components/settings/user_settings.vue";
+import RoomSettings from "../components/settings/room_settings.vue";
 
 export default {
   components: {

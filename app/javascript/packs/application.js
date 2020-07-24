@@ -5,7 +5,7 @@ import ActionCableVue from 'actioncable-vue';
 import VueChatScroll from 'vue-chat-scroll'
 import Room from '../components/room.vue'
 import Widget from '../components/shared/widget.vue'
-import NavBar from '../components/navbar.vue'
+import NavBar from '../components/shared/navbar.vue'
 import SignUpFormInputs from '../components/sign_up/form_inputs.vue'
 import StdButton from '../components/shared/button.vue'
 import NumberInput from '../components/shared/num_input.vue'

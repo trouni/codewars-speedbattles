@@ -122,7 +122,7 @@
 </template>
 
 <script>
-import EventBus from '../services/event_bus'
+import EventBus from '../../services/event_bus'
 
 export default {
   name: 'user-settings',

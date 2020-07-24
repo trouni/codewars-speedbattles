@@ -62,7 +62,7 @@ export default {
     focus: Boolean,
   },
   components: {
-    StdButton: () => import('./shared/button.vue'),
+    StdButton: () => import('../shared/button.vue'),
   },
   data() {
     return {
