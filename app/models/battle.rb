@@ -159,7 +159,7 @@ class Battle < ApplicationRecord
     players.includes(:completed_challenges).joins(:completed_challenges)
            .where(completed_challenges: {
              kata: kata,
-             completed_at: (start_time..end_time)
+             completed_at: (start_time..(end_time || Time.now))
            })
   end
 
@@ -191,6 +191,10 @@ class Battle < ApplicationRecord
   def uninvite_unconfirmed
     battle_invites.where(confirmed: false).destroy_all
     room.broadcast_users
+  end
+
+  def all_players_survived?
+    defeated_players.count.zero?
   end
 
   private
