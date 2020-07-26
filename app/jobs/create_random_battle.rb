@@ -15,6 +15,5 @@ class CreateRandomBattle < ApplicationJob
     
     # Broadcast older battle if save failed
     room.broadcast_active_battle unless battle.save
-    # room.clear_next_event!(only: 'next-battle')
   end
 end

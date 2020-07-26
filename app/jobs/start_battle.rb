@@ -6,6 +6,5 @@ class StartBattle < ApplicationJob
     return unless latest_job_for?(battle.room) || force
 
     battle.start
-    # battle.room.clear_next_event!(only: 'start-battle')
   end
 end

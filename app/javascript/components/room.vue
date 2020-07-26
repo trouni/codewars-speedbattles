@@ -47,7 +47,7 @@
 
       <div v-if="roomSettingsInitialized" class='d-contents'>
         <room-battle
-          v-if="battleInitialized"
+          v-if="battleInitialized && currentUser"
           id="room-battle"
           class="grid-item animated fadeIn"
           :battle="battle"
@@ -80,6 +80,7 @@
         />
 
         <room-chat
+          v-if="currentUser"
           class="grid-item animated fadeIn"
           :messages="chat.messages"
           :authors="chat.authors"
@@ -190,33 +191,7 @@ export default {
   watch: {
     settings: {
       handler(settings, oldSettings) {
-        // Handling of timer
-        // TODO: Prevent the timer from reloading when changing sound options
-        if (settings.room.next_event && settings.room.next_event.timer >= 0) {
-          this.countdown = Math.round(settings.room.next_event.timer);
-          switch (settings.room.next_event.type) {
-            case 'start-battle':
-              this.countdownMsg = 'Battle starting in...';
-              // this.countdownEndMsg = 'Starting battle...';
-              this.startCountdown(this.countdown, this.startBattleCountdown);
-              break;
-  
-            case 'next-battle':
-              this.countdownMsg = 'Loading next battle in...';
-              // this.countdownEndMsg = 'Waiting for players to join...';
-              this.startCountdown(this.countdown);
-              break;
-
-            case 'end-battle':
-              this.countdownMsg = '';
-              this.countdownEndMsg = 'The battle is over.';
-              this.startCountdown(this.countdown, this.battleClockCountdown);
-              break;
-  
-            default:
-              break;
-          }
-        }
+        
       },
       deep: true
     },
@@ -503,9 +478,9 @@ export default {
         const msg = new SpeechSynthesisUtterance(message);
         const voices = speechSynthesis.getVoices();
         const voiceURI = options.voiceURI || "Google US English";
-        const soundFX = options.sfx
-        const fxVolume = options.sfxVolume
-        const fxPlayAt = options.sfxPlayAt || 'asap'
+        const soundFX = options.fx
+        const fxVolume = options.fxVolume
+        const fxPlayAt = options.fxPlayAt || 'asap'
         msg.voice =
           voices[voices.findIndex(e => e.voiceURI === voiceURI)];
         // msg.rate = 1.1;
@@ -662,10 +637,41 @@ export default {
       this.setBackgroundVolume()
       if (this.voiceON) soundFX.play();
     },
+    // ==========
+    // COUNTDOWN
+    // ==========
+    refreshCountdown() {
+      if (this.settings.room.next_event && this.settings.room.next_event.timer >= 0) {
+        this.countdown = Math.round(this.settings.room.next_event.timer);
+        switch (this.settings.room.next_event.type) {
+          case 'start-battle':
+            this.countdownMsg = 'Battle starting in...';
+            // this.countdownEndMsg = 'Starting battle...';
+            this.startCountdown(this.countdown, this.startBattleCountdown);
+            break;
+
+          case 'next-battle':
+            this.countdownMsg = 'Loading next battle in...';
+            // this.countdownEndMsg = 'Waiting for players to join...';
+            this.startCountdown(this.countdown);
+            break;
+
+          case 'end-battle':
+            this.countdownMsg = '';
+            this.countdownEndMsg = 'The battle is over.';
+            this.startCountdown(this.countdown, this.battleClockCountdown);
+            break;
+
+          default:
+            break;
+        }
+      }
+    },
     startBattleCountdown() {
       if (this.countdown < 0) {
         if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
         if (!this.voiceON) this.playSoundFx('countdownZero')
+        this.startAmbiance()
       } else {
         if (this.countdown === 10) this.playVoiceFx("countdown")
         if (this.countdown < 60) this.playSoundFx('countdownTick')
@@ -779,8 +785,8 @@ export default {
     },
     parseDates(element, dateFields) {
       dateFields.forEach(field => {
-        let timestamp = element[field]
-        if (timestamp) {
+        if (element[field]) {
+        let timestamp = String(element[field])
           // If UTC timezone info is missing, add it to the string before parsing
           if (!timestamp.match(/Z$/i)) timestamp += 'Z'
           element[field] = new Date(timestamp)
@@ -825,7 +831,6 @@ export default {
       rejected() {
         console.warn('Connection to cable rejected.')
         this.wsConnected = false
-        this.subscribeToCable()
         window.longDisconnectionTimeout = setTimeout(_ => this.longDisconnection = true, 8000)
       },
       received(data) {
@@ -865,7 +870,7 @@ export default {
                 break;
 
               default:
-                this.chat.messages.push(data.payload);
+                this.pushToArray(this.chat.messages, data.payload)
                 break;
             }
             break;
@@ -886,6 +891,7 @@ export default {
               case "room":
                 this.settings.room = data.payload.settings;
                 this.announcement.defaultContent = `Welcome to ${this.settings.room.name}`
+                this.refreshCountdown()
                 this.roomSettingsInitialized = true
                 this.roomSettingsLoading = false
                 break;
@@ -951,7 +957,6 @@ export default {
       disconnected() {
         console.warn('Disconnected from cable.')
         this.wsConnected = false
-        this.subscribeToCable()
         window.longDisconnectionTimeout = setTimeout(_ => this.longDisconnection = true, 15000)
       }
     }

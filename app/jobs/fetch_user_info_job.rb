@@ -6,6 +6,10 @@ class FetchUserInfoJob < ApplicationJob
 
   def perform(user_id)
     user = User.find(user_id)
+    if @user&.last_fetched_at && @user&.last_fetched_at > Time.now - 3.seconds
+      puts 'Fetched less than 3 seconds ago. Skipping fetch.'
+      return
+    end
     url = "https://www.codewars.com/api/v1/users/#{user.username}"
     puts "Fetching data from #{url}"
     json = JSON.parse(open(url).read)
