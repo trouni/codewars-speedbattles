@@ -13,17 +13,18 @@
   $bg-color1: $codewars-bg;
 
   .app-bg {
-    background: none;
-    &:before {
-      background-color: $bg-color1;
-    }
+  //   background: none;
+  //   &:before {
+  //     background-color: $bg-color1;
+  //   }
+    transition: unset;
   }
 
   .corner-button {
     // color: $highlight;
     background-color: $fullopacity;
     &:hover {
-      background-color: lighten($fullopacity, 10%);
+      // background-color: lighten($fullopacity, 10%);
     }
   }
 
@@ -31,41 +32,48 @@
   .widget {
     background: rgb(10, 10, 10);
     box-shadow: unset;
+    transition: unset;
 
     .widget-body.loading {
+      transition: unset;
       filter: unset;
     }
   }
 
   .widget-controls {
     background: rgb(5, 5, 5);
+    transition: unset;
   }
 
   // modal.scss
   &.unfocused {
     #room {
-      transform: unset;
+      // transform: unset;
+      transition: unset;
     } 
     
     .modal-overlay {
-      background-color: $codewars-bg;
-      transition: 1s background-color;
+      // background-color: $codewars-bg;
+      // transition: 1s background-color;
     }
 
     .grid-item {
-      display: none;
+      // display: none;
       filter: unset;
       opacity: unset;
+      transition: unset;
     }
 
     .modal-widget.focus {
       transform: unset;
+      transition: unset;
     }
 
     .grid-item.focus {
       transform: unset;
       filter: unset;
       opacity: unset;
+      transition: unset;
     }
   }
 
@@ -105,10 +113,12 @@
 
   .widget-bg {
     background-color: darken( desaturate($bezel-color, 50%), 15% );
+    transition: unset;
   }
   
   .seek-attention .widget-bg {
     background-color: darken($bezel-color, 10%);
+    transition: unset;
   }
 }
 
