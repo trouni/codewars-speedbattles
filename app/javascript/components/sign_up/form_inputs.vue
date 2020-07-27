@@ -14,7 +14,7 @@
         class="form-control string email required"
         placeholder="Your email address"
       />
-      <small>Only used in case you need to reset your password.</small>
+      <!-- <small>Only used in case you need to reset your password.</small> -->
     </div>
     <div class="form-group string required user_username">
       <label for="user_username" class="form-control-label string required">
@@ -36,7 +36,7 @@
         ]"
         v-model="username"
         @blur="checkUsername"
-        placeholder="Your actual Codewars username"
+        placeholder="Your Codewars username"
       />
       <div
         :class="[
@@ -74,11 +74,11 @@
         v-model="password"
         placeholder="Your new account's password."
       />
-      <small
-        >Doesn't need to be the same password as your Codewars account.</small
-      >
-      <div class="invalid-feedback">6 characters minimum</div>
+      <div class="invalid-feedback highlight-red">6 characters minimum</div>
       <div class="valid-feedback">Looks good!</div>
+      <small>
+        Doesn't need to be the same password as your Codewars account.
+      </small>
     </div>
   </div>
 </template>

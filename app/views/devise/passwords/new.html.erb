@@ -1,6 +1,6 @@
 <widget
 id="password-reset"
-class="animated fadeIn w-50 m-auto"
+class="animated fadeIn m-auto"
 header-title="Access://Reset_Password/">
   <%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, ref: 'form', class: 'py-4' }) do |f| %>
     <%= f.error_notification %>
