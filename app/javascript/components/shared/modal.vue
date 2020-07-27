@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="modal-overlay animated fadeIn faster" @click="cancel" />
+    <div class="modal-overlay animated fadeIn faster" />
     <div class="modal-ctn" ref="ctn">
       <widget :header-title="title" :seek-attention="true" class="focus modal-widget animated fadeIn faster" ref="widget" :loading=loading>
         <template>
