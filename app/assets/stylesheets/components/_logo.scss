@@ -1,0 +1,43 @@
+.main-logo {
+  animation-duration: 0.2s;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  transform: scale(0.7);
+
+  .main-title {
+    .speed {
+      font-size: 2.1em;
+      animation-duration: 0.5s;
+      animation-delay: 1s;
+      font-family: $body-font;
+      text-transform: uppercase;
+    }
+    .battles {
+      font-size: 1.75em;
+      text-transform: uppercase;
+      color: lighten($fullopacity-war, 15%);
+      font-weight: bold;
+      text-shadow: 0 0 5px rgba(white, 1), 0 0 15px rgba(white, 0.5);
+      animation-duration: 0.5s;
+      animation-delay: 1.7s;
+    }
+  }
+
+  .codewars-logo {
+    animation-duration: 0.5s;
+    animation-delay: 1s;
+  }
+}
+
+@media (min-width: 576px) {
+  .main-logo {
+    transform: scale(0.7);
+  }
+}
+
+@media (min-width: 768px) {
+  .main-logo {
+    transform: scale(1);
+  }
+}

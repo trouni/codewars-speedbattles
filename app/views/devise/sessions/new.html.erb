@@ -2,7 +2,11 @@
 id="sign-in"
 class="animated fadeIn m-auto"
 header-title="Access://Sign_In/">
-  <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name), html: { ref: 'form', class: 'py-4' }) do |f| %>
+  <%= simple_form_for(resource, as: resource_name,
+    url: session_path(resource_name),
+    html: {
+      ref: 'form', class: 'py-4', autofocus: true
+    }) do |f| %>
     <div class="form-inputs">
       <%= f.input :username,
       required: false,
@@ -11,7 +15,7 @@ header-title="Access://Sign_In/">
       <%= f.input :password,
       required: false,
       input_html: { autocomplete: "current-password", '@keydown.enter' => "$refs.form.submit()" } %>
-      <%= f.input :remember_me, validate: false, as: :boolean if devise_mapping.rememberable? %>
+      <%= f.input :remember_me, validate: false, input_html: { checked: true }, as: :boolean if devise_mapping.rememberable? %>
     </div>
     <p class="text-center mt-2 mb-0">
       <%= render 'devise/shared/links' %>

@@ -6,6 +6,7 @@
         <abbr title="required">*</abbr>
       </label>
       <input
+        autofocus="autofocus"
         autocomplete="email"
         aria-required="true"
         type="email"
@@ -22,7 +23,6 @@
         <abbr title="required">*</abbr>
       </label>
       <input
-        autofocus="autofocus"
         required="required"
         aria-required="true"
         type="text"
@@ -120,7 +120,7 @@ export default {
             this.fetched = true;
             this.validUsername = response.valid && !response.exists;
             if (response.exists) {
-              this.error = `An account with username '${this.username}' already exists. Log in instead.`;
+              this.error = `An account with username '${this.username}' already exists. Please log in instead.`;
             } else {
               this.error = `${this.username} is ${
                 response.valid ? "" : "not"
