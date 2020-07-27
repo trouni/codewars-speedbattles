@@ -12,10 +12,10 @@
     <%= favicon_link_tag asset_path('speedbattles_icon.png') %>
   </head>
   <body>
-    <div id="super-container" class="peace">
-      <span class="app-bg"></span>
-      <%= yield %>
-    </div>
+    <%= render 'shared/flashes' %>
+      <div data-behavior='vue'>
+        <%= yield %>
+      </div>
     <%= javascript_include_tag 'application' %>
     <%= javascript_pack_tag 'application' %>
   </body>

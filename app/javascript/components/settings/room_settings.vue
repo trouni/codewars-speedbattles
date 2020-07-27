@@ -9,7 +9,7 @@
       <input
         @keydown.enter="updateSettings"
         type="text"
-        :placeholder="settings.user.username"
+        :placeholder="settings.room.name"
         class="form-control"
         v-model="roomName"
         maxlength="50"
@@ -83,6 +83,18 @@ export default {
   props: {
     settings: Object,
   },
+  // watch: {
+  //   settings: {
+  //     handler(newSettings) {
+  //       this.roomName = this.newSettings.room.name
+  //       this.voiceChatUrl = this.newSettings.room.voice_chat_url
+  //       this.roomSound = this.newSettings.room.sound
+  //       this.classification = this.newSettings.room.classification
+  //       this.language = this.newSettings.room.languages[0]
+  //     },
+  //     deep: true
+  //   }
+  // },
   data() {
     return {
       roomName: this.settings.room.name,

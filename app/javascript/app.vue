@@ -12,88 +12,30 @@
     ]">
     <span :class="['app-bg', {'initializing': initializing}]"/>
 
-    <navbar :room-id="roomId" :loading="settingsLoading || !wsConnected" />
+    <navbar :loading="settingsLoading || !wsConnected" />
     <modal
-      v-if="focus === 'modal' && userSettingsInitialized && roomSettingsInitialized"
+      v-if="focus === 'modal' && userSettingsInitialized"
       id="room-modal"
       title="SYS://Settings">
       <template>
-        <user-settings :settings="settings" :moderator="currentUserIsModerator"/>
+        <user-settings :settings="settings"/>
       </template>
       <template v-slot:secondary v-if="currentUserIsModerator">
         <room-settings :settings="settings"/>
       </template>
     </modal>
+
     <spinner v-if="!focus && (initializing || !wsConnected)" class="animated fadeIn">
       {{ wsConnected ? 'LOADING' : 'CONNECTING' }}
       <p v-if="longDisconnection" class="absolute-h-center mt-5 animated fadeIn">
         <small>Taking too long?</small>
         <std-button small @click.native="reloadBrowser" class="no-wrap">Refresh the page</std-button>
       </p>
-      
     </spinner>
 
-    <div id="room" :class="{ moderator: currentUserIsModerator, 'initializing': initializing }">
-
-      <widget
-        id="room-announcer"
-        class="grid-item animated fadeIn"
-        :header-title="`PWD://War_Room/${roomName.replace(/\s/g, '_')}`"
-        :focus="focus === 'announcer'">
-        <div class="d-flex align-items-center justify-content-center h-100">
-          <span
-            :class="['announcer mt-3', 'text-center', announcerWindow.status]"
-            v-html="announcerWindow.content"
-          ></span>
-        </div>
-      </widget>
-
-      <div v-if="roomSettingsInitialized" class='d-contents'>
-        <room-battle
-          v-if="battleInitialized && currentUser"
-          id="room-battle"
-          class="grid-item animated fadeIn"
-          :battle="battle"
-          :battleStage="battleStage"
-          :users="users"
-          :room="room"
-          :countdown="countdown"
-          :battle-joinable="battleJoinable"
-          :current-user="currentUser"
-          :current-user-is-moderator="currentUserIsModerator"
-          :view-mode="viewMode"
-          :ready-to-start="readyToStart"
-          :loading="(!usersInitialized && !battleInitialized) || battleLoading"
-          :focus="focus === 'battle'"
-          :settings="settings"
-        />
-
-        <room-leaderboard
-          v-if="currentUser"
-          class="grid-item animated fadeIn"
-          :users="users"
-          :room="room"
-          :battle="battle"
-          :battleStage="battleStage"
-          :room-players="roomPlayers"
-          :current-user="currentUser"
-          :current-user-is-moderator="currentUserIsModerator"
-          :loading="!usersInitialized || roomPlayersLoading"
-          :focus="focus === 'leaderboard'"
-        />
-
-        <room-chat
-          v-if="currentUser"
-          class="grid-item animated fadeIn"
-          :messages="chat.messages"
-          :authors="chat.authors"
-          :current-user="currentUser"
-          :loading="!messagesInitialized"
-          :focus="focus === 'chat'"
-          :settings="settings"
-        />
-      </div>
-    </div>
+    <template>
+      <slot/>
+    </template>
   </div>
 </template>
 
@@ -101,22 +43,21 @@
 import Vue from 'vue/dist/vue.esm'
 import debounce from "lodash/debounce";
 import kebabCase from "lodash/kebabCase";
-import RoomChat from "./room/room_chat.vue";
-import RoomLeaderboard from "./room/room_leaderboard.vue";
-import RoomBattle from "./room/room_battle.vue";
-import RoomSettings from "./settings/room_settings.vue";
-import UserSettings from "./settings/user_settings.vue";
+import RoomSettings from "./components/settings/room_settings.vue";
+import UserSettings from "./components/settings/user_settings.vue";
 
 export default {
   components: {
-    RoomChat,
-    RoomLeaderboard,
-    RoomBattle,
     RoomSettings,
     UserSettings
   },
   props: {
-    roomInit: Object,
+    roomInit: {
+      type: Object,
+      default: function() {
+        return { id: null }
+      }
+    },
     currentUserId: Number,
   },
   data() {
@@ -153,7 +94,9 @@ export default {
       roomSettingsInitialized: false,
       roomSettingsLoading: true,
       settings: {
-        room: {},
+        room: {
+          sound: true
+        },
         user: {},
       },
       sounds: {
@@ -198,25 +141,6 @@ export default {
       },
       deep: true
     },
-    battleStage: {
-      handler: function() {
-        if (this.battleStage === 4) {
-          this.startAmbiance()
-          if (!this.battle.time_limit) this.startClock()
-        } else {
-          this.stopAmbiance()
-        }
-
-        if (this.battleStage === 3) {
-        } else if (this.battleStage === 2) {
-        } else if (this.battleStage === 1) {
-          this.announce({ content: "Waiting for players to join..." })
-        } else if (this.battleStage === 0) {
-          this.openedCodewars = false;
-        }
-      },
-      immediate: true
-    }
   },
   computed: {
     roomId() {
@@ -226,23 +150,14 @@ export default {
       return this.settings.room.name || ''
     },
     settingsLoading() {
-      return this.userSettingsLoading || this.roomSettingsLoading
+      return this.userSettingsLoading
     },
     someDataLoaded() {
-      return (
-        this.usersInitialized ||
-        this.battleInitialized ||
-        this.messagesInitialized
-      );
+      return true
     },
     initializing() {
       return !(
-        this.userSettingsInitialized &&
-        this.roomSettingsInitialized &&
-        this.usersInitialized &&
-        this.battleInitialized &&
-        this.messagesInitialized &&
-        this.currentUser
+        this.userSettingsInitialized && this.currentUserId
       )
     },
     unfocused() {
@@ -250,12 +165,7 @@ export default {
     },
     allDataLoaded() {
       return (
-        this.userSettingsInitialized &&
-        this.roomSettingsInitialized &&
-        this.usersInitialized &&
-        this.battleInitialized &&
-        this.messagesInitialized &&
-        this.currentUser
+        this.userSettingsInitialized && this.currentUserId
       );
     },
     seekAttention() {
@@ -290,7 +200,7 @@ export default {
       if (currentUserIndex !== -1) return this.users[currentUserIndex]
     },
     currentUserIsModerator() {
-      return this.currentUserId === this.room.moderator_id;
+      return false
     },
     invitedUsers() {
       if (this.battleStage === 0) { return [] }
@@ -494,80 +404,6 @@ export default {
         if (message) speechSynthesis.speak(msg);
       }
     },
-    // =============
-    //     BATTLE
-    // =============
-    getKatasCount(kataOptions) {
-      this.sendCable("available_katas_count", { kata: kataOptions });
-    },
-    createBattle(battleInfo) {
-      this.battleLoading = true
-      this.battle = {}
-      const challengeIdSlug = this.parseChallengeInput(battleInfo.challenge)
-        .challengeIdSlug;
-      this.sendCable("create_battle", {
-        challenge_id: challengeIdSlug,
-        time_limit: battleInfo.timeLimit,
-        auto_invite: battleInfo.autoInvite,
-      });
-    },
-    createRandomBattle(battleOptions) {
-      this.battleLoading = true
-      this.battle = {}
-      this.sendCable('create_random_battle', battleOptions)
-    },
-    deleteBattle() {
-      this.battleLoading = true
-      if (this.battleLoaded) this.sendCable("delete_battle", { battle_id: this.battle.id });
-    },
-    parseChallengeInput(input) {
-      const urlRegex = /^(https:\/\/)?www\.codewars\.com\/kata\/(?<challengeIdSlug>.+?)\/?(train\/(?<language>.+))?$/;
-      const matchData = input.match(urlRegex);
-      if (matchData) {
-        return {
-          challengeIdSlug: matchData.groups.challengeIdSlug,
-          language: matchData.groups.language
-        };
-      } else {
-        return {
-          challengeIdSlug: kebabCase(input),
-          language: null
-        };
-      }
-    },
-    initializeBattle() {
-      if (this.battleStage < 3) {
-        this.sendCable("update_battle", {
-          battle_action: "start",
-          battle_id: this.battle.id,
-          countdown: this.countdownDuration,
-        });
-      }
-    },
-    userEndsBattle() {
-      if (this.currentUserIsModerator && this.battleStage > 3)
-        this.sendCable("update_battle", {
-          battle_action: 'ended-by-user',
-          battle_id: this.battle.id,
-        });
-    },
-    fetchChallenges(userId) {
-      this.sendCable("fetch_user_challenges", {
-        user_id: userId ? userId : this.currentUserId,
-        battle_id: this.battle.id
-      });
-    },
-    getRoomPlayers(userId) {
-      this.roomPlayersLoading = true
-      this.sendCable("get_room_players");
-    },
-    openCodewars() {
-      if (this.openedCodewars) return;
-
-      this.openedCodewars = true;
-      this.battle.challenge.language = this.battle.challenge.language || "ruby";
-      window.open(this.challengeUrl);
-    },
     setBackgroundVolume() {
       this.ambianceMusic.volume = Math.min(
         this.ambianceMusic.volume,
@@ -634,152 +470,6 @@ export default {
       this.setBackgroundVolume()
       if (this.voiceON) soundFX.play();
     },
-    // ==========
-    // COUNTDOWN
-    // ==========
-    refreshCountdown() {
-      if (this.settings.room.next_event && this.settings.room.next_event.timer >= 0) {
-        this.countdown = Math.round(this.settings.room.next_event.timer);
-        switch (this.settings.room.next_event.type) {
-          case 'start-battle':
-            this.countdownMsg = 'Battle starting in...';
-            // this.countdownEndMsg = 'Starting battle...';
-            this.startCountdown(this.countdown, this.startBattleCountdown);
-            break;
-
-          case 'next-battle':
-            this.countdownMsg = 'Loading next battle in...';
-            // this.countdownEndMsg = 'Waiting for players to join...';
-            this.startCountdown(this.countdown);
-            break;
-
-          case 'end-battle':
-            this.countdownMsg = '';
-            this.countdownEndMsg = 'The battle is over.';
-            this.startCountdown(this.countdown, this.battleClockCountdown);
-            break;
-
-          default:
-            break;
-        }
-      }
-    },
-    startBattleCountdown() {
-      if (this.countdown < 0) {
-        if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
-        if (!this.voiceON) this.playSoundFx('countdownZero')
-        this.startAmbiance()
-      } else {
-        if (this.countdown === 10) this.playVoiceFx("countdown")
-        if (this.countdown < 60) this.playSoundFx('countdownTick')
-      }
-    },
-    battleClockCountdown() {
-      const timeRemaining = this.countdown;
-      if (timeRemaining <= 0) {
-        this.stopAmbiance()
-        if (!this.voiceON && timeRemaining === 0) this.playSoundFx('countdownZero')
-        clearInterval(this.clockInterval);
-      } else if (timeRemaining <= 10) {
-        if (timeRemaining === 10) this.playVoiceFx("countdown")
-        if (!this.voiceON) this.playSoundFx('countdownTick')
-      } else if (timeRemaining === 61) {
-        this.speak("WARNING! 1min remaining!", { interrupt: true });
-      } else if (timeRemaining === 121) {
-        this.speak("WARNING! 2min remaining!", { interrupt: true });
-      } else if (timeRemaining === 301) {
-        this.speak("WARNING! 5min remaining!", { interrupt: true });
-      }
-    },
-    refreshCountdownDisplay() {
-      if (this.countdown >= 0) {
-        const clockTime = this.battleStage !== 3 ? this.formatDuration(this.countdown) : this.countdown
-        this.announcement.status = "warning";
-        this.announcement.content = `<p><small class='m-0'>${this.countdownMsg}</small></p><span class="timer highlight">${clockTime}</span>`;
-      } else if (this.countdownEndMsg) {
-        this.announcement.content = this.countdownEndMsg;
-        this.countdownEndMsg = null;
-      }
-    },
-    startCountdown(countdown = null, callback = _ => {}) {
-      if (countdown) this.countdown = countdown;
-      if (this.countdown <= 0) return;
-      
-      clearInterval(this.timer);
-      // Last iteration when countdown == -1
-      this.timer = setInterval(() => {
-        this.refreshCountdownDisplay();
-        callback();
-        if (this.countdown < 0) {
-          clearInterval(this.timer)
-        };
-        this.countdown -= 1;
-      }, 1000);
-    },
-    startClock() {
-      clearInterval(this.clockInterval);
-      this.clockInterval = setInterval(() => {
-        if (this.countdown > 0) {
-          clearInterval(this.clockInterval);
-        } else if (this.battleStage >= 3) {
-          const clockTime = this.timeSpentInSeconds();
-          this.announce({
-            content: `<p class='highlight'><small>TIME ELAPSED</small></p><span class="timer highlight no-limit">${this.formatDuration(clockTime)}</span>`
-          });
-        } else {
-          clearInterval(this.clockInterval);
-        }
-      })
-    },
-    timeSpentInSeconds() {
-      return (Date.now() - Date.parse(this.battle.start_time)) / 1000;
-    },
-    timeRemainingInSeconds() {
-      return Math.ceil(this.battle.time_limit - this.timeSpentInSeconds());
-    },
-    formatDuration(durationInSeconds) {
-      if (durationInSeconds < 0) durationInSeconds = 0;
-      const hours = Math.floor(durationInSeconds / 60 / 60);
-      const minutes = Math.floor(durationInSeconds / 60) % 60;
-      const seconds = Math.floor(
-        durationInSeconds - hours * 60 * 60 - minutes * 60
-      );
-      return `${hours > 0 ? `${String(hours).padStart(2, "0")}:` : ""}${String(
-        minutes
-      ).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-    },
-    formatDurationForSpeech(durationInSeconds) {
-      if (durationInSeconds < 0) durationInSeconds = 0;
-      const hours = Math.floor(durationInSeconds / 60 / 60);
-      const minutes = Math.floor(durationInSeconds / 60) % 60;
-      const seconds = Math.floor(
-        durationInSeconds - hours * 60 * 60 - minutes * 60
-      );
-      return `${hours > 0 ? `${hours}hr ` : ""}${minutes}min${
-        seconds > 0 ? ` ${seconds}sec` : ""
-      }`;
-    },
-    // =============
-    //     USERS
-    // =============
-    pushToArray(array, element) {
-      const result = { newElement: element };
-      const elementIndex = array.findIndex(e => e.id === element.id);
-      if (elementIndex === -1) {
-        array.push(element);
-      } else {
-        // Vue cannot detect change in the array with array[index] = user
-        result.oldElement = array[elementIndex];
-        array.splice(elementIndex, 1, element);
-      }
-      return result;
-    },
-    pushToUsers(user) {
-      const dateFields = ['last_fetched_at', 'joined_room_at', 'joined_battle_at', 'completed_at']
-      // Parsing dates before pushing user into array
-      user = this.parseDates(user, dateFields)
-      if (this.users) this.pushToArray(this.users, user);
-    },
     parseDates(element, dateFields) {
       dateFields.forEach(field => {
         if (element[field]) {
@@ -791,31 +481,6 @@ export default {
       })
       return element
     },
-    removeFromArray(array, element) {
-      const elementIndex = array.findIndex(e => e.id === element.id);
-      if (elementIndex !== -1) {
-        array.splice(elementIndex, 1);
-        // if (this.currentUserIsModerator) console.info('Removed element:', element)
-      }
-    },
-    removeFromUsers(user) {
-      if (this.users) this.removeFromArray(this.users, user);
-    },
-    invitation(inviteAction, userId = null) {
-      this.sendCable("invitation", {
-        battle_id: this.battle.id,
-        invite_action: inviteAction,
-        user_id: userId
-      });
-    },
-    editTimeLimit(timeLimit) {
-      this.sendCable("update_battle", {
-        battle_action: "update",
-        battle_id: this.battle.id,
-        countdown: this.countdownDuration,
-        battle: { id: this.battle.id, time_limit: timeLimit * 60 }
-      });
-    }
   },
   channels: {
     RoomChannel: {
@@ -857,25 +522,6 @@ export default {
             }
             break;
 
-          case "chat":
-            switch (data.payload.action) {
-              case "all":
-                Vue.set(this.chat, 'messages', data.payload.messages);
-                Vue.set(this.chat, 'authors', data.payload.authors);
-                // if (this.currentUserIsModerator) console.info(`Refreshed all messages`)
-                this.messagesInitialized = true;
-                break;
-
-              default:
-                this.pushToArray(this.chat.messages, data.payload)
-                break;
-            }
-            break;
-
-          case "logs":
-            if (this.currentUserIsModerator) console.info("LOGS", data.payload);
-            break;
-
           case "settings":
             switch (data.payload.action) {
               case "user":
@@ -894,54 +540,6 @@ export default {
                 break;
             }
             break;  
-
-          case "users":
-            switch (data.payload.action) {
-              case "add":
-                this.pushToUsers(data.payload.user);
-                break;
-
-              // case "remove":
-              //   this.users = this.users.filter(
-              //     e => e.id !== data.payload.user.id
-              //   );
-              //   break;
-
-              case "all":
-                data.payload.users.forEach(user => this.pushToUsers(user));
-                this.usersInitialized = true;
-                break;
-
-              case "room-players":
-                data.payload.users.forEach(user => this.pushToUsers(user));
-                this.roomPlayersLoading = false;
-                break;
-            }
-            break;
-
-          case "battles":
-            switch (data.payload.action) {
-              case "active":
-                this.battleInitialized = true;
-                this.battleLoading = false;
-                if (data.payload.battle) {
-                  const dateFields = ['start_time', 'end_time']
-                  // Parsing dates before pushing user into array
-                  this.battle = this.parseDates(data.payload.battle, dateFields)
-                } else {
-                  // When room has no battle history
-                  this.battle = {}
-                }
-                break;
-
-              case "katas-count":
-                Vue.set(this.settings.room.katas, 'count', data.payload.count)
-                break;
-
-              default:
-                break;
-            }
-            break;
 
           default:
             if (this.currentUserIsModerator)
@@ -1005,5 +603,6 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+
 </style>

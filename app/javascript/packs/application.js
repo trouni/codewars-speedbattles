@@ -3,6 +3,7 @@ import "bootstrap";
 import Vue from 'vue/dist/vue.esm'
 import ActionCableVue from 'actioncable-vue';
 import VueChatScroll from 'vue-chat-scroll'
+import App from '../app.vue'
 import Room from '../components/room.vue'
 import Widget from '../components/shared/widget.vue'
 import NavBar from '../components/shared/navbar.vue'
@@ -15,6 +16,7 @@ import RankHex from '../components/shared/rank_hex.vue'
 import VueShowdown from 'vue-showdown'
 import VueHighlightJS from 'vue-highlightjs'
 
+Vue.component('app', App)
 Vue.component('room', Room)
 Vue.component('widget', Widget)
 Vue.component('navbar', NavBar)

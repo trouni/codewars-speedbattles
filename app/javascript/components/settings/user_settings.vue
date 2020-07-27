@@ -53,12 +53,19 @@
       <small>Select a default language to write code blocks.</small>
     </div> -->
     <div class="webhook-settings mb-5">
-      <h5>Codewars webhook
-        <sup>
-          <span v-if="settings.user.connected_webhook" class="badge badge-success">Connected</span>
-          <span v-else class="badge badge-danger">Not connected</span>
-        </sup>
-      </h5>
+      <div class="d-flex justify-content-between">
+        <h5>Codewars webhook
+          <sup>
+            <span v-if="settings.user.connected_webhook" class="badge badge-success">Connected</span>
+            <span v-else class="badge badge-danger animated flash delay-1s">Required</span>
+          </sup>
+        </h5>
+        <std-button
+          v-if="!settings.user.connected_webhook"
+          @click.native="showWebhookHelp"
+          fa-icon="fas fa-question-circle"
+          small>Help</std-button>
+      </div>
       <div v-if="settings.user.connected_webhook">
         <small>Last call received {{ formatDate(settings.user.last_webhook_at) }}.</small>
         <span class="d-flex justify-content-center my-3">
@@ -68,12 +75,15 @@
       <div v-else>
         <small>Add these settings to your Codewars account in order to automatically detect when you have completed a challenge.</small>
         <div class="d-flex flex-column align-items-center justify-content-center my-3">
-          <a href="https://www.codewars.com/users/edit#forgot_password" target="_blank" class="button small">Update your Codewars settings</a>
+          
+          <a href="https://www.codewars.com/users/edit#forgot_password" target="_blank">
+            <std-button @click.native="$root.$emit('update-settings', { user: { connected_webhook: false, last_webhook_at: null } })" small>Open Codewars settings</std-button>
+          </a>
         </div>
         <div class="form-group">
           <small>
             <label for="webhook_url" class="form-control-label w-100 text-center">Payload url</label>
-            <div class="custom-tooltip clickable copyable" :data-tooltip="tooltipText" @mouseleave="resetTooltip">
+            <div class="custom-tooltip clickable copyable webhook-border payload-url-color" :data-tooltip="tooltipText" @mouseleave="resetTooltip">
               <input
                 @click="copyToClipboard($event)"
                 type="text"
@@ -84,7 +94,7 @@
               />
             </div>
             <label for="webhook_url" class="form-control-label w-100 text-center mt-3">Secret</label>
-            <div class="custom-tooltip clickable copyable" :data-tooltip="tooltipText" @mouseleave="resetTooltip">
+            <div class="custom-tooltip clickable copyable webhook-border secret-color" :data-tooltip="tooltipText" @mouseleave="resetTooltip">
               <input
                 @click="copyToClipboard($event)"
                 type="text"
@@ -102,11 +112,11 @@
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="m-0">Low-res Theme</h5>
         <std-button
-          @click.native="lowRes = !lowRes"
+          @click.native="$root.$emit('toggle-low-res')"
           :fa-icon="`fas ${lowRes ? 'fa-adjust' : 'fa-image'}`"
         >{{ lowRes ? 'LOW RES' : 'STANDARD' }}</std-button>
       </div>
-      <small>Alternative theme reducing transparency and effects for slower devices.</small>
+      <small>Alternative theme that removes transparency and other effects for slower devices.</small>
     </div>
     <div class="form-group mb-5">
       <div class="d-flex justify-content-around">
@@ -128,14 +138,27 @@ export default {
   name: 'user-settings',
   props: {
     settings: Object,
-    moderator: Boolean,
+    moderator: {
+      type: Boolean,
+      default: false
+    },
+  },
+  watch: {
+    settings: {
+      handler(newSettings) {
+        this.displayName = newSettings.user.name
+        this.hljsLang = newSettings.user.hljs_lang
+        this.lowRes = newSettings.user.low_res_theme
+      },
+      deep: true
+    }
   },
   data() {
     return {
       tooltipText: "Copy to clipboard",
       displayName: this.settings.user.name,
       hljsLang: this.settings.user.hljs_lang,
-      lowRes: this.settings.user.low_res_theme,
+      lowRes: this.settings.user.low_res_theme
     }
   },
   computed: {
@@ -185,6 +208,10 @@ export default {
         a.getMonth() === b.getMonth() &&
         a.getDate()=== b.getDate()
     },
+    showWebhookHelp() {
+      let height = window.screen.height / 2
+      window.open('/setup-webhook', 'setup_webhook', `resizable=0,width=${height * 2},height=${height},scrollbars=0,status=0,toolbar=0,location=0`);
+    }
   }
 }
 </script>

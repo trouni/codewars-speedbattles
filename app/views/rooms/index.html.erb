@@ -1,57 +1,61 @@
-<div id="home" class="container vh-100">
-  <div class="row justify-content-center align-items-end h-50 pb-5">
+<app :current-user-id=<%= current_user.id %> :room-init="<%= @room.to_json %>">
+  <template>
+    <div id="home" class="container vh-100">
+      <div class="row justify-content-center align-items-end h-50 pb-5">
 
-    <div class="main-logo animated zoomIn">
-      <div class="codewars-logo animated slideInRight mr-3"><%= image_tag "codewars_logo.png" %></div>
-      <h1 class="main-title mx-3">
-        <div class="speed animated lightSpeedIn">
-          <div>Speed</div>
+        <div class="main-logo animated zoomIn">
+          <div class="codewars-logo animated slideInRight mr-3"><%= image_tag "codewars_logo.png" %></div>
+          <h1 class="main-title mx-3">
+            <div class="speed animated lightSpeedIn">
+              <div>Speed</div>
+            </div>
+            <div class="battles animated flipInY ">
+              <div class="animated pulse delay-2s slower">Battles</div>
+            </div>
+          </h1>
         </div>
-        <div class="battles animated flipInY ">
-          <div class="animated pulse delay-2s slower">Battles</div>
-        </div>
-      </h1>
-    </div>
-  </div>
+      </div>
 
-  <div class="row justify-content-center">
+      <div class="row justify-content-center">
 
-    <div class="grid-item col-xl-9">
-      <div class="widget-bg">
-        <div class="widget">
+        <div class="grid-item col-xl-9">
+          <div class="widget-bg">
+            <div class="widget">
 
-          <% if user_signed_in? && current_user.admin? %>
-          <h3 class="header">Join a war room</h3>
-          <div class="widget-body p-5">
-            <ol>
-              <% @rooms.each do |room| %>
-              <li><%= link_to room.name, room_path(room)%>
-              </li>
-              <% end %>
-            </ol>
-          </div>
-
-          <% elsif user_signed_in? %>
-          <h3 class="header">Welcome to Codewars > SpeedBattles</h3>
-          <div class="widget-body p-5 text-center">
-            <p>Welcome <%= current_user.name || current_user.username %></p>
-            <p>Please use the link given to you by an administrator to join a war room.</p>
-          </div>
-
-          <% else %>
-          <h3 class="header">Join the war!</h3>
-          <div class="widget-body pr-4 py-5">
-            <div class="d-flex justify-content-around">
-              <div><a href="/users/sign_in" class="button large"><i class="fas fa-sign-in-alt mr-2"></i>Log in</a></div>
-              <div><a href="/users/sign_up" class="button large"><i class="fas fa-star-of-life mr-2"></i>Sign up</a>
+              <% if user_signed_in? && current_user.admin? %>
+              <h3 class="header">Join a war room</h3>
+              <div class="widget-body p-5">
+                <ol>
+                  <% @rooms.each do |room| %>
+                  <li><%= link_to room.name, room_path(room)%>
+                  </li>
+                  <% end %>
+                </ol>
               </div>
+
+              <% elsif user_signed_in? %>
+              <h3 class="header">Welcome to Codewars > SpeedBattles</h3>
+              <div class="widget-body p-5 text-center">
+                <p>Welcome <%= current_user.name || current_user.username %></p>
+                <p>Please use the link given to you by an administrator to join a war room.</p>
+              </div>
+
+              <% else %>
+              <h3 class="header">Join the war!</h3>
+              <div class="widget-body pr-4 py-5">
+                <div class="d-flex justify-content-around">
+                  <div><a href="/users/sign_in" class="button large"><i class="fas fa-sign-in-alt mr-2"></i>Log in</a></div>
+                  <div><a href="/users/sign_up" class="button large"><i class="fas fa-star-of-life mr-2"></i>Sign up</a>
+                  </div>
+                </div>
+              </div>
+
+              <% end %>
+
             </div>
           </div>
-
-          <% end %>
-
         </div>
       </div>
     </div>
-  </div>
-</div>
+  </template>
+</app>

@@ -1,15 +1,17 @@
 class RoomsController < ApplicationController
   skip_before_action :authenticate_user!, only: [:index]
-  before_action :connected_webhook?, except: [:index]
+  before_action :connected_webhook?
 
   def index
     @rooms = policy_scope(Room).order(created_at: :asc)
+    render layout: 'vue_application'
   end
 
   def show
     # @battle = Battle.includes(:room).find_by(end_time: nil)
     @room = Room.find(params[:id])
     authorize @room
+    render layout: 'vue_application'
   end
 
   def new
@@ -35,9 +37,11 @@ class RoomsController < ApplicationController
   end
 
   def connected_webhook?
+    return if params[:action] == 'index' && params[:settings] == 'show'
+
     if current_user.present? && !current_user.connected_webhook? && !current_user.admin?
       flash[:notice] = "Please set up the Codewars webhook to continue..."
-      redirect_to edit_user_registration_path
+      redirect_to action: :index, settings: :show
     end
   end
 end
