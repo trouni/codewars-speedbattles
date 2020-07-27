@@ -12,8 +12,11 @@
     ]">
     <span :class="['app-bg', {'initializing': initializing}]"/>
 
-    <navbar :room-id="roomInit.id" :loading="settingsLoading || !wsConnected" />
-    <modal v-if="focus === 'modal' && settings" id="room-modal" title="SYS://Settings">
+    <navbar :room-id="roomId" :loading="settingsLoading || !wsConnected" />
+    <modal
+      v-if="focus === 'modal' && userSettingsInitialized && roomSettingsInitialized"
+      id="room-modal"
+      title="SYS://Settings">
       <template>
         <user-settings :settings="settings" :moderator="currentUserIsModerator"/>
       </template>
@@ -21,7 +24,7 @@
         <room-settings :settings="settings"/>
       </template>
     </modal>
-    <spinner v-if="initializing || !wsConnected" class="animated fadeIn">
+    <spinner v-if="!focus && (initializing || !wsConnected)" class="animated fadeIn">
       {{ wsConnected ? 'LOADING' : 'CONNECTING' }}
       <p v-if="longDisconnection" class="absolute-h-center mt-5 animated fadeIn">
         <small>Taking too long?</small>
@@ -98,11 +101,11 @@
 import Vue from 'vue/dist/vue.esm'
 import debounce from "lodash/debounce";
 import kebabCase from "lodash/kebabCase";
-import RoomChat from "../components/room_chat.vue";
-import RoomLeaderboard from "../components/room_leaderboard.vue";
-import RoomBattle from "../components/room_battle.vue";
-import RoomSettings from "../components/room_settings.vue";
-import UserSettings from "../components/settings/user_settings.vue";
+import RoomChat from "./room/room_chat.vue";
+import RoomLeaderboard from "./room/room_leaderboard.vue";
+import RoomBattle from "./room/room_battle.vue";
+import RoomSettings from "./settings/room_settings.vue";
+import UserSettings from "./settings/user_settings.vue";
 
 export default {
   components: {
@@ -110,6 +113,7 @@ export default {
     RoomLeaderboard,
     RoomBattle,
     RoomSettings,
+    UserSettings
   },
   props: {
     roomInit: Object,
@@ -137,7 +141,7 @@ export default {
       countdown: 0,
       countdownMsg: null,
       countdownEndMsg: null,
-      focus: null,
+      focus: new URL(window.location.href).searchParams.get("settings") === 'show' ? 'modal' : null,
       longDisconnection: false,
       // leaderboard: {},
       messagesInitialized: false,
@@ -188,12 +192,6 @@ export default {
   created() {
   },
   watch: {
-    settings: {
-      handler(settings, oldSettings) {
-        
-      },
-      deep: true
-    },
     sounds: {
       handler: function() {
         this.ambianceMusic.volume = this.musicON ? this.sounds.volumeAmbiance : 0;
@@ -221,6 +219,9 @@ export default {
     }
   },
   computed: {
+    roomId() {
+      return this.roomInit ? this.roomInit.id : null
+    },
     roomName() {
       return this.settings.room.name || ''
     },
@@ -392,7 +393,7 @@ export default {
     subscribeToCable() {
       this.$cable.subscribe({
         channel: "RoomChannel",
-        room_id: this.roomInit.id,
+        room_id: this.roomId,
         user_id: this.currentUserId
       });
     },
@@ -423,9 +424,6 @@ export default {
       if (this.focus === 'modal') {
         this.focus = null
       }
-    },
-    openSettings() {
-      this.openModal()
     },
     toggleSettings() {
       this.focus === 'modal' ? this.closeModal() : this.openModal()
@@ -833,7 +831,7 @@ export default {
         window.longDisconnectionTimeout = setTimeout(_ => this.longDisconnection = true, 8000)
       },
       received(data) {
-        if (data.roomId !== this.roomInit.id && data.userId !== this.currentUserId) return;
+        if (data.roomId !== this.roomId && data.userId !== this.currentUserId) return;
 
         switch (data.subchannel) {
           case "action":
@@ -973,7 +971,6 @@ export default {
       "change-volume-ambiance",
       volume => (this.sounds.volumeAmbiance = volume)
     );
-    this.$root.$on("open-user-settings", this.openSettings);
     this.$root.$on("toggle-settings", this.toggleSettings);
     this.$root.$on("update-settings", settings => this.updateSettings(settings));
     this.$root.$on("close-modal", this.closeModal);
@@ -1003,6 +1000,7 @@ export default {
     this.$root.$on("toggle-music", this.toggleMusic);
     this.$root.$on("toggle-sound-fx", () => this.settings.user.sfx = !this.settings.user.sfx);
     this.$root.$on("toggle-room-sound", () => this.settings.room.sound = !this.settings.room.sound);
+    this.$root.$on("toggle-low-res", () => this.settings.user.low_res_theme = !this.settings.user.low_res_theme);
   }
 };
 </script>
