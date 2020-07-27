@@ -12,7 +12,7 @@
     ]">
     <span :class="['app-bg', {'initializing': initializing}]"/>
 
-    <navbar :loading="settingsLoading || !wsConnected" />
+    <navbar v-if="currentUserId" :loading="settingsLoading || !wsConnected" />
     <modal
       v-if="focus === 'modal' && userSettingsInitialized"
       id="room-modal"
@@ -58,7 +58,10 @@ export default {
         return { id: null }
       }
     },
-    currentUserId: Number,
+    currentUserId: {
+      type: Number,
+      default: null
+    },
   },
   data() {
     return {
@@ -97,25 +100,27 @@ export default {
         room: {
           sound: true
         },
-        user: {},
+        user: {
+          sfx: true
+        },
       },
       sounds: {
         ambiance: {
-          battles: [new Audio("../audio/bensound-epic-med.mp3"), new Audio("../audio/overpowered-med.mp3"), new Audio('../audio/infinity-star-med.mp3')],
-          drums: new Audio('../audio/bg-drums.mp3')
+          battles: [new Audio("../../audio/bensound-epic-med.mp3"), new Audio("../../audio/overpowered-med.mp3"), new Audio('../../audio/infinity-star-med.mp3')],
+          drums: new Audio('../../audio/bg-drums.mp3')
         },
         fx: {
-          click: new Audio("../audio/select.mp3"),
-          countdown: new Audio("../audio/countdown.mp3"),
+          click: new Audio("../../audio/select.mp3"),
+          countdown: new Audio("../../audio/countdown.mp3"),
           // https://audiojungle.net/item/counting-countdown-timer/21635290
-          countdownTick: new Audio('../audio/countdown-tick.wav'),
-          countdownZero: new Audio('../audio/battlecruiser.mp3'),
-          drums: new Audio("../audio/drums.mp3"),
-          message: new Audio("../audio/hover.mp3"),
-          interface: new Audio("../audio/interface.mp3"),
-          mouseenter: new Audio("../audio/beep.mp3"),
-          mouseover: new Audio("../audio/beep.mp3"),
-          sword: new Audio("../audio/sword.mp3")
+          countdownTick: new Audio('../../audio/countdown-tick.wav'),
+          countdownZero: new Audio('../../audio/battlecruiser.mp3'),
+          drums: new Audio("../../audio/drums.mp3"),
+          message: new Audio("../../audio/hover.mp3"),
+          interface: new Audio("../../audio/interface.mp3"),
+          mouseenter: new Audio("../../audio/beep.mp3"),
+          mouseover: new Audio("../../audio/beep.mp3"),
+          sword: new Audio("../../audio/sword.mp3")
         },
         musicOn: true,
         soundFxOn: true,
@@ -156,9 +161,7 @@ export default {
       return true
     },
     initializing() {
-      return !(
-        this.userSettingsInitialized && this.currentUserId
-      )
+      return this.currentUserId && !this.userSettingsInitialized
     },
     unfocused() {
       return this.focus !== null || !this.wsConnected
@@ -557,6 +560,14 @@ export default {
     }
   },
   mounted() {
+    if (!this.currentUserId) {
+      // If user is not logged in
+      this.wsConnected = true
+      this.userSettingsInitialized = true
+      this.userSettingsLoading = false
+      return
+    }
+
     speechSynthesis.cancel();
 
     this.subscribeToCable();

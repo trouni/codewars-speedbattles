@@ -38,6 +38,14 @@
         @blur="checkUsername"
         placeholder="Your actual Codewars username"
       />
+      <div
+        :class="[
+          { 'valid-feedback': validUsername },
+          { 'invalid-feedback highlight-red': !validUsername }
+        ]"
+      >
+        {{ error }}
+      </div>
       <small>
         Spaces not allowed.
         <a href="https://www.codewars.com/users/edit" target="_blank"
@@ -45,20 +53,7 @@
         >
         to see/edit your Codewars username.
       </small>
-      <div
-        :class="[
-          { 'valid-feedback': validUsername },
-          { 'invalid-feedback': !validUsername }
-        ]"
-      >
-        {{ error }}
-      </div>
     </div>
-    <!-- <div class="form-group string user_name">
-      <label for="user_name" class="form-control-label"><strong>Display name</strong> <small>(optional)</small></label>
-      <input autocomplete="name" aria-required="false" type="text" name="user[name]" id="user_name" class="form-control" maxlength="24" placeholder="The name other players will see you as">
-      <small>Your Codewars username will be shown unless you specify a name.</small>
-    </div>-->
     <div class="form-group password required user_password">
       <label for="user_password" class="form-control-label password required">
         <strong>Password</strong>
@@ -85,21 +80,6 @@
       <div class="invalid-feedback">6 characters minimum</div>
       <div class="valid-feedback">Looks good!</div>
     </div>
-    <!-- <div class="form-group password required user_password_confirmation">
-      <label for="user_password_confirmation" class="form-control-label password required"><strong>Password confirmation</strong> <abbr title="required">*</abbr></label>
-      <input autocomplete="new-password" required="required" aria-required="true" type="password" name="user[password_confirmation]" id="user_password_confirmation" :class="['form-control password required', { 'is-valid': passwordCheck && validPasswordCheck }, { 'is-invalid': passwordCheck && !validPasswordCheck }]" v-model="passwordCheck" placeholder="Enter the password again for confirmation.">
-      <div class="invalid-feedback">The passwords don't match.</div>
-      <div class="valid-feedback">Looks good!</div>
-    </div>-->
-    <button
-      type="submit"
-      name="commit"
-      :disabled="!validForm"
-      value="Sign up"
-      class="button large mx-auto"
-    >
-      <i class="fas fa-star-of-life mr-2"></i>Sign up
-    </button>
   </div>
 </template>
 
@@ -147,7 +127,7 @@ export default {
               } a valid Codewars username${
                 response.valid
                   ? ""
-                  : " (case sensitive). Please enter your actual Codewars username"
+                  : ". Please enter your actual Codewars username (case sensitive)"
               }.`;
             }
           });

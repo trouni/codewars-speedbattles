@@ -23,17 +23,8 @@ class RegistrationsController < Devise::RegistrationsController
     resource.update_without_password(params)
   end
 
-  def after_update_path_for(_resource)
-    current_room_id = params[:current_room][:id].to_i
-    if current_room_id.zero?
-      root_path
-    else
-      room_path(Room.find(current_room_id))
-    end
-  end
-
-  def after_sign_up_path_for(resource)
-    edit_user_registration_path
-  end
+  # def after_sign_up_path_for(resource)
+  #   rooms_path
+  # end
 end
 

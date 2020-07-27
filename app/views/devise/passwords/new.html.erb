@@ -1,26 +1,23 @@
-<div class="container vh-100 pt-5">
-  <div class="row justify-content-center">
-    <div class="grid-item col-md-9 col-lg-6">
-      <%= render 'shared/widget', title: "Forgot your password?" do %>
-        <%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
-          <%= f.error_notification %>
-
-          <div class="form-inputs">
-            <%= f.input :email,
-                        required: true,
-                        autofocus: true,
-                        input_html: { autocomplete: "email" } %>
-          </div>
-
-          <div class="form-actions">
-            <button type="submit" name="commit" value="Reset password" class="button large mx-auto"><i class="fas fa-sign-in-alt mr-2"></i>Reset password</button>
-          </div>
-        <% end %>
-
-      <% end %>
+<widget
+id="password-reset"
+class="animated fadeIn w-50 m-auto"
+header-title="Access://Reset_Password/">
+  <%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, ref: 'form', class: 'py-4' }) do |f| %>
+    <%= f.error_notification %>
+    <div class="form-inputs">
+      <%= f.input :email,
+                  required: true,
+                  autofocus: true,
+                  input_html: { autocomplete: "email" } %>
     </div>
-  </div>
-  <div class="mx-auto text-center">
-    <%= render "devise/shared/links" %>
-  </div>
-</div>
+    <p class="text-center m-2">
+      <%= render 'devise/shared/links' %>
+    </p>
+  <% end %>
+  <template v-slot:controls>
+    <div class="form-actions">
+      <std-button @click.native="$refs.form.submit()" large fa-icon="fas fa-star-of-life">Reset password</std-button>
+    </div>
+  </template>
+</widget>
+
