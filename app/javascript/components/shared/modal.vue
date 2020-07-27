@@ -2,7 +2,7 @@
   <div>
     <div class="modal-overlay animated fadeIn faster" @click="cancel" />
     <div class="modal-ctn" ref="ctn">
-      <widget :header-title="title" :seek-attention="true" class="focus modal-widget animated fadeIn faster" ref="widget">
+      <widget :header-title="title" :seek-attention="true" class="focus modal-widget animated fadeIn faster" ref="widget" :loading=loading>
         <template>
           <slot/>
         </template>
@@ -24,6 +24,10 @@ import EventBus from '../../services/event_bus'
 export default {
   props: {
     title: String,
+    loading: {
+      type: Boolean,
+      default: false,
+    },
     show: {
       type: Boolean,
       default: false,
