@@ -38,7 +38,7 @@ class RoomChannel < ApplicationCable::Channel
     set_room
     set_current_user
     stop_all_streams
-    RoomUser.find_by(room: @room, user: @current_user).destroy
+    RoomUser.find_by(room: @room, user: @current_user)&.destroy
     # RoomUser.where(user: @current_user).destroy_all
   end
 
