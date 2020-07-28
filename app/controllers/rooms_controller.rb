@@ -3,7 +3,8 @@ class RoomsController < ApplicationController
   before_action :connected_webhook?
 
   def index
-    @rooms = policy_scope(Room).order(created_at: :asc)
+    @public_rooms = policy_scope(Room).where(private: false).order(created_at: :asc)
+    @private_rooms = policy_scope(Room).where(private: true).order(created_at: :asc)
     render layout: 'vue_application'
   end
 

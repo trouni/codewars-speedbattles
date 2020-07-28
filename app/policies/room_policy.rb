@@ -1,7 +1,11 @@
 class RoomPolicy < ApplicationPolicy
   class Scope < Scope
     def resolve
-      scope.all
+      if user&.admin?
+        scope.all
+      else
+        scope.where(private: false)
+      end
     end
   end
 
