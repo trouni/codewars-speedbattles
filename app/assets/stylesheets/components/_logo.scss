@@ -19,26 +19,39 @@
   .main-title {
     .speed {
       font-size: 2.1em;
-      animation-duration: 0.5s;
-      animation-delay: 1s;
       font-family: $body-font;
       text-transform: uppercase;
     }
     .battles {
       font-size: 1.75em;
       text-transform: uppercase;
-      color: lighten($fullopacity-war, 15%);
       font-weight: bold;
-      text-shadow: 0 0 5px rgba(white, 1), 0 0 15px rgba(white, 0.5);
-      animation-duration: 0.5s;
-      animation-delay: 1.7s;
+      animation-duration: 0.4s;
+      animation-delay: 1s;
+      div {
+        letter-spacing: 1.5px;
+      }
     }
   }
 
   .codewars-logo {
-    animation-duration: 0.5s;
-    animation-delay: 1s;
+    display: flex;
+    align-items: center;
+    img {
+      height: 136px;
+    }
   }
+
+  // Animation delays
+  .codewars-logo, .main-title .speed {
+    animation-duration: 0.4s;
+    animation-delay: 0.6s;
+  }
+}
+
+.tagline {
+  text-align: center;
+  position: relative;
 }
 
 @media (min-width: 576px) {
