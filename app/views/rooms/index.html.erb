@@ -3,40 +3,67 @@
   <%= ":current-user-id=#{current_user.id}" if user_signed_in? %>
   :room-init="<%= @room.to_json %>">
   <template>
-    <div id="home" class="container vh-100">
-      <div class="row justify-content-center align-items-end h-50 pb-5">
-        <%= render 'shared/logo' %>
-      </div>
-
-      <div class="row justify-content-center">
+    <div id="home" class="vh-100<%= ' signed-in' if user_signed_in? %>">
+      <% if user_signed_in? %>
+        <div id="home-logo" class="small">
+          <%= render 'shared/logo' %>
+        </div>
 
         <widget
-        id="rooms-index"
-        class="grid-item animated fadeIn"
+        id="public-rooms"
+        class="grid-item animated fadeIn delay-1s"
         header-title="PWD://War_Rooms/">
           <div class="h-100 p-3">
-            <% if user_signed_in? && current_user.admin? %>
-              <ol>
-                <% @rooms.each do |room| %>
+            <ol>
+              <% @public_rooms.each do |room| %>
                 <li><%= link_to room.name, room_path(room)%>
                 </li>
+              <% end %>
+            </ol>
+          </div>
+        </widget>
+
+        <widget
+        id="private-rooms"
+        class="grid-item animated fadeIn delay-1s"
+        header-title="PWD://Private_War_Rooms/">
+          <div class="h-100 p-3">
+            <% if current_user.admin? %>
+              <ol>
+                <% @private_rooms.each do |room| %>
+                  <li><%= link_to room.name, room_path(room)%>
+                  </li>
                 <% end %>
               </ol>
-            <% elsif user_signed_in? %>
-              <div class="text-center pb-3">
-                <p>Welcome <%= current_user.name || current_user.username %></p>
-                <p>Please use the link given to you by an administrator to join a war room.</p>
-              </div>
             <% else %>
-              <div class="d-flex justify-content-around pb-3">
-                <div><a href="/users/sign_in" class="button large"><i class="fas fa-sign-in-alt mr-2"></i>Log in</a></div>
-                <div><a href="/users/sign_up" class="button large"><i class="fas fa-star-of-life mr-2"></i>Sign up</a>
-                </div>
+              <div class="text-center pb-3">
+                <p>Please use the link given to you to join a private war room.</p>
               </div>
             <% end %>
           </div>
         </widget>
-      </div>
+
+        <widget
+        id="home-leaderboard"
+        class="grid-item animated fadeIn delay-1s"
+        header-title="NTWRK://Leaderboard/">
+        </widget>
+      <% else %>
+        <div class="d-flex justify-content-center align-items-end h-50 pb-5">
+          <%= render 'shared/logo' %>
+        </div>
+
+        <widget
+        id="sign-in"
+        class="grid-item animated fadeIn"
+        header-title="PWD://War_Rooms/">
+          <div class="d-flex justify-content-around pb-3">
+            <div><a href="/users/sign_in" class="button large"><i class="fas fa-sign-in-alt mr-2"></i>Log in</a></div>
+            <div><a href="/users/sign_up" class="button large"><i class="fas fa-star-of-life mr-2"></i>Sign up</a>
+            </div>
+          </div>
+        </widget>
+      <% end %>
     </div>
   </template>
 </app>
