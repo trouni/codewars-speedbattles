@@ -1,6 +1,6 @@
 <template>
   <div class="fixed-header">
-    <table class="console-table h-100">
+    <table class="rooms console-table h-100">
       <thead>
         <tr>
           <th scope="col" style="width: 40%;"><span class="data">NAME</span></th>
