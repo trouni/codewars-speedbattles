@@ -28,10 +28,10 @@ require 'open-uri'
 
 class User < ApplicationRecord
   acts_as_token_authenticatable
-  has_one :room_user, required: false
+  has_one :room_user, required: false, dependent: :destroy
   has_one :room, through: :room_user, required: false
   has_many :rooms_as_moderator, class_name: "Room", foreign_key: 'moderator_id'
-  has_many :battle_invites, foreign_key: 'player_id'
+  has_many :battle_invites, foreign_key: 'player_id', dependent: :destroy
   has_many :battles, through: :battle_invites
   has_many :completed_challenges, dependent: :destroy
   # Include default devise modules. Others available are:
