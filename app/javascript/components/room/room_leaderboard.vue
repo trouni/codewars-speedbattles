@@ -15,14 +15,16 @@
           </thead>
           <tbody>
             <tr v-for="(user, index) in sortedLeaderboard" :class="{ 'highlight current-user': isCurrentUser(user.id) }" :title="`${user.username} | ${-user.codewars_overall_rank} kyu | ${user.total_survived || 0} wins on SpeedBattles`" :key="user.id">
-              <th scope="row" class="justify-content-between">
-                <span :class="['data user', {offline: !user.online}]">
-                  <span :class="['mr-1', { 'online highlight': user.online }]">●</span>
-                  <span :class="[userClass(user.id), 'username']">{{ user.name || user.username }}</span>
-                </span>
-                <span class="invite-button">
-                  <std-button v-if="showInviteButton(user.id)" @click.native="toggleInvite(user.id)" :title="showInviteButton(user.id)" small class="mr-2" />
-                </span>
+              <th scope="row">
+                <div class="d-flex justify-content-between">
+                  <span :class="['data user', {offline: !user.online}]">
+                    <span :class="['mr-1', { 'online highlight': user.online }]">●</span>
+                    <span :class="[userClass(user.id), 'username']">{{ user.name || user.username }}</span>
+                  </span>
+                  <span class="invite-button">
+                    <std-button v-if="showInviteButton(user.id)" @click.native="toggleInvite(user.id)" :title="showInviteButton(user.id)" small class="mr-2" />
+                  </span>
+                </div>
               </th>
               <td v-if="room.show_stats"><span class="data rank">{{ userRanks[index] }}</span></td>
               <td v-if="room.show_stats"><span class="data">{{ user ? displayScore(user.total_score) : "-" }}</span></td>

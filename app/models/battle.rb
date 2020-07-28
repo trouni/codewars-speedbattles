@@ -200,6 +200,8 @@ class Battle < ApplicationRecord
   private
 
   def invite_user(user)
+    return if ineligible_users.where(id: user).exists?
+
     battle_invite = BattleInvite.create(battle: self, player: user)
     battle_invite.broadcast_user
   end
@@ -241,7 +243,7 @@ class Battle < ApplicationRecord
     destroy unless valid?
   end
 
-  def auto_start_battle(delay: 30.seconds)
+  def auto_start_battle(delay: 20.seconds)
     return if started?
 
     if confirmed_players.count > 1

@@ -14,13 +14,20 @@
   #home.signed-in {
     display: grid;
     grid-template-columns: 3fr 2fr;
-    grid-template-rows: 5fr 2fr;
+    grid-template-rows: 1.5em 3fr 2fr 2fr 1.5em;
     grid-template-areas:
+      "public-rooms top-right"
       "public-rooms leaderboard"
-      "private-rooms leaderboard";
+      "public-rooms leaderboard"
+      "private-rooms leaderboard"
+      "private-rooms bottom-left";
     column-gap: 1em;
     height: 100vh;
-    padding: 5%;
+    padding: 3%;
+  }
+
+  #home-profile {
+    grid-area: profile;
   }
 
   #public-rooms {

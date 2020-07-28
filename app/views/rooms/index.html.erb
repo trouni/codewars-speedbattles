@@ -9,17 +9,24 @@
           <%= render 'shared/logo' %>
         </div>
 
+        <%# <widget
+        id="home-profile"
+        class="grid-item animated fadeIn delay-1s"
+        header-title="USR://Profile/">
+        </widget> %>
+
         <widget
         id="public-rooms"
         class="grid-item animated fadeIn delay-1s"
         header-title="PWD://War_Rooms/">
-          <div class="h-100 p-3">
-            <ol>
-              <% @public_rooms.each do |room| %>
-                <li><%= link_to room.name, room_path(room)%>
-                </li>
-              <% end %>
-            </ol>
+          <div class="h-100 py-3">
+          <% if current_user.connected_webhook? %>
+              <rooms-list :rooms="<%= @public_rooms.to_json %>"></rooms-list>
+          <% else %>
+              <div class="absolute-center highlight-red">
+                <h5>Please connect the Codewars webhook to continue.</h5>
+              </div>
+          <% end %>
           </div>
         </widget>
 
@@ -27,16 +34,11 @@
         id="private-rooms"
         class="grid-item animated fadeIn delay-1s"
         header-title="PWD://Private_War_Rooms/">
-          <div class="h-100 p-3">
+          <div class="h-100 py-3">
             <% if current_user.admin? %>
-              <ol>
-                <% @private_rooms.each do |room| %>
-                  <li><%= link_to room.name, room_path(room)%>
-                  </li>
-                <% end %>
-              </ol>
+              <rooms-list :rooms="<%= @private_rooms.to_json %>"></rooms-list>
             <% else %>
-              <div class="text-center pb-3">
+              <div class="absolute-center">
                 <p>Please use the link given to you to join a private war room.</p>
               </div>
             <% end %>
@@ -46,7 +48,21 @@
         <widget
         id="home-leaderboard"
         class="grid-item animated fadeIn delay-1s"
-        header-title="NTWRK://Leaderboard/">
+        header-title="INFO://Instructions/">
+          <div class="h-100 p-3 scrollable">
+            <h4 class="highlight my-3">Instructions</h4>
+            <ul>
+              <li class="mt-2">Make sure you are logged in to Codewars as <strong><%= current_user.username %></strong></li>
+              <li class="mt-2">Add the SpeedBattles webhook to your Codewars settings.</li>
+              <li class="mt-2">After the countdown, click <std-button title="Launch Codewars" small class="d-inline-flex"></std-button> to open the challenge, or allow pop-ups for this website in your browser.</li>
+            </ul>
+            <h4 class="highlight my-3 mt-5">Notes</h4>
+            <ul>
+              <li class="mt-2">At least two players need to join for a battle to start.</li>
+              <li class="mt-2">You will not be able to join a battle if you already completed that challenge on Codewars.</li>
+              <li class="mt-2">If you complete a challenge but it is not detected, you can click on <std-button title="Completed Challenge" small class="d-inline-flex"></std-button> to have SpeedBattles check again.</li>
+            </ul>
+          </div>
         </widget>
       <% else %>
         <div class="d-flex justify-content-center align-items-end h-50 pb-5">

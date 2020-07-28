@@ -35,6 +35,7 @@ class Room < ApplicationRecord
         min_satisfaction: 90,
         ignore_higher_rank_users: false,
       },
+      max_users: 0,
       languages: ['ruby'],
       auto_invite: false,
       autonomous: false,
@@ -52,7 +53,10 @@ class Room < ApplicationRecord
 
   def settings_hash
     return {
+      id: id,
       name: name,
+      users_count: room_users.count,
+      max_users: settings(:base).max_users,
       sound: settings(:base).sound,
       voice_chat_url: settings(:base).voice_chat_url,
       classification: settings(:base).classification,
