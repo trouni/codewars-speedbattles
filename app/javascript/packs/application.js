@@ -5,6 +5,7 @@ import ActionCableVue from 'actioncable-vue';
 import VueChatScroll from 'vue-chat-scroll'
 import App from '../app.vue'
 import Room from '../components/room.vue'
+import RoomsList from '../components/room/rooms_list.vue'
 import Widget from '../components/shared/widget.vue'
 import NavBar from '../components/shared/navbar.vue'
 import SignUpFormInputs from '../components/sign_up/form_inputs.vue'
@@ -18,6 +19,7 @@ import VueHighlightJS from 'vue-highlightjs'
 
 Vue.component('app', App)
 Vue.component('room', Room)
+Vue.component('rooms-list', RoomsList)
 Vue.component('widget', Widget)
 Vue.component('navbar', NavBar)
 Vue.component('std-button', StdButton)

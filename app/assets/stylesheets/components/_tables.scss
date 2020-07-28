@@ -19,10 +19,14 @@ table.console-table {
 
   tbody th {
     align-items: center;
-    display: flex;
+    display: table-cell;
     white-space: nowrap;
     overflow: hidden;
     font-weight: 200;
+  }
+
+  tbody td {
+    display: table-cell;
   }
 
   td:not(:first-child) .data, th:not(:first-child) .data {

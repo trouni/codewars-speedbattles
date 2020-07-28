@@ -3,40 +3,83 @@
   <%= ":current-user-id=#{current_user.id}" if user_signed_in? %>
   :room-init="<%= @room.to_json %>">
   <template>
-    <div id="home" class="container vh-100">
-      <div class="row justify-content-center align-items-end h-50 pb-5">
-        <%= render 'shared/logo' %>
-      </div>
+    <div id="home" class="vh-100<%= ' signed-in' if user_signed_in? %>">
+      <% if user_signed_in? %>
+        <div id="home-logo" class="small">
+          <%= render 'shared/logo' %>
+        </div>
 
-      <div class="row justify-content-center">
+        <%# <widget
+        id="home-profile"
+        class="grid-item animated fadeIn delay-1s"
+        header-title="USR://Profile/">
+        </widget> %>
 
         <widget
-        id="rooms-index"
-        class="grid-item animated fadeIn"
+        id="public-rooms"
+        class="grid-item animated fadeIn delay-1s"
         header-title="PWD://War_Rooms/">
-          <div class="h-100 p-3">
-            <% if user_signed_in? && current_user.admin? %>
-              <ol>
-                <% @rooms.each do |room| %>
-                <li><%= link_to room.name, room_path(room)%>
-                </li>
-                <% end %>
-              </ol>
-            <% elsif user_signed_in? %>
-              <div class="text-center pb-3">
-                <p>Welcome <%= current_user.name || current_user.username %></p>
-                <p>Please use the link given to you by an administrator to join a war room.</p>
+          <div class="h-100 py-3">
+          <% if current_user.connected_webhook? %>
+              <rooms-list :rooms="<%= @public_rooms.to_json %>"></rooms-list>
+          <% else %>
+              <div class="absolute-center highlight-red">
+                <h5>Please connect the Codewars webhook to continue.</h5>
               </div>
+          <% end %>
+          </div>
+        </widget>
+
+        <widget
+        id="private-rooms"
+        class="grid-item animated fadeIn delay-1s"
+        header-title="PWD://Private_War_Rooms/">
+          <div class="h-100 py-3">
+            <% if current_user.admin? %>
+              <rooms-list :rooms="<%= @private_rooms.to_json %>"></rooms-list>
             <% else %>
-              <div class="d-flex justify-content-around pb-3">
-                <div><a href="/users/sign_in" class="button large"><i class="fas fa-sign-in-alt mr-2"></i>Log in</a></div>
-                <div><a href="/users/sign_up" class="button large"><i class="fas fa-star-of-life mr-2"></i>Sign up</a>
-                </div>
+              <div class="absolute-center">
+                <p>Please use the link given to you to join a private war room.</p>
               </div>
             <% end %>
           </div>
         </widget>
-      </div>
+
+        <widget
+        id="home-leaderboard"
+        class="grid-item animated fadeIn delay-1s"
+        header-title="INFO://Instructions/">
+          <div class="h-100 p-3 scrollable">
+            <h4 class="highlight my-3">Instructions</h4>
+            <ul>
+              <li class="mt-2">Make sure you are logged in to Codewars as <strong><%= current_user.username %></strong></li>
+              <li class="mt-2">Add the SpeedBattles webhook to your Codewars settings.</li>
+              <li class="mt-2">After the countdown, click <std-button title="Launch Codewars" small class="d-inline-flex"></std-button> to open the challenge, or allow pop-ups for this website in your browser.</li>
+            </ul>
+            <h4 class="highlight my-3 mt-5">Notes</h4>
+            <ul>
+              <li class="mt-2">At least two players need to join for a battle to start.</li>
+              <li class="mt-2">You will not be able to join a battle if you already completed that challenge on Codewars.</li>
+              <li class="mt-2">If you complete a challenge but it is not detected, you can click on <std-button title="Completed Challenge" small class="d-inline-flex"></std-button> to have SpeedBattles check again.</li>
+            </ul>
+          </div>
+        </widget>
+      <% else %>
+        <div class="d-flex justify-content-center align-items-end h-50 pb-5">
+          <%= render 'shared/logo' %>
+        </div>
+
+        <widget
+        id="sign-in"
+        class="grid-item animated fadeIn"
+        header-title="PWD://War_Rooms/">
+          <div class="d-flex justify-content-around pb-3">
+            <div><a href="/users/sign_in" class="button large"><i class="fas fa-sign-in-alt mr-2"></i>Log in</a></div>
+            <div><a href="/users/sign_up" class="button large"><i class="fas fa-star-of-life mr-2"></i>Sign up</a>
+            </div>
+          </div>
+        </widget>
+      <% end %>
     </div>
   </template>
 </app>

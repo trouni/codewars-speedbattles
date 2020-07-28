@@ -8,7 +8,7 @@ class RoomChannel < ApplicationCable::Channel
     # Disconnect from all other rooms
     ActionCable.server.remote_connections.where(current_user: @current_user).disconnect
     stop_all_streams
-    RoomUser.where(user: @current_user, room: @room).destroy_all
+    RoomUser.where(user: @current_user).destroy_all
     
     # User
     if @current_user
@@ -27,7 +27,7 @@ class RoomChannel < ApplicationCable::Channel
 
       if @room.autonomous?
         # Invite to existing battle if autonomous room
-        @room.active_battle&.invitation(user: @current_user, action: "invite") unless @room.active_battle.started?
+        @room.active_battle&.invitation(user: @current_user, action: "invite") unless @room.active_battle&.started?
         # Create battle if at_peace and no next event
         ScheduleRandomBattle.perform_now(room_id: @room.id, delay_in_seconds: 20) unless @room.unfinished_battle? || @room.next_event?
       end

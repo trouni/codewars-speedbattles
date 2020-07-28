@@ -1,40 +1,58 @@
-CODEWARS_USERNAMES = %w[gabrielsiedler mlabrum richardhsu] # Uraza glebec Leig TinoC lwoo1999 jnicol MiraliN EnigmaWasp asltyn brubru777 NyxTo xSmallDeadGuyx gabrielsiedler mlabrum richardhsu
-
-Battle.destroy_all
-Room.destroy_all
-User.destroy_all
-
 # # ============================
 # # USERS
 
-User.create!(
-  username: "trouni",
-  password: "secret",
-  email: 'trouni@kesseo.com',
-  admin: true
-)
+# trouni = User.find_or_create_by!(
+#   username: "trouni",
+#   password: "secret",
+#   email: 'trouni@kesseo.com',
+#   admin: true
+# )
 
-User.create!(
-  username: "moderator",
-  password: "supersecret",
-  email: 'speedbattles@kesseo.com',
-  admin: true
-)
-
-# CODEWARS_USERNAMES.each do |username|
-#   User.create!(
-#     username: username,
-#     password: "secret"
-#   )
-# end
+trouni = User.find_by(username: 'trouni')
 
 # ============================
 # Rooms & RoomUsers
 
-room = Room.create!(name: "Codewars SpeedBattles tutorial", moderator: User.find_by(username: 'moderator'))
-room = Room.create!(name: "Le Wagon Tokyo 279", moderator: User.find_by(username: 'moderator'))
-autonomous_room = Room.create!(name: "Autonomous Test Room", moderator: User.find_by(username: 'trouni'))
-autonomous_room.settings(:base).update(autonomous: true)
-# User.all.each do |user|
-#   RoomUser.create!(room: room, user: user)
-# end
+# room = Room.find_or_create_by!(name: "Codewars SpeedBattles tutorial", moderator: trouni)
+# room = Room.find_or_create_by!(name: "Le Wagon Tokyo 252", moderator: trouni)
+# autonomous_room = Room.find_or_create_by!(name: "Autonomous Test Room", moderator: trouni)
+# autonomous_room.settings(:base).update(autonomous: true)
+
+# Public rooms
+public_rooms = [
+  {
+    name: "Ruby Beginners (8 kyu)",
+    katas: {
+      ranks: [-8]
+    },
+    languages: ['ruby'],
+    max_users: 20,
+    autonomous: true,
+    time_limit: 5 * 60,
+  },
+  {
+    name: "Ruby Beginners (7 kyu)",
+    katas: {
+      ranks: [-7]
+    },
+    languages: ['ruby'],
+    max_users: 20,
+    autonomous: true,
+    time_limit: 10 * 60,
+  },
+  {
+    name: "Ruby Intermediate (6 kyu)",
+    katas: {
+      ranks: [-6]
+    },
+    languages: ['ruby'],
+    max_users: 20,
+    autonomous: true,
+    time_limit: 15 * 60,
+  },
+]
+
+public_rooms.each do |room_hash|
+  room = Room.find_or_create_by!(name: room_hash[:name], moderator: trouni, private: false)
+  room.settings(:base).update(room_hash.except(:name))
+end
