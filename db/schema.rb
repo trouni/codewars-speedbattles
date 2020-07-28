@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_23_103112) do
+ActiveRecord::Schema.define(version: 2020_07_28_000631) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -161,6 +161,7 @@ ActiveRecord::Schema.define(version: 2020_07_23_103112) do
     t.datetime "updated_at", null: false
     t.boolean "show_stats", default: true
     t.boolean "sound", default: true
+    t.boolean "private", default: true
     t.index ["moderator_id"], name: "index_rooms_on_moderator_id"
   end
 

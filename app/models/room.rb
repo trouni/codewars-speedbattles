@@ -4,6 +4,7 @@
 #
 #  id           :bigint           not null, primary key
 #  name         :string
+#  private      :boolean          default(TRUE)
 #  show_stats   :boolean          default(TRUE)
 #  sound        :boolean          default(TRUE)
 #  created_at   :datetime         not null
