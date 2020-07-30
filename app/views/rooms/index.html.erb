@@ -48,11 +48,12 @@
         id="home-leaderboard"
         class="grid-item animated fadeIn delay-1s"
         header-title="INFO://Instructions/">
-          <div class="h-100 p-5 scrollable">
-            <h4 class="highlight mb-5 text-center">Instructions</h4>
+          <h6 class="tagline mb-4"><span class="highlight-red">Codewars.</span> <span class="highlight">Multiplayer.</span></h6>
+          <h4 class="highlight text-center">Instructions</h4>
+          <div class="h-100 px-5 py-3 scrollable">
             <ul>
               <li class="mt-3">Make sure you are logged in to Codewars as <strong><%= current_user.username %></strong></li>
-              <li class="mt-3">Add the SpeedBattles webhook to your Codewars settings.</li>
+              <li class="mt-3 <%= 'highlight-red' unless current_user.connected_webhook? %>">Add the SpeedBattles webhook to your Codewars settings.</li>
               <li class="mt-3">Join a room and click <std-button title="Join Battle" small class="d-inline-flex"></std-button> to take part in the next challenge.</li>
               <li class="mt-3">The battle starts automatically 20 seconds after the last player has joined.</li>
               <li class="mt-3">After the countdown, Codewars will automatically open in a new tab (you first need to allow pop-ups for this website).</li>
