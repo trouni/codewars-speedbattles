@@ -1,11 +1,9 @@
 <app
   <%= ":current-user-id=#{current_user.id}" if user_signed_in? %>
-  :room-init="<%= @room.to_json %>">
-  <template>
-    <home
-      <%= ":current-user=#{current_user.to_json}" if user_signed_in? %>
-      :public-rooms="<%= @public_rooms.to_json %>"
-      :private-rooms="<%= @private_rooms.to_json %>"
-    ></home>
-  </template>
+  :room-init="<%= @room.to_json %>" v-slot="slotProps">
+  <home
+    :public-rooms="<%= @public_rooms.to_json %>"
+    :private-rooms="<%= @private_rooms.to_json %>"
+    :settings="slotProps.settings"
+  ></home>
 </app>

@@ -1,6 +1,6 @@
 <template>
-  <div id="home" :class="['vh-100', currentUser ? 'signed-in' : 'signed-out']">
-    <div v-if="currentUser" class="d-contents">
+  <div id="home" :class="['vh-100', settings.user ? 'signed-in' : 'signed-out']">
+    <div v-if="settings.user" class="d-contents">
       <div id="home-logo" class="small">
         <logo />
       </div>
@@ -16,7 +16,7 @@
       class="grid-item animated fadeIn delay-1s"
       header-title="PWD://War_Rooms/">
         <div class="h-100 py-3">
-          <rooms-list v-if="currentUser.connected_webhook" :rooms="publicRooms"></rooms-list>
+          <rooms-list v-if="settings.user.connected_webhook" :rooms="publicRooms"></rooms-list>
           <div v-else class="absolute-center highlight-red">
             <h5>Please connect the Codewars webhook to continue.</h5>
           </div>
@@ -28,7 +28,7 @@
       class="grid-item animated fadeIn delay-1s"
       header-title="PWD://Private_War_Rooms/">
         <div class="h-100 py-3">
-          <rooms-list v-if="currentUser.admin" :rooms="privateRooms"></rooms-list>
+          <rooms-list v-if="settings.user.admin" :rooms="privateRooms"></rooms-list>
           <div v-else class="absolute-center">
             <p>Please use the link given to you to join a private war room.</p>
           </div>
@@ -43,8 +43,8 @@
         <h4 class="highlight text-center">Instructions</h4>
         <div class="h-100 px-5 py-3 scrollable">
           <ul>
-            <li class="mt-3">Make sure you are logged in to Codewars as <strong>{{ currentUser.username }}</strong></li>
-            <li :class="['mt-3', { 'highlight-red': !currentUser.connected_webhook }]">Add the SpeedBattles webhook to your Codewars settings.</li>
+            <li class="mt-3">Make sure you are logged in to Codewars as <strong>{{ settings.user.username }}</strong></li>
+            <li :class="['mt-3', { 'highlight-red': !settings.user.connected_webhook }]">Add the SpeedBattles webhook to your Codewars settings.</li>
             <li class="mt-3">Join a room and click <std-button title="Join Battle" small class="d-inline-flex"></std-button> to take part in the next challenge.</li>
             <li class="mt-3">The battle starts automatically 20 seconds after the last player has joined.</li>
             <li class="mt-3">After the countdown, Codewars will automatically open in a new tab (you first need to allow pop-ups for this website).</li>
@@ -91,10 +91,6 @@ export default {
     RoomsList
   },
   props: {
-    currentUser: {
-      type: Object,
-      default: null
-    },
     publicRooms: {
       type: Array,
       default: null
@@ -102,6 +98,10 @@ export default {
     privateRooms: {
       type: Array,
       default: null
+    },
+    settings: {
+      type: Object,
+      default: _ => {}
     }
   },
 }
