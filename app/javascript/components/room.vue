@@ -26,7 +26,7 @@
     </modal>
     <spinner v-if="!focus && (initializing || !wsConnected)" class="animated fadeIn">
       {{ wsConnected ? 'LOADING' : 'CONNECTING' }}
-      <p v-if="longDisconnection" class="absolute-h-center mt-5 animated fadeIn">
+      <p class="absolute-h-center mt-5 animated fadeIn delay-10s">
         <small>Taking too long?</small>
         <std-button small @click.native="reloadBrowser" class="no-wrap">Refresh the page</std-button>
       </p>
@@ -142,7 +142,6 @@ export default {
       countdownMsg: null,
       countdownEndMsg: null,
       focus: new URL(window.location.href).searchParams.get("settings") === 'show' ? 'modal' : null,
-      longDisconnection: false,
       // leaderboard: {},
       messagesInitialized: false,
       modalContent: 'user',
@@ -827,14 +826,11 @@ export default {
     RoomChannel: {
       connected() {
         this.wsConnected = true
-        clearTimeout(window.longDisconnectionTimeout)
-        this.longDisconnection = false
         this.reconnectInterval = setInterval(this.checkConnection, 2000);
       },
       rejected() {
         console.warn('Connection to cable rejected.')
         this.wsConnected = false
-        window.longDisconnectionTimeout = setTimeout(_ => this.longDisconnection = true, 8000)
       },
       received(data) {
         if (data.roomId !== this.roomId && data.userId !== this.currentUserId) return;
@@ -960,7 +956,6 @@ export default {
       disconnected() {
         console.warn('Disconnected from cable.')
         this.wsConnected = false
-        window.longDisconnectionTimeout = setTimeout(_ => this.longDisconnection = true, 15000)
       }
     }
   },
