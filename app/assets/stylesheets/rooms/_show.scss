@@ -16,11 +16,11 @@
   }
 
   &.static {
-    transform: unset;
+    // transform: unset;
     filter: unset;
   }
 }
 
-.app-bg.initializing {
-  transform: initial;
-}
+// .app-bg.initializing {
+//   transform: initial;
+// }

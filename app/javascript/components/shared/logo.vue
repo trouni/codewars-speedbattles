@@ -1,7 +1,7 @@
 <template>
   <div class="main-logo animated zoomIn fast">
     <div class="codewars-logo animated slideInRight mr-3">
-      <img src="images/codewars_logo.png" />
+      <img src="/images/codewars_logo.png" />
     </div>
     <h1 class="main-title mx-3">
       <div class="highlight speed animated lightSpeedIn">

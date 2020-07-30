@@ -40,6 +40,10 @@ class Battle < ApplicationRecord
     room.broadcast_action(action: "open-codewars")
     ScheduleEndBattle.perform_now(battle_id: id, delay_in_seconds: time_limit) if time_limit&.positive?
     uninvite_unconfirmed
+    room.announce(
+      :chat,
+      "<i class='fas fa-rocket mt-5'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> has begun."
+    )
   end
 
   def terminate(end_at: nil)
@@ -50,7 +54,7 @@ class Battle < ApplicationRecord
     defeated_players.each(&:async_fetch_codewars_info)
     room.announce(
       :chat,
-      "<i class='fas fa-peace'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> is over."
+      "<i class='fas fa-peace mb-5'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> is over."
     )
     room.broadcast_users
     ScheduleRandomBattle.perform_now(room_id: room.id, delay_in_seconds: 60) if room.autonomous?

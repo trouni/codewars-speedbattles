@@ -12,7 +12,7 @@
     ]">
     <span :class="['app-bg', {'initializing': initializing}]"/>
 
-    <navbar v-if="currentUserId" :loading="settingsLoading || !wsConnected" />
+    <navbar v-if="!!currentUserId" :loading="settingsLoading || !wsConnected" />
     <modal
       v-if="focus === 'modal' && userSettingsInitialized"
       id="room-modal"
@@ -25,15 +25,15 @@
       </template>
     </modal>
 
-    <spinner v-if="!focus && (initializing || !wsConnected)" class="animated fadeIn">
+    <spinner v-if="initializing || !wsConnected" class="animated fadeIn">
       {{ wsConnected ? 'LOADING' : 'CONNECTING' }}
-      <p v-if="longDisconnection" class="absolute-h-center mt-5 animated fadeIn">
+      <p class="absolute-h-center mt-5 animated fadeIn delay-10s">
         <small>Taking too long?</small>
         <std-button small @click.native="reloadBrowser" class="no-wrap">Refresh the page</std-button>
       </p>
     </spinner>
 
-    <slot v-bind:settings="settings">
+    <slot v-if="!initializing" :settings="settings" :signed-in="!!currentUserId">
     </slot>
   </div>
 </template>
@@ -79,6 +79,7 @@ export default {
         messages: []
       },
       clockInterval: null,
+      fontsLoaded: false,
       controlsType: "",
       countdownDuration: 15,
       countdown: 0,
@@ -160,7 +161,7 @@ export default {
       return true
     },
     initializing() {
-      return this.currentUserId && !this.userSettingsInitialized
+      return !this.fontsLoaded || !this.userSettingsInitialized
     },
     unfocused() {
       return this.focus !== null || !this.wsConnected
@@ -559,8 +560,10 @@ export default {
     }
   },
   mounted() {
+    document.fonts.ready.then(_ => this.fontsLoaded = true)
+
+    // If user is not logged in
     if (!this.currentUserId) {
-      // If user is not logged in
       this.wsConnected = true
       this.userSettingsInitialized = true
       this.userSettingsLoading = false

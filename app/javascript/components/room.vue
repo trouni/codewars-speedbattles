@@ -24,13 +24,12 @@
         <room-settings :settings="settings"/>
       </template>
     </modal>
-    <spinner v-if="!focus && (initializing || !wsConnected)" class="animated fadeIn">
+    <spinner v-if="initializing || !wsConnected" class="animated fadeIn">
       {{ wsConnected ? 'LOADING' : 'CONNECTING' }}
       <p class="absolute-h-center mt-5 animated fadeIn delay-10s">
         <small>Taking too long?</small>
         <std-button small @click.native="reloadBrowser" class="no-wrap">Refresh the page</std-button>
       </p>
-      
     </spinner>
 
     <div id="room" :class="{ moderator: currentUserIsModerator, 'initializing': initializing }">
@@ -136,13 +135,12 @@ export default {
         messages: []
       },
       clockInterval: null,
-      controlsType: "",
       countdownDuration: 15,
       countdown: 0,
       countdownMsg: null,
       countdownEndMsg: null,
       focus: new URL(window.location.href).searchParams.get("settings") === 'show' ? 'modal' : null,
-      // leaderboard: {},
+      fontsLoaded: false,
       messagesInitialized: false,
       modalContent: 'user',
       openedCodewars: false,
@@ -240,6 +238,7 @@ export default {
     },
     initializing() {
       return !(
+        this.fontsLoaded &&
         this.userSettingsInitialized &&
         this.roomSettingsInitialized &&
         this.usersInitialized &&
@@ -960,6 +959,8 @@ export default {
     }
   },
   mounted() {
+    document.fonts.ready.then(_ => this.fontsLoaded = true)
+
     speechSynthesis.cancel();
 
     this.subscribeToCable();

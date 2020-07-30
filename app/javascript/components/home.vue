@@ -1,6 +1,6 @@
 <template>
-  <div id="home" :class="['vh-100', settings.user.id ? 'signed-in' : 'signed-out']">
-    <div v-if="settings.user.id" class="d-contents">
+  <div id="home" :class="['vh-100', signedIn ? 'signed-in' : 'signed-out']">
+    <div v-if="signedIn" class="d-contents">
       <div id="home-logo" class="small">
         <logo />
       </div>
@@ -17,9 +17,7 @@
       header-title="PWD://War_Rooms/">
         <div class="h-100 py-3">
           <rooms-list v-if="settings.user.connected_webhook" :rooms="publicRooms"></rooms-list>
-          <div v-else class="absolute-center highlight-red">
-            <h5>Please connect the Codewars webhook to continue.</h5>
-          </div>
+          <h5 v-else class="absolute-center highlight-red">Please connect the Codewars webhook to continue.</h5>
         </div>
       </widget>
 
@@ -28,7 +26,8 @@
       class="grid-item animated fadeIn delay-1s"
       header-title="PWD://Private_War_Rooms/">
         <div class="h-100 py-3">
-          <rooms-list v-if="settings.user.admin" :rooms="privateRooms"></rooms-list>
+          <h5 v-if="!settings.user.connected_webhook" class="absolute-center highlight-red">Please connect the Codewars webhook to continue.</h5>
+          <rooms-list v-else-if="settings.user.admin" :rooms="privateRooms"></rooms-list>
           <div v-else class="absolute-center">
             <p>Please use the link given to you to join a private war room.</p>
           </div>
@@ -102,6 +101,10 @@ export default {
     settings: {
       type: Object,
       default: _ => {}
+    },
+    signedIn: {
+      type: Boolean,
+      default: false
     }
   },
 }
