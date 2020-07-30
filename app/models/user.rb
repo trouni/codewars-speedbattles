@@ -90,6 +90,7 @@ class User < ApplicationRecord
     return {
       name: name,
       username: username,
+      admin: admin,
       sfx: settings(:base).sfx,
       voice: settings(:base).voice,
       music: settings(:base).music,

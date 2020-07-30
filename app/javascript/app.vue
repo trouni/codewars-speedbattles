@@ -33,9 +33,8 @@
       </p>
     </spinner>
 
-    <template>
-      <slot/>
-    </template>
+    <slot v-bind:settings="settings">
+    </slot>
   </div>
 </template>
 

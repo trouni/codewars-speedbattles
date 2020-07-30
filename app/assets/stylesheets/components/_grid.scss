@@ -1,4 +1,4 @@
-#room, #home.signed-in {
+#room {
   display: grid;
   grid-template-columns: 1fr;
   row-gap: 1em;
@@ -11,33 +11,6 @@
 }
 
 @media screen and (min-width: $mobile-breakpoint) {
-  #home.signed-in {
-    display: grid;
-    grid-template-columns: 3fr 2fr;
-    grid-template-rows: 1.5em 3fr 2fr 2fr 1.5em;
-    grid-template-areas:
-      "public-rooms top-right"
-      "public-rooms leaderboard"
-      "public-rooms leaderboard"
-      "private-rooms leaderboard"
-      "private-rooms bottom-left";
-    column-gap: 1em;
-    height: 100vh;
-    padding: 3%;
-  }
-
-  #home-profile {
-    grid-area: profile;
-  }
-
-  #public-rooms {
-    grid-area: public-rooms;
-  }
-
-  #private-rooms {
-    grid-area: private-rooms;
-  }
-
   #room {
     display: grid;
     grid-template-columns: 4fr 5fr;
@@ -62,7 +35,7 @@
     grid-area: battle;
   }
 
-  #room-leaderboard, #home-leaderboard {
+  #room-leaderboard {
     grid-area: leaderboard;
   }
 }
