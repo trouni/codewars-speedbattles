@@ -1,6 +1,6 @@
 <template>
-  <div id="home" :class="['vh-100', settings.user ? 'signed-in' : 'signed-out']">
-    <div v-if="settings.user" class="d-contents">
+  <div id="home" :class="['vh-100', settings.user.id ? 'signed-in' : 'signed-out']">
+    <div v-if="settings.user.id" class="d-contents">
       <div id="home-logo" class="small">
         <logo />
       </div>

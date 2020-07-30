@@ -88,6 +88,7 @@ class User < ApplicationRecord
 
   def get_settings
     return {
+      id: id,
       name: name,
       username: username,
       admin: admin,
