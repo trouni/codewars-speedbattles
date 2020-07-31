@@ -8,38 +8,17 @@ class RoomChannel < ApplicationCable::Channel
     # Disconnect from all other rooms
     ActionCable.server.remote_connections.where(current_user: @current_user).disconnect
     stop_all_streams
-    RoomUser.where(user: @current_user).destroy_all
     
-    # User
-    if @current_user
-      stream_from "user_#{@current_user.id}"
-      @current_user.broadcast_settings
-    end
-
-    # Room
-    if @room
-      stream_from "room_#{@room.id}"
-      RoomUser.create(room: @room, user: @current_user)
-      @room.broadcast_settings(private_to_user_id: @current_user.id)
-      @room.broadcast_users
-      @room.broadcast_messages(private_to_user_id: @current_user.id)
-      @room.broadcast_active_battle(private_to_user_id: @current_user.id)
-
-      if @room.autonomous?
-        # Invite to existing battle if autonomous room
-        @room.active_battle&.invitation(user: @current_user, action: "invite") unless @room.active_battle&.started?
-        # Create battle if at_peace and no next event
-        ScheduleRandomBattle.perform_now(room_id: @room.id, delay_in_seconds: 20) unless @room.unfinished_battle? || @room.next_event?
-      end
-    end
+    stream_from "user_#{@current_user.id}" if @current_user
+    stream_from "room_#{@room.id}" if @room
+    ScheduleUserJob.perform_now(job: 'connect', user_id: @current_user&.id, room_id: @room&.id)
   end
 
   def unsubscribed
     set_room
     set_current_user
     stop_all_streams
-    RoomUser.find_by(room: @room, user: @current_user)&.destroy
-    # RoomUser.where(user: @current_user).destroy_all
+    ScheduleUserJob.perform_now(job: 'disconnect', user_id: @current_user.id, room_id: @room&.id, delay_in_seconds: 10)
   end
 
   # =============

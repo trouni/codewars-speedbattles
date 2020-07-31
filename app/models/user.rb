@@ -53,7 +53,8 @@ class User < ApplicationRecord
       connected_webhook: false,
       last_webhook_at: nil,
       hljs_lang: nil,
-      low_res_theme: false
+      low_res_theme: false,
+      next_jid: Hash.new,
     }
   end
 
