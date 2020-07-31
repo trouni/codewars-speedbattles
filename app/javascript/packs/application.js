@@ -84,8 +84,7 @@ Vue.directive('click-outside', {
 Vue.use(ActionCableVue, {
   debug: process.env.NODE_ENV === "development",
   debugLevel: 'error',
-  connectionUrl: `${process.env.NODE_ENV === "production" ? "wss://speedbattles.herokuapp.com" : "ws://localhost:3000"}/cable`
-  // connectionUrl: 'wss://localhost:3000/cable/'
+  connectionUrl: process.env.WS_URL
 });
 
 document.addEventListener('DOMContentLoaded', () => {
