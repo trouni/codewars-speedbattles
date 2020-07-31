@@ -12,7 +12,8 @@ class ApplicationRecord < ActiveRecord::Base
     end
   end
 
-  def set_next_jid(jid, scope: "default")
+  def set_next_jid(jid, scope: nil)
+    scope ||= "default"
     next_jid = settings(:base).next_jid
     next_jid[scope] = jid
     settings(:base).update(next_jid: next_jid)
