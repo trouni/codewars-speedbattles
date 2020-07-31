@@ -3,17 +3,17 @@
     <table class="rooms console-table h-100">
       <thead>
         <tr>
-          <th scope="col" style="width: 40%;"><span class="data">NAME</span></th>
-          <th scope="col" style="width: 10%;"><span class="data">PLAYERS</span></th>
-          <th scope="col" style="width: 20%;"><span class="data">LANGUAGE</span></th>
-          <th scope="col" style="width: 30%;"><span class="data">DIFFICULTY</span></th>
+          <th scope="col" style="width: auto;"><span class="data">NAME</span></th>
+          <th scope="col" style="width: 7em;"><span class="data">PLAYERS</span></th>
+          <!-- <th scope="col" style="width: 7em;"><span class="data">LANGUAGE</span></th> -->
+          <th scope="col" style="width: 10em;"><span class="data">DIFFICULTY</span></th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(room, index) in rooms" :class="['animated fadeInUp', 'highlight' ]" :title="`${room.name}`" :key="room.id">
           <th scope="row">
             <span class="data">
-              <a :href="`/rooms/${room.id}`" class='highlight'>
+              <a :href="`/rooms/${room.id}`" class='highlight text-ellipsis'>
                 {{ room.name }}
               </a>
             </span>
@@ -21,9 +21,9 @@
           <td>
             <span class="data">{{ room.users_count }} / {{ room.max_users ? room.max_users : '∞' }}</span>
           </td>
-          <td>
+          <!-- <td>
             <span class="data">{{ room.languages[0] }}</span>
-          </td>
+          </td> -->
           <td>
             <span v-if="room.katas.ranks.length > 1" class="data kata-ranks align-items-center">
               <rank-hex
