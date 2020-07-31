@@ -90,7 +90,7 @@
                 name="webhook_url"
                 class="form-control text-center"
                 readonly
-                value="https://speedbattles.herokuapp.com/webhook"
+                :value="`https://${host}/webhook`"
               />
             </div>
             <label for="webhook_url" class="form-control-label w-100 text-center mt-3">Secret</label>
@@ -158,7 +158,8 @@ export default {
       tooltipText: "Copy to clipboard",
       displayName: this.settings.user.name,
       hljsLang: this.settings.user.hljs_lang,
-      lowRes: this.settings.user.low_res_theme
+      lowRes: this.settings.user.low_res_theme,
+      host: process.env.VUE_APP_HOST
     }
   },
   computed: {
