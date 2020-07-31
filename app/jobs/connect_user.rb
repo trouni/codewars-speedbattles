@@ -21,7 +21,7 @@ class ConnectUser < ApplicationJob
         # Invite to existing battle if autonomous room
         room.active_battle&.invitation(user: user, action: "invite") unless room.active_battle&.started?
         # Create battle if at_peace and no next event
-        ScheduleRandomBattle.perform_now(room_id: room.id, delay_in_seconds: 20) unless room.unfinished_battle? || room.next_event?
+        ScheduleRandomBattle.perform_now(room_id: room.id, delay_in_seconds: 20) unless room.users.count < 2 || room.unfinished_battle? || room.next_event?
       end
     end
   end
