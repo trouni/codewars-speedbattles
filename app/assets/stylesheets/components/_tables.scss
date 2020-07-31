@@ -6,10 +6,16 @@ table.console-table {
   table-layout:fixed;
 
   &.rooms tbody {
+    tr th {
+      border-right: solid 0.5px rgba(white, 0.2);
+    }
     font-size: 1.2em;
     line-height: 3em;
     tr:nth-child(odd) {
       background-color: rgba(255, 255, 255, 0.05);
+    }
+    .data.kata-ranks {
+      transform: scale(0.9);
     }
   }
 
@@ -142,7 +148,15 @@ table.console-table {
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
-  table {
-    font-size: 0.7em;
+  table.console-table {
+    font-size: 0.7rem;
+
+    &.rooms tbody {
+      font-size: inherit;
+
+      .data.kata-ranks {
+        transform: scale(0.7);
+      }
+    }
   }
 }
