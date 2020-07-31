@@ -197,9 +197,6 @@ export default {
     },
     battleStage: {
       handler: function(battleStage, oldVal) {
-        console.log('this.battleStage', this.battleStage)
-        console.log('battleStage changed', battleStage)
-        console.log('battleStage from', oldVal)
         if (this.battleStage === 4) {
           this.startAmbiance()
           if (!this.battle.time_limit) this.startClock()
@@ -580,7 +577,6 @@ export default {
       this.ambianceMusic.volume = this.musicON ? this.sounds.volumeAmbiance : 0;
     },
     startAmbiance(track = null) {
-      console.log('starting ambiance')
       if (track) {
         this.ambianceMusic = this.sounds.ambiance[track]
       } else {
@@ -602,7 +598,6 @@ export default {
       this.ambianceMusic.play();
     },
     stopAmbiance() {
-      console.log('stopping ambiance')
       this.ambianceMusic.pause();
       this.ambianceMusic.currentTime = 0;
     },
