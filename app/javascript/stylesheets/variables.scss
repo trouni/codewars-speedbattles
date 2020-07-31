@@ -1,0 +1,34 @@
+// Colors
+
+$darkblue: #1B4353;
+$yellow: #F6DD27;
+$orange: #FE864E;
+$red: rgb(252, 20, 3);
+$blue: #167FFB;
+$green: #1EDD88;
+$peace: #0E4055;
+$brink-of-war: #e39069;
+$teal: #00C1AB;
+
+$codewars-bg: #303133;
+
+$maincolor-peace: $darkblue;
+$fullopacity-peace: #0E4055;
+
+$maincolor-brink-of-war: desaturate(#e39069, 50%);
+$fullopacity-brink-of-war: #62544E;
+
+$maincolor-war: lighten(#b00e02, 20%);
+$fullopacity-war: #5E2422;
+
+$primary:    $blue;
+$success:    $teal;
+$info:       $yellow;
+$danger:     rgba($maincolor-war, 0.4);
+$warning:    $maincolor-brink-of-war;
+
+// dimensions
+
+$bezel: 1.5em;
+$chat-header-width: 15em;
+$mobile-breakpoint: 992px;
