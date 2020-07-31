@@ -49,7 +49,7 @@ class User < ApplicationRecord
     s.key :base, defaults: {
       sfx: true,
       voice: true,
-      music: false,
+      music: true,
       connected_webhook: false,
       last_webhook_at: nil,
       hljs_lang: nil,
