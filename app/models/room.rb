@@ -46,8 +46,9 @@ class Room < ApplicationRecord
       next_event: {
         at: Time.now,
         type: nil,
-        jid: nil
-      }
+        jid: nil,
+      },
+      next_jid: Hash.new,
     }
   end
 
@@ -221,7 +222,8 @@ class Room < ApplicationRecord
   end
 
   def set_next_event(at:, type: nil, jid: nil)
-    settings(:base).update(next_event: { at: at, type: type, jid: jid })
+    settings(:base).update(next_event: { at: at, type: type })
+    set_next_jid(jid) if jid
     broadcast_settings
   end
 
