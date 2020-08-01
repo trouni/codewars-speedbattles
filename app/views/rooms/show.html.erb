@@ -1,7 +1,31 @@
 <% content_for :title, @room.name %>
 
-<room
-  :room="<%= @room.to_json %>"
+<app
   <%= ":current-user-id=#{current_user.id}" if user_signed_in? %>
-  >
-</room>
+  :room="<%= @room.to_json %>"
+  v-slot="slotProps">
+  <room
+    :announcer-window="slotProps.announcerWindow"
+    :battle-initialized="slotProps.battleInitialized"
+    :battle-joinable="slotProps.battleJoinable"
+    :battle-loading="slotProps.battleLoading"
+    :battle-stage="slotProps.battleStage"
+    :battle="slotProps.battle"
+    :chat="slotProps.chat"
+    :countdown="slotProps.countdown"
+    :current-user-is-moderator="slotProps.currentUserIsModerator"
+    :current-user="slotProps.currentUser"
+    :focus="slotProps.focus"
+    :initializing="slotProps.initializing"
+    :messages-initialized="slotProps.messagesInitialized"
+    :ready-to-start="slotProps.readyToStart"
+    :room-name="slotProps.roomName"
+    :room-players-loading="slotProps.roomPlayersLoading"
+    :room-players="slotProps.roomPlayers"
+    :room-settings-initialized="slotProps.roomSettingsInitialized"
+    :room="slotProps.room"
+    :settings="slotProps.settings"
+    :users-initialized="slotProps.usersInitialized"
+    :users="slotProps.users">
+  </room>
+</app>
