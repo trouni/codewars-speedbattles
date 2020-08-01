@@ -1,7 +1,7 @@
 <template>
-  <div class="main-logo animated zoomIn fast">
-    <div class="codewars-logo animated slideInRight mr-3">
-      <img src="/images/codewars_logo.png" />
+  <div class="main-logo">
+    <div class="codewars-logo mr-3 animated slideInRight">
+      <img src="/images/codewars_logo.png" class="animated flipInY fast"/>
     </div>
     <h1 class="main-title mx-3">
       <div class="highlight speed animated lightSpeedIn">
@@ -21,23 +21,12 @@ export default {
 </script>
 
 <style lang="scss">
-  #home-logo {
-    position: fixed;
-    transform: translate(-50%, -50%);
-    top: 50%;
-    left: 50%;
-  }
-
   .main-logo {
     animation-duration: 0.2s;
     display: flex;
     justify-content: center;
     align-content: center;
     transform: scale(0.7);
-
-    .small > & {
-      transform: scale(0.4);
-    }
 
     $body-font: "Kanit", "Helvetica", "sans-serif";
     
@@ -54,7 +43,7 @@ export default {
         animation-duration: 0.4s;
         animation-delay: 1s;
         div {
-          letter-spacing: 1.5px;
+          letter-spacing: 0.03em;
         }
       }
     }
@@ -79,13 +68,13 @@ export default {
     position: relative;
   }
 
-  @media (min-width: 576px) {
+  @media screen and (min-width: 576px) {
     .main-logo {
       transform: scale(0.7);
     }
   }
 
-  @media (min-width: 768px) {
+  @media screen and (min-width: 768px) {
     .main-logo {
       transform: scale(1);
     }
