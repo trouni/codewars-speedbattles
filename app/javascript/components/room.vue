@@ -226,13 +226,6 @@ export default {
     settingsLoading() {
       return this.userSettingsLoading || this.roomSettingsLoading
     },
-    someDataLoaded() {
-      return (
-        this.usersInitialized ||
-        this.battleInitialized ||
-        this.messagesInitialized
-      );
-    },
     initializing() {
       return !(
         this.fontsLoaded &&
@@ -246,16 +239,6 @@ export default {
     },
     unfocused() {
       return this.focus !== null || !this.wsConnected
-    },
-    allDataLoaded() {
-      return (
-        this.userSettingsInitialized &&
-        this.roomSettingsInitialized &&
-        this.usersInitialized &&
-        this.battleInitialized &&
-        this.messagesInitialized &&
-        this.currentUser
-      );
     },
     seekAttention() {
       if (this.battleStage === 4) {
@@ -291,11 +274,6 @@ export default {
     currentUserIsModerator() {
       return this.currentUserId === this.room.moderator_id;
     },
-    invitedUsers() {
-      if (this.battleStage === 0) { return [] }
-
-      return this.users.filter(user => user.invite_status === 'invited')
-    },
     confirmedUsers() {
       if (!this.users) {
         return [];
@@ -304,9 +282,6 @@ export default {
           user => user.invite_status == "confirmed"
         );
       }
-    },
-    allConfirmed() {
-      return this.battleStage === 2 && this.invitedUsers.length === 0;
     },
     roomStatus() {
       // STATUSES
@@ -338,42 +313,10 @@ export default {
         this.confirmedUsers.length > 1
       );
     },
-    readyForBattle() {
-      if (!this.battle.id || !this.currentUser) return false;
-
-      if (this.currentUserIsModerator) {
-        return this.allConfirmed
-      } else {
-        return this.battleStage < 3 && this.currentUser.invite_status === "confirmed"
-      }
-    },
-    battleCountdown() {
-      if (!this.battle.id) return false;
-
-      return (
-        !!this.battle.start_time &&
-        !this.battle.end_time &&
-        this.countdown !== 0
-      );
-    },
     battleJoinable() {
       if (!this.battle.id) return false;
 
       return this.battleLoaded && (this.battleStage < 3 || (this.battleStage === 3 && this.countdown > 10));
-    },
-    battleOngoing() {
-      if (!this.battle.id) return false;
-
-      return (
-        !!this.battle.start_time &&
-        !this.battle.end_time &&
-        this.countdown === 0
-      );
-    },
-    battleOver() {
-      if (!this.battle.id) return true;
-
-      return !!this.battle.end_time;
     },
     eventMode() {
       return !this.settings.room.sound
