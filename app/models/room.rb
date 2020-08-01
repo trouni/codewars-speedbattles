@@ -25,7 +25,7 @@ class Room < ApplicationRecord
   after_create :create_chat
   after_update :announce_new_name, if: :saved_change_to_name?
 
-  has_settings do |s|
+  has_settings class_name: 'BaseSettingObject' do |s|
     s.key :base, defaults: {
       sound: true,
       classification: 'TOP SECRET',
@@ -49,6 +49,7 @@ class Room < ApplicationRecord
         jid: nil,
       },
       next_jid: Hash.new,
+      updated_at: nil
     }
   end
 
@@ -78,6 +79,10 @@ class Room < ApplicationRecord
 
   def autonomous?
     settings(:base).autonomous
+  end
+
+  def auto_schedule_new_battle?
+    autonomous? && users.count > 1 && !unfinished_battle? && !next_event?
   end
 
   def next_event
@@ -224,9 +229,8 @@ class Room < ApplicationRecord
   end
 
   def set_next_event(at:, type: nil, jid: nil)
-    settings(:base).update(next_event: { at: at, type: type })
+    update_settings(next_event: { at: at, type: type })
     set_next_jid(jid) if jid
-    broadcast_settings
   end
 
   def set_timer(delay, type = nil, jid = nil)
