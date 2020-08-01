@@ -133,7 +133,9 @@ export default {
         room: {
           sound: true
         },
-        user: {},
+        user: {
+          connected_webhook: true
+        },
       },
       sounds: {
         ambiance: {
@@ -207,9 +209,9 @@ export default {
     initializing() {
       return !(
         this.fontsLoaded &&
-        this.userSettingsInitialized &&
         (
           !this.room.id || (
+            this.userSettingsInitialized &&
             this.currentUser &&
             this.roomSettingsInitialized &&
             this.usersInitialized &&

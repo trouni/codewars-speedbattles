@@ -1,17 +1,19 @@
-<widget
-id="sign-up"
-class="animated m-auto"
-header-title="AUTH://New_Credentials/">
-  <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { ref: 'form', class: 'py-4' }) do |f| %>
-    <%= f.error_notification %>
-    <sign-up-form-inputs></sign-up-form-inputs>
-    <p class="text-center m-2">
-      <%= render 'devise/shared/links' %>
-    </p>
-  <% end %>
-  <template v-slot:controls>
-    <div class="form-actions">
-      <std-button @click.native="$refs.form.submit()" large fa-icon="fas fa-star-of-life">Sign up</std-button>
-    </div>
-  </template>
-</widget>
+<div class="devise d-flex vh-100">
+  <widget
+  id="sign-up"
+  class="animated m-auto"
+  header-title="AUTH://New_Credentials/">
+    <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { ref: 'form', class: 'py-4' }) do |f| %>
+      <%= f.error_notification %>
+      <sign-up-form-inputs></sign-up-form-inputs>
+      <p class="text-center m-2">
+        <%= render 'devise/shared/links' %>
+      </p>
+    <% end %>
+    <template v-slot:controls>
+      <div class="form-actions">
+        <std-button @click.native="$refs.form.submit()" large fa-icon="fas fa-star-of-life">Sign up</std-button>
+      </div>
+    </template>
+  </widget>
+</div>
