@@ -1,8 +1,8 @@
 Rails.application.routes.draw do
-  root to: 'rooms#index'
+  root to: 'pages#home'
 
   mount ActionCable.server => '/cable'
-  devise_for :users, controllers: { registrations: 'registrations' }
+  devise_for :users, controllers: { registrations: 'registrations', sessions: 'sessions' }
   resources :rooms, only: [ :index, :show, :new, :create ]
   get '/setup-webhook', to: 'pages#webhook_help', as: :webhook_help
   

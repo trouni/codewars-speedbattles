@@ -12,9 +12,10 @@
     ]">
     <span :class="['app-bg', {'initializing': initializing}]"/>
 
-    <navbar :room-id="roomId" :loading="settingsLoading || !wsConnected" />
+    <navbar :loading="settingsLoading || !wsConnected" />
+
     <modal
-      v-if="focus === 'modal' && userSettingsInitialized && roomSettingsInitialized"
+      v-if="focus === 'modal' && !initializing"
       id="room-modal"
       title="SYS://Settings">
       <template>
@@ -23,7 +24,18 @@
       <template v-slot:secondary v-if="currentUserIsModerator">
         <room-settings :settings="settings"/>
       </template>
+      <template v-slot:secondary v-else-if="!userSignedIn">
+        <div class="my-4 d-contents">
+          <h5 class="highlight-red mx-auto mb-4 font-weight-bold">Join the battlefield...</h5>
+          <login-form />
+          <div class="d-flex justify-content-center align-items-center mt-3">
+            <p class="highlight mr-3">Need an account?</p>
+            <std-button fa-icon="fas fa-star-of-life" small>Sign up</std-button>
+          </div>
+        </div>
+      </template>
     </modal>
+
     <spinner v-if="initializing || !wsConnected" class="animated fadeIn">
       {{ wsConnected ? 'LOADING' : 'CONNECTING' }}
       <p class="absolute-h-center mt-5 animated fadeIn delay-10s">
@@ -100,11 +112,12 @@
 import Vue from 'vue/dist/vue.esm'
 import debounce from "lodash/debounce";
 import kebabCase from "lodash/kebabCase";
-import RoomChat from "./room/room_chat.vue";
-import RoomLeaderboard from "./room/room_leaderboard.vue";
-import RoomBattle from "./room/room_battle.vue";
-import RoomSettings from "./settings/room_settings.vue";
-import UserSettings from "./settings/user_settings.vue";
+import RoomChat from "../components/room/room_chat";
+import RoomLeaderboard from "../components/room/room_leaderboard";
+import RoomBattle from "../components/room/room_battle";
+import RoomSettings from "../components/settings/room_settings";
+import UserSettings from "../components/settings/user_settings";
+import LoginForm from "../components/sign_up/login_form";
 
 export default {
   components: {
@@ -112,11 +125,20 @@ export default {
     RoomLeaderboard,
     RoomBattle,
     RoomSettings,
-    UserSettings
+    UserSettings,
+    LoginForm
   },
   props: {
-    roomInit: Object,
-    currentUserId: Number,
+    room: {
+      type: Object,
+      default: function() {
+        return { id: null }
+      }
+    },
+    currentUserId: {
+      type: Number,
+      default: 0
+    },
   },
   data() {
     return {
@@ -144,13 +166,14 @@ export default {
       messagesInitialized: false,
       modalContent: 'user',
       openedCodewars: false,
-      room: this.roomInit,
       roomPlayers: [],
       roomPlayersLoading: false,
       roomSettingsInitialized: false,
       roomSettingsLoading: true,
       settings: {
-        room: {},
+        room: {
+          sound: true
+        },
         user: {},
       },
       sounds: {
@@ -217,45 +240,29 @@ export default {
     }
   },
   computed: {
-    roomId() {
-      return this.roomInit ? this.roomInit.id : null
-    },
     roomName() {
       return this.settings.room.name || ''
     },
     settingsLoading() {
-      return this.userSettingsLoading || this.roomSettingsLoading
-    },
-    someDataLoaded() {
-      return (
-        this.usersInitialized ||
-        this.battleInitialized ||
-        this.messagesInitialized
-      );
+      return this.userSettingsLoading || this.room.id && this.roomSettingsLoading
     },
     initializing() {
       return !(
         this.fontsLoaded &&
         this.userSettingsInitialized &&
-        this.roomSettingsInitialized &&
-        this.usersInitialized &&
-        this.battleInitialized &&
-        this.messagesInitialized &&
-        this.currentUser
+        (
+          !this.room.id || (
+            this.currentUser &&
+            this.roomSettingsInitialized &&
+            this.usersInitialized &&
+            this.battleInitialized &&
+            this.messagesInitialized
+          )
+        )
       )
     },
     unfocused() {
       return this.focus !== null || !this.wsConnected
-    },
-    allDataLoaded() {
-      return (
-        this.userSettingsInitialized &&
-        this.roomSettingsInitialized &&
-        this.usersInitialized &&
-        this.battleInitialized &&
-        this.messagesInitialized &&
-        this.currentUser
-      );
     },
     seekAttention() {
       if (this.battleStage === 4) {
@@ -279,7 +286,11 @@ export default {
         return `${this.battle.challenge.url}/train/${language}`;
       }
     },
+    userSignedIn() {
+      return this.currentUserId !== 0
+    },
     currentUser() {
+      if (!this.userSignedIn) return { id: 0, invite_status: 'spectator' }
       if (!this.usersInitialized) return
 
       const currentUserIndex = this.users.findIndex(
@@ -291,11 +302,6 @@ export default {
     currentUserIsModerator() {
       return this.currentUserId === this.room.moderator_id;
     },
-    invitedUsers() {
-      if (this.battleStage === 0) { return [] }
-
-      return this.users.filter(user => user.invite_status === 'invited')
-    },
     confirmedUsers() {
       if (!this.users) {
         return [];
@@ -304,9 +310,6 @@ export default {
           user => user.invite_status == "confirmed"
         );
       }
-    },
-    allConfirmed() {
-      return this.battleStage === 2 && this.invitedUsers.length === 0;
     },
     roomStatus() {
       // STATUSES
@@ -338,42 +341,10 @@ export default {
         this.confirmedUsers.length > 1
       );
     },
-    readyForBattle() {
-      if (!this.battle.id || !this.currentUser) return false;
-
-      if (this.currentUserIsModerator) {
-        return this.allConfirmed
-      } else {
-        return this.battleStage < 3 && this.currentUser.invite_status === "confirmed"
-      }
-    },
-    battleCountdown() {
-      if (!this.battle.id) return false;
-
-      return (
-        !!this.battle.start_time &&
-        !this.battle.end_time &&
-        this.countdown !== 0
-      );
-    },
     battleJoinable() {
       if (!this.battle.id) return false;
 
       return this.battleLoaded && (this.battleStage < 3 || (this.battleStage === 3 && this.countdown > 10));
-    },
-    battleOngoing() {
-      if (!this.battle.id) return false;
-
-      return (
-        !!this.battle.start_time &&
-        !this.battle.end_time &&
-        this.countdown === 0
-      );
-    },
-    battleOver() {
-      if (!this.battle.id) return true;
-
-      return !!this.battle.end_time;
     },
     eventMode() {
       return !this.settings.room.sound
@@ -392,7 +363,7 @@ export default {
     subscribeToCable() {
       this.$cable.subscribe({
         channel: "RoomChannel",
-        room_id: this.roomId,
+        room_id: this.room.id,
         user_id: this.currentUserId
       });
     },
@@ -827,7 +798,7 @@ export default {
         this.wsConnected = false
       },
       received(data) {
-        if (data.roomId !== this.roomId && data.userId !== this.currentUserId) return;
+        if (data.roomId !== this.room.id && data.userId !== this.currentUserId) return;
 
         switch (data.subchannel) {
           case "action":

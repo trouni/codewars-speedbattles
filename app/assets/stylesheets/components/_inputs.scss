@@ -1,7 +1,7 @@
 input[type=text], input[type=email], input[type=password], select {
   background-color: rgba( 0, 0, 0, 0.3 ) !important;
   padding: 0 0.5em;
-  border: none;
+  border: solid 1px rgba(white, 0.1);
   align-items: center;
   border-radius: 2px;
   height: calc(1.5em + 0.75rem + 2px);

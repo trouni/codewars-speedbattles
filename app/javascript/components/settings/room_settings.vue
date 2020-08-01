@@ -4,7 +4,7 @@
       <h3><strong class="highlight">Room settings</strong></h3>
       <!-- <small>You are moderator for this war room.</small> -->
     </div>
-    <div class="form-group mt-3 mb-5">
+    <div class="form-group mt-3 my-4">
       <!-- <h5 class="no-wrap">Room name</h5> -->
       <input
         @keydown.enter="updateSettings"
@@ -14,8 +14,9 @@
         v-model="roomName"
         maxlength="50"
       />
+      <small>The name of the war room.</small>
     </div>
-    <div class="mb-5">
+    <div class="my-4">
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="m-0">Room language</h5>
         <select v-model="language" class="flex-grow-1 ml-3">
@@ -24,7 +25,7 @@
       </div>
       <small>Select a coding language for the room's challenges and default syntax highlighting.</small>
     </div>
-    <!-- <div class="form-group mb-5">
+    <!-- <div class="form-group my-4">
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="no-wrap">Difficulty</h5>
       </div>
@@ -40,7 +41,7 @@
         />
       </div>
     </div> -->
-    <div class="form-group mb-5">
+    <div class="form-group my-4">
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="no-wrap m-0">Classification level</h5>
         <select v-model="classification" class="flex-grow-1 ml-3">
@@ -49,7 +50,7 @@
       </div>
       <small>Choose who can see the challenge's name before a battle. The challenge's name is revealed to everyone during the countdown.</small>
     </div>
-    <div class="form-group mb-5">
+    <div class="form-group my-4">
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="no-wrap m-0">Voice & music</h5>
         <std-button
@@ -59,7 +60,7 @@
       </div>
       <small><em>Moderator only</em> disables music and announcements for all other players. Useful when all players are in the same room.</small>
     </div>
-    <div class="form-group mb-5">
+    <div class="form-group my-4">
       <h5 class="no-wrap">Voice chat url</h5>
       <small>Invitation link for video/voice call (Zoom/Slack/etc.)</small>
       <input

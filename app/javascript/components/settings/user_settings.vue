@@ -4,7 +4,7 @@
       <h3><strong class="highlight">Profile settings</strong></h3>
       <!-- <small>You are moderator for this war room.</small> -->
     </div>
-    <div class="form-group mt-3 mb-5">
+    <div class="form-group mt-3 my-4" v-if="settings.user.signed_in">
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="m-0 no-wrap">Display name</h5>
         <input
@@ -18,7 +18,7 @@
       </div>
       <small>By default, your Codewars username will be shown.</small>
     </div>
-    <div class="form-group mb-5">
+    <div class="form-group my-4">
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="m-0">Audio</h5>
         <span class="d-flex justify-content-around flex-grow-1 ml-2">
@@ -52,7 +52,7 @@
       </div>
       <small>Select a default language to write code blocks.</small>
     </div> -->
-    <div class="webhook-settings mb-5">
+    <div class="webhook-settings my-4" v-if="settings.user.signed_in">
       <div class="d-flex justify-content-between">
         <h5>Codewars webhook
           <sup>
@@ -108,7 +108,7 @@
         </div>
       </div>
     </div>
-    <div class="form-group mb-5">
+    <div class="form-group my-4">
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="m-0">Low-res Theme</h5>
         <std-button
@@ -118,12 +118,12 @@
       </div>
       <small>Alternative theme that removes transparency and other effects for slower devices.</small>
     </div>
-    <div class="form-group mb-5">
+    <div class="form-group my-4" v-if="settings.user.signed_in || settings.room.id">
       <div class="d-flex justify-content-around">
-        <a href="/users/sign_out" data-method="delete">
+        <a href="/users/sign_out" data-method="delete" v-if="settings.user.signed_in">
           <std-button @click.native="cancel" fa-icon="fas fa-sign-out-alt" small>Sign out</std-button>
         </a>
-        <a href="/rooms/">
+        <a href="/rooms/" v-if="settings.room.id">
           <std-button @click.native="cancel" fa-icon="fas fa-angle-double-left" small>Leave room</std-button>
         </a>
       </div>

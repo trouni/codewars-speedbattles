@@ -1,4 +1,4 @@
-class RegistrationsController < Devise::RegistrationsController
+class SessionsController < Devise::SessionsController
 
   # def edit
   #   if params[:id]
@@ -23,7 +23,7 @@ class RegistrationsController < Devise::RegistrationsController
     resource.update_without_password(params)
   end
 
-  def after_sign_up_path_for(resource)
+  def after_sign_in_path_for(resource)
     stored_location_for(resource) || rooms_path
   end
 end

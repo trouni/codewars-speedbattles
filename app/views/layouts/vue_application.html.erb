@@ -12,7 +12,7 @@
     <%= stylesheet_pack_tag 'application', media: 'all' %> <!-- Uncomment if you import CSS in app/javascript/packs/application.js -->
     <%= favicon_link_tag asset_path('speedbattles_icon.png') %>
   </head>
-  <body>
+  <body class="<%= user_signed_in? ? 'signed-in' : 'signed-out' %>">
     <%= render 'shared/flashes' %>
       <div data-behavior='vue'>
         <%= yield %>

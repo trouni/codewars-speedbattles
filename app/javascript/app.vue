@@ -12,16 +12,27 @@
     ]">
     <span :class="['app-bg', {'initializing': initializing}]"/>
 
-    <navbar v-if="!!currentUserId" :loading="settingsLoading || !wsConnected" />
+    <navbar :loading="settingsLoading || !wsConnected" />
+    
     <modal
-      v-if="focus === 'modal' && userSettingsInitialized"
+      v-if="focus === 'modal' && !initializing"
       id="room-modal"
       title="SYS://Settings">
       <template>
-        <user-settings :settings="settings"/>
+        <user-settings :settings="settings" :moderator="currentUserIsModerator"/>
       </template>
       <template v-slot:secondary v-if="currentUserIsModerator">
         <room-settings :settings="settings"/>
+      </template>
+      <template v-slot:secondary v-else-if="!userSignedIn">
+        <div class="my-4 d-contents">
+          <h5 class="highlight-red mx-auto mb-4 font-weight-bold">Join the battlefield...</h5>
+          <login-form />
+          <div class="d-flex justify-content-center align-items-center mt-3">
+            <p class="highlight mr-3">Need an account?</p>
+            <std-button fa-icon="fas fa-star-of-life" small>Sign up</std-button>
+          </div>
+        </div>
       </template>
     </modal>
 
@@ -42,16 +53,18 @@
 import Vue from 'vue/dist/vue.esm'
 import debounce from "lodash/debounce";
 import kebabCase from "lodash/kebabCase";
-import RoomSettings from "./components/settings/room_settings.vue";
-import UserSettings from "./components/settings/user_settings.vue";
+import RoomSettings from "./components/settings/room_settings";
+import UserSettings from "./components/settings/user_settings";
+import LoginForm from "./components/sign_up/login_form";
 
 export default {
   components: {
     RoomSettings,
-    UserSettings
+    UserSettings,
+    LoginForm
   },
   props: {
-    roomInit: {
+    room: {
       type: Object,
       default: function() {
         return { id: null }
@@ -59,7 +72,7 @@ export default {
     },
     currentUserId: {
       type: Number,
-      default: null
+      default: 0
     },
   },
   data() {
@@ -79,19 +92,15 @@ export default {
         messages: []
       },
       clockInterval: null,
-      fontsLoaded: false,
-      controlsType: "",
       countdownDuration: 15,
       countdown: 0,
       countdownMsg: null,
       countdownEndMsg: null,
       focus: new URL(window.location.href).searchParams.get("settings") === 'show' ? 'modal' : null,
-      longDisconnection: false,
-      // leaderboard: {},
+      fontsLoaded: false,
       messagesInitialized: false,
       modalContent: 'user',
       openedCodewars: false,
-      room: this.roomInit,
       roomPlayers: [],
       roomPlayersLoading: false,
       roomSettingsInitialized: false,
@@ -100,27 +109,25 @@ export default {
         room: {
           sound: true
         },
-        user: {
-          sfx: true
-        },
+        user: {},
       },
       sounds: {
         ambiance: {
-          battles: [new Audio("../../audio/bensound-epic-med.mp3"), new Audio("../../audio/overpowered-med.mp3"), new Audio('../../audio/infinity-star-med.mp3')],
-          drums: new Audio('../../audio/bg-drums.mp3')
+          battles: [new Audio("../audio/bensound-epic-med.mp3"), new Audio("../audio/overpowered-med.mp3"), new Audio('../audio/infinity-star-med.mp3')],
+          drums: new Audio('../audio/bg-drums.mp3')
         },
         fx: {
-          click: new Audio("../../audio/select.mp3"),
-          countdown: new Audio("../../audio/countdown.mp3"),
+          click: new Audio("../audio/select.mp3"),
+          countdown: new Audio("../audio/countdown.mp3"),
           // https://audiojungle.net/item/counting-countdown-timer/21635290
-          countdownTick: new Audio('../../audio/countdown-tick.wav'),
-          countdownZero: new Audio('../../audio/battlecruiser.mp3'),
-          drums: new Audio("../../audio/drums.mp3"),
-          message: new Audio("../../audio/hover.mp3"),
-          interface: new Audio("../../audio/interface.mp3"),
-          mouseenter: new Audio("../../audio/beep.mp3"),
-          mouseover: new Audio("../../audio/beep.mp3"),
-          sword: new Audio("../../audio/sword.mp3")
+          countdownTick: new Audio('../audio/countdown-tick.wav'),
+          countdownZero: new Audio('../audio/battlecruiser.mp3'),
+          drums: new Audio("../audio/drums.mp3"),
+          message: new Audio("../audio/hover.mp3"),
+          interface: new Audio("../audio/interface.mp3"),
+          mouseenter: new Audio("../audio/beep.mp3"),
+          mouseover: new Audio("../audio/beep.mp3"),
+          sword: new Audio("../audio/sword.mp3")
         },
         musicOn: true,
         soundFxOn: true,
@@ -146,30 +153,51 @@ export default {
       },
       deep: true
     },
+    battleStage: {
+      handler: function(battleStage, oldVal) {
+        if (this.battleStage === 4) {
+          this.startAmbiance()
+          if (!this.battle.time_limit) this.startClock()
+        } else {
+          this.stopAmbiance()
+        }
+
+        if (this.battleStage === 3) {
+        } else if (this.battleStage === 2) {
+        } else if (this.battleStage === 1) {
+          this.announce({ content: "Waiting for players to join..." })
+        } else if (this.battleStage === 0) {
+          this.stopAmbiance()
+          this.openedCodewars = false;
+        }
+      },
+      immediate: true
+    }
   },
   computed: {
-    roomId() {
-      return this.roomInit ? this.roomInit.id : null
-    },
     roomName() {
       return this.settings.room.name || ''
     },
     settingsLoading() {
-      return this.userSettingsLoading
-    },
-    someDataLoaded() {
-      return true
+      return this.userSettingsLoading || this.room.id && this.roomSettingsLoading
     },
     initializing() {
-      return !this.fontsLoaded || !this.userSettingsInitialized
+      return !(
+        this.fontsLoaded &&
+        this.userSettingsInitialized &&
+        (
+          !this.room.id || (
+            this.currentUser &&
+            this.roomSettingsInitialized &&
+            this.usersInitialized &&
+            this.battleInitialized &&
+            this.messagesInitialized
+          )
+        )
+      )
     },
     unfocused() {
       return this.focus !== null || !this.wsConnected
-    },
-    allDataLoaded() {
-      return (
-        this.userSettingsInitialized && this.currentUserId
-      );
     },
     seekAttention() {
       if (this.battleStage === 4) {
@@ -193,7 +221,11 @@ export default {
         return `${this.battle.challenge.url}/train/${language}`;
       }
     },
+    userSignedIn() {
+      return this.currentUserId !== 0
+    },
     currentUser() {
+      if (!this.userSignedIn) return { id: 0, invite_status: 'spectator' }
       if (!this.usersInitialized) return
 
       const currentUserIndex = this.users.findIndex(
@@ -203,12 +235,7 @@ export default {
       if (currentUserIndex !== -1) return this.users[currentUserIndex]
     },
     currentUserIsModerator() {
-      return false
-    },
-    invitedUsers() {
-      if (this.battleStage === 0) { return [] }
-
-      return this.users.filter(user => user.invite_status === 'invited')
+      return this.currentUserId === this.room.moderator_id;
     },
     confirmedUsers() {
       if (!this.users) {
@@ -218,9 +245,6 @@ export default {
           user => user.invite_status == "confirmed"
         );
       }
-    },
-    allConfirmed() {
-      return this.battleStage === 2 && this.invitedUsers.length === 0;
     },
     roomStatus() {
       // STATUSES
@@ -252,42 +276,10 @@ export default {
         this.confirmedUsers.length > 1
       );
     },
-    readyForBattle() {
-      if (!this.battle.id || !this.currentUser) return false;
-
-      if (this.currentUserIsModerator) {
-        return this.allConfirmed
-      } else {
-        return this.battleStage < 3 && this.currentUser.invite_status === "confirmed"
-      }
-    },
-    battleCountdown() {
-      if (!this.battle.id) return false;
-
-      return (
-        !!this.battle.start_time &&
-        !this.battle.end_time &&
-        this.countdown !== 0
-      );
-    },
     battleJoinable() {
       if (!this.battle.id) return false;
 
       return this.battleLoaded && (this.battleStage < 3 || (this.battleStage === 3 && this.countdown > 10));
-    },
-    battleOngoing() {
-      if (!this.battle.id) return false;
-
-      return (
-        !!this.battle.start_time &&
-        !this.battle.end_time &&
-        this.countdown === 0
-      );
-    },
-    battleOver() {
-      if (!this.battle.id) return true;
-
-      return !!this.battle.end_time;
     },
     eventMode() {
       return !this.settings.room.sound
@@ -306,7 +298,7 @@ export default {
     subscribeToCable() {
       this.$cable.subscribe({
         channel: "RoomChannel",
-        room_id: this.roomId,
+        room_id: this.room.id,
         user_id: this.currentUserId
       });
     },
@@ -407,6 +399,80 @@ export default {
         if (message) speechSynthesis.speak(msg);
       }
     },
+    // =============
+    //     BATTLE
+    // =============
+    getKatasCount(kataOptions) {
+      this.sendCable("available_katas_count", { kata: kataOptions });
+    },
+    createBattle(battleInfo) {
+      this.battleLoading = true
+      this.battle = {}
+      const challengeIdSlug = this.parseChallengeInput(battleInfo.challenge)
+        .challengeIdSlug;
+      this.sendCable("create_battle", {
+        challenge_id: challengeIdSlug,
+        time_limit: battleInfo.timeLimit,
+        auto_invite: battleInfo.autoInvite,
+      });
+    },
+    createRandomBattle(battleOptions) {
+      this.battleLoading = true
+      this.battle = {}
+      this.sendCable('create_random_battle', battleOptions)
+    },
+    deleteBattle() {
+      this.battleLoading = true
+      if (this.battleLoaded) this.sendCable("delete_battle", { battle_id: this.battle.id });
+    },
+    parseChallengeInput(input) {
+      const urlRegex = /^(https:\/\/)?www\.codewars\.com\/kata\/(?<challengeIdSlug>.+?)\/?(train\/(?<language>.+))?$/;
+      const matchData = input.match(urlRegex);
+      if (matchData) {
+        return {
+          challengeIdSlug: matchData.groups.challengeIdSlug,
+          language: matchData.groups.language
+        };
+      } else {
+        return {
+          challengeIdSlug: kebabCase(input),
+          language: null
+        };
+      }
+    },
+    initializeBattle() {
+      if (this.battleStage < 3) {
+        this.sendCable("update_battle", {
+          battle_action: "start",
+          battle_id: this.battle.id,
+          countdown: this.countdownDuration,
+        });
+      }
+    },
+    userEndsBattle() {
+      if (this.currentUserIsModerator && this.battleStage > 3)
+        this.sendCable("update_battle", {
+          battle_action: 'ended-by-user',
+          battle_id: this.battle.id,
+        });
+    },
+    fetchChallenges(userId) {
+      this.sendCable("fetch_user_challenges", {
+        user_id: userId ? userId : this.currentUserId,
+        battle_id: this.battle.id
+      });
+    },
+    getRoomPlayers(userId) {
+      this.roomPlayersLoading = true
+      this.sendCable("get_room_players");
+    },
+    openCodewars() {
+      if (this.openedCodewars) return;
+
+      this.openedCodewars = true;
+      this.battle.challenge.language = this.battle.challenge.language || "ruby";
+      window.open(this.challengeUrl);
+    },
     setBackgroundVolume() {
       this.ambianceMusic.volume = Math.min(
         this.ambianceMusic.volume,
@@ -473,6 +539,152 @@ export default {
       this.setBackgroundVolume()
       if (this.voiceON) soundFX.play();
     },
+    // ==========
+    // COUNTDOWN
+    // ==========
+    refreshCountdown() {
+      if (this.settings.room.next_event && this.settings.room.next_event.timer >= 0) {
+        this.countdown = Math.round(this.settings.room.next_event.timer);
+        switch (this.settings.room.next_event.type) {
+          case 'start-battle':
+            this.countdownMsg = 'Battle starting in...';
+            // this.countdownEndMsg = 'Starting battle...';
+            this.startCountdown(this.countdown, this.startBattleCountdown);
+            break;
+
+          case 'next-battle':
+            this.countdownMsg = 'Loading next battle in...';
+            // this.countdownEndMsg = 'Waiting for players to join...';
+            this.startCountdown(this.countdown);
+            break;
+
+          case 'end-battle':
+            this.countdownMsg = '';
+            this.countdownEndMsg = 'The battle is over.';
+            this.startCountdown(this.countdown, this.battleClockCountdown);
+            break;
+
+          default:
+            break;
+        }
+      }
+    },
+    startBattleCountdown() {
+      if (this.countdown < 0) {
+        if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
+        if (!this.voiceON) this.playSoundFx('countdownZero')
+        this.startAmbiance()
+      } else {
+        if (this.countdown === 10) this.playVoiceFx("countdown")
+        if (this.countdown < 60) this.playSoundFx('countdownTick')
+      }
+    },
+    battleClockCountdown() {
+      const timeRemaining = this.countdown;
+      if (timeRemaining <= 0) {
+        this.stopAmbiance()
+        if (!this.voiceON && timeRemaining === 0) this.playSoundFx('countdownZero')
+        clearInterval(this.clockInterval);
+      } else if (timeRemaining <= 10) {
+        if (timeRemaining === 10) this.playVoiceFx("countdown")
+        if (!this.voiceON) this.playSoundFx('countdownTick')
+      } else if (timeRemaining === 61) {
+        this.speak("WARNING! 1min remaining!", { interrupt: true });
+      } else if (timeRemaining === 121) {
+        this.speak("WARNING! 2min remaining!", { interrupt: true });
+      } else if (timeRemaining === 301) {
+        this.speak("WARNING! 5min remaining!", { interrupt: true });
+      }
+    },
+    refreshCountdownDisplay() {
+      if (this.countdown >= 0) {
+        const clockTime = this.battleStage !== 3 ? this.formatDuration(this.countdown) : this.countdown
+        this.announcement.status = "warning";
+        this.announcement.content = `<p><small class='m-0'>${this.countdownMsg}</small></p><span class="timer highlight">${clockTime}</span>`;
+      } else if (this.countdownEndMsg) {
+        this.announcement.content = this.countdownEndMsg;
+        this.countdownEndMsg = null;
+      }
+    },
+    startCountdown(countdown = null, callback = _ => {}) {
+      if (countdown) this.countdown = countdown;
+      if (this.countdown <= 0) return;
+      
+      clearInterval(this.timer);
+      // Last iteration when countdown == -1
+      this.timer = setInterval(() => {
+        this.refreshCountdownDisplay();
+        callback();
+        if (this.countdown < 0) {
+          clearInterval(this.timer)
+        };
+        this.countdown -= 1;
+      }, 1000);
+    },
+    startClock() {
+      clearInterval(this.clockInterval);
+      this.clockInterval = setInterval(() => {
+        if (this.countdown > 0) {
+          clearInterval(this.clockInterval);
+        } else if (this.battleStage >= 3) {
+          const clockTime = this.timeSpentInSeconds();
+          this.announce({
+            content: `<p class='highlight'><small>TIME ELAPSED</small></p><span class="timer highlight no-limit">${this.formatDuration(clockTime)}</span>`
+          });
+        } else {
+          clearInterval(this.clockInterval);
+        }
+      })
+    },
+    timeSpentInSeconds() {
+      return (Date.now() - Date.parse(this.battle.start_time)) / 1000;
+    },
+    timeRemainingInSeconds() {
+      return Math.ceil(this.battle.time_limit - this.timeSpentInSeconds());
+    },
+    formatDuration(durationInSeconds) {
+      if (durationInSeconds < 0) durationInSeconds = 0;
+      const hours = Math.floor(durationInSeconds / 60 / 60);
+      const minutes = Math.floor(durationInSeconds / 60) % 60;
+      const seconds = Math.floor(
+        durationInSeconds - hours * 60 * 60 - minutes * 60
+      );
+      return `${hours > 0 ? `${String(hours).padStart(2, "0")}:` : ""}${String(
+        minutes
+      ).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    },
+    formatDurationForSpeech(durationInSeconds) {
+      if (durationInSeconds < 0) durationInSeconds = 0;
+      const hours = Math.floor(durationInSeconds / 60 / 60);
+      const minutes = Math.floor(durationInSeconds / 60) % 60;
+      const seconds = Math.floor(
+        durationInSeconds - hours * 60 * 60 - minutes * 60
+      );
+      return `${hours > 0 ? `${hours}hr ` : ""}${minutes}min${
+        seconds > 0 ? ` ${seconds}sec` : ""
+      }`;
+    },
+    // =============
+    //     USERS
+    // =============
+    pushToArray(array, element) {
+      const result = { newElement: element };
+      const elementIndex = array.findIndex(e => e.id === element.id);
+      if (elementIndex === -1) {
+        array.push(element);
+      } else {
+        // Vue cannot detect change in the array with array[index] = user
+        result.oldElement = array[elementIndex];
+        array.splice(elementIndex, 1, element);
+      }
+      return result;
+    },
+    pushToUsers(user) {
+      const dateFields = ['last_fetched_at', 'joined_room_at', 'joined_battle_at', 'completed_at']
+      // Parsing dates before pushing user into array
+      user = this.parseDates(user, dateFields)
+      if (this.users) this.pushToArray(this.users, user);
+    },
     parseDates(element, dateFields) {
       dateFields.forEach(field => {
         if (element[field]) {
@@ -484,22 +696,44 @@ export default {
       })
       return element
     },
+    removeFromArray(array, element) {
+      const elementIndex = array.findIndex(e => e.id === element.id);
+      if (elementIndex !== -1) {
+        array.splice(elementIndex, 1);
+        // if (this.currentUserIsModerator) console.info('Removed element:', element)
+      }
+    },
+    removeFromUsers(user) {
+      if (this.users) this.removeFromArray(this.users, user);
+    },
+    invitation(inviteAction, userId = null) {
+      this.sendCable("invitation", {
+        battle_id: this.battle.id,
+        invite_action: inviteAction,
+        user_id: userId
+      });
+    },
+    editTimeLimit(timeLimit) {
+      this.sendCable("update_battle", {
+        battle_action: "update",
+        battle_id: this.battle.id,
+        countdown: this.countdownDuration,
+        battle: { id: this.battle.id, time_limit: timeLimit * 60 }
+      });
+    }
   },
   channels: {
     RoomChannel: {
       connected() {
         this.wsConnected = true
-        clearTimeout(window.longDisconnectionTimeout)
-        this.longDisconnection = false
         this.reconnectInterval = setInterval(this.checkConnection, 2000);
       },
       rejected() {
         console.warn('Connection to cable rejected.')
         this.wsConnected = false
-        window.longDisconnectionTimeout = setTimeout(_ => this.longDisconnection = true, 8000)
       },
       received(data) {
-        if (data.roomId !== this.roomId && data.userId !== this.currentUserId) return;
+        if (data.roomId !== this.room.id && data.userId !== this.currentUserId) return;
 
         switch (data.subchannel) {
           case "action":
@@ -525,6 +759,25 @@ export default {
             }
             break;
 
+          case "chat":
+            switch (data.payload.action) {
+              case "all":
+                Vue.set(this.chat, 'messages', data.payload.messages);
+                Vue.set(this.chat, 'authors', data.payload.authors);
+                // if (this.currentUserIsModerator) console.info(`Refreshed all messages`)
+                this.messagesInitialized = true;
+                break;
+
+              default:
+                this.pushToArray(this.chat.messages, data.payload)
+                break;
+            }
+            break;
+
+          case "logs":
+            if (this.currentUserIsModerator) console.info("LOGS", data.payload);
+            break;
+
           case "settings":
             switch (data.payload.action) {
               case "user":
@@ -544,6 +797,54 @@ export default {
             }
             break;  
 
+          case "users":
+            switch (data.payload.action) {
+              case "add":
+                this.pushToUsers(data.payload.user);
+                break;
+
+              // case "remove":
+              //   this.users = this.users.filter(
+              //     e => e.id !== data.payload.user.id
+              //   );
+              //   break;
+
+              case "all":
+                data.payload.users.forEach(user => this.pushToUsers(user));
+                this.usersInitialized = true;
+                break;
+
+              case "room-players":
+                data.payload.users.forEach(user => this.pushToUsers(user));
+                this.roomPlayersLoading = false;
+                break;
+            }
+            break;
+
+          case "battles":
+            switch (data.payload.action) {
+              case "active":
+                this.battleInitialized = true;
+                this.battleLoading = false;
+                if (data.payload.battle) {
+                  const dateFields = ['start_time', 'end_time']
+                  // Parsing dates before pushing user into array
+                  this.battle = this.parseDates(data.payload.battle, dateFields)
+                } else {
+                  // When room has no battle history
+                  this.battle = {}
+                }
+                break;
+
+              case "katas-count":
+                Vue.set(this.settings.room.katas, 'count', data.payload.count)
+                break;
+
+              default:
+                break;
+            }
+            break;
+
           default:
             if (this.currentUserIsModerator)
               console.log("Received data, without matching subchannel:", data);
@@ -555,20 +856,11 @@ export default {
       disconnected() {
         console.warn('Disconnected from cable.')
         this.wsConnected = false
-        window.longDisconnectionTimeout = setTimeout(_ => this.longDisconnection = true, 15000)
       }
     }
   },
   mounted() {
     document.fonts.ready.then(_ => this.fontsLoaded = true)
-
-    // If user is not logged in
-    if (!this.currentUserId) {
-      this.wsConnected = true
-      this.userSettingsInitialized = true
-      this.userSettingsLoading = false
-      return
-    }
 
     speechSynthesis.cancel();
 

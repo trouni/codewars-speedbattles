@@ -2,6 +2,10 @@
   // START: Custom tweaks specific to Chat widget
   .widget-controls {
     min-height: unset;
+    
+    .signed-out & {
+      display: none;
+    }
   }
   // END: Custom widget tweaks
   

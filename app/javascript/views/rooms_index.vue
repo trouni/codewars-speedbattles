@@ -1,9 +1,7 @@
 <template>
-  <div id="home" :class="['vh-100', signedIn ? 'signed-in' : 'signed-out']">
-    <div v-if="signedIn" class="d-contents">
-      <div id="home-logo" class="small">
-        <logo />
-      </div>
+  <div id="rooms-index" class="vh-100">
+    <div class="d-contents">
+      <logo />
 
       <!-- <widget
       id="home-profile"
@@ -16,8 +14,7 @@
       class="grid-item animated fadeIn delay-1s"
       header-title="PWD://War_Rooms/">
         <div class="h-100 py-3">
-          <rooms-list v-if="settings.user.connected_webhook" :rooms="publicRooms"></rooms-list>
-          <h5 v-else class="absolute-center highlight-red">Please connect the Codewars webhook to continue.</h5>
+          <rooms-list :rooms="publicRooms"></rooms-list>
         </div>
       </widget>
 
@@ -26,8 +23,7 @@
       class="grid-item animated fadeIn delay-1s"
       header-title="PWD://Private_War_Rooms/">
         <div class="h-100 py-3">
-          <h5 v-if="!settings.user.connected_webhook" class="absolute-center highlight-red">Please connect the Codewars webhook to continue.</h5>
-          <rooms-list v-else-if="settings.user.admin" :rooms="privateRooms"></rooms-list>
+          <rooms-list v-if="settings.user.admin" :rooms="privateRooms"></rooms-list>
           <div v-else class="absolute-center">
             <p>Please use the link given to you to join a private war room.</p>
           </div>
@@ -38,11 +34,11 @@
       id="home-leaderboard"
       class="grid-item animated fadeIn delay-1s"
       header-title="INFO://Instructions/">
-        <h6 class="tagline mb-4"><span class="highlight-red">Codewars.</span> <span class="highlight">Multiplayer.</span></h6>
+        <h6 class="tagline mb-4"><span class="highlight">Codewars.</span> <span class="highlight-red">Multiplayer.</span></h6>
         <h4 class="highlight text-center">Instructions</h4>
         <div class="h-100 px-5 py-3 scrollable">
           <ul>
-            <li class="mt-3">Make sure you are logged in to Codewars as <strong>{{ settings.user.username }}</strong></li>
+            <li class="mt-3">Make sure you are logged in to Codewars<span v-if="signedIn"> as <strong>{{ settings.user.username }}</strong></span>.</li>
             <li :class="['mt-3', { 'highlight-red': !settings.user.connected_webhook }]">Add the SpeedBattles webhook to your Codewars settings.</li>
             <li class="mt-3">Join a room and click <std-button title="Join Battle" small class="d-inline-flex"></std-button> to take part in the next challenge.</li>
             <li class="mt-3">The battle starts automatically 20 seconds after the last player has joined.</li>
@@ -55,7 +51,7 @@
         </div>
       </widget>
     </div>
-    <div v-else class="absolute-center">
+    <!-- <div v-else class="absolute-center">
       <div class="max-w-100vw d-flex justify-content-center align-items-end mb-5">
         <logo />
       </div>
@@ -76,13 +72,13 @@
           </a>
         </div>
       </widget>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script>
-import Logo from "./shared/logo.vue";
-import RoomsList from './room/rooms_list.vue'
+import Logo from '../components/shared/logo.vue'
+import RoomsList from '../components/room/rooms_list.vue'
 
 export default {
   components: {
@@ -111,9 +107,18 @@ export default {
 </script>
 
 <style lang="scss">
-  $mobile-breakpoint: 992px;
+  @import "../stylesheets/variables.scss";
 
-  #home.signed-in {
+  #rooms-index {
+    .main-logo {
+      position: fixed;
+      transform: translate(-50%, -50%) scale(0.4);
+      top: 50%;
+      left: 50%;
+    }
+  }
+
+  #rooms-index {
     display: grid;
     grid-template-columns: 1fr;
     row-gap: 1em;
@@ -126,7 +131,7 @@ export default {
   }
 
   @media screen and (min-width: $mobile-breakpoint) {
-    #home.signed-in {
+    #rooms-index {
       display: grid;
       grid-template-columns: 3fr 2fr;
       grid-template-rows: 1.5em 3fr 2fr 2fr 1.5em;

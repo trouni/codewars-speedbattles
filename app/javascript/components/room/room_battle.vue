@@ -393,21 +393,21 @@
         return this.currentUser.id === userId
       },
       userIsPlayer(userId) {
-        return !!this.findPlayer(userId)
+        return !!this.findUser(userId)
       },
       userIsConfirmed(userId) {
-        if (this.findPlayer(userId)) {
-          return this.findPlayer(userId).invite_status === 'confirmed';
+        if (this.findUser(userId)) {
+          return this.findUser(userId).invite_status === 'confirmed';
         }
       },
       userSurvived(userId) {
-        if (this.findPlayer(userId)) {
-          return this.findPlayer(userId).invite_status === 'survived';
+        if (this.findUser(userId)) {
+          return this.findUser(userId).invite_status === 'survived';
         }
       },
       userDefeated(userId) {
-        if (this.findPlayer(userId)) {
-          return this.findPlayer(userId).invite_status === 'defeated';
+        if (this.findUser(userId)) {
+          return this.findUser(userId).invite_status === 'defeated';
         }
       },
       completedOnTime(user) {
@@ -415,10 +415,9 @@
                user.completed_at > this.battle.start_time;
       },
       findUser(userId) {
-        const index = this.users.findIndex((e) => e.id === userId);
-        return this.users[index]
-      },
-      findPlayer(userId) {
+        // Spectator
+        if (userId === 0) return this.currentUser
+
         const index = this.users.findIndex((e) => e.id === userId);
         return this.users[index]
       },
