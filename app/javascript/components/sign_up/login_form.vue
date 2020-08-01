@@ -1,5 +1,5 @@
 <template>
-  <form action="/users/sign_in" class="w-100" ref="form" method="post" accept-charset="UTF-8">
+  <form action="/users/sign_in" class="w-100" ref="form" method="post" accept-charset="UTF-8" autofocus>
     <div class="form-inputs">
       <input name="utf8" type="hidden" value="✓">
       <input type="hidden" name="authenticity_token" :value="csrfToken">

@@ -23,7 +23,7 @@
       <template v-slot:secondary v-if="currentUserIsModerator">
         <room-settings :settings="settings"/>
       </template>
-      <template v-slot:secondary v-else-if="!userSignedIn">
+      <template v-slot:secondary v-else-if="!signedIn">
         <div class="my-4 d-contents">
           <h5 class="highlight-red mx-auto mb-4 font-weight-bold">Join the battlefield...</h5>
           <login-form />
@@ -46,7 +46,7 @@
     <slot
       v-if="!initializing"
       :settings="settings"
-      :signed-in="!!currentUserId"
+      :signed-in="signedIn"
       :announcer-window="announcerWindow"
       :battle-initialized="battleInitialized"
       :battle-joinable="battleJoinable"
@@ -246,11 +246,11 @@ export default {
         return `${this.battle.challenge.url}/train/${language}`;
       }
     },
-    userSignedIn() {
+    signedIn() {
       return this.currentUserId !== 0
     },
     currentUser() {
-      if (!this.userSignedIn) return { id: 0, invite_status: 'spectator' }
+      if (!this.signedIn) return { id: 0, invite_status: 'spectator' }
       if (!this.usersInitialized) return
 
       const currentUserIndex = this.users.findIndex(
@@ -813,6 +813,7 @@ export default {
                 break;
 
               case "room":
+                console.log(data.payload.settings.next_event)
                 this.settings.room = data.payload.settings;
                 this.announcement.defaultContent = `Welcome to ${this.settings.room.name}`
                 this.refreshCountdown()
