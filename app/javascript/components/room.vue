@@ -12,9 +12,9 @@
     ]">
     <span :class="['app-bg', {'initializing': initializing}]"/>
 
-    <navbar :room-id="roomId" :loading="settingsLoading || !wsConnected" />
+    <navbar :loading="settingsLoading || !wsConnected" />
     <modal
-      v-if="focus === 'modal' && userSettingsInitialized && roomSettingsInitialized"
+      v-if="focus === 'modal' && !initializing"
       id="room-modal"
       title="SYS://Settings">
       <template>
@@ -22,6 +22,9 @@
       </template>
       <template v-slot:secondary v-if="currentUserIsModerator">
         <room-settings :settings="settings"/>
+      </template>
+      <template v-slot:secondary v-if="!userSignedIn">
+        <login-form />
       </template>
     </modal>
     <spinner v-if="initializing || !wsConnected" class="animated fadeIn">
@@ -100,11 +103,12 @@
 import Vue from 'vue/dist/vue.esm'
 import debounce from "lodash/debounce";
 import kebabCase from "lodash/kebabCase";
-import RoomChat from "./room/room_chat.vue";
-import RoomLeaderboard from "./room/room_leaderboard.vue";
-import RoomBattle from "./room/room_battle.vue";
-import RoomSettings from "./settings/room_settings.vue";
-import UserSettings from "./settings/user_settings.vue";
+import RoomChat from "../components/room/room_chat.vue";
+import RoomLeaderboard from "../components/room/room_leaderboard.vue";
+import RoomBattle from "../components/room/room_battle.vue";
+import RoomSettings from "../components/settings/room_settings.vue";
+import UserSettings from "../components/settings/user_settings.vue";
+import LoginForm from "../components/sign_up/login_form";
 
 export default {
   components: {
@@ -112,11 +116,20 @@ export default {
     RoomLeaderboard,
     RoomBattle,
     RoomSettings,
-    UserSettings
+    UserSettings,
+    LoginForm
   },
   props: {
-    roomInit: Object,
-    currentUserId: Number,
+    room: {
+      type: Object,
+      default: function() {
+        return { id: null }
+      }
+    },
+    currentUserId: {
+      type: Number,
+      default: 0
+    },
   },
   data() {
     return {
@@ -144,7 +157,6 @@ export default {
       messagesInitialized: false,
       modalContent: 'user',
       openedCodewars: false,
-      room: this.roomInit,
       roomPlayers: [],
       roomPlayersLoading: false,
       roomSettingsInitialized: false,
@@ -217,24 +229,25 @@ export default {
     }
   },
   computed: {
-    roomId() {
-      return this.roomInit ? this.roomInit.id : null
-    },
     roomName() {
       return this.settings.room.name || ''
     },
     settingsLoading() {
-      return this.userSettingsLoading || this.roomSettingsLoading
+      return this.userSettingsLoading || this.room.id && this.roomSettingsLoading
     },
     initializing() {
       return !(
         this.fontsLoaded &&
         this.userSettingsInitialized &&
-        this.roomSettingsInitialized &&
-        this.usersInitialized &&
-        this.battleInitialized &&
-        this.messagesInitialized &&
-        this.currentUser
+        (
+          !this.room.id || (
+            this.currentUser &&
+            this.roomSettingsInitialized &&
+            this.usersInitialized &&
+            this.battleInitialized &&
+            this.messagesInitialized
+          )
+        )
       )
     },
     unfocused() {
@@ -339,7 +352,7 @@ export default {
     subscribeToCable() {
       this.$cable.subscribe({
         channel: "RoomChannel",
-        room_id: this.roomId,
+        room_id: this.room.id,
         user_id: this.currentUserId
       });
     },
@@ -774,7 +787,7 @@ export default {
         this.wsConnected = false
       },
       received(data) {
-        if (data.roomId !== this.roomId && data.userId !== this.currentUserId) return;
+        if (data.roomId !== this.room.id && data.userId !== this.currentUserId) return;
 
         switch (data.subchannel) {
           case "action":
