@@ -1,6 +1,6 @@
 <template>
-  <div id="home" class="vh-100">
-    <div class="absolute-center">
+  <div id="home" class="min-vh-100">
+    <div class="home-content">
       <div class="max-w-100vw d-flex justify-content-center align-items-end mb-5">
         <logo />
       </div>
@@ -67,4 +67,14 @@ export default {
 </script>
 
 <style lang="scss">
+  @import "../stylesheets/variables.scss";
+
+  @media screen and (min-width: $mobile-breakpoint) {
+    #home > .home-content {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
 </style>
