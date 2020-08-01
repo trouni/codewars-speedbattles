@@ -16,7 +16,7 @@
           <div v-if="signedIn" class="d-contents">
             <div class="d-flex justify-content-around pb-4">
               <a href="/rooms">
-                <std-button fa-icon="fas fa-radiation" large>Go to war rooms</std-button>
+                <std-button large fa-icon="fas fa-radiation" class="highlight-red">Go to war rooms</std-button>
               </a>
             </div>
           </div>
