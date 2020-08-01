@@ -58,6 +58,11 @@ class User < ApplicationRecord
     }
   end
 
+  def self.find(id)
+    spectator = User.new(id: 0, username: 'spectator', name: 'Spectator', connected_webhook: true)
+    id.zero? ? spectator : super
+  end
+
   def connected_webhook?
     settings(:base).connected_webhook
   end
@@ -93,6 +98,7 @@ class User < ApplicationRecord
       name: name,
       username: username,
       admin: admin,
+      signed_in: id != 0,
       sfx: settings(:base).sfx,
       voice: settings(:base).voice,
       music: settings(:base).music,
@@ -344,9 +350,9 @@ class User < ApplicationRecord
     FetchCompletedChallengesJob.perform_later(user_id: id, all_pages: true)
   end
 
-  def broadcast
-    room&.broadcast_user(user: self)
-  end
+  # def broadcast
+  #   room&.broadcast_user(user: self)
+  # end
 
   def broadcast_settings
     ActionCable.server.broadcast(

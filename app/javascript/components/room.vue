@@ -262,7 +262,11 @@ export default {
         return `${this.battle.challenge.url}/train/${language}`;
       }
     },
+    userSignedIn() {
+      return this.currentUserId !== 0
+    },
     currentUser() {
+      if (!this.userSignedIn) return { id: 0, invite_status: 'spectator' }
       if (!this.usersInitialized) return
 
       const currentUserIndex = this.users.findIndex(

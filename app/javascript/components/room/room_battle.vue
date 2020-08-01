@@ -415,6 +415,9 @@
                user.completed_at > this.battle.start_time;
       },
       findUser(userId) {
+        // Spectator
+        if (userId === 0) return this.currentUser
+
         const index = this.users.findIndex((e) => e.id === userId);
         return this.users[index]
       },

@@ -133,7 +133,9 @@ class Room < ApplicationRecord
   end
 
   def broadcast(subchannel: "logs", payload: nil, private_to_user_id: nil)
-    return if inactive?
+    # Don't broadcast to the room if it is empty,
+    # but can still broadcast privately to spectators.
+    return if inactive? && private_to_user_id.nil?
 
     ActionCable.server.broadcast(
       private_to_user_id ? "user_#{private_to_user_id}" : "room_#{id}",

@@ -52,7 +52,7 @@
       </div>
       <small>Select a default language to write code blocks.</small>
     </div> -->
-    <div class="webhook-settings mb-5">
+    <div class="webhook-settings mb-5" v-if="settings.user.signed_in">
       <div class="d-flex justify-content-between">
         <h5>Codewars webhook
           <sup>

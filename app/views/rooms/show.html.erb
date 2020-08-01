@@ -2,6 +2,6 @@
 
 <room
   :room-init="<%= @room.to_json %>"
-  :current-user-id="<%= current_user.id %>"
+  :current-user-id="<%= current_user&.id || 0 %>"
   >
 </room>

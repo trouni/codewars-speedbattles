@@ -1,6 +1,6 @@
 <template>
-  <div id="home" :class="['vh-100', signedIn ? 'signed-in' : 'signed-out']">
-    <div v-if="signedIn" class="d-contents">
+  <div id="home" class="vh-100">
+    <div class="d-contents">
       <div id="home-logo" class="small">
         <logo />
       </div>
@@ -16,8 +16,7 @@
       class="grid-item animated fadeIn delay-1s"
       header-title="PWD://War_Rooms/">
         <div class="h-100 py-3">
-          <rooms-list v-if="settings.user.connected_webhook" :rooms="publicRooms"></rooms-list>
-          <h5 v-else class="absolute-center highlight-red">Please connect the Codewars webhook to continue.</h5>
+          <rooms-list :rooms="publicRooms"></rooms-list>
         </div>
       </widget>
 
@@ -26,8 +25,7 @@
       class="grid-item animated fadeIn delay-1s"
       header-title="PWD://Private_War_Rooms/">
         <div class="h-100 py-3">
-          <h5 v-if="!settings.user.connected_webhook" class="absolute-center highlight-red">Please connect the Codewars webhook to continue.</h5>
-          <rooms-list v-else-if="settings.user.admin" :rooms="privateRooms"></rooms-list>
+          <rooms-list v-if="settings.user.admin" :rooms="privateRooms"></rooms-list>
           <div v-else class="absolute-center">
             <p>Please use the link given to you to join a private war room.</p>
           </div>
@@ -55,7 +53,7 @@
         </div>
       </widget>
     </div>
-    <div v-else class="absolute-center">
+    <!-- <div v-else class="absolute-center">
       <div class="max-w-100vw d-flex justify-content-center align-items-end mb-5">
         <logo />
       </div>
@@ -76,7 +74,7 @@
           </a>
         </div>
       </widget>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -113,7 +111,7 @@ export default {
 <style lang="scss">
   $mobile-breakpoint: 992px;
 
-  #home.signed-in {
+  #home {
     display: grid;
     grid-template-columns: 1fr;
     row-gap: 1em;
@@ -126,7 +124,7 @@ export default {
   }
 
   @media screen and (min-width: $mobile-breakpoint) {
-    #home.signed-in {
+    #home {
       display: grid;
       grid-template-columns: 3fr 2fr;
       grid-template-rows: 1.5em 3fr 2fr 2fr 1.5em;
