@@ -13,15 +13,26 @@
     <span :class="['app-bg', {'initializing': initializing}]"/>
 
     <navbar :loading="settingsLoading || !wsConnected" />
+    
     <modal
       v-if="focus === 'modal' && !initializing"
       id="room-modal"
       title="SYS://Settings">
       <template>
-        <user-settings :settings="settings"/>
+        <user-settings :settings="settings" :moderator="currentUserIsModerator"/>
       </template>
       <template v-slot:secondary v-if="currentUserIsModerator">
         <room-settings :settings="settings"/>
+      </template>
+      <template v-slot:secondary v-else-if="!userSignedIn">
+        <div class="my-4 d-contents">
+          <h5 class="highlight-red mx-auto mb-4 font-weight-bold">Join the battlefield...</h5>
+          <login-form />
+          <div class="d-flex justify-content-center align-items-center mt-3">
+            <p class="highlight mr-3">Need an account?</p>
+            <std-button fa-icon="fas fa-star-of-life" small>Sign up</std-button>
+          </div>
+        </div>
       </template>
     </modal>
 
@@ -42,13 +53,15 @@
 import Vue from 'vue/dist/vue.esm'
 import debounce from "lodash/debounce";
 import kebabCase from "lodash/kebabCase";
-import RoomSettings from "./components/settings/room_settings.vue";
-import UserSettings from "./components/settings/user_settings.vue";
+import RoomSettings from "./components/settings/room_settings";
+import UserSettings from "./components/settings/user_settings";
+import LoginForm from "./components/sign_up/login_form";
 
 export default {
   components: {
     RoomSettings,
-    UserSettings
+    UserSettings,
+    LoginForm
   },
   props: {
     room: {

@@ -13,6 +13,7 @@
     <span :class="['app-bg', {'initializing': initializing}]"/>
 
     <navbar :loading="settingsLoading || !wsConnected" />
+
     <modal
       v-if="focus === 'modal' && !initializing"
       id="room-modal"
@@ -23,10 +24,18 @@
       <template v-slot:secondary v-if="currentUserIsModerator">
         <room-settings :settings="settings"/>
       </template>
-      <template v-slot:secondary v-if="!userSignedIn">
-        <login-form />
+      <template v-slot:secondary v-else-if="!userSignedIn">
+        <div class="my-4 d-contents">
+          <h5 class="highlight-red mx-auto mb-4 font-weight-bold">Join the battlefield...</h5>
+          <login-form />
+          <div class="d-flex justify-content-center align-items-center mt-3">
+            <p class="highlight mr-3">Need an account?</p>
+            <std-button fa-icon="fas fa-star-of-life" small>Sign up</std-button>
+          </div>
+        </div>
       </template>
     </modal>
+
     <spinner v-if="initializing || !wsConnected" class="animated fadeIn">
       {{ wsConnected ? 'LOADING' : 'CONNECTING' }}
       <p class="absolute-h-center mt-5 animated fadeIn delay-10s">
@@ -103,11 +112,11 @@
 import Vue from 'vue/dist/vue.esm'
 import debounce from "lodash/debounce";
 import kebabCase from "lodash/kebabCase";
-import RoomChat from "../components/room/room_chat.vue";
-import RoomLeaderboard from "../components/room/room_leaderboard.vue";
-import RoomBattle from "../components/room/room_battle.vue";
-import RoomSettings from "../components/settings/room_settings.vue";
-import UserSettings from "../components/settings/user_settings.vue";
+import RoomChat from "../components/room/room_chat";
+import RoomLeaderboard from "../components/room/room_leaderboard";
+import RoomBattle from "../components/room/room_battle";
+import RoomSettings from "../components/settings/room_settings";
+import UserSettings from "../components/settings/user_settings";
 import LoginForm from "../components/sign_up/login_form";
 
 export default {
