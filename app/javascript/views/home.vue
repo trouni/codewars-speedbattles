@@ -21,7 +21,7 @@
             </div>
           </div>
           <div v-else class="d-flex flex-column justify-content-between align-items-center flex-grow-1 py-3">
-            <h4 class="highlight-red mb-4">Join the battlefield...</h4>
+            <h4 class="highlight-red mb-4 font-weight-bold">Join the battlefield...</h4>
             <login-form />
           </div>
         </template> 
@@ -30,7 +30,7 @@
             <h4 class="highlight mb-4">No SpeedBattles account yet?</h4>
             <div class="d-flex flex-column justify-content-between align-items-center flex-grow-1">
               <a href="/rooms" class="d-flex justify-content-around">
-                <std-button fa-icon="fas fa-eye" class="mb-3">View as a spectator</std-button>
+                <std-button fa-icon="fas fa-eye" class="highlight-red mb-3">View as a spectator</std-button>
               </a>
               <h5 class="m-0">OR</h5>
               <a href="/users/sign_up" class="">
