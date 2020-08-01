@@ -45,7 +45,7 @@ class User < ApplicationRecord
 
   alias_attribute :rank, :codewars_overall_rank
 
-  has_settings do |s|
+  has_settings class_name: 'BaseSettingObject' do |s|
     s.key :base, defaults: {
       sfx: true,
       voice: true,
@@ -55,6 +55,7 @@ class User < ApplicationRecord
       hljs_lang: nil,
       low_res_theme: false,
       next_jid: Hash.new,
+      updated_at: nil
     }
   end
 

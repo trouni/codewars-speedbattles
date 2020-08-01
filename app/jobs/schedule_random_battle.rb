@@ -6,5 +6,6 @@ class ScheduleRandomBattle < ApplicationJob
     job = CreateRandomBattle.set(wait: delay_in_seconds.seconds)
                             .perform_later(room_id: room.id, language: language, time_limit: time_limit, kata_options: kata_options)
     room.set_timer(delay_in_seconds.seconds, 'next-battle', job.job_id)
+    room.update_settings
   end
 end

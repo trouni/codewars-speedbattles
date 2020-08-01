@@ -48,7 +48,7 @@ class RoomChannel < ApplicationCable::Channel
 
   def create_battle(data)
     set_room
-    @room.settings(:base).update(auto_invite: data['auto_invite'])
+    @room.update_settings(auto_invite: data['auto_invite'])
     battle = Battle.find_or_initialize_by(room: @room, end_time: nil)
     battle.time_limit = data["time_limit"] if data["time_limit"]&.positive?
     battle.challenge_language = data['language']
@@ -59,7 +59,7 @@ class RoomChannel < ApplicationCable::Channel
   def create_random_battle(data)
     set_room
     kata_options = data['kata'].transform_keys(&:to_sym)
-    @room.settings(:base).update(katas: kata_options.except(:language), auto_invite: data['auto_invite'])
+    @room.update_settings(katas: kata_options.except(:language), auto_invite: data['auto_invite'])
     ScheduleRandomBattle.perform_now(room_id: @room.id, language: data['language'], time_limit: data['time_limit'], kata_options: kata_options)
   end
 
@@ -102,18 +102,16 @@ class RoomChannel < ApplicationCable::Channel
     if data['user']
       set_current_user
       @current_user.update(name: data['user']['name'])
-      @current_user.settings(:base).update(data['user'].except('name'))
+      @current_user.update_settings(data['user'].except('name'))
     end
-    @current_user.broadcast_settings
   end
 
   def update_room_settings(data)
     if data['room']
       set_room
       @room.update(name: data['room']['name'])
-      @room.settings(:base).update(data['room'].except('name'))
+      @room.update_settings(data['room'].except('name'))
     end
-    @room.broadcast_settings
   end
 
   # =============
