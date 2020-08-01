@@ -4,8 +4,9 @@ import Vue from 'vue/dist/vue.esm'
 import ActionCableVue from 'actioncable-vue';
 import VueChatScroll from 'vue-chat-scroll'
 import App from '../app.vue'
-import Room from '../components/room.vue'
-import Home from '../components/home.vue'
+import Room from '../views/room.vue'
+import Home from '../views/home.vue'
+import RoomsIndex from '../views/rooms_index.vue'
 import Widget from '../components/shared/widget.vue'
 import NavBar from '../components/shared/navbar.vue'
 import SignUpFormInputs from '../components/sign_up/form_inputs.vue'
@@ -18,8 +19,9 @@ import VueShowdown from 'vue-showdown'
 import VueHighlightJS from 'vue-highlightjs'
 
 Vue.component('app', App)
-Vue.component('room', Room)
 Vue.component('home', Home)
+Vue.component('rooms-index', RoomsIndex)
+Vue.component('room', Room)
 Vue.component('widget', Widget)
 Vue.component('navbar', NavBar)
 Vue.component('std-button', StdButton)
