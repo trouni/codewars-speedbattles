@@ -10,7 +10,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(room, index) in rooms" :class="['animated fadeInUp', 'highlight' ]" :title="`${room.name}`" :key="room.id">
+        <tr v-for="room in rooms" :class="['animated fadeInUp', 'highlight' ]" :title="`${room.name}`" :key="room.id">
           <th scope="row">
             <span class="data">
               <a :href="`/rooms/${room.id}`" class='highlight text-ellipsis'>
