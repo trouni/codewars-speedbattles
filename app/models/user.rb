@@ -58,6 +58,10 @@ class User < ApplicationRecord
     }
   end
 
+  def spectator?
+    id.zero?
+  end
+
   def self.find(id)
     spectator = User.new(id: 0, username: 'spectator', name: 'Spectator', connected_webhook: true)
     id.zero? ? spectator : super
@@ -104,7 +108,7 @@ class User < ApplicationRecord
       # hljs_lang: settings(:base).hljs_lang,
       music: settings(:base).music,
       # webhook showing as connected for spectators
-      connected_webhook: id.zero? || settings(:base).connected_webhook,
+      connected_webhook: spectator? || settings(:base).connected_webhook,
       last_webhook_at: settings(:base).last_webhook_at,
       webhook_secret: webhook_secret,
       low_res_theme: settings(:base).low_res_theme,
