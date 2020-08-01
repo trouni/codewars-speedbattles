@@ -29,6 +29,8 @@ class Battle < ApplicationRecord
   validates :start_time, uniqueness: { scope: :room }
   validates :end_time, uniqueness: { scope: :room }
 
+  alias_method :invites, :battle_invites
+
   def auto_invite?
     room.autonomous? || room.settings(:base).auto_invite
   end

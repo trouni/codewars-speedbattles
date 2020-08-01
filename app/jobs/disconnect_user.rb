@@ -11,7 +11,7 @@ class DisconnectUser < ApplicationJob
 
     # Cancel battle invite unless the battle already started
     unless room.active_battle.nil? || room.active_battle.started?
-      room.active_battle.battle_invites.find_by(player: user)&.destroy
+      room.active_battle.invites.find_by(player: user)&.destroy
     end
   end
 end

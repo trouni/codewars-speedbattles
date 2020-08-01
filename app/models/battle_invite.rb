@@ -24,5 +24,6 @@ class BattleInvite < ApplicationRecord
     user = User.find(player_id)
     room.broadcast_user(user: user)
     room.broadcast_active_battle if battle.confirmed_players.count <= 2
+    battle.destroy if battle.invites.empty?
   end
 end
