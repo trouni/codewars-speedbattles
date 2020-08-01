@@ -4,7 +4,7 @@
       <h3><strong class="highlight">Profile settings</strong></h3>
       <!-- <small>You are moderator for this war room.</small> -->
     </div>
-    <div class="form-group mt-3 mb-5">
+    <div class="form-group mt-3 mb-5" v-if="settings.user.signed_in">
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="m-0 no-wrap">Display name</h5>
         <input
@@ -118,12 +118,12 @@
       </div>
       <small>Alternative theme that removes transparency and other effects for slower devices.</small>
     </div>
-    <div class="form-group mb-5">
+    <div class="form-group mb-5" v-if="settings.user.signed_in || settings.room.id">
       <div class="d-flex justify-content-around">
-        <a href="/users/sign_out" data-method="delete">
+        <a href="/users/sign_out" data-method="delete" v-if="settings.user.signed_in">
           <std-button @click.native="cancel" fa-icon="fas fa-sign-out-alt" small>Sign out</std-button>
         </a>
-        <a href="/rooms/">
+        <a href="/rooms/" v-if="settings.room.id">
           <std-button @click.native="cancel" fa-icon="fas fa-angle-double-left" small>Leave room</std-button>
         </a>
       </div>
