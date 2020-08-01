@@ -93,7 +93,9 @@ export default {
       roomSettingsInitialized: false,
       roomSettingsLoading: true,
       settings: {
-        room: {},
+        room: {
+          sound: true
+        },
         user: {},
       },
       sounds: {
