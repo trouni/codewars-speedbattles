@@ -1,4 +1,4 @@
-class CancelStartBattle < ApplicationJob
+class CancelStartBattle < RoomFlowJob
   queue_as :default
 
   def perform(battle_id:)
