@@ -1,11 +1,6 @@
-<app
-  <%= ":current-user-id=#{current_user.id}" if user_signed_in? %>
-  <%= ":room=#{@room.to_json}" if @room %>
-  v-slot="slotProps">
-  <rooms-index
-    :public-rooms="<%= @public_rooms.to_json %>"
-    :private-rooms="<%= @private_rooms.to_json %>"
-    :settings="slotProps.settings"
-    :signed-in="slotProps.signedIn"
-  ></rooms-index>
-</app>
+<rooms-index
+  :public-rooms="<%= @public_rooms.to_json %>"
+  :private-rooms="<%= @private_rooms.to_json %>"
+  :settings="slotProps.settings"
+  :signed-in="slotProps.signedIn"
+></rooms-index>

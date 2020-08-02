@@ -2,7 +2,6 @@
   <div
     id="super-container"
     :class="[
-      viewMode,
       roomStatus,
       {
         'unfocused': unfocused || !wsConnected,
@@ -13,7 +12,7 @@
     <span :class="['app-bg', {'initializing': initializing}]"/>
 
     <navbar :loading="settingsLoading || !wsConnected" />
-    
+
     <modal
       v-if="focus === 'modal' && !initializing"
       id="room-modal"
@@ -24,7 +23,7 @@
       <template v-slot:secondary v-if="currentUserIsModerator">
         <room-settings :settings="settings"/>
       </template>
-      <template v-slot:secondary v-else-if="!userSignedIn">
+      <template v-slot:secondary v-else-if="!signedIn">
         <div class="my-4 d-contents">
           <h5 class="highlight-red mx-auto mb-4 font-weight-bold">Join the battlefield...</h5>
           <login-form />
@@ -44,7 +43,32 @@
       </p>
     </spinner>
 
-    <slot v-if="!initializing" :settings="settings" :signed-in="!!currentUserId">
+    <slot
+      v-if="!initializing"
+      :settings="settings"
+      :signed-in="signedIn"
+      :announcer-window="announcerWindow"
+      :battle-initialized="battleInitialized"
+      :battle-joinable="battleJoinable"
+      :battle-loading="battleLoading"
+      :battle-stage="battleStage"
+      :battle="battle"
+      :chat="chat"
+      :countdown="countdown"
+      :current-user-is-moderator="currentUserIsModerator"
+      :current-user="currentUser"
+      :focus="focus"
+      :initializing="initializing"
+      :messages-initialized="messagesInitialized"
+      :ready-to-start="readyToStart"
+      :room-name="roomName"
+      :room-players-loading="roomPlayersLoading"
+      :room-players="roomPlayers"
+      :room-settings-initialized="roomSettingsInitialized"
+      :room="room"
+      :users-initialized="usersInitialized"
+      :users="users"
+      >
     </slot>
   </div>
 </template>
@@ -109,7 +133,9 @@ export default {
         room: {
           sound: true
         },
-        user: {},
+        user: {
+          connected_webhook: true
+        },
       },
       sounds: {
         ambiance: {
@@ -139,7 +165,6 @@ export default {
       userSettingsInitialized: false,
       userSettingsLoading: true,
       usersInitialized: false,
-      viewMode: new URL(window.location.href).searchParams.get("view"),
       wsConnected: false,
       reconnectInterval: null
     };
@@ -184,9 +209,9 @@ export default {
     initializing() {
       return !(
         this.fontsLoaded &&
-        this.userSettingsInitialized &&
         (
           !this.room.id || (
+            this.userSettingsInitialized &&
             this.currentUser &&
             this.roomSettingsInitialized &&
             this.usersInitialized &&
@@ -221,11 +246,11 @@ export default {
         return `${this.battle.challenge.url}/train/${language}`;
       }
     },
-    userSignedIn() {
+    signedIn() {
       return this.currentUserId !== 0
     },
     currentUser() {
-      if (!this.userSignedIn) return { id: 0, invite_status: 'spectator' }
+      if (!this.signedIn) return { id: 0, invite_status: 'spectator' }
       if (!this.usersInitialized) return
 
       const currentUserIndex = this.users.findIndex(
@@ -360,7 +385,7 @@ export default {
           content: message.content
         };
       }
-      if (message.chat && this.currentUserIsModerator && !this.viewMode) {
+      if (message.chat && this.currentUserIsModerator) {
         const chatMessage =
           message.chat === true ? message.content : message.chat;
         this.sendChatMessage(chatMessage, true);
@@ -571,7 +596,7 @@ export default {
     },
     startBattleCountdown() {
       if (this.countdown < 0) {
-        if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
+        if (this.currentUser.invite_status === "confirmed") this.openCodewars();
         if (!this.voiceON) this.playSoundFx('countdownZero')
         this.startAmbiance()
       } else {
@@ -747,7 +772,7 @@ export default {
                 break;
 
               case "open-codewars":
-                if (this.currentUser.invite_status === "confirmed" && !this.viewMode) this.openCodewars();
+                if (this.currentUser.invite_status === "confirmed") this.openCodewars();
                 break;
 
               default:
@@ -788,6 +813,7 @@ export default {
                 break;
 
               case "room":
+                console.log(data.payload.settings.next_event)
                 this.settings.room = data.payload.settings;
                 this.announcement.defaultContent = `Welcome to ${this.settings.room.name}`
                 this.refreshCountdown()
@@ -908,6 +934,5 @@ export default {
 };
 </script>
 
-<style>
-
+<style lang="scss">
 </style>

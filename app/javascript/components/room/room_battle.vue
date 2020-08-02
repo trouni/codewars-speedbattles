@@ -231,7 +231,6 @@
       currentUser: Object,
       currentUserIsModerator: Boolean,
       battleJoinable: Boolean,
-      viewMode: String,
       readyToStart: Boolean,
       loading: Boolean,
       focus: Boolean,

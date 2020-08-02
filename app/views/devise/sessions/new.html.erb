@@ -1,29 +1,32 @@
-<widget
-id="sign-in"
-class="animated fadeIn m-auto"
-header-title="AUTH://Authenticate/">
-  <%= simple_form_for(resource, as: resource_name,
-    url: session_path(resource_name),
-    html: {
-      ref: 'form', class: 'py-4', autofocus: true
-    }) do |f| %>
-    <div class="form-inputs">
-      <%= f.input :username,
-      required: false,
-      autofocus: true,
-      input_html: { '@keydown.enter' => "$refs.form.submit()" } %>
-      <%= f.input :password,
-      required: false,
-      input_html: { autocomplete: "current-password", '@keydown.enter' => "$refs.form.submit()" } %>
-      <%= f.input :remember_me, validate: false, input_html: { checked: true }, as: :boolean if devise_mapping.rememberable? %>
-    </div>
-    <p class="text-center mt-2 mb-0">
-      <%= render 'devise/shared/links' %>
-    </p>
-  <% end %>
-  <template v-slot:controls>
-    <div class="form-actions d-flex justify-content-center">
-      <std-button @click.native="$refs.form.submit()" large fa-icon="fas fa-sign-in-alt">Log in</std-button>
-    </div>
-  </template>
-</widget>
+<div class="devise d-flex vh-100">
+  <widget
+  id="sign-in"
+  class="animated fadeIn m-auto"
+  header-title="AUTH://Authenticate/">
+    <%= simple_form_for(resource, as: resource_name,
+      url: session_path(resource_name),
+      html: {
+        ref: 'form', class: 'py-4', autofocus: true
+      }) do |f| %>
+      <div class="form-inputs">
+        <%= f.input :username,
+        required: false,
+        autofocus: true,
+        input_html: { '@keydown.enter' => "$refs.form.submit()" } %>
+        <%= f.input :password,
+        required: false,
+        input_html: { autocomplete: "current-password", '@keydown.enter' => "$refs.form.submit()" } %>
+        <%= f.input :remember_me, validate: false, input_html: { checked: true }, as: :boolean if devise_mapping.rememberable? %>
+      </div>
+      <p class="text-center mt-2 mb-0">
+        <%= render 'devise/shared/links' %>
+      </p>
+    <% end %>
+    <template v-slot:controls>
+      <div class="form-actions d-flex justify-content-center">
+        <std-button @click.native="$refs.form.submit()" large fa-icon="fas fa-sign-in-alt">Log in</std-button>
+      </div>
+    </template>
+  </widget>
+</div>
+

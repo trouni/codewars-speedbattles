@@ -2,7 +2,7 @@
   <div :class="['widget-ctn', { 'seek-attention': seekAttention, focus: focus }]">
     <div class="widget-bg">
       <div class="widget">
-        <h3 class="header" v-html="headerTitle" />
+        <h3 v-if="headerTitle" class="header" v-html="headerTitle" />
         <spinner v-if="loading" />
         <div class="widget-content">
           <div class="widget-body">
