@@ -4,7 +4,7 @@
     :class="[
       roomStatus,
       {
-        'unfocused': unfocused || !wsConnected,
+        'unfocused': unfocused,
         'disconnected': !wsConnected,
         'low-res': settings.user.low_res_theme,
       }
@@ -29,7 +29,9 @@
           <login-form />
           <div class="d-flex justify-content-center align-items-center mt-3">
             <p class="small mr-3">Need an account?</p>
-            <std-button fa-icon="fas fa-star-of-life" small>Sign up</std-button>
+            <a href="/users/sign_up">
+              <std-button fa-icon="fas fa-star-of-life" small>Sign up</std-button>
+            </a>
           </div>
         </div>
       </template>
