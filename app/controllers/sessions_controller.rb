@@ -1,5 +1,10 @@
 class SessionsController < Devise::SessionsController
 
+  def create
+    cookies.signed[:user_id] = current_user.id
+    super
+  end
+
   # def edit
   #   if params[:id]
   #     @user = User.find(params[:id])
@@ -12,6 +17,11 @@ class SessionsController < Devise::SessionsController
   #   @user = User.find(params[:id])
   #   @user.update(user_params)
   # end
+
+  def destroy
+    cookies.signed[:user_id] = nil
+    super
+  end
 
   protected
 

@@ -2,23 +2,20 @@ class RoomChannel < ApplicationCable::Channel
   include CodewarsHelper
 
   def subscribed
-    set_current_user
     set_room
 
     # Disconnect from all other rooms
-    ActionCable.server.remote_connections.where(current_user: @current_user).disconnect
     stop_all_streams
+    # clean_up_room_users
     
-    stream_from "user_#{@current_user.id}" if @current_user
+    stream_from "user_#{current_user.id}"
     stream_from "room_#{@room.id}" if @room
-    ScheduleUserJob.perform_now(job: 'connect', user_id: @current_user&.id, room_id: @room&.id)
+    ScheduleUserJob.perform_now(job: 'connect', user_id: current_user.id, room_id: @room&.id)
   end
 
   def unsubscribed
     set_room
-    set_current_user
     stop_all_streams
-    ScheduleUserJob.perform_now(job: 'disconnect', user_id: @current_user.id, room_id: @room&.id, delay_in_seconds: 10)
   end
 
   # =============
@@ -27,11 +24,10 @@ class RoomChannel < ApplicationCable::Channel
 
   def create_message(data)
     set_room
-    set_current_user
     if data["announcement"]
-      @room.chat.create_announcement(data["message"]) if @current_user == @room.moderator
+      @room.chat.create_announcement(data["message"]) if current_user == @room.moderator
     else
-      Message.create(user_id: @current_user.id, chat_id: @room.chat.id, content: data["message"].strip)
+      Message.create(user_id: current_user.id, chat_id: @room.chat.id, content: data["message"].strip)
     end
   end
 
@@ -41,9 +37,8 @@ class RoomChannel < ApplicationCable::Channel
 
   def available_katas_count(data)
     set_room
-    set_current_user
     kata_options = data['kata'].transform_keys(&:to_sym)
-    @room.broadcast(subchannel: "battles", payload: { action: 'katas-count', count: @room.available_katas(**kata_options).count }, private_to_user_id: @current_user.id)
+    @room.broadcast(subchannel: "battles", payload: { action: 'katas-count', count: @room.available_katas(**kata_options).count }, private_to_user_id: current_user.id)
   end
 
   def create_battle(data)
@@ -100,9 +95,8 @@ class RoomChannel < ApplicationCable::Channel
 
   def update_user_settings(data)
     if data['user']
-      set_current_user
-      @current_user.update(name: data['user']['name'])
-      @current_user.update_settings(data['user'].except('name'))
+      current_user.update(name: data['user']['name'])
+      current_user.update_settings(data['user'].except('name'))
     end
   end
 
@@ -131,8 +125,7 @@ class RoomChannel < ApplicationCable::Channel
 
   def get_room_players
     set_room
-    set_current_user
-    @room.broadcast_all_users(private_to_user_id: @current_user.id)
+    @room.broadcast_all_users(private_to_user_id: current_user.id)
   end
   
   private
@@ -141,7 +134,8 @@ class RoomChannel < ApplicationCable::Channel
     @room = Room.find(params[:room_id]) if params[:room_id]
   end
 
-  def set_current_user
-    @current_user = User.find(params[:user_id])
+  def clean_up_room_users
+    user_ids = Redis.new.pubsub("channels", "user_*").map { |channel| channel.match(/^user_(?<id>\d+)$/)[:id].to_i }
+    @room.room_users.where.not(user_id: user_ids).destroy_all
   end
 end
