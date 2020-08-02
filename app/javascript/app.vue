@@ -822,13 +822,9 @@ export default {
                 break;
 
               case "room":
-                console.log(data.broadcasted_by)
-                console.log(data.payload.settings.next_event)
-                console.log(this.settings.room.updated_at, data.payload.settings.updated_at)
-                if (!this.settings.room.updated_at || data.payload.settings.updated_at >= this.settings.room.updated_at)
+                if (!this.settings.room.updated_at || data.payload.settings.updated_at >= this.settings.room.updated_at) {
                   Vue.set(this.settings, 'room', data.payload.settings)
-                else
-                  console.log('rejected settings too old')
+                }
                 // this.settings.room = data.payload.settings;
                 this.announcement.defaultContent = `Welcome to ${this.settings.room.name}`
                 this.refreshCountdown()
