@@ -73,7 +73,7 @@ class RoomChannel < ApplicationCable::Channel
       battle.terminate(end_at: end_at)
     when "ended-by-user"
       battle = @room.active_battle
-      ScheduleEndBattle.perform_now(battle_id: battle.id, delay_in_seconds: 15)
+      ScheduleEndBattle.perform_now(battle_id: battle.id, delay_in_seconds: 0)
       # battle.time_limit = (Time.now - battle.start_time + 15.seconds).round
       # @room.broadcast(subchannel: "battles", payload: { action: "active", battle: battle.api_expose })
     when "update"
