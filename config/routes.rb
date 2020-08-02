@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   devise_for :users, controllers: { registrations: 'registrations', sessions: 'sessions' }
   resources :rooms, only: [ :index, :show, :new, :create ]
   get '/setup-webhook', to: 'pages#webhook_help', as: :webhook_help
+  get '/sign_out_all', to: 'pages#sign_out_all', as: :sign_out_all
   
   post '/webhook', to: 'codewars#webhook'
   
