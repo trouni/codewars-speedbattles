@@ -8,7 +8,6 @@ module ApplicationCable
 
     def disconnect
       # ActionCable.server.remote_connections.where(current_user: current_user).disconnect
-      ScheduleUserJob.perform_now(job: 'disconnect', user_id: current_user.id, delay_in_seconds: 10)
     end
 
     protected

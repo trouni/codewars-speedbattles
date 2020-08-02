@@ -16,6 +16,12 @@ class RoomChannel < ApplicationCable::Channel
   def unsubscribed
     set_room
     stop_all_streams
+    ScheduleUserJob.perform_now(
+      job: 'disconnect',
+      user_id: current_user.id,
+      room_id: @room&.id,
+      delay_in_seconds: 10
+    ) unless current_user.spectator?
   end
 
   # =============
