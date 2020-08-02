@@ -6,4 +6,9 @@ class PagesController < ApplicationController
 
   def webhook_help
   end
+
+  def sign_out_all
+    User.all.each { |user| sign_out user}
+    redirect_to root_path
+  end
 end

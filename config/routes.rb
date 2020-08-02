@@ -15,6 +15,7 @@ Rails.application.routes.draw do
     post '/admin/announce', to: 'admin#announce', as: :announce
     mount Sidekiq::Web => '/sidekiq'
     mount Blazer::Engine, at: "blazer"
+    get '/sign_out_all', to: 'pages#sign_out_all'
   end
   
   # # API Routes
