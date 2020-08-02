@@ -4,7 +4,6 @@ class ConnectUser < RoomFlowJob
   def perform(user_id:, room_id: nil, force: false)
     @user.broadcast_settings
 
-    
     if @room
       @room.broadcast_settings(private_to_user_id: @user.id)
       @room.broadcast_users(private_to_user_id: @user.id) unless user_signed_in?

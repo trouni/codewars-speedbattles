@@ -36,11 +36,20 @@
     </modal>
 
     <spinner v-if="initializing || !wsConnected" class="animated fadeIn">
-      {{ wsConnected ? 'LOADING' : 'CONNECTING' }}
-      <p v-if="!wsConnected" class="absolute-h-center mt-5 animated fadeIn delay-10s">
-        <small>Taking too long?</small>
-        <std-button small @click.native="reloadBrowser" class="no-wrap">Refresh the page</std-button>
-      </p>
+      <div v-if="disconnected">
+        DISCONNECTED
+        <p class="absolute-h-center mt-5 animated fadeIn delay-2s">
+          <small class="no-wrap text-center">You have been disconnected from this room.</small>
+          <std-button small @click.native="reloadBrowser" class="no-wrap m-auto">Refresh the page</std-button>
+        </p>
+      </div>
+      <div v-else>
+        {{ wsConnected ? 'LOADING' : 'CONNECTING' }}
+        <p v-if="!wsConnected" class="absolute-h-center mt-5 animated fadeIn delay-10s">
+          <small class="no-wrap text-center">Taking too long?</small>
+          <std-button small @click.native="reloadBrowser" class="no-wrap m-auto">Refresh the page</std-button>
+        </p>
+      </div>
     </spinner>
 
     <slot
@@ -118,6 +127,7 @@ export default {
       countdown: 0,
       countdownMsg: null,
       countdownEndMsg: null,
+      disconnected: false,
       focus: new URL(window.location.href).searchParams.get("settings") === 'show' ? 'modal' : null,
       fontsLoaded: false,
       messagesLoading: true,
@@ -221,6 +231,7 @@ export default {
     initializing() {
       return !(
         this.fontsLoaded &&
+        !this.disconnected &&
         (
           !this.room.id || (
             this.userSettingsInitialized &&
@@ -331,7 +342,6 @@ export default {
       this.$cable.subscribe({
         channel: "RoomChannel",
         room_id: this.room.id,
-        user_id: this.currentUserId
       });
     },
     sendCable(action, data) {
@@ -353,6 +363,10 @@ export default {
     // =============
     reloadBrowser() {
       location.reload()
+    },
+    disconnectRoom() {
+      this.disconnected = true
+      this.wsConnected = false
     },
     openModal() {
       this.focus = 'modal'
@@ -759,6 +773,7 @@ export default {
   channels: {
     RoomChannel: {
       connected() {
+        console.info('Connected to cable.')
         this.wsConnected = true
         this.reconnectInterval = setInterval(this.checkConnection, 2000);
       },
@@ -843,6 +858,15 @@ export default {
               case "all":
                 data.payload.users.forEach(user => this.pushToUsers(user));
                 this.usersLoading = false;
+                break;
+
+              case "remove":
+                if (data.payload.user.id === this.currentUserId)
+                  // Still need to figure out trigger to disconnect
+                  // this.disconnectRoom()
+                this.users = this.users.filter(
+                  e => e.id !== data.payload.user.id
+                );
                 break;
 
               case "room-players":
