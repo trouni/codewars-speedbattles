@@ -8,11 +8,10 @@ class CodewarsController < ApplicationController
   def webhook
     payload = JSON.parse(Base64.decode64(request.headers[:HTTP_X_WEBHOOK_SECRET])).with_indifferent_access
     user = User.find(payload.fetch(:id))
-    user&.settings(:base).update(connected_webhook: true, last_webhook_at: Time.now) if user&.authentication_token == payload.fetch(:t)
+    user&.update_settings(connected_webhook: true, last_webhook_at: Time.now) if user&.authentication_token == payload.fetch(:t)
     update_user_from_webhook(params[:user]) if params[:user]
 
     skip_authorization
-    user&.broadcast_settings
     render json: { ok: true }
   end
 

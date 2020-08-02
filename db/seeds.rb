@@ -16,7 +16,7 @@ trouni = User.find_by(username: 'trouni')
 # room = Room.find_or_create_by!(name: "Codewars SpeedBattles tutorial", moderator: trouni)
 # room = Room.find_or_create_by!(name: "Le Wagon Tokyo 252", moderator: trouni)
 # autonomous_room = Room.find_or_create_by!(name: "Autonomous Test Room", moderator: trouni)
-# autonomous_room.settings(:base).update(autonomous: true)
+# autonomous_room.update_settings(autonomous: true)
 
 # Public rooms
 public_rooms = [
@@ -54,5 +54,5 @@ public_rooms = [
 
 public_rooms.each do |room_hash|
   room = Room.find_or_create_by!(name: room_hash[:name], moderator: trouni, private: false)
-  room.settings(:base).update(room_hash.except(:name))
+  room.update_settings(room_hash.except(:name))
 end

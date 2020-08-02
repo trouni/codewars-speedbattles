@@ -1,5 +1,5 @@
 <template>
-  <widget id="room-leaderboard" :header-title="title" :loading="loading && showOffline" :focus="focus">
+  <widget id="room-leaderboard" :header-title="title" :loading="loading" :focus="focus">
     <div class="d-flex flex-column h-100">
       <div class="fixed-header">
         <table :class="['console-table h-100', { 'no-stats': !room.show_stats }]">

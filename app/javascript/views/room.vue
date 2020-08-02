@@ -26,7 +26,6 @@
 
       <div v-if="roomSettingsInitialized" class='d-contents'>
         <room-battle
-          v-if="battleInitialized && currentUser"
           id="room-battle"
           class="grid-item animated fadeIn"
           :battle="battle"
@@ -38,13 +37,12 @@
           :current-user="currentUser"
           :current-user-is-moderator="currentUserIsModerator"
           :ready-to-start="readyToStart"
-          :loading="(!usersInitialized && !battleInitialized) || battleLoading"
+          :loading="battleLoading"
           :focus="focus === 'battle'"
           :settings="settings"
         />
 
         <room-leaderboard
-          v-if="currentUser"
           class="grid-item animated fadeIn"
           :users="users"
           :room="room"
@@ -53,17 +51,16 @@
           :room-players="roomPlayers"
           :current-user="currentUser"
           :current-user-is-moderator="currentUserIsModerator"
-          :loading="!usersInitialized || roomPlayersLoading"
+          :loading="usersLoading || roomPlayersLoading"
           :focus="focus === 'leaderboard'"
         />
 
         <room-chat
-          v-if="currentUser"
           class="grid-item animated fadeIn"
           :messages="chat.messages"
           :authors="chat.authors"
           :current-user="currentUser"
-          :loading="!messagesInitialized"
+          :loading="messagesLoading"
           :focus="focus === 'chat'"
           :settings="settings"
         />
@@ -90,7 +87,6 @@ export default {
   props: {
     announcerWindow: Object,
     battle: Object,
-    battleInitialized: Boolean,
     battleJoinable: Boolean,
     battleLoading: Boolean,
     battleStage: Number,
@@ -100,7 +96,7 @@ export default {
     currentUserIsModerator: Boolean,
     focus: String,
     initializing: Boolean,
-    messagesInitialized: Boolean,
+    messagesLoading: Boolean,
     readyToStart: Boolean,
     room: Object,
     roomName: String,
@@ -110,7 +106,7 @@ export default {
     settings: Object,
     signedIn: Boolean,
     users: Array,
-    usersInitialized: Boolean,
+    usersLoading: Boolean,
   },
 };
 </script>

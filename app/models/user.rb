@@ -45,7 +45,7 @@ class User < ApplicationRecord
 
   alias_attribute :rank, :codewars_overall_rank
 
-  has_settings do |s|
+  has_settings class_name: 'BaseSettingObject' do |s|
     s.key :base, defaults: {
       sfx: true,
       voice: true,
@@ -55,6 +55,7 @@ class User < ApplicationRecord
       hljs_lang: nil,
       low_res_theme: false,
       next_jid: Hash.new,
+      updated_at: nil
     }
   end
 
@@ -112,6 +113,7 @@ class User < ApplicationRecord
       last_webhook_at: settings(:base).last_webhook_at,
       webhook_secret: webhook_secret,
       low_res_theme: settings(:base).low_res_theme,
+      updated_at: settings(:base).updated_at
     }
   end
 
@@ -355,16 +357,17 @@ class User < ApplicationRecord
     FetchCompletedChallengesJob.perform_later(user_id: id, all_pages: true)
   end
 
-  # def broadcast
-  #   room&.broadcast_user(user: self)
-  # end
+  def broadcast
+    room&.broadcast_user(user: self)
+  end
 
   def broadcast_settings
     ActionCable.server.broadcast(
       "user_#{id}",
       subchannel: "settings",
       payload: { action: 'user', settings: get_settings },
-      userId: id
+      userId: id,
+      # broadcasted_by: caller[0..2]
     )
   end
 

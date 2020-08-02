@@ -48,7 +48,6 @@
       :settings="settings"
       :signed-in="signedIn"
       :announcer-window="announcerWindow"
-      :battle-initialized="battleInitialized"
       :battle-joinable="battleJoinable"
       :battle-loading="battleLoading"
       :battle-stage="battleStage"
@@ -59,14 +58,14 @@
       :current-user="currentUser"
       :focus="focus"
       :initializing="initializing"
-      :messages-initialized="messagesInitialized"
+      :messages-loading="messagesLoading"
       :ready-to-start="readyToStart"
       :room-name="roomName"
       :room-players-loading="roomPlayersLoading"
       :room-players="roomPlayers"
       :room-settings-initialized="roomSettingsInitialized"
       :room="room"
-      :users-initialized="usersInitialized"
+      :users-loading="usersLoading"
       :users="users"
       >
     </slot>
@@ -108,8 +107,7 @@ export default {
         status: "normal"
       },
       battle: {},
-      battleInitialized: false,
-      battleLoading: false,
+      battleLoading: true,
       challengeInput: "",
       chat: {
         authors: [],
@@ -122,7 +120,7 @@ export default {
       countdownEndMsg: null,
       focus: new URL(window.location.href).searchParams.get("settings") === 'show' ? 'modal' : null,
       fontsLoaded: false,
-      messagesInitialized: false,
+      messagesLoading: true,
       modalContent: 'user',
       openedCodewars: false,
       roomPlayers: [],
@@ -164,7 +162,7 @@ export default {
       users: [],
       userSettingsInitialized: false,
       userSettingsLoading: true,
-      usersInitialized: false,
+      usersLoading: true,
       wsConnected: false,
       reconnectInterval: null
     };
@@ -181,7 +179,7 @@ export default {
     battleStage: {
       handler: function(battleStage, oldVal) {
         if (this.battleStage === 4) {
-          this.startAmbiance()
+          this.loadAmbiance({ play: true })
           if (!this.battle.time_limit) this.startClock()
         } else {
           this.stopAmbiance()
@@ -197,6 +195,20 @@ export default {
         }
       },
       immediate: true
+    },
+    countdown: {
+      handler: function(countdown) {
+        if (countdown >= 0) {
+          const clockTime = this.battleStage !== 3 ? this.formatDuration(countdown) : countdown
+          this.announcement.status = "warning";
+          this.announcement.content = `<p><small class='m-0'>${this.countdownMsg}</small></p><span class="timer highlight">${clockTime}</span>`;
+        } else if (this.countdownEndMsg) {
+          this.announcement.content = this.countdownEndMsg;
+          this.countdownEndMsg = null;
+        } else {
+          this.announcement.content = null
+        }
+      }
     }
   },
   computed: {
@@ -212,11 +224,7 @@ export default {
         (
           !this.room.id || (
             this.userSettingsInitialized &&
-            this.currentUser &&
-            this.roomSettingsInitialized &&
-            this.usersInitialized &&
-            this.battleInitialized &&
-            this.messagesInitialized
+            this.roomSettingsInitialized
           )
         )
       )
@@ -250,14 +258,13 @@ export default {
       return this.currentUserId !== 0
     },
     currentUser() {
-      if (!this.signedIn) return { id: 0, invite_status: 'spectator' }
-      if (!this.usersInitialized) return
+      const spectator = { id: 0, invite_status: 'spectator' }
 
       const currentUserIndex = this.users.findIndex(
         e => e.id === this.currentUserId
       );
 
-      if (currentUserIndex !== -1) return this.users[currentUserIndex]
+      return currentUserIndex !== -1 ? this.users[currentUserIndex] : spectator
     },
     currentUserIsModerator() {
       return this.currentUserId === this.room.moderator_id;
@@ -507,9 +514,9 @@ export default {
     resetAmbianceVolume() {
       this.ambianceMusic.volume = this.musicON ? this.sounds.volumeAmbiance : 0;
     },
-    startAmbiance(track = null) {
-      if (track) {
-        this.ambianceMusic = this.sounds.ambiance[track]
+    loadAmbiance(args = { track: null, play: false }) {
+      if (args.track) {
+        this.ambianceMusic = this.sounds.ambiance[args.track]
       } else {
         this.ambianceMusic = this.sounds.ambiance.battles[
           Math.floor(Math.random() * this.sounds.ambiance.battles.length)
@@ -518,9 +525,10 @@ export default {
       // this.ambianceMusic.loop = true
       this.ambianceMusic.volume = this.musicON ? this.sounds.volumeAmbiance : 0;
       this.ambianceMusic.onended = () => {
-        this.startAmbiance(track);
+        this.loadAmbiance({ track: args.track, play: true });
       };
-      if (this.ambianceMusic.paused) this.ambianceMusic.play();
+      this.ambianceMusic.pause();
+      if (args.play) this.ambianceMusic.play();
     },
     pauseAmbiance() {
       this.ambianceMusic.pause();
@@ -529,8 +537,9 @@ export default {
       this.ambianceMusic.play();
     },
     stopAmbiance() {
-      this.ambianceMusic.pause();
-      this.ambianceMusic.currentTime = 0;
+      this.loadAmbiance({ play: false })
+      // this.ambianceMusic.pause();
+      // this.ambianceMusic.currentTime = 0;
     },
     toggleMusic() {
       this.settings.user.music = !this.settings.user.music;
@@ -594,11 +603,22 @@ export default {
         }
       }
     },
+    forceBattleStart() {
+      // Assuming that the battle started successfully before the server broadcasts the new battle
+      Vue.set(this.battle, 'stage', 4)
+      Vue.set(this.battle, 'start_time', new Date())
+      if (this.battle.time_limit) {
+        this.countdown = this.battle.time_limit
+        this.countdownMsg = null;
+      } else {
+        this.startClock()
+      }
+    },
     startBattleCountdown() {
       if (this.countdown < 0) {
         if (this.currentUser.invite_status === "confirmed") this.openCodewars();
         if (!this.voiceON) this.playSoundFx('countdownZero')
-        this.startAmbiance()
+        this.forceBattleStart()
       } else {
         if (this.countdown === 10) this.playVoiceFx("countdown")
         if (this.countdown < 60) this.playSoundFx('countdownTick')
@@ -621,16 +641,6 @@ export default {
         this.speak("WARNING! 5min remaining!", { interrupt: true });
       }
     },
-    refreshCountdownDisplay() {
-      if (this.countdown >= 0) {
-        const clockTime = this.battleStage !== 3 ? this.formatDuration(this.countdown) : this.countdown
-        this.announcement.status = "warning";
-        this.announcement.content = `<p><small class='m-0'>${this.countdownMsg}</small></p><span class="timer highlight">${clockTime}</span>`;
-      } else if (this.countdownEndMsg) {
-        this.announcement.content = this.countdownEndMsg;
-        this.countdownEndMsg = null;
-      }
-    },
     startCountdown(countdown = null, callback = _ => {}) {
       if (countdown) this.countdown = countdown;
       if (this.countdown <= 0) return;
@@ -638,7 +648,6 @@ export default {
       clearInterval(this.timer);
       // Last iteration when countdown == -1
       this.timer = setInterval(() => {
-        this.refreshCountdownDisplay();
         callback();
         if (this.countdown < 0) {
           clearInterval(this.timer)
@@ -790,7 +799,7 @@ export default {
                 Vue.set(this.chat, 'messages', data.payload.messages);
                 Vue.set(this.chat, 'authors', data.payload.authors);
                 // if (this.currentUserIsModerator) console.info(`Refreshed all messages`)
-                this.messagesInitialized = true;
+                this.messagesLoading = false;
                 break;
 
               default:
@@ -813,8 +822,10 @@ export default {
                 break;
 
               case "room":
-                console.log(data.payload.settings.next_event)
-                this.settings.room = data.payload.settings;
+                if (!this.settings.room.updated_at || data.payload.settings.updated_at >= this.settings.room.updated_at) {
+                  Vue.set(this.settings, 'room', data.payload.settings)
+                }
+                // this.settings.room = data.payload.settings;
                 this.announcement.defaultContent = `Welcome to ${this.settings.room.name}`
                 this.refreshCountdown()
                 this.roomSettingsInitialized = true
@@ -829,19 +840,14 @@ export default {
                 this.pushToUsers(data.payload.user);
                 break;
 
-              // case "remove":
-              //   this.users = this.users.filter(
-              //     e => e.id !== data.payload.user.id
-              //   );
-              //   break;
-
               case "all":
                 data.payload.users.forEach(user => this.pushToUsers(user));
-                this.usersInitialized = true;
+                this.usersLoading = false;
                 break;
 
               case "room-players":
                 data.payload.users.forEach(user => this.pushToUsers(user));
+                this.usersLoading = false;
                 this.roomPlayersLoading = false;
                 break;
             }
@@ -850,7 +856,6 @@ export default {
           case "battles":
             switch (data.payload.action) {
               case "active":
-                this.battleInitialized = true;
                 this.battleLoading = false;
                 if (data.payload.battle) {
                   const dateFields = ['start_time', 'end_time']
@@ -924,7 +929,6 @@ export default {
     this.$root.$on("edit-time-limit", timeLimit => this.editTimeLimit(timeLimit));
     this.$root.$on("speak", message => this.speak(message));
     this.$root.$on("play-fx", sound => this.playSoundFx(sound));
-    this.$root.$on("play-ambiance", track => this.startAmbiance(track));
     this.$root.$on("toggle-voice", this.toggleVoice);
     this.$root.$on("toggle-music", this.toggleMusic);
     this.$root.$on("toggle-sound-fx", () => this.settings.user.sfx = !this.settings.user.sfx);
