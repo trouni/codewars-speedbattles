@@ -28,7 +28,7 @@
           <h5 class="highlight-red mx-auto mb-4 font-weight-bold">Join the battlefield...</h5>
           <login-form />
           <div class="d-flex justify-content-center align-items-center mt-3">
-            <p class="highlight mr-3">Need an account?</p>
+            <p class="small mr-3">Need an account?</p>
             <std-button fa-icon="fas fa-star-of-life" small>Sign up</std-button>
           </div>
         </div>

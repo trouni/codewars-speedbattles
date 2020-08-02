@@ -64,6 +64,7 @@ class User < ApplicationRecord
   end
 
   def self.find(id)
+    # ActionCable: Initializing user with id 0 for spectators
     spectator = User.new(id: 0, username: 'spectator', name: 'Spectator', connected_webhook: true)
     id.zero? ? spectator : super
   end
