@@ -9,9 +9,9 @@
         <template v-slot:secondary v-if="$slots.secondary">
           <slot name="secondary" />
         </template>
-        <template v-slot:controls>
-          <std-button @click.native="cancel" fa-icon="fas fa-times-circle" >Cancel</std-button>
-          <std-button @click.native="submit" fa-icon="fas fa-save" large >Save</std-button>
+        <template v-if="!controls.hide" v-slot:controls>
+          <std-button v-if="controls.cancel" @click.native="cancel" fa-icon="fas fa-times-circle" >{{ controls.cancel }}</std-button>
+          <std-button v-if="controls.submit" @click.native="submit" fa-icon="fas fa-save" large >{{ controls.submit }}</std-button>
         </template>
       </widget>
     </div>
@@ -31,6 +31,16 @@ export default {
     show: {
       type: Boolean,
       default: false,
+    },
+    controls: {
+      type: Object,
+      default: () => {
+        return {
+          hide: false,
+          cancel: "Cancel",
+          submit: "Save"
+        }
+      },
     },
     maxWidth: {
       type: String,

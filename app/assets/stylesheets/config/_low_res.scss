@@ -40,8 +40,8 @@
     }
 
     .widget-message-box {
-      background: linear-gradient(154.9deg, rgba(saturate($link-color, 100%), 0.2) 0%, rgba(saturate($link-color, 100%), 0.1) 86.37%);
-      border-color: rgba($bezel-color, .2);
+      background: rgba(saturate($link-color, 100%), 0.3);
+      backdrop-filter: unset;
     }
   }
 
