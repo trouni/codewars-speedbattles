@@ -46,7 +46,6 @@ class Room < ApplicationRecord
       next_event: {
         at: Time.now,
         type: nil,
-        jid: nil,
       },
       next_jid: Hash.new,
       updated_at: nil
@@ -68,8 +67,9 @@ class Room < ApplicationRecord
       autonomous: autonomous?,
       next_event: {
         timer: time_until_next_event,
-        type: settings(:base).next_event[:type]
-      }
+        type: settings(:base).next_event[:type],
+      },
+      updated_at: settings(:base).updated_at
     }
   end
 
@@ -146,7 +146,8 @@ class Room < ApplicationRecord
       private_to_user_id ? "user_#{private_to_user_id}" : "room_#{id}",
       subchannel: subchannel,
       payload: payload,
-      roomId: id
+      roomId: id,
+      # broadcasted_by: caller[0..2]
     )
   end
 
@@ -228,14 +229,13 @@ class Room < ApplicationRecord
     broadcast(subchannel: "battles", payload: { action: "active", battle: active_battle&.api_expose }, private_to_user_id: private_to_user_id)
   end
 
-  def set_next_event(at:, type: nil, jid: nil)
+  def set_next_event(at:, type: nil)
     update_settings(next_event: { at: at, type: type })
-    set_next_jid(jid) if jid
   end
 
-  def set_timer(delay, type = nil, jid = nil)
+  def set_timer(delay, type = nil)
     # delay must be a duration (e.g. seconds, minutes, etc.)
-    set_next_event(at: Time.now + delay, type: type, jid: jid)
+    set_next_event(at: Time.now + delay, type: type)
   end
 
   private
