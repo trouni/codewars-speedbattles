@@ -17,6 +17,12 @@ class ApplicationRecord < ActiveRecord::Base
     settings(:base).update(data)
   end
 
+  def reset_jid(scope = nil)
+    scope = scope ? "#{scope.class.to_s.downcase}_#{scope.id}" : "default"
+    next_jid = settings(:base).next_jid.except(scope)
+    update_settings(next_jid: next_jid)
+  end
+
   def set_next_jid(jid, scope: nil)
     # the scope should be an instance
     scope = scope ? "#{scope.class.to_s.downcase}_#{scope.id}" : "default"

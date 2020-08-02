@@ -1,11 +1,23 @@
 class RoomFlowJob < ApplicationJob
   before_perform do |job|
     set_resources(job)
-    set_jid if synchronous_execution?
-    abort_unless_latest_job
+    if synchronous_execution?
+      set_jid
+    else
+      abort_unless_latest_job
+    end
   end
 
+  # # Should not reset jid, otherwise jobs don't expire
+  # after_perform do |job|
+  #   reset_jid(@scope)
+  # end
+
   private
+
+  def reset_jid(scope = nil)
+    @resource.reset_jid(scope)
+  end
 
   def set_jid
     @resource.set_next_jid(job_id, scope: @scope)
