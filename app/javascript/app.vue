@@ -37,7 +37,7 @@
       </template>
     </modal>
 
-    <spinner v-if="initializing || !wsConnected" class="animated fadeIn">
+    <spinner v-if="initializing || (room.id && !wsConnected)" class="animated fadeIn">
       <div v-if="disconnected">
         DISCONNECTED
         <p class="absolute-h-center mt-5 animated fadeIn delay-2s">
@@ -243,7 +243,7 @@ export default {
       )
     },
     unfocused() {
-      return this.focus !== null || !this.wsConnected
+      return this.focus !== null || (!this.wsConnected && this.room.id)
     },
     seekAttention() {
       if (this.battleStage === 4) {
