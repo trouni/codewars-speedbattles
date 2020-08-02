@@ -431,7 +431,7 @@ export default {
         const fxPlayAt = options.fxPlayAt || 'asap'
         msg.voice =
           voices[voices.findIndex(e => e.voiceURI === voiceURI)];
-        // msg.rate = 1.1;
+        msg.rate = 0.9;
         // msg.pitch = 0.85;
         msg.onstart = () => {
           this.setBackgroundVolume()
@@ -952,7 +952,7 @@ export default {
     this.$root.$on("start-countdown", this.startCountdown);
     this.$root.$on("end-battle", this.userEndsBattle);
     this.$root.$on("edit-time-limit", timeLimit => this.editTimeLimit(timeLimit));
-    this.$root.$on("speak", message => this.speak(message));
+    this.$root.$on("speak", (message, options) => this.speak(message, options));
     this.$root.$on("play-fx", sound => this.playSoundFx(sound));
     this.$root.$on("toggle-voice", this.toggleVoice);
     this.$root.$on("toggle-music", this.toggleMusic);

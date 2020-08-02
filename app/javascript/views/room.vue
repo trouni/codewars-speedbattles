@@ -96,7 +96,12 @@ export default {
         if (this.signedIn && !settings.user.connected_webhook && !this.focus) {
           this.$root.$emit('set-focus', "webhook")
         } else if (settings.user.connected_webhook && this.focus === 'webhook') {
-          this.$root.$emit('speak', 'Webhook, connected.')
+          this.$root.$emit('speak', 'Webhook, connected.', {
+            fx: 'interface',
+            fxPlayAt: 'start',
+            fxVolume: 0.5,
+            interrupt: false
+          })
           setTimeout(_ => {
             if (settings.user.connected_webhook) this.$root.$emit('close-modal')
           }, 3000)
