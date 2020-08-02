@@ -11,7 +11,7 @@
     ]">
     <span :class="['app-bg', {'initializing': initializing}]"/>
 
-    <navbar :loading="settingsLoading || !wsConnected" />
+    <navbar v-if="!initializing" :loading="settingsLoading || !wsConnected" />
 
     <modal
       v-if="focus === 'modal' && !initializing"
@@ -37,7 +37,7 @@
 
     <spinner v-if="initializing || !wsConnected" class="animated fadeIn">
       {{ wsConnected ? 'LOADING' : 'CONNECTING' }}
-      <p class="absolute-h-center mt-5 animated fadeIn delay-10s">
+      <p v-if="!wsConnected" class="absolute-h-center mt-5 animated fadeIn delay-10s">
         <small>Taking too long?</small>
         <std-button small @click.native="reloadBrowser" class="no-wrap">Refresh the page</std-button>
       </p>
@@ -209,7 +209,7 @@ export default {
           this.announcement.content = null
         }
       }
-    }
+    },
   },
   computed: {
     roomName() {
@@ -358,7 +358,7 @@ export default {
       this.focus = 'modal'
     },
     closeModal() {
-      if (this.focus === 'modal') {
+      if (this.focus === 'modal' || this.focus === 'webhook') {
         this.focus = null
       }
     },
@@ -919,6 +919,7 @@ export default {
       this.invitation("uninvite", userId)
     );
     this.$root.$on("invite-all", () => this.invitation("all"));
+    this.$root.$on("set-focus", (focus) => this.focus = focus);
     this.$root.$on("invite-survivors", () => this.invitation("survivors"));
     this.$root.$on("confirm-invite", userId =>
       this.invitation("confirm", userId)

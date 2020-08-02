@@ -1,10 +1,22 @@
 <template>
     <div id="room" :class="{ moderator: currentUserIsModerator, 'initializing': initializing }">
 
+      <modal
+        v-if="focus === 'webhook' && !initializing"
+        id="webhook-instructions"
+        :controls="{ hide: webhookRequired, submit: null, cancel: 'Later' }"
+        title="SETUP://Connect_Webhook">
+        <template>
+          <div class="py-3">
+            <webhook-instructions :settings="settings" />
+          </div>
+        </template>
+      </modal>
+
       <widget
         v-if="!signedIn"
         id="join-fight"
-        class="seek-attention d-flex align-items-center justify-content-center animated slideInDown delay-3s"
+        class="seek-attention d-flex align-items-center justify-content-center animated slideInDown delay-2s"
         :focus="!focus"
         @click.native="$root.$emit('toggle-settings')"
         >
@@ -75,14 +87,32 @@ import RoomLeaderboard from "../components/room/room_leaderboard";
 import RoomBattle from "../components/room/room_battle";
 import RoomSettings from "../components/settings/room_settings";
 import UserSettings from "../components/settings/user_settings";
+import WebhookInstructions from "../components/settings/webhook_instructions";
 
 export default {
+  watch: {
+    settings: {
+      handler: function(settings) {
+        if (this.signedIn && !settings.user.connected_webhook && !this.focus) {
+          this.$root.$emit('set-focus', "webhook")
+        } else if (settings.user.connected_webhook && this.focus === 'webhook') {
+          this.$root.$emit('speak', 'Webhook, connected.')
+          setTimeout(_ => {
+            if (settings.user.connected_webhook) this.$root.$emit('close-modal')
+          }, 3000)
+        }
+      },
+      deep: true,
+      immediate: true
+    },
+  },
   components: {
     RoomChat,
     RoomLeaderboard,
     RoomBattle,
     RoomSettings,
     UserSettings,
+    WebhookInstructions
   },
   props: {
     announcerWindow: Object,
@@ -107,6 +137,10 @@ export default {
     signedIn: Boolean,
     users: Array,
     usersLoading: Boolean,
+    webhookRequired: {
+      type: Boolean,
+      default: true
+    }
   },
 };
 </script>
@@ -117,7 +151,6 @@ export default {
     top: -2.1em;
     right: 10%;
     z-index: 10;
-    backdrop-filter: blur(2px);
     transition: top 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
     .widget {
       padding: 0.2em 3em;
