@@ -25,7 +25,7 @@ class Battle < ApplicationRecord
   after_create :invite_all, if: :auto_invite?
   after_commit :broadcast_with_users
   after_create :destroy_if_invalid
-  after_destroy :schedule_next_battle
+  after_destroy :auto_schedule_next_battle
 
   validates :start_time, uniqueness: { scope: :room }
   validates :end_time, uniqueness: { scope: :room }
@@ -60,17 +60,17 @@ class Battle < ApplicationRecord
       "<i class='fas fa-peace mb-5'></i> The battle for <span class='chat-highlight'>#{kata.name}</span> is over."
     )
     room.broadcast_users
-    schedule_next_battle
+    auto_schedule_next_battle
   end
 
-  def schedule_next_battle
+  def auto_schedule_next_battle
     ScheduleRandomBattle.perform_now(room_id: room.id, delay_in_seconds: 60) if room.auto_schedule_new_battle?
   end
 
   def broadcast_with_users
     return if room.inactive?
-    
-    room.update_settings
+
+    room.broadcast_settings
     room.broadcast_active_battle
     # Broadcasting all users to refresh invite status incl. offline players
     room.broadcast_all_users
