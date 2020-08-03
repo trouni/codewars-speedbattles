@@ -1,9 +1,6 @@
 class SessionsController < Devise::SessionsController
-
-  def create
-    cookies.signed[:user_id] = current_user&.id
-    super
-  end
+  after_action :set_cookie, only: :create
+  before_action :reset_cookie, only: :destroy
 
   # def edit
   #   if params[:id]
@@ -18,16 +15,19 @@ class SessionsController < Devise::SessionsController
   #   @user.update(user_params)
   # end
 
-  def destroy
-    cookies.signed[:user_id] = nil
-    super
-  end
-
   protected
 
   # def user_params
   #   params.require(:user).permit(:id, :username, :name)
   # end
+
+  def set_cookie
+    cookies.signed[:user_id] = current_user.id
+  end
+
+  def reset_cookie
+    cookies.signed[:user_id] = nil
+  end
 
   def update_resource(resource, params)
     resource.update_without_password(params)

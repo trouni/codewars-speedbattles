@@ -39,7 +39,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  after_create :async_fetch_codewars_info
+  after_commit :async_fetch_codewars_info, on: :create
   after_save :broadcast, if: :saved_change_to_profile?
   after_save :refresh_chat, if: :saved_change_to_name?
 

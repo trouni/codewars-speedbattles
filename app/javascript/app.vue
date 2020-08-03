@@ -777,7 +777,7 @@ export default {
       connected() {
         console.info('Connected to cable.')
         this.wsConnected = true
-        this.reconnectInterval = setInterval(this.checkConnection, 2000);
+        this.reconnectInterval = setInterval(this.checkConnection, 5000);
       },
       rejected() {
         console.warn('Connection to cable rejected.')

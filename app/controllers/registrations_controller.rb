@@ -1,4 +1,5 @@
 class RegistrationsController < Devise::RegistrationsController
+  after_action :set_cookie, only: :create
 
   # def edit
   #   if params[:id]
@@ -14,6 +15,10 @@ class RegistrationsController < Devise::RegistrationsController
   # end
 
   protected
+
+  def set_cookie
+    cookies.signed[:user_id] = current_user.id
+  end
 
   # def user_params
   #   params.require(:user).permit(:id, :username, :name)
