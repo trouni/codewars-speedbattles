@@ -58,7 +58,7 @@
             :fa-icon="`fas ${settings.room.sound ? 'fa-volume-up' : 'fa-volume-down'}`"
           >{{settings.room.sound ? 'Everyone' : 'Moderator only'}}</std-button>
       </div>
-      <small><em>Moderator only</em> disables music and announcements for all other players. Useful when all players are in the same room.</small>
+      <small>Disables music and announcements for all other players. Useful when all players are in the same room.</small>
     </div>
     <div class="form-group my-4">
       <h5 class="no-wrap">Voice chat url</h5>
@@ -69,6 +69,17 @@
         class="form-control mt-2"
         v-model="voiceChatUrl"
       />
+    </div>
+    <div class="form-group my-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="no-wrap m-0">Autonomous Mode</h5>
+        <std-button
+            @click.native="autonomous = !autonomous"
+            :class="{'toggled-off': !autonomous}"
+            fa-icon="fas fa-robot"
+          >{{autonomous ? 'ON' : 'OFF'}}</std-button>
+      </div>
+      <small>Run the room without the need for a moderator.</small>
     </div>
   </div>
 </template>
@@ -109,6 +120,7 @@ export default {
       },
       // ranks: Vue.util.extend([], this.settings.room.ranks),
       language: this.settings.room.languages[0],
+      autonomous: this.settings.room.autonomous
     }
   },
   computed: {
@@ -119,6 +131,7 @@ export default {
           voice_chat_url: this.voiceChatUrl,
           sound: this.settings.room.sound,
           classification: this.classification,
+          autonomous: this.autonomous,
           // ranks: sortBy(this.ranks),
           // Storing languages as array for future mutli-lang room support
           languages: [this.language],
