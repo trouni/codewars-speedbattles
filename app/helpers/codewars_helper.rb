@@ -16,20 +16,20 @@ module CodewarsHelper
     json = fetch_url("https://www.codewars.com/api/v1/users/#{user.username}/code-challenges/completed?page=#{page}")
     return 0 unless json
 
-    if json["totalItems"] == user.completed_challenges.count
-      puts "Already up-to-date."
-    else
-      json["data"].each do |challenge|
-        kata = Kata.find_or_create_by(codewars_id: challenge['id'])
-        CompletedChallenge.create(
-          user: user,
-          completed_at: DateTime.parse(challenge["completedAt"]),
-          completed_languages: challenge["completedLanguages"],
-          kata: kata
-        )
-        puts "Added challenge '#{challenge["id"]}: #{challenge["slug"]}' to #{user.username}"
-      end
+    # if json["totalItems"] == user.completed_challenges.count
+    #   puts "Already up-to-date."
+    # else
+    json["data"].each do |challenge|
+      kata = Kata.find_or_create_by(codewars_id: challenge['id'])
+      CompletedChallenge.create(
+        user: user,
+        completed_at: DateTime.parse(challenge["completedAt"]),
+        completed_languages: challenge["completedLanguages"],
+        kata: kata
+      )
+      puts "Added challenge '#{challenge["id"]}: #{challenge["slug"]}' to #{user.username}"
     end
+    # end
     user.update(last_fetched_at: Time.now)
     return json["totalPages"]
   end
