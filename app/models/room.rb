@@ -36,6 +36,7 @@ class Room < ApplicationRecord
         ignore_higher_rank_users: false,
       },
       max_users: 0,
+      min_users: 2,
       languages: ['ruby'],
       auto_invite: false,
       autonomous: false,
@@ -82,7 +83,7 @@ class Room < ApplicationRecord
   end
 
   def auto_schedule_new_battle?
-    autonomous? && users.count > 1 && !unfinished_battle? && !next_event?
+    autonomous? && users.count >= min_players && !unfinished_battle? && !next_event?
   end
 
   def next_event

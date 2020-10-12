@@ -36,6 +36,10 @@ class Battle < ApplicationRecord
     room.autonomous? || room.settings(:base).auto_invite
   end
 
+  def min_players
+    room.settings(:base).min_users
+  end
+
   def start
     return if started?
 
@@ -99,6 +103,7 @@ class Battle < ApplicationRecord
       id: id,
       room_id: room.id,
       max_survivors: max_survivors,
+      min_players: min_players,
       time_limit: time_limit || 0,
       start_time: start_time,
       end_time: end_time,
@@ -117,8 +122,8 @@ class Battle < ApplicationRecord
     # 3 - Countdown (no end_time and countdown not zero)
     elsif room.next_event[:type] == 'start-battle' && room.time_until_next_event
       3
-    # 2 - Can Start (no start_time, at least one confirmed player)
-    elsif !started? && confirmed_players.count > 1
+    # 2 - Can Start (no start_time, at least min_players confirmed)
+    elsif !started? && confirmed_players.count >= min_players
       2
     # 1 - Loaded (no start_time, less than 2 confirmed players)
     else
@@ -257,7 +262,7 @@ class Battle < ApplicationRecord
   def auto_start_battle(delay: 20.seconds)
     return if started?
 
-    if confirmed_players.count > 1
+    if confirmed_players.count >= min_players
       ScheduleStartBattle.perform_now(battle_id: id, delay_in_seconds: delay.to_i)
     # else
     #   # Currently not working

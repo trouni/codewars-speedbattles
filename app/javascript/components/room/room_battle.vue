@@ -286,7 +286,7 @@
         }
       },
       attentionWaitingToStart() {
-        if (this.currentUserIsModerator && this.invitedUsers.length === 0 && this.confirmedUsers.length > 1) {
+        if (this.currentUserIsModerator && this.invitedUsers.length === 0 && this.confirmedUsers.length >= this.battle.min_players) {
           return this.seekAttentionClass
         }
       },
