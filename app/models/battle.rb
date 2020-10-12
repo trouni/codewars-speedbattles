@@ -37,7 +37,7 @@ class Battle < ApplicationRecord
   end
 
   def min_players
-    room.settings(:base).min_users
+    room.min_users
   end
 
   def start
