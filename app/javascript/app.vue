@@ -318,7 +318,7 @@ export default {
 
       return (
         this.battleStage < 3 &&
-        this.confirmedUsers.length > 1
+        this.confirmedUsers.length >= this.battle.min_players
       );
     },
     battleJoinable() {
