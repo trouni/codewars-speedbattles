@@ -43,15 +43,16 @@
       </div>
       <small>Toggle music, sound effects and voice announcements.<span v-if="!settings.room.sound"><br><em>Sound settings have been partially disabled for this war room.</em></span></small>
     </div>
-    <!-- <div class="mb-5">
+    <div class="mb-5">
       <div class="d-flex justify-content-between align-items-center">
-        <h5 class="m-0">Default syntax highlighter</h5>
+        <h5 class="m-0">Preferred coding language</h5>
         <select v-model="hljsLang" class="flex-grow-1 ml-3">
+          <option value></option>
           <option v-for="(key, lang_name) in settings.room.codewars_langs" :value="lang_name" :key="key">{{ key }}</option>
         </select>
       </div>
-      <small>Select a default language to write code blocks.</small>
-    </div> -->
+      <small>Select a preferred language for challenges and code blocks in the chat.</small>
+    </div>
     <div class="webhook-settings my-4" v-if="settings.user.signed_in">
       <webhook-instructions :settings="settings" />
     </div>

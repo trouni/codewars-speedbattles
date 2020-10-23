@@ -263,7 +263,7 @@ export default {
     },
     challengeUrl() {
       if (this.battle.challenge) {
-        const language = this.battle.challenge.language || "ruby";
+        const language = this.settings.user.hljs_lang || this.battle.challenge.language || "ruby";
         return `${this.battle.challenge.url}/train/${language}`;
       }
     },
@@ -514,11 +514,10 @@ export default {
       this.roomPlayersLoading = true
       this.sendCable("get_room_players");
     },
-    openCodewars() {
-      if (this.openedCodewars) return;
+    openCodewars(force = false) {
+      if ((this.openedCodewars && !force) || this.battleStage < 4) return;
 
       this.openedCodewars = true;
-      this.battle.challenge.language = this.battle.challenge.language || "ruby";
       window.open(this.challengeUrl);
     },
     setBackgroundVolume() {
@@ -950,6 +949,7 @@ export default {
     this.$root.$on("confirm-invite", userId =>
       this.invitation("confirm", userId)
     );
+    this.$root.$on("open-codewars", this.openCodewars);
     this.$root.$on("initialize-battle", this.initializeBattle);
     this.$root.$on("start-countdown", this.startCountdown);
     this.$root.$on("end-battle", this.userEndsBattle);

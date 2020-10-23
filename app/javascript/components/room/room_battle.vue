@@ -204,9 +204,7 @@
         </span>
       </div>
       <div v-else-if="battleStage >= 3" class="d-contents">
-        <a :href="battleStage < 4 ? '#' : challengeUrl" :target="battleStage < 4 ? '' : '_blank'">
-          <std-button fa-icon="fas fa-rocket mr-1" title="Launch Codewars" :disabled="battleStage < 4" />
-        </a>
+          <std-button @click.native="$root.$emit('open-codewars', true)" fa-icon="fas fa-rocket mr-1" title="Launch Codewars" :disabled="battleStage < 4" />
         <std-button v-if="userIsConfirmed(currentUser.id)" @click.native="completedChallenge" fa-icon="fas fa-check-double mr-1" title="Challenge Completed" :disabled= "battleStage < 4" :loading="completedButtonClicked" />
         <std-button v-if="currentUserIsModerator" @click.native="$root.$emit('end-battle')" :disabled="battleStage < 4" fa-icon="fas fa-peace" title="End Battle" />
       </div>

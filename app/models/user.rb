@@ -107,7 +107,7 @@ class User < ApplicationRecord
       signed_in: id.positive?,
       sfx: settings(:base).sfx,
       voice: settings(:base).voice,
-      # hljs_lang: settings(:base).hljs_lang,
+      hljs_lang: settings(:base).hljs_lang,
       music: settings(:base).music,
       # webhook showing as connected for spectators
       connected_webhook: spectator? || settings(:base).connected_webhook,
