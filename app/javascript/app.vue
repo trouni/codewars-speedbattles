@@ -922,7 +922,7 @@ export default {
 
     this.subscribeToCable();
     
-    if (!signedIn && new URLSearchParams(window.location.search).get('join') !== undefined) {
+    if (!this.signedIn && new URLSearchParams(window.location.search).get('join') !== undefined) {
       setTimeout(_ => { this.focus = 'modal' }, 2000)
     }
 
