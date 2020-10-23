@@ -43,7 +43,7 @@
       </div>
       <small>Toggle music, sound effects and voice announcements.<span v-if="!settings.room.sound"><br><em>Sound settings have been partially disabled for this war room.</em></span></small>
     </div>
-    <div class="mb-5">
+    <div class="form-group my-4" v-if="settings.user.signed_in">
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="m-0">Preferred coding language</h5>
         <select v-model="hljsLang" class="flex-grow-1 ml-3">

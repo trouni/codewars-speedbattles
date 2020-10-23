@@ -921,6 +921,10 @@ export default {
     speechSynthesis.cancel();
 
     this.subscribeToCable();
+    
+    if (!signedIn && new URLSearchParams(window.location.search).get('join') !== undefined) {
+      setTimeout(_ => { this.focus = 'modal' }, 2000)
+    }
 
     this.$root.$on("announce", message => this.announce(message));
     this.$root.$on("send-chat-message", message =>
