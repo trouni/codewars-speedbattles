@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 ruby '~> 2.6.5'
 
+gem 'appsignal'
 gem 'autoprefixer-rails'
 gem 'blazer'
 gem 'bootsnap', require: false
@@ -43,4 +44,6 @@ group :development, :test do
   gem 'spring-watcher-listen', '~> 2.0.0'
   gem 'dotenv-rails'
   gem 'rubocop', require: false
+  gem 'rubocop-rails', require: false
+  gem 'rubocop-rspec', require: false
 end
