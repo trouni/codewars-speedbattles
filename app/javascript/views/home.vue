@@ -41,6 +41,9 @@
         </template>
       </widget>
     </div>
+    <footer>
+      Made by <a href="https://github.com/trouni"><i class="fab fa-github"></i> Trouni</a>
+    </footer>
   </div>
 </template>
 
@@ -75,6 +78,13 @@ export default {
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
+    }
+
+    footer {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
     }
   }
 </style>
