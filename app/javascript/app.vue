@@ -922,8 +922,8 @@ export default {
 
     this.subscribeToCable();
     
-    if (!this.signedIn && new URLSearchParams(window.location.search).get('join') !== undefined) {
-      setTimeout(_ => { this.focus = 'modal' }, 2000)
+    if (!this.signedIn && new URLSearchParams(window.location.search).get('join') !== null) {
+      setTimeout(_ => { this.focus = 'modal' }, 3000)
     }
 
     this.$root.$on("announce", message => this.announce(message));
