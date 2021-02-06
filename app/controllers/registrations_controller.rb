@@ -17,7 +17,7 @@ class RegistrationsController < Devise::RegistrationsController
   protected
 
   def set_cookie
-    cookies.signed[:user_id] = current_user.id
+    cookies.signed[:user_id] = current_user&.id
   end
 
   # def user_params

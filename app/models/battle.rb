@@ -247,7 +247,7 @@ class Battle < ApplicationRecord
     return unless room.last_battle
 
     users_to_invite = room.last_battle.survivors
-                                      .select { |u| u.eligible? }
+                                      .reject { |u| ineligible_users.include? u }
                                       .map { |u| { player: u, battle: self } }
     if users_to_invite.any?
       BattleInvite.create(users_to_invite)
