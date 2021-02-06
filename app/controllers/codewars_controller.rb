@@ -4,18 +4,20 @@ class CodewarsController < ApplicationController
   include CodewarsHelper
   skip_before_action :authenticate_user!
   skip_before_action :verify_authenticity_token
+  skip_after_action :verify_authorized, only: :webhook
 
   def webhook
-    payload = JSON.parse(Base64.decode64(request.headers[:HTTP_X_WEBHOOK_SECRET]))&.with_indifferent_access
-    return render json: { ok: false, message: "Missing secret" } if payload.nil?
+    secret = request.headers[:HTTP_X_WEBHOOK_SECRET]
+    render json: { ok: false, message: "Missing secret" } and return if secret.nil?
+
+    payload = JSON.parse(Base64.decode64(secret)).with_indifferent_access
 
     user = User.find(payload.fetch(:id))
     user&.update_settings(connected_webhook: true, last_webhook_at: Time.now) if user&.authentication_token == payload.fetch(:t)
     update_user_from_webhook(params[:user]) if params[:user]
-
-    skip_authorization
+    
     render json: { ok: true }
-    rescue JSON::ParserError
+    rescue JSON::ParserError, ActiveRecord::RecordNotFound
       render json: { ok: false, message: "Invalid secret" }
   end
 
