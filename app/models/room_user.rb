@@ -12,9 +12,9 @@
 class RoomUser < ApplicationRecord
   belongs_to :room
   belongs_to :user
-  after_create :async_fetch_info
+  after_create_commit :async_fetch_info
   after_commit :broadcast_user
-  after_destroy :broadcast_disconnect, :cancel_invite
+  after_destroy_commit :broadcast_disconnect, :cancel_invite
   # validates :user, uniqueness: { scope: :room }
   validates :user, uniqueness: true
 

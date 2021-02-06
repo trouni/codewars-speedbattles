@@ -22,9 +22,9 @@ class Battle < ApplicationRecord
   has_many :players, through: :battle_invites, class_name: "User"
   has_many :completed_challenges, through: :players
   scope :active, -> { where(end_time: nil) }
-  after_create :invite_all, if: :auto_invite?
+  after_create_commit :invite_all, if: :auto_invite?
   after_commit :broadcast_with_users
-  after_create :destroy_if_invalid
+  after_create_commit :destroy_if_invalid
   after_destroy :auto_schedule_next_battle
 
   validates :start_time, uniqueness: { scope: :room }

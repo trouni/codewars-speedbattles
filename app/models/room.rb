@@ -22,7 +22,7 @@ class Room < ApplicationRecord
   has_many :messages, through: :chat
   validates :name, presence: true
 
-  after_create :create_chat
+  after_create_commit :create_chat
   after_update :announce_new_name, if: :saved_change_to_name?
 
   has_settings class_name: 'BaseSettingObject' do |s|
