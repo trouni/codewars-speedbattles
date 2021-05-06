@@ -18,6 +18,8 @@ gem 'rails', '~> 5.2.3'
 gem 'redis'
 gem 'sassc-rails'
 gem 'sendgrid-actionmailer'
+gem "sentry-ruby"
+gem "sentry-rails"
 gem 'sidekiq'
 gem 'sidekiq-failures', '~> 1.0'
 gem 'simple_form'

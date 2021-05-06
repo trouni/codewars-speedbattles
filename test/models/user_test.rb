@@ -11,7 +11,7 @@
 #  codewars_overall_rank         :integer
 #  codewars_overall_score        :integer
 #  connected_webhook             :boolean          default(FALSE)
-#  email                         :string
+#  email                         :string           default(""), not null
 #  encrypted_password            :string           default(""), not null
 #  last_fetched_at               :datetime
 #  name                          :string
