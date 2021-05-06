@@ -3,6 +3,7 @@
 # Table name: completed_challenges
 #
 #  id                  :bigint           not null, primary key
+#  announced           :boolean          default(FALSE)
 #  completed_at        :datetime
 #  completed_languages :string
 #  created_at          :datetime         not null
@@ -16,8 +17,8 @@ class CompletedChallenge < ApplicationRecord
   belongs_to :kata, required: false
   validates :kata_id, uniqueness: { scope: %i[user completed_at] }
   after_create_commit :broadcast, if: :should_broadcast?
-  after_create_commit :announce_completion, if: :should_announce?
   after_create_commit :end_battle, if: :completed_by_all?
+  after_create_commit :announce_completion
 
   def battle
     user.active_battle
@@ -34,19 +35,22 @@ class CompletedChallenge < ApplicationRecord
   end
   
   def announce_completion
-    completed_in = time_for_speech(battle.completed_challenge_at(user) - battle.start_time)
-    room.announce(
-      :chat,
-      "<i class='fas fa-shield-alt'></i> Challenge completed by <span class='chat-highlight'>@{#{user.name || user.username}}</span>."
-    )
-    room.announce(
-      :voice,
-      "Challenge completed by #{user.name || user.username} in #{completed_in}",
-      fx: completed_by_all? ? 'countdownZero' : 'sword',
-      fxPlayAt: 'start',
-      fxVolume: 0.5,
-      interrupt: false
-    )
+    if should_announce?
+      completed_in = time_for_speech(battle.completed_challenge_at(user) - battle.start_time)
+      room.announce(
+        :chat,
+        "<i class='fas fa-shield-alt'></i> Challenge completed by <span class='chat-highlight'>@{#{user.name}}</span>."
+      )
+      room.announce(
+        :voice,
+        "Challenge completed by #{user.name} in #{completed_in}",
+        fx: completed_by_all? ? 'countdownZero' : 'sword',
+        fxPlayAt: 'start',
+        fxVolume: 0.5,
+        interrupt: false
+      )
+    end
+    update(announced: true)
   end
 
   def end_battle
@@ -65,6 +69,7 @@ class CompletedChallenge < ApplicationRecord
   end
   
   def should_announce?
+    !announced? &&
     should_broadcast? &&
     battle.ongoing? &&
     completed_at > battle.start_time
