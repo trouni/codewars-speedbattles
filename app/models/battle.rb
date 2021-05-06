@@ -93,6 +93,7 @@ class Battle < ApplicationRecord
       url: kata.url,
       name: kata.name,
       language: challenge_language || 'ruby',
+      languages: kata.languages,
       rank: kata.rank,
       tags: kata.tags
     }
