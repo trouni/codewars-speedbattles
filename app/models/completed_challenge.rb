@@ -39,11 +39,11 @@ class CompletedChallenge < ApplicationRecord
       completed_in = time_for_speech(battle.completed_challenge_at(user) - battle.start_time)
       room.announce(
         :chat,
-        "<i class='fas fa-shield-alt'></i> Challenge completed by <span class='chat-highlight'>@{#{user.name}}</span>."
+        "<i class='fas fa-shield-alt'></i> Challenge completed by <span class='chat-highlight'>@{#{user.name || user.username}}</span>."
       )
       room.announce(
         :voice,
-        "Challenge completed by #{user.name} in #{completed_in}",
+        "Challenge completed by #{user.name || user.username} in #{completed_in}",
         fx: completed_by_all? ? 'countdownZero' : 'sword',
         fxPlayAt: 'start',
         fxVolume: 0.5,

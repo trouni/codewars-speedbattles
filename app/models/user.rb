@@ -59,10 +59,6 @@ class User < ApplicationRecord
     }
   end
 
-  def name
-    super() || username
-  end
-
   def spectator?
     id.zero?
   end
