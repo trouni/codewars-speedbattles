@@ -16,9 +16,9 @@ class CompletedChallenge < ApplicationRecord
   belongs_to :user
   belongs_to :kata, required: false
   validates :kata_id, uniqueness: { scope: %i[user completed_at] }
+  after_create_commit :announce_completion, if: :should_announce?
   after_create_commit :broadcast, if: :should_broadcast?
   after_create_commit :end_battle, if: :completed_by_all?
-  after_create_commit :announce_completion
 
   def battle
     user.active_battle
@@ -35,7 +35,7 @@ class CompletedChallenge < ApplicationRecord
   end
   
   def announce_completion
-    if should_announce?
+    if !announced?
       completed_in = time_for_speech(battle.completed_challenge_at(user) - battle.start_time)
       room.announce(
         :chat,
@@ -69,7 +69,6 @@ class CompletedChallenge < ApplicationRecord
   end
   
   def should_announce?
-    !announced? &&
     should_broadcast? &&
     battle.ongoing? &&
     completed_at > battle.start_time
