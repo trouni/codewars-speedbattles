@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_28_000631) do
+ActiveRecord::Schema.define(version: 2021_05_06_140522) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -110,6 +110,7 @@ ActiveRecord::Schema.define(version: 2020_07_28_000631) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "kata_id"
+    t.boolean "announced", default: false
     t.index ["kata_id"], name: "index_completed_challenges_on_kata_id"
     t.index ["user_id"], name: "index_completed_challenges_on_user_id"
   end
@@ -177,7 +178,7 @@ ActiveRecord::Schema.define(version: 2020_07_28_000631) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "email"
+    t.string "email", default: "", null: false
     t.string "username", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
@@ -197,6 +198,7 @@ ActiveRecord::Schema.define(version: 2020_07_28_000631) do
     t.string "codewars_id"
     t.boolean "connected_webhook", default: false
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
+    t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true
   end

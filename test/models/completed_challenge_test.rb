@@ -3,6 +3,7 @@
 # Table name: completed_challenges
 #
 #  id                  :bigint           not null, primary key
+#  announced           :boolean          default(FALSE)
 #  completed_at        :datetime
 #  completed_languages :string
 #  created_at          :datetime         not null
