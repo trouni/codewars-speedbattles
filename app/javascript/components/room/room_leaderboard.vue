@@ -54,7 +54,7 @@
                       >●</span
                     >
                     <span :class="[userClass(user.id), 'username']">{{
-                      user.name
+                      user.name || user.username
                     }}</span>
                   </span>
                   <span class="invite-button">
