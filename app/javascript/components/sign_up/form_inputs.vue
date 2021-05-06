@@ -1,6 +1,42 @@
 <template>
   <div class="form-inputs">
-    <div class="form-group string required user_email">
+    <div class="form-group string required user_username">
+      <label for="user_username" class="form-control-label string required">
+        <strong>Codewars username</strong>
+        <abbr title="required">*</abbr>
+      </label>
+      <input
+        required="required"
+        aria-required="true"
+        type="text"
+        value
+        name="user[username]"
+        id="user_username"
+        :class="[
+          'form-control string required',
+          { 'is-valid': validUsername },
+          { 'is-invalid': username && !validUsername }
+        ]"
+        v-model="username"
+        @keyup="checkUsername"
+        placeholder="Your actual Codewars username"
+      />
+      <div
+        :class="[
+          { 'valid-feedback': validUsername },
+          { 'invalid-feedback highlight-red': !validUsername }
+        ]"
+      >
+        {{ error }}
+      </div>
+      <small v-if="!validUsername"
+        ><a href="https://www.codewars.com/users/edit" target="_blank">
+          Click here
+        </a>
+        to see/edit your Codewars username.
+      </small>
+    </div>
+    <div class="form-group string required user_email" v-show="validUsername">
       <label for="user_email" class="form-control-label">
         <strong>Email</strong>
         <abbr title="required">*</abbr>
@@ -17,44 +53,10 @@
       />
       <!-- <small>Only used in case you need to reset your password.</small> -->
     </div>
-    <div class="form-group string required user_username">
-      <label for="user_username" class="form-control-label string required">
-        <strong>Codewars username</strong>
-        <abbr title="required">*</abbr>
-      </label>
-      <input
-        required="required"
-        aria-required="true"
-        type="text"
-        value
-        name="user[username]"
-        id="user_username"
-        :class="[
-          'form-control string required',
-          { 'is-valid': validUsername },
-          { 'is-invalid': username && fetched && !validUsername }
-        ]"
-        v-model="username"
-        @blur="checkUsername"
-        placeholder="Your Codewars username"
-      />
-      <div
-        :class="[
-          { 'valid-feedback': validUsername },
-          { 'invalid-feedback highlight-red': !validUsername }
-        ]"
-      >
-        {{ error }}
-      </div>
-      <small>
-        Spaces not allowed.
-        <a href="https://www.codewars.com/users/edit" target="_blank"
-          >Click here</a
-        >
-        to see/edit your Codewars username.
-      </small>
-    </div>
-    <div class="form-group password required user_password">
+    <div
+      class="form-group password required user_password"
+      v-show="validUsername"
+    >
       <label for="user_password" class="form-control-label password required">
         <strong>Password</strong>
         <abbr title="required">*</abbr>
@@ -84,7 +86,8 @@
 </template>
 
 <script>
-import _ from "lodash";
+import debounce from "lodash/debounce";
+
 export default {
   data: function() {
     return {
@@ -109,30 +112,40 @@ export default {
   },
   methods: {
     checkUsername() {
-      if (this.username !== "") {
-        fetch(`/api/v1/check_username?username=${this.username}`, {
-          headers: {
-            "content-type": "application/json"
-          }
-        })
-          .then(response => response.json())
-          .then(response => {
-            this.fetched = true;
-            this.validUsername = response.valid && !response.exists;
-            if (response.exists) {
-              this.error = `An account with username '${this.username}' already exists. Please log in instead.`;
-            } else {
-              this.error = `${this.username} is ${
-                response.valid ? "" : "not"
-              } a valid Codewars username${
-                response.valid
-                  ? ""
-                  : ". Please enter your actual Codewars username (case sensitive)"
-              }.`;
-            }
-          });
+      this.error = "";
+      this.validUsername = null;
+      if (this.username === "") return;
+
+      if (!this.username.match(/^[\w-\.]+$/)) {
+        this.error = `No spaces or special characters allowed.`;
+        this.validUsername = false;
+      } else {
+        this.fetchCodewarsUsername();
       }
-    }
+    },
+    fetchCodewarsUsername: debounce(function() {
+      fetch(`/api/v1/check_username?username=${this.username}`, {
+        headers: {
+          "content-type": "application/json"
+        }
+      })
+        .then(response => response.json())
+        .then(response => {
+          this.fetched = true;
+          this.validUsername = response.valid && !response.exists;
+          if (response.exists) {
+            this.error = `An account with username '${this.username}' already exists. Please log in instead.`;
+          } else {
+            this.error = `${this.username} is ${
+              response.valid ? "" : "not"
+            } a valid Codewars username${
+              response.valid
+                ? ""
+                : ". Please enter your actual Codewars username (case sensitive)"
+            }.`;
+          }
+        });
+    }, 300)
   }
 };
 </script>
