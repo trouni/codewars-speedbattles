@@ -16,9 +16,7 @@ class CompletedChallenge < ApplicationRecord
   belongs_to :user
   belongs_to :kata, required: false
   validates :kata_id, uniqueness: { scope: %i[user completed_at] }
-  after_create_commit :announce_completion, if: :should_announce?
-  after_create_commit :broadcast, if: :should_broadcast?
-  after_create_commit :end_battle, if: :completed_by_all?
+  after_create_commit :update_battle
 
   def battle
     user.active_battle
@@ -26,6 +24,12 @@ class CompletedChallenge < ApplicationRecord
 
   def room
     battle&.room
+  end
+
+  def update_battle
+    broadcast if should_broadcast?
+    announce_completion if should_announce?
+    end_battle if should_announce? && completed_by_all?
   end
 
   def broadcast
@@ -69,8 +73,9 @@ class CompletedChallenge < ApplicationRecord
   end
   
   def should_announce?
-    should_broadcast? &&
+    battle.present? &&
     battle.ongoing? &&
+    battle.kata == kata &&
     completed_at > battle.start_time
   end
 
@@ -87,6 +92,6 @@ class CompletedChallenge < ApplicationRecord
   end
 
   def completed_by_all?
-    should_announce? && battle.all_players_survived?
+    battle.all_players_survived?
   end
 end
