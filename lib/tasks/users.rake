@@ -7,7 +7,7 @@ namespace :users do
       output = "#{index + 1} - #{user.username}"
       output += " (#{user.name})" if user.name
       output += " - #{user.email}" if user.email
-      output += " - #{user.settings(:base).hljs_lang}" if user.settings(:base).hljs_lang
+      # output += " - #{user.settings(:base).hljs_lang}" if user.settings(:base).hljs_lang
       output += user.connected_webhook? ? " - Webhook✅" : " - Webhook❌"
       
       puts output
