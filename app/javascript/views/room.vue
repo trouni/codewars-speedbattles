@@ -144,7 +144,7 @@ export default {
     usersLoading: Boolean,
     webhookRequired: {
       type: Boolean,
-      default: true
+      default: false
     }
   },
 };
