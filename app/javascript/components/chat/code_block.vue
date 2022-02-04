@@ -1,5 +1,5 @@
 <template>
-    <pre v-highlightjs="content" class="code-ctn">
+  <pre v-highlightjs="content" class="code-ctn">
       <spinner v-if="loading" />
       <code :class="[lang, 'flex-grow-1']" ref="codeContent" />
     </pre>
@@ -32,19 +32,23 @@ export default {
 }
 </script>
 
-<style lang='scss'>
-  .code-ctn {
-    display: flex;
-    position: relative;
-  }
+<style lang="scss">
+.code-ctn {
+  display: flex;
+  position: relative;
+}
 
-  .peace, .battle-loaded, .battle-confirmed {
-    @import "highlight.js/scss/nord"
-  }
-  .brink-of-war, .ready-for-battle {
-    @import 'highlight.js/scss/obsidian';
-  }
-  .war, .countdown {
-    @import 'highlight.js/scss/ocean';
-  }
+.peace,
+.battle-loaded,
+.battle-confirmed {
+  // @import "highlight.js/scss/nord"
+}
+.brink-of-war,
+.ready-for-battle {
+  // @import 'highlight.js/scss/obsidian';
+}
+.war,
+.countdown {
+  // @import 'highlight.js/scss/ocean';
+}
 </style>

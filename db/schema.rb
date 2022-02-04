@@ -178,7 +178,7 @@ ActiveRecord::Schema.define(version: 2021_05_06_140522) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "email", default: "", null: false
+    t.string "email"
     t.string "username", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
@@ -198,7 +198,6 @@ ActiveRecord::Schema.define(version: 2021_05_06_140522) do
     t.string "codewars_id"
     t.boolean "connected_webhook", default: false
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
-    t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true
   end

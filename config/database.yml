@@ -23,8 +23,8 @@ default: &default
 
 development:
   <<: *default
-  # database: codewars-speedbattles_development
-  database: codewars_heroku
+  database: codewars-speedbattles_development
+  # database: codewars_heroku
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
