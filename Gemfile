@@ -24,7 +24,7 @@ gem 'sidekiq-failures', '~> 1.0'
 gem 'simple_form'
 gem 'simple_token_authentication'
 gem 'uglifier'
-gem 'webpacker'
+gem 'webpacker', '~> 5.0'
 
 group :development do
   gem 'web-console', '>= 3.3.0'
